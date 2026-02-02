@@ -75,7 +75,7 @@ export default function BurgerModal({ open, burger, onClose, onAdd }) {
           <button
             className={styles.addBtn}
             type="button"
-            disabled={!size || !storeOpen}
+            disabled={!size || !!storeOpen}
             onClick={() => onAdd?.(burger, size)}>
             {storeOpen
               ? `Agregar ${size ? formatMoney(burger.prices[size]) : ""}`

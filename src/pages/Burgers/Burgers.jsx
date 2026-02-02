@@ -93,10 +93,19 @@ export default function Burgers() {
           const key = `burger:${burger.id}:${size}`;
           cart.add({
             key,
-            name: `${burger.name} (${size})`,
+            name: burger.name, // para UI
             qty: 1,
             unitPrice: burger.prices[size],
-            meta: { type: "burger", burgerId: burger.id, size },
+            meta: {
+              type: "burger",
+              burgerId: burger.id,
+              size,
+              burgerName: burger.name,
+
+              basePrice: burger.prices[size],
+              extrasIds: [],
+              friesId: null,
+            },
           });
           // no cerramos el modal (como pediste)
           toast.success(

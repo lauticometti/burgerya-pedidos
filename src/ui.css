@@ -361,6 +361,26 @@ button:disabled {
   cursor: not-allowed;
 }
 
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 16px;
+  z-index: 999;
+}
+.modal {
+  width: 100%;
+  max-width: 520px;
+  margin-top: 90px;
+  background: #0f0f10;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 14px;
+}
+
 @media (min-width: 430px) {
   .hero {
     height: 240px;
