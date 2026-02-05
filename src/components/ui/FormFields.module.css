@@ -1,4 +1,4 @@
-﻿.input,
+.input,
 .select,
 .textarea {
   width: 100%;
@@ -9,9 +9,11 @@
   padding: 12px;
   outline: none;
   font-family: inherit;
+  font-size: 16px;
 }
 
 .textarea {
   resize: none;
 }
+
 

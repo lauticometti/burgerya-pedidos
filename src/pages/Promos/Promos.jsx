@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { burgers, promoPrices, promoRules } from "../../data/menu.js";
 import { useCart } from "../../store/useCart.js";
@@ -23,6 +23,9 @@ export default function Promos() {
   const [count, setCount] = useState(null); // 2 | 3 | 4
   const [size, setSize] = useState(null); // doble | triple
   const [picked, setPicked] = useState([]); // { id, name, note }
+  const countRef = useRef(null);
+  const sizeRef = useRef(null);
+  const pickRef = useRef(null);
 
   const allowed = useMemo(() => {
     if (!tier) return [];
@@ -84,6 +87,49 @@ export default function Promos() {
     setSize(null);
     setPicked([]);
   }
+
+  function scrollToRef(ref) {
+    if (!ref?.current) return;
+    if (typeof window === "undefined") return;
+    window.setTimeout(() => {
+      const rect = ref.current?.getBoundingClientRect();
+      if (!rect) return;
+      const offset = 96;
+      const target = rect.top + window.scrollY - offset;
+      const start = window.scrollY;
+      const distance = target - start;
+
+      if (Math.abs(distance) < 8) {
+        window.scrollTo(0, target);
+        return;
+      }
+
+      const duration = 500;
+      let startTime = null;
+
+      function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        window.scrollTo(0, start + distance * ease);
+        if (progress < 1) window.requestAnimationFrame(step);
+      }
+
+      window.requestAnimationFrame(step);
+    }, 80);
+  }
+
+  useEffect(() => {
+    if (tier) scrollToRef(countRef);
+  }, [tier]);
+
+  useEffect(() => {
+    if (count) scrollToRef(sizeRef);
+  }, [count]);
+
+  useEffect(() => {
+    if (size) scrollToRef(pickRef);
+  }, [size]);
 
   function addPromoToCart() {
     if (!tier || !count || !size || picked.length !== count) return;
@@ -149,76 +195,82 @@ export default function Promos() {
       </Card>
 
       {tier && (
-        <Card className={styles.card}>
-          <div className={styles.sectionTitle}>¿Cuántas burgers?</div>
-          <div className={`${styles.row} ${styles.rowWrap}`}>
-            {[2, 3, 4].map((n) => (
-              <Button
-                key={n}
-                isActive={count === n}
-                onClick={() => chooseCount(n)}>
-                {n}
-              </Button>
-            ))}
-          </div>
-        </Card>
+        <div ref={countRef}>
+          <Card className={styles.card}>
+            <div className={styles.sectionTitle}>¿Cuántas burgers?</div>
+            <div className={`${styles.row} ${styles.rowWrap}`}>
+              {[2, 3, 4].map((n) => (
+                <Button
+                  key={n}
+                  isActive={count === n}
+                  onClick={() => chooseCount(n)}>
+                  {n}
+                </Button>
+              ))}
+            </div>
+          </Card>
+        </div>
       )}
 
       {tier && count && (
-        <Card className={styles.card}>
-          <div className={styles.sectionTitle}>¿Dobles o triples?</div>
-          <div className={`${styles.row} ${styles.rowWrap}`}>
-            {["doble", "triple"].map((s) => (
-              <Button
-                key={s}
-                isActive={size === s}
-                onClick={() => chooseSize(s)}>
-                {s === "doble" ? "Dobles" : "Triples"}
-              </Button>
-            ))}
-          </div>
-
-          {size && price != null && (
-            <div className={styles.price}>
-              <b>Precio promo:</b> {formatMoney(price)}
+        <div ref={sizeRef}>
+          <Card className={styles.card}>
+            <div className={styles.sectionTitle}>¿Dobles o triples?</div>
+            <div className={`${styles.row} ${styles.rowWrap}`}>
+              {["doble", "triple"].map((s) => (
+                <Button
+                  key={s}
+                  isActive={size === s}
+                  onClick={() => chooseSize(s)}>
+                  {s === "doble" ? "Dobles" : "Triples"}
+                </Button>
+              ))}
             </div>
-          )}
-        </Card>
+
+            {size && price != null && (
+              <div className={styles.price}>
+                <b>Precio promo:</b> {formatMoney(price)}
+              </div>
+            )}
+          </Card>
+        </div>
       )}
 
       {tier && count && size && (
         <>
-          <Card className={styles.card}>
-            <div className={styles.rowBetween}>
-              <div>
-                <b>Elegí burgers</b> ({picked.length}/{count})
-                <div className={styles.subtle}>Se pueden repetir.</div>
-              </div>
+          <div ref={pickRef}>
+            <Card className={styles.card}>
+              <div className={styles.rowBetween}>
+                <div>
+                  <b>Elegí burgers</b> ({picked.length}/{count})
+                  <div className={styles.subtle}>Se pueden repetir.</div>
+                </div>
 
-              <Button
-                size="sm"
-                onClick={undoLast}
-                disabled={picked.length === 0}>
-                Deshacer
-              </Button>
-            </div>
-
-            <div className={`${styles.row} ${styles.rowWrap}`}>
-              {allowed.map((b) => (
                 <Button
-                  key={b.id}
-                  onClick={() => pickBurger(b)}
-                  disabled={!canPickMore}>
-                  {b.name}
+                  size="sm"
+                  onClick={undoLast}
+                  disabled={picked.length === 0}>
+                  Deshacer
                 </Button>
-              ))}
-            </div>
-            {picked.length === count && (
-              <div className={styles.remaining}>
-                Ya elegiste las {count} burgers de tu promo.
               </div>
-            )}
-          </Card>
+
+              <div className={`${styles.row} ${styles.rowWrap}`}>
+                {allowed.map((b) => (
+                  <Button
+                    key={b.id}
+                    onClick={() => pickBurger(b)}
+                    disabled={!canPickMore}>
+                    {b.name}
+                  </Button>
+                ))}
+              </div>
+              {picked.length === count && (
+                <div className={styles.remaining}>
+                  Ya elegiste las {count} burgers de tu promo.
+                </div>
+              )}
+            </Card>
+          </div>
 
           <Card className={styles.card}>
             <div className={styles.sectionTitle}>Elegidas</div>
