@@ -1,9 +1,9 @@
-﻿import React from "react";
+import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App.jsx";
 import { CartProvider } from "./store/CartProvider.jsx";
-import "./styles/global.module.css";
+import "./styles/global.css";
 
 const baseUrl = import.meta.env.BASE_URL;
 const basename = baseUrl === "/" ? "/" : baseUrl.replace(/\/$/, "");
@@ -17,3 +17,4 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     </BrowserRouter>
   </React.StrictMode>,
 );
+
