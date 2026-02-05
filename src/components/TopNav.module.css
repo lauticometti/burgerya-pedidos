@@ -29,3 +29,24 @@
   border-color: transparent;
 }
 
+.homeLink {
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  color: #fff;
+}
+
+.homeLink.active {
+  color: #111;
+}
+
+.homeIcon {
+  width: 22px;
+  height: 22px;
+  display: block;
+  fill: currentColor;
+}
