@@ -1,0 +1,15 @@
+﻿.card {
+  margin-bottom: 12px;
+}
+
+.title {
+  margin-bottom: 8px;
+  opacity: 0.85;
+  font-weight: 700;
+}
+
+.fields {
+  display: grid;
+  gap: 10px;
+}
+

@@ -1,0 +1,45 @@
+﻿.item {
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+
+  border-radius: 16px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  transition:
+    transform 90ms ease,
+    border-color 120ms ease,
+    background 120ms ease;
+}
+
+.item:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.item:active {
+  transform: scale(0.99);
+}
+
+.name {
+  font-size: 16px;
+  font-weight: 850;
+}
+
+.pricePill {
+  flex: 0 0 auto;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 900;
+  background: rgba(255, 198, 42, 0.12);
+  border: 1px solid rgba(255, 198, 42, 0.4);
+}
+

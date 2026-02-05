@@ -22,7 +22,7 @@ Fuera de horario solo se puede navegar el menú.
 - `/burgers` → Hamburguesas
 - `/promos` → Promos armables
 - `/papas` → Papas y extras
-- `/checkout` → Resumen y envío por WhatsApp
+- `/carrito` → Resumen y envío por WhatsApp
 
 ## Instalación
 
@@ -30,3 +30,5 @@ Fuera de horario solo se puede navegar el menú.
 npm install
 npm run dev
 ```
+
+

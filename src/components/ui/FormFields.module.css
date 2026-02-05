@@ -1,0 +1,17 @@
+﻿.input,
+.select,
+.textarea {
+  width: 100%;
+  background: #0f0f0f;
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  outline: none;
+  font-family: inherit;
+}
+
+.textarea {
+  resize: none;
+}
+

@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import styles from "./ToastHost.module.css";
 import { toast, playToastSound } from "../../utils/toast";
 
@@ -36,3 +36,4 @@ export default function ToastHost() {
     </div>
   );
 }
+

@@ -1,0 +1,83 @@
+﻿.item {
+  width: 100%;
+  text-align: left;
+  border-radius: 16px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.9);
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  cursor: pointer;
+  transition:
+    transform 0.06s ease,
+    filter 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.item:active {
+  transform: scale(0.99);
+  filter: brightness(1.08);
+}
+
+.itemLeft {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.itemName {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.itemDesc {
+  font-size: 12px;
+  opacity: 0.75;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemPrices {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.itemRight {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+}
+
+.addBtnInline {
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  border-radius: 999px;
+}
+
+.thumbWrap {
+  width: 68px;
+  height: 68px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  flex: 0 0 auto;
+}
+
+.thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+

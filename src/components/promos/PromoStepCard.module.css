@@ -1,0 +1,16 @@
+﻿.card {
+  margin-bottom: 12px;
+}
+
+.meta {
+  font-size: 13px;
+  opacity: 0.75;
+  margin-bottom: 6px;
+}
+
+.help {
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+

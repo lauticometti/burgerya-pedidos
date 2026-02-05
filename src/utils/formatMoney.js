@@ -1,3 +1,4 @@
-export function formatMoney(n) {
+﻿export function formatMoney(n) {
   return `$${Number(n).toLocaleString("es-AR")}`;
 }
+

@@ -1,7 +1,8 @@
 .wrap {
   position: fixed;
   left: 50%;
-  bottom: 18px;
+  top: auto;
+  bottom: calc(92px + 12px);
   transform: translateX(-50%);
   z-index: 9999;
   display: grid;
@@ -52,3 +53,6 @@
     opacity: 1;
   }
 }
+
+
+

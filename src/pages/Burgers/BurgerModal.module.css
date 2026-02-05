@@ -1,4 +1,4 @@
-.backdrop {
+﻿.backdrop {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.7);
@@ -8,8 +8,7 @@
   justify-content: center;
   align-items: flex-start;
 
-  /* 👇 esto lo baja */
-  padding-top: 96px; /* ajustá 64–96 según te guste */
+  padding-top: 96px;
   padding-left: 16px;
   padding-right: 16px;
 }
@@ -17,6 +16,7 @@
 .modal {
   width: 100%;
   max-width: 520px;
+  max-height: calc(100vh - 140px);
   border-radius: 18px;
   background: #0f0f10;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -24,17 +24,14 @@
   position: relative;
   margin: 0;
   margin-top: 18px;
+  display: flex;
+  flex-direction: column;
 }
 
-.close {
+.closeButton {
   position: absolute;
   top: 10px;
   right: 10px;
-  border: none;
-  background: rgba(0, 0, 0, 0.35);
-  color: white;
-  border-radius: 12px;
-  padding: 8px 10px;
 }
 
 .img {
@@ -48,6 +45,7 @@
   padding: 14px;
   display: grid;
   gap: 10px;
+  overflow-y: auto;
 }
 
 .name {
@@ -100,7 +98,6 @@
   font-weight: 900;
 }
 
-/* aplica a los botones que quieras */
 .btn,
 .item,
 .addBtn,
@@ -123,3 +120,4 @@
 .sizeBtn:hover {
   opacity: 0.96;
 }
+

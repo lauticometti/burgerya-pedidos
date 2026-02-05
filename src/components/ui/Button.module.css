@@ -1,0 +1,72 @@
+﻿.button {
+  background: #1a1a1a;
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  line-height: 1.2;
+  transition:
+    transform 0.06s ease,
+    filter 0.12s ease,
+    background 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.button:active {
+  transform: scale(0.98);
+  filter: brightness(1.06);
+}
+
+.button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
+.primary {
+  background: var(--y);
+  border-color: transparent;
+  color: #111;
+  font-weight: 700;
+}
+
+.active {
+  background: var(--y);
+  color: #111;
+  border-color: transparent;
+  font-weight: 800;
+}
+
+.sizeSm {
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.sizeXs {
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 999px;
+}
+
+.hasSubLabel {
+  flex-direction: column;
+  align-items: center;
+}
+
+.label {
+  display: block;
+}
+
+.subLabel {
+  font-size: 10px;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+

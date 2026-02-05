@@ -1,16 +1,27 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { burgers } from "../../data/menu"; // ajustá path
+import { burgers } from "../../data/menu";
 import { useCart } from "../../store/useCart";
-import styles from "./Burgers.module.css";
 import BurgerModal from "./BurgerModal";
 import { toast } from "../../utils/toast";
 import { formatMoney } from "../../utils/formatMoney";
+import TopNav from "../../components/TopNav";
+import Page from "../../components/layout/Page";
+import StickyBar from "../../components/layout/StickyBar";
+import CartSummary from "../../components/cart/CartSummary";
+import Button from "../../components/ui/Button";
+import PageTitle from "../../components/ui/PageTitle";
+import BurgerSection from "../../components/burgers/BurgerSection";
+import BurgerItem from "../../components/burgers/BurgerItem";
+import BrandLogo from "../../components/brand/BrandLogo";
 
-function minPrice(prices) {
-  const vals = Object.values(prices || {}).filter((v) => typeof v === "number");
-  return vals.length ? Math.min(...vals) : 0;
-}
+const TIER_ORDER = ["BASICA", "PREMIUM", "DELUXE", "ESPECIAL"];
+const TIER_LABELS = {
+  BASICA: "Básicas",
+  PREMIUM: "Premium",
+  DELUXE: "Deluxe",
+  ESPECIAL: "Bestias",
+};
 
 export default function Burgers() {
   const cart = useCart();
@@ -18,73 +29,34 @@ export default function Burgers() {
   const [modalOpen, setModalOpen] = React.useState(false);
   const [activeBurger, setActiveBurger] = React.useState(null);
 
+  function openBurger(burger) {
+    setActiveBurger(burger);
+    setModalOpen(true);
+  }
+
   return (
-    <div className={styles.page}>
-      <div className={styles.topBar}>
-        <div className={styles.leftBtns}>
-          <Link to="/">
-            <button className={styles.btn}>← Volver</button>
-          </Link>
-          <Link to="/checkout">
-            <button className={styles.btn}>✅ Checkout</button>
-          </Link>
-        </div>
+    <Page>
+      <BrandLogo />
+      <TopNav />
+      <PageTitle>Burgers</PageTitle>
 
-        <div className={styles.totalPill}>
-          <div className={styles.totalLabel}>Total</div>
-          <div className={styles.totalValue}>{formatMoney(cart.total)}</div>
-        </div>
-      </div>
+      {TIER_ORDER.map((tier) => {
+        const list = burgers.filter((b) => b.tier === tier);
+        if (!list.length) return null;
 
-      <h1 className={styles.title}>Burgers</h1>
-      <div className={styles.list}>
-        {["BASICA", "PREMIUM", "DELUXE", "ESPECIAL"].map((tier) => {
-          const list = burgers.filter((b) => b.tier === tier);
-          const title =
-            tier === "BASICA"
-              ? "Básicas"
-              : tier === "PREMIUM"
-                ? "Premium"
-                : tier === "DELUXE"
-                  ? "Deluxe"
-                  : "Bestias";
-          if (!list.length) return null;
+        return (
+          <BurgerSection key={tier} title={TIER_LABELS[tier]} variant={tier}>
+            {list.map((burger) => (
+              <BurgerItem
+                key={burger.id}
+                burger={burger}
+                onOpen={() => openBurger(burger)}
+              />
+            ))}
+          </BurgerSection>
+        );
+      })}
 
-          return (
-            <div key={tier} className={styles.section}>
-              <div className={styles.sectionTitle}>{title}</div>
-              <div className={styles.list}>
-                {list.map((b) => (
-                  <button
-                    key={b.id}
-                    className={styles.item}
-                    onClick={() => {
-                      setActiveBurger(b);
-                      setModalOpen(true);
-                    }}
-                    type="button">
-                    <div className={styles.itemLeft}>
-                      <div className={styles.itemName}>{b.name}</div>
-                      <div className={styles.itemPrices}>
-                        Desde {formatMoney(minPrice(b.prices))}
-                      </div>
-                    </div>
-
-                    <div className={styles.thumbWrap}>
-                      <img
-                        className={styles.thumb}
-                        src={b.img || "/burgers/placeholder.jpg"}
-                        alt={b.name}
-                        loading="lazy"
-                      />
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
       <BurgerModal
         open={modalOpen}
         burger={activeBurger}
@@ -93,7 +65,7 @@ export default function Burgers() {
           const key = `burger:${burger.id}:${size}`;
           cart.add({
             key,
-            name: burger.name, // para UI
+            name: burger.name,
             qty: 1,
             unitPrice: burger.prices[size],
             meta: {
@@ -101,18 +73,30 @@ export default function Burgers() {
               burgerId: burger.id,
               size,
               burgerName: burger.name,
-
               basePrice: burger.prices[size],
               extrasIds: [],
               friesId: null,
             },
           });
-          // no cerramos el modal (como pediste)
           toast.success(
-            `Agregado: ${burger.name} (${size}) — ${formatMoney(burger.prices[size])}`,
+            `Agregado: ${burger.name} ${size} - ${formatMoney(
+              burger.prices[size],
+            )}`,
           );
         }}
       />
-    </div>
+
+      <StickyBar>
+        <CartSummary total={cart.total} lastAdded={cart.lastAdded} />
+        <Link to="/carrito">
+          <Button variant="primary" disabled={cart.items.length === 0}>
+            Ir al carrito
+          </Button>
+        </Link>
+      </StickyBar>
+    </Page>
   );
 }
+
+
+

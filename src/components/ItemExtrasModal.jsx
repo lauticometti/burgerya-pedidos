@@ -1,0 +1,75 @@
+﻿import React from "react";
+import Button from "./ui/Button";
+import CloseButton from "./ui/CloseButton";
+import styles from "./ItemExtrasModal.module.css";
+
+export default function ItemExtrasModal({
+  open,
+  title,
+  description,
+  items,
+  selectedIds,
+  onToggle,
+  onClose,
+  onApply,
+  applyLabel = "Aplicar",
+  disableApply,
+  onClear,
+  clearLabel = "Limpiar",
+}) {
+  if (!open) return null;
+
+  return (
+    <div className={styles.backdrop} onMouseDown={onClose}>
+      <div
+        className={styles.card}
+        onMouseDown={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true">
+        <div className={styles.header}>
+          <div>
+            <div className={styles.title}>{title}</div>
+            {description ? <div className={styles.desc}>{description}</div> : null}
+          </div>
+          <CloseButton onClick={onClose} aria-label="Cerrar" />
+        </div>
+
+        <div className={styles.list}>
+          {items.map((item) => {
+            const checked = selectedIds.includes(item.id);
+            return (
+              <label key={item.id} className={styles.row}>
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => onToggle(item.id)}
+                  className={styles.checkbox}
+                />
+                <span className={styles.rowName}>{item.name}</span>
+                <span className={styles.rowPrice}>
+                  +${item.price.toLocaleString("es-AR")}
+                </span>
+              </label>
+            );
+          })}
+        </div>
+
+        <div className={styles.footer}>
+          {onClear ? (
+            <Button type="button" onClick={onClear}>
+              {clearLabel}
+            </Button>
+          ) : null}
+          <Button
+            variant="primary"
+            type="button"
+            onClick={onApply}
+            disabled={disableApply}>
+            {applyLabel}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+

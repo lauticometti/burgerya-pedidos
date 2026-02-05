@@ -1,132 +1,14 @@
-.page {
-  padding: 24px 16px 96px;
-  max-width: 520px;
-  margin: 0 auto;
-}
-
-.topBar {
-  position: sticky;
-  top: 24px; /* mantiene la misma altura visual del “primer render” */
-  z-index: 10;
-  margin-bottom: 14px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-
-  padding: 12px;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(0, 0, 0, 0.72);
-  backdrop-filter: blur(10px);
-}
-
-.leftBtns {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.btn {
-  cursor: pointer;
-  border-radius: 12px;
-  padding: 10px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
-  color: white;
-
-  transition:
-    transform 90ms ease,
-    background 120ms ease,
-    border-color 120ms ease; /* NUEVO */
-}
-
-.btn:hover {
-  /* NUEVO */
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.18);
-}
-
-.btn:active {
-  /* NUEVO */
-  transform: scale(0.99);
-}
-
-.totalPill {
-  border-radius: 14px;
-  padding: 10px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
-  text-align: right;
-  min-width: 92px;
-}
-
-.totalLabel {
-  font-size: 12px;
-  opacity: 0.8;
-}
-
-.totalValue {
-  font-weight: 900;
-}
-
-.title {
-  font-size: 42px;
-  margin: 10px 0 14px;
-}
-
 .list {
   display: grid;
   gap: 10px;
 }
 
-.item {
-  cursor: pointer;
-  width: 100%;
-  text-align: left;
-
-  border-radius: 16px;
-  padding: 14px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.03);
-  color: white;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-
-  transition:
-    transform 90ms ease,
-    border-color 120ms ease,
-    background 120ms ease;
+.sectionLabel {
+  margin: 16px 4px 8px;
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
-.item:hover {
-  border-color: rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.item:active {
-  transform: scale(0.99);
-}
-
-.itemName {
-  font-size: 16px;
-  font-weight: 850;
-}
-
-.pricePill {
-  flex: 0 0 auto;
-  border-radius: 12px;
-  padding: 10px 12px;
-  font-weight: 900;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.pricePillStrong {
-  background: rgba(255, 198, 42, 0.12);
-  border-color: rgba(255, 198, 42, 0.4);
-}

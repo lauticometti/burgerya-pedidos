@@ -1,6 +1,6 @@
 export const WHATSAPP_NUMBER = "5491134158607";
 
-// Burgers con precios (según flyers)
+// Burgers con precios
 export const burgers = [
   // BASICAS
   {
@@ -8,6 +8,7 @@ export const burgers = [
     name: "Cheese",
     tier: "BASICA",
     prices: { simple: 10500, doble: 13000, triple: 15500 },
+    desc: "Pan de papa · Carne smash · Cheddar",
     img: "/burgers/cheese.jpg",
   },
   {
@@ -15,6 +16,7 @@ export const burgers = [
     name: "Cuarto",
     tier: "BASICA",
     prices: { simple: 10500, doble: 13000, triple: 15500 },
+    desc: "Pan de papa · Carne smash · Ketchup · Mostaza · Cebolla · Cheddar",
     img: "/burgers/cuarto.jpg",
   },
   {
@@ -22,6 +24,7 @@ export const burgers = [
     name: "Oklahoma",
     tier: "BASICA",
     prices: { simple: 10500, doble: 13000, triple: 15500 },
+    desc: "Pan de papa · Carne smash con cebolla ultrafina · Cheddar",
     img: "/burgers/oklahoma.jpg",
   },
 
@@ -31,6 +34,7 @@ export const burgers = [
     name: "Lautiboom",
     tier: "PREMIUM",
     prices: { simple: 11000, doble: 13500, triple: 16000 },
+    desc: "Pan de papa · Carne smash · Cebolla caramelizada · Cheddar · Mil Islas.",
     img: "/burgers/lautiboom.jpg",
   },
   {
@@ -38,6 +42,7 @@ export const burgers = [
     name: "American",
     tier: "PREMIUM",
     prices: { simple: 11000, doble: 13500, triple: 16000 },
+    desc: "Pan de papa · Carne smash · Lechuga · Tomate · Cebolla · Pepinos · Cheddar · Mil Islas",
     img: "/burgers/american.jpg",
   },
   {
@@ -45,6 +50,7 @@ export const burgers = [
     name: "Bacon",
     tier: "PREMIUM",
     prices: { simple: 11000, doble: 13500, triple: 16000 },
+    desc: "Pan de papa · Carne smash · Bacon · Cheddar",
     img: "/burgers/bacon.jpg",
   },
 
@@ -54,6 +60,7 @@ export const burgers = [
     name: "BBQueen",
     tier: "DELUXE",
     prices: { simple: 11500, doble: 14000, triple: 16500 },
+    desc: "Pan de papa · Carne smash · Bacon · Tomate · Cebolla caramelizada · Cheddar · Barbacoa",
     img: "/burgers/bbqueen.jpg",
   },
   {
@@ -61,6 +68,7 @@ export const burgers = [
     name: "Doritos",
     tier: "DELUXE",
     prices: { simple: 11500, doble: 14000, triple: 16500 },
+    desc: "Pan de papa · Carne smash · Bacon · Doritos · Cheddar · Barbacoa",
     img: "/burgers/doritos.jpg",
   },
   {
@@ -68,6 +76,7 @@ export const burgers = [
     name: "Cochina",
     tier: "DELUXE",
     prices: { simple: 11500, doble: 14000, triple: 16500 },
+    desc: "Pan de papa · Carne smash · Huevo frito · Papas · Cheddar",
     img: "/burgers/cochina.jpg",
   },
   {
@@ -75,6 +84,7 @@ export const burgers = [
     name: "Smoklahoma",
     tier: "DELUXE",
     prices: { simple: 11500, doble: 14000, triple: 16500 },
+    desc: "Pan de papa · Carne smash con cebolla ultrafina · Bacon · Cheddar · Mil Islas",
     img: "/burgers/smoklahoma.jpg",
   }, // asumido
   {
@@ -82,6 +92,7 @@ export const burgers = [
     name: "SOS",
     tier: "DELUXE",
     prices: { simple: 11500, doble: 14000, triple: 16500 },
+    desc: "Pan de papa · Carne smash · Bacon · Huevo frito · Papas · Cheddar",
     img: "/burgers/sos.jpg",
   }, // asumido
   {
@@ -89,6 +100,7 @@ export const burgers = [
     name: "Triunfos",
     tier: "DELUXE",
     prices: { simple: 11500, doble: 14000, triple: 16500 },
+    desc: "Pan de papa · Carne Smash · Bacon · Cebolla caramelizada · Cheddar · Mil Islas.",
     img: "/burgers/triunfos.jpg",
   }, // asumido
 
@@ -98,6 +110,7 @@ export const burgers = [
     name: "Titanica",
     tier: "ESPECIAL",
     prices: { doble: 17500, triple: 20000 },
+    desc: "Doble pan de papa relleno con cheddar · Carne smash · Bacon abajo y arriba · Cebolla caramelizada · Cheddar · Mil Islas",
     img: "/burgers/titanica.jpg",
   },
   {
@@ -105,6 +118,7 @@ export const burgers = [
     name: "Bacon Deluxe",
     tier: "ESPECIAL",
     prices: { doble: 16000, triple: 18500 },
+    desc: "Pan de papa · Carne smash · Bacon en todas las carnes · Mil Islas",
     img: "/burgers/bacondeluxe.jpg",
   },
   {
@@ -112,6 +126,7 @@ export const burgers = [
     name: "Big Smash",
     tier: "ESPECIAL",
     prices: { doble: 14500, triple: 17000 },
+    desc: "Pan de papa especial · Carne smash · Lechuga · Pepinos · Cheddar · Mil Islas",
     img: "/burgers/bigsmash.jpg",
   },
 ];
@@ -140,24 +155,26 @@ export const promoRules = {
 };
 
 export const extras = [
-  { id: "carne_cheddar", name: "Carne extra con cheddar", price: 3000 },
-  { id: "carne_sin", name: "Carne extra sin cheddar", price: 2500 },
+  { id: "carne_cheddar", name: "Carne extra c/ cheddar", price: 3000 },
   { id: "cheddar_extra", name: "Cheddar extra (2 fetas)", price: 1000 },
-  { id: "bacon_crocante", name: "Bacon crocante", price: 1500 },
+  { id: "bacon_crocante", name: "Bacon", price: 1500 },
   { id: "cebolla_caram", name: "Cebolla caramelizada", price: 600 },
-  { id: "pepinos", name: "Pepinos en vinagre", price: 800 },
+  { id: "pepinos", name: "Pepinos", price: 800 },
   { id: "huevo", name: "Huevo frito", price: 800 },
-  { id: "doritos_burger", name: "Doritos en la burger", price: 800 },
-  { id: "papas_burger", name: "Papas en la burger", price: 800 },
+  { id: "doritos_burger", name: "Doritos", price: 800 },
+  { id: "papas_burger", name: "Papas", price: 800 },
   { id: "lechuga", name: "Lechuga", price: 500 },
   { id: "tomate", name: "Tomate", price: 500 },
   { id: "cebolla", name: "Cebolla", price: 500 },
-  { id: "salsas", name: "Salsas y aderezos", price: 500 },
+  { id: "salsa_mil_islas", name: "Mil Islas", price: 500 },
+  { id: "salsa_bbq", name: "Barbacoa", price: 500 },
+  { id: "salsa_ketchup", name: "Ketchup", price: 500 },
+  { id: "salsa_mostaza", name: "Mostaza", price: 500 },
 ];
 
 export const papas = [
   { id: "cheddar_liq", name: "Cheddar líquido", price: 1500 },
-  { id: "cheddar_liq_bacon", name: "Cheddar líquido + bacon", price: 3000 },
+  { id: "papas_bacon", name: "Bacon", price: 1500 },
   { id: "porcion_extra", name: "Porción de papas extras", price: 3000 },
 
   { id: "porcion_grande_solas", name: "Porción grande solas", price: 9000 },

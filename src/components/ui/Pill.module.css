@@ -1,0 +1,16 @@
+﻿.pill {
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #0f0f0f;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.active {
+  background: var(--y);
+  color: #111;
+  border-color: transparent;
+  font-weight: 800;
+}
+

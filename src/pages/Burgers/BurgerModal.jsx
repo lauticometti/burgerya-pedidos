@@ -1,13 +1,11 @@
 import React from "react";
 import styles from "./BurgerModal.module.css";
-import { isOpenNow, nextOpenText } from "../../utils/isOpenNow";
+import { formatMoney } from "../../utils/formatMoney";
+import { resolvePublicPath } from "../../utils/assetPath";
+import CloseButton from "../../components/ui/CloseButton";
 
 const SIZE_ORDER = ["simple", "doble", "triple"];
 const SIZE_LABEL = { simple: "Simple", doble: "Doble", triple: "Triple" };
-
-function formatMoney(n) {
-  return `$${Number(n).toLocaleString("es-AR")}`;
-}
 
 export default function BurgerModal({ open, burger, onClose, onAdd }) {
   const [size, setSize] = React.useState(null);
@@ -29,8 +27,6 @@ export default function BurgerModal({ open, burger, onClose, onAdd }) {
   if (!open || !burger) return null;
 
   const sizes = SIZE_ORDER.filter((s) => burger.prices?.[s] != null);
-  const storeOpen = isOpenNow();
-
   return (
     <div className={styles.backdrop} onMouseDown={onClose}>
       <div
@@ -38,31 +34,25 @@ export default function BurgerModal({ open, burger, onClose, onAdd }) {
         onMouseDown={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true">
-        <button className={styles.close} onClick={onClose} type="button">
-          ✕
-        </button>
+        <CloseButton className={styles.closeButton} onClick={onClose} />
 
         <img
           className={styles.img}
-          src={burger.img || "/burgers/placeholder.jpg"}
+          src={resolvePublicPath(burger.img || "/burgers/placeholder.jpg")}
           alt={burger.name}
         />
 
         <div className={styles.body}>
           <div className={styles.name}>{burger.name}</div>
 
-          {burger.desc ? (
-            <div className={styles.desc}>{burger.desc}</div>
-          ) : null}
+          {burger.desc ? <div className={styles.desc}>{burger.desc}</div> : null}
 
           <div className={styles.sizeRow}>
             {sizes.map((s) => (
               <button
                 key={s}
                 type="button"
-                className={`${styles.sizeBtn} ${
-                  size === s ? styles.sizeBtnOn : ""
-                }`}
+                className={`${styles.sizeBtn} ${size === s ? styles.sizeBtnOn : ""}`}
                 onClick={() => setSize(s)}>
                 <div className={styles.sizeTop}>{SIZE_LABEL[s]}</div>
                 <div className={styles.sizePrice}>
@@ -75,14 +65,14 @@ export default function BurgerModal({ open, burger, onClose, onAdd }) {
           <button
             className={styles.addBtn}
             type="button"
-            disabled={!size || !!storeOpen}
+            disabled={!size}
             onClick={() => onAdd?.(burger, size)}>
-            {storeOpen
-              ? `Agregar ${size ? formatMoney(burger.prices[size]) : ""}`
-              : `${nextOpenText()}`}
+            {size ? `Agregar ${formatMoney(burger.prices[size])}` : "Agregar"}
           </button>
         </div>
       </div>
     </div>
   );
 }
+
+

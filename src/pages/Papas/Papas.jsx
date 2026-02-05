@@ -1,62 +1,185 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
+import { useMemo, useState } from "react";
 import { papas } from "../../data/menu";
 import { useCart } from "../../store/useCart";
-import styles from "./Papas.module.css";
 import { toast } from "../../utils/toast";
+import TopNav from "../../components/TopNav";
+import Page from "../../components/layout/Page";
+import StickyBar from "../../components/layout/StickyBar";
+import CartSummary from "../../components/cart/CartSummary";
+import Button from "../../components/ui/Button";
+import PapasItem from "../../components/papas/PapasItem";
+import PapasOptionModal from "../../components/papas/PapasOptionModal";
+import PageTitle from "../../components/ui/PageTitle";
+import styles from "./Papas.module.css";
+import BrandLogo from "../../components/brand/BrandLogo";
 
 export default function Papas() {
   const cart = useCart();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [activeSize, setActiveSize] = useState(null);
+  const [selectedOptionId, setSelectedOptionId] = useState("solas");
+
+  const papasById = useMemo(() => {
+    return papas.reduce((acc, item) => {
+      acc[item.id] = item;
+      return acc;
+    }, {});
+  }, []);
+
+  function getPrice(id) {
+    return papasById[id]?.price ?? 0;
+  }
+
+  const papasBase = [
+    {
+      id: "papas_chicas",
+      label: "Papas chicas",
+      size: "chica",
+      basePrice: getPrice("porcion_extra"),
+    },
+    {
+      id: "papas_grandes",
+      label: "Papas grandes",
+      size: "grande",
+      basePrice: getPrice("porcion_grande_solas"),
+    },
+  ];
+
+  const optionsBySize = useMemo(
+    () => ({
+      chica: [
+        { id: "solas", label: "Solas", price: getPrice("porcion_extra") },
+        {
+          id: "cheddar",
+          label: "Con cheddar",
+          price: getPrice("porcion_extra") + getPrice("cheddar_liq"),
+        },
+        {
+          id: "cheddar_bacon",
+          label: "Con cheddar y bacon",
+          price:
+            getPrice("porcion_extra") +
+            getPrice("cheddar_liq") +
+            getPrice("papas_bacon"),
+        },
+      ],
+      grande: [
+        {
+          id: "solas",
+          label: "Solas",
+          price: getPrice("porcion_grande_solas"),
+        },
+        {
+          id: "cheddar",
+          label: "Con cheddar",
+          price: getPrice("porcion_grande_cheddar"),
+        },
+        {
+          id: "cheddar_bacon",
+          label: "Con cheddar y bacon",
+          price: getPrice("porcion_grande_cheddar_bacon"),
+        },
+      ],
+    }),
+    [papasById],
+  );
+
+  const dipItems = papas.filter((item) => item.id.startsWith("dip_"));
+
+  function openModal(size) {
+    setActiveSize(size);
+    setSelectedOptionId("solas");
+    setModalOpen(true);
+  }
+
+  function closeModal() {
+    setModalOpen(false);
+    setActiveSize(null);
+  }
+
+  function addSelectedPapas() {
+    if (!activeSize) return;
+    const options = optionsBySize[activeSize] || [];
+    const picked = options.find((opt) => opt.id === selectedOptionId);
+    if (!picked) return;
+
+    const sizeLabel = activeSize === "chica" ? "Papas chicas" : "Papas grandes";
+    const optionLabel =
+      picked.label.charAt(0).toLowerCase() + picked.label.slice(1);
+    const name = `${sizeLabel} ${optionLabel}`;
+    const key = `papas:${activeSize}:${picked.id}`;
+
+    cart.add({
+      key,
+      name,
+      qty: 1,
+      unitPrice: picked.price,
+      meta: { type: "papas", size: activeSize, option: picked.id },
+    });
+
+    toast(`+ ${name}`);
+    closeModal();
+  }
 
   return (
-    <div className={styles.page}>
-      <div className={styles.topBar}>
-        <div className={styles.leftBtns}>
-          <Link to="/">
-            <button className={styles.btn} type="button">
-              ⬅ Volver
-            </button>
-          </Link>
-          <Link to="/checkout">
-            <button className={styles.btn} type="button">
-              ✅ Checkout
-            </button>
-          </Link>
-        </div>
-
-        <div className={styles.totalPill}>
-          <div className={styles.totalLabel}>Total</div>
-          <div className={styles.totalValue}>
-            ${cart.total.toLocaleString("es-AR")}
-          </div>
-        </div>
-      </div>
-
-      <h1 className={styles.title}>Papas y más</h1>
-
+    <Page>
+      <BrandLogo />
+      <TopNav />
+      <PageTitle>Papas y más</PageTitle>
       <div className={styles.list}>
-        {papas.map((x) => (
-          <button
-            key={x.id}
-            type="button"
-            className={styles.item}
-            onClick={() => {
-              cart.add({
-                key: `papas:${x.id}`,
-                name: x.name,
-                qty: 1,
-                unitPrice: x.price,
-                meta: { type: "papas" },
-              });
-
-              toast(`+ ${x.name}`);
-            }}>
-            <div className={styles.itemName}>{x.name}</div>
-            <div className={`${styles.pricePill} ${styles.pricePillStrong}`}>
-              + ${x.price.toLocaleString("es-AR")}
-            </div>
-          </button>
+        {papasBase.map((item) => (
+          <PapasItem
+            key={item.id}
+            item={{ name: item.label, price: item.basePrice }}
+            onAdd={() => openModal(item.size)}
+            actionLabel="Ver opciones"
+          />
         ))}
       </div>
-    </div>
+      {dipItems.length ? (
+        <>
+          <div className={styles.sectionLabel}>Dips</div>
+          <div className={styles.list}>
+            {dipItems.map((item) => (
+              <PapasItem
+                key={item.id}
+                item={item}
+                onAdd={() => {
+                  cart.add({
+                    key: `papas:${item.id}`,
+                    name: item.name,
+                    qty: 1,
+                    unitPrice: item.price,
+                    meta: { type: "papas" },
+                  });
+                  toast(`+ ${item.name}`);
+                }}
+              />
+            ))}
+          </div>
+        </>
+      ) : null}
+      <StickyBar>
+        <CartSummary total={cart.total} lastAdded={cart.lastAdded} />
+        <Link to="/carrito">
+          <Button
+            variant="primary"
+            type="button"
+            disabled={cart.items.length === 0}>
+            Ir al carrito
+          </Button>
+        </Link>
+      </StickyBar>
+      <PapasOptionModal
+        open={modalOpen}
+        title={activeSize === "chica" ? "Papas chicas" : "Papas grandes"}
+        options={activeSize ? optionsBySize[activeSize] : []}
+        selectedId={selectedOptionId}
+        onSelect={setSelectedOptionId}
+        onClose={closeModal}
+        onConfirm={addSelectedPapas}
+      />
+    </Page>
   );
 }

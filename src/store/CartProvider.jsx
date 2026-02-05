@@ -1,4 +1,4 @@
-import React, { useMemo, useReducer } from "react";
+﻿import React, { useMemo, useReducer } from "react";
 import { CartContext } from "./cartContext";
 
 function reducer(state, action) {
@@ -22,7 +22,7 @@ function reducer(state, action) {
       if (base.qty === 1) delete items[baseKey];
       else items[baseKey] = { ...base, qty: base.qty - 1 };
 
-      // crear línea custom (qty 1)
+      // crear linea custom (qty 1)
       items[lineItem.key] = { ...lineItem, qty: 1 };
 
       return { ...state, items };
@@ -33,7 +33,7 @@ function reducer(state, action) {
       const { lineId, item } = action;
       const items = { ...state.items };
 
-      // borrar cualquier upgrade anterior de esa línea
+      // borrar cualquier upgrade anterior de esa linea
       for (const k of Object.keys(items)) {
         if (k.startsWith(`papasup:${lineId}:`)) delete items[k];
       }
@@ -50,7 +50,17 @@ function reducer(state, action) {
       const qty = (existing?.qty || 0) + (item.qty || 1);
       return {
         ...state,
-        items: { ...state.items, [item.key]: { ...item, qty } },
+        lastAdded: item.name,
+        items: {
+          ...state.items,
+          [item.key]: {
+            ...item,
+            qty,
+            note: item.note || existing?.note || "",
+            extras: item.extras || existing?.extras || [],
+            papas: item.papas || existing?.papas || [],
+          },
+        },
       };
     }
     case "REMOVE": {
@@ -70,106 +80,90 @@ function reducer(state, action) {
       else items[key] = { ...items[key], qty };
       return { ...state, items };
     }
+    case "SET_NOTE": {
+      const { key, note } = action;
+      const items = { ...state.items };
+      if (items[key]) {
+        items[key] = { ...items[key], note };
+      }
+      return { ...state, items };
+    }
+    case "SET_EXTRAS": {
+      const { key, extras } = action;
+      const items = { ...state.items };
+      if (items[key]) {
+        items[key] = { ...items[key], extras };
+      }
+      return { ...state, items };
+    }
+    case "SET_PAPAS": {
+      const { key, papas } = action;
+      const items = { ...state.items };
+      if (items[key]) {
+        items[key] = { ...items[key], papas };
+      }
+      return { ...state, items };
+    }
+    case "SET_PROMO_PICKS": {
+      const { key, picks } = action;
+      const items = { ...state.items };
+      if (items[key]) {
+        items[key] = {
+          ...items[key],
+          meta: { ...items[key].meta, picks },
+        };
+      }
+      return { ...state, items };
+    }
   }
 }
 
 export function CartProvider({ children }) {
-  const [state, dispatch] = useReducer(reducer, { items: {} });
+  const [state, dispatch] = useReducer(reducer, { items: {}, lastAdded: null });
 
   const api = useMemo(() => {
     const items = Object.values(state.items);
-    const total = items.reduce((s, it) => s + it.qty * it.unitPrice, 0);
-    function makeLineId() {
-      return `l-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    }
-
-    function keysForChildren(lineId) {
-      return items
-        .map((it) => it.key)
-        .filter(
-          (k) =>
-            k.startsWith(`extra:${lineId}:`) ||
-            k.startsWith(`papasup:${lineId}:`),
+      const total = items.reduce((sum, it) => {
+        const extrasTotal = (it.extras || []).reduce(
+          (extrasSum, extra) => extrasSum + extra.price,
+          0,
         );
-    }
-
+        const papasTotal = (it.papas || []).reduce(
+          (papasSum, extra) => papasSum + extra.price,
+          0,
+        );
+        const picksExtrasTotal = (it.meta?.picks || []).reduce(
+          (picksSum, pick) => {
+          const pickExtras = (pick.extras || []).reduce(
+            (pickSum, extra) => pickSum + extra.price,
+            0,
+          );
+          const pickPapas = (pick.papas || []).reduce(
+            (pickSum, extra) => pickSum + extra.price,
+            0,
+          );
+          return picksSum + pickExtras + pickPapas;
+        },
+        0,
+      );
+      return sum + it.qty * (it.unitPrice + extrasTotal + papasTotal + picksExtrasTotal);
+    }, 0);
     return {
       items,
       total,
+      lastAdded: state.lastAdded,
       add: (item) => dispatch({ type: "ADD", item }),
       remove: (key) => dispatch({ type: "REMOVE", key }),
       clear: () => dispatch({ type: "CLEAR" }),
       setQty: (key, qty) => dispatch({ type: "SET_QTY", key, qty }),
-      // Convierte 1 unidad de un item mergeable (burger:<id>:<size>) en una línea custom (burgerline:<lineId>)
-      splitOne: (baseKey) => {
-        const base = state.items[baseKey];
-        if (!base) return null;
-
-        const lineId = makeLineId();
-
-        dispatch({
-          type: "SPLIT_ONE",
-          baseKey,
-          lineItem: {
-            key: `burgerline:${lineId}`,
-            name: base.name, // lo usamos para UI, WhatsApp lo formatea aparte
-            qty: 1,
-            unitPrice: base.unitPrice,
-            meta: {
-              type: "burgerline",
-              lineId,
-              baseKey,
-              burgerId: base.meta?.burgerId,
-              size: base.meta?.size,
-              burgerName: base.meta?.burgerName || base.name,
-            },
-          },
-        });
-
-        return lineId;
-      },
-
-      // Agrega un extra pegado a una burgerline
-      addExtraToLine: (lineId, extra) => {
-        dispatch({
-          type: "ADD",
-          item: {
-            key: `extra:${lineId}:${extra.id}`,
-            name: extra.name,
-            qty: 1,
-            unitPrice: extra.price,
-            meta: { type: "extra", parentLineId: lineId },
-          },
-        });
-      },
-
-      // Setea upgrade de papas (uno solo) para esa burgerline
-      setPapasUpgrade: (lineId, upgrade /* {id,name,price} o null */) => {
-        dispatch({
-          type: "SET_PAPAS_UP",
-          lineId,
-          item: upgrade
-            ? {
-                key: `papasup:${lineId}:${upgrade.id}`,
-                name: upgrade.name, // EJ: "papas cheddar" / "papas cheddar y bacon"
-                qty: 1,
-                unitPrice: upgrade.price,
-                meta: { type: "papasup", parentLineId: lineId },
-              }
-            : null,
-        });
-      },
-
-      // Borra burgerline + sus hijos (extras + papasup)
-      removeLine: (lineId) => {
-        const childKeys = keysForChildren(lineId);
-        dispatch({
-          type: "REMOVE_MANY",
-          keys: [`burgerline:${lineId}`, ...childKeys],
-        });
-      },
+      setNote: (key, note) => dispatch({ type: "SET_NOTE", key, note }),
+      setExtras: (key, extras) => dispatch({ type: "SET_EXTRAS", key, extras }),
+      setPapas: (key, papas) => dispatch({ type: "SET_PAPAS", key, papas }),
+      setPromoPicks: (key, picks) =>
+        dispatch({ type: "SET_PROMO_PICKS", key, picks }),
     };
-  }, [state.items]);
+  }, [state.items, state.lastAdded]);
 
   return <CartContext.Provider value={api}>{children}</CartContext.Provider>;
 }
+

@@ -1,8 +1,12 @@
-// Mie(3) a Dom(0) en JS: 0=Dom,1=Lun,...6=Sab
+﻿// Mié(3) a Dom(0) en JS: 0=Dom,1=Lun,...6=Sab
+export const STORE_OPEN_DAYS_TEXT = "Mié a Dom";
+export const STORE_OPEN_HOURS_TEXT = "19 a 00";
+export const STORE_SCHEDULE_TEXT = `${STORE_OPEN_HOURS_TEXT} (${STORE_OPEN_DAYS_TEXT})`;
+
 export function isOpenNow(date = new Date()) {
   const day = date.getDay(); // 0..6
   const openDays =
-    day === 0 || day === 3 || day === 4 || day === 5 || day === 6; // Dom, Mie, Jue, Vie, Sab
+    day === 0 || day === 3 || day === 4 || day === 5 || day === 6; // Dom, Mié, Jue, Vie, Sab
   if (!openDays) return false;
 
   const h = date.getHours();
@@ -15,8 +19,8 @@ export function isOpenNow(date = new Date()) {
   return mins >= start && mins < end;
 }
 
-// útil para texto en UI
-export function nextOpenText(date = new Date()) {
+// util para texto en UI
+export function nextOpenText() {
   // simple: siempre decimos el horario fijo
-  return "Abrimos 20 a 00 (Mié a Dom)";
+  return `Abrimos ${STORE_SCHEDULE_TEXT}`;
 }

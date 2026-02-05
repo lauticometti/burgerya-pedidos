@@ -1,0 +1,31 @@
+﻿.link {
+  display: block;
+}
+
+.card {
+  transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+
+.card:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.emoji {
+  font-size: 18px;
+}
+
+.subtitle {
+  opacity: 0.75;
+  margin-top: 4px;
+  font-size: 13px;
+}
+

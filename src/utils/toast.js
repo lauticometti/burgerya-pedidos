@@ -1,4 +1,4 @@
-let subs = [];
+﻿let subs = [];
 const lastByKey = new Map();
 
 function emit(t) {
@@ -18,7 +18,7 @@ export const toast = {
     const dedupeKey = key || `${kind}:${message}`;
     const last = lastByKey.get(dedupeKey) || 0;
 
-    // dedupe: si spamean el mismo toast muy rápido, lo ignoramos
+    // dedupe: si spamean el mismo toast muy rapido, lo ignoramos
     if (now - last < 650) return;
     lastByKey.set(dedupeKey, now);
 
@@ -66,3 +66,4 @@ export function playToastSound() {
     // no-op
   }
 }
+
