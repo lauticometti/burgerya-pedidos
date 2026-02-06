@@ -1,6 +1,8 @@
 ﻿import Card from "../ui/Card";
-import { SelectField, TextareaField } from "../ui/FormFields";
+import { useEffect, useState } from "react";
+import { TextareaField } from "../ui/FormFields";
 import styles from "./PaymentScheduleCard.module.css";
+import TimeSlotModal from "./TimeSlotModal";
 
 export default function PaymentScheduleCard({
   pay,
@@ -13,33 +15,81 @@ export default function PaymentScheduleCard({
   onWhenSlotChange,
   onNotesChange,
 }) {
+  const [slotOpen, setSlotOpen] = useState(false);
+
+  useEffect(() => {
+    if (whenMode !== "Más tarde") {
+      setSlotOpen(false);
+    }
+  }, [whenMode]);
+
   return (
     <Card className={styles.card}>
-      <div className={styles.title}>Pago y horario</div>
       <div className={styles.fields}>
-        <SelectField value={pay} onChange={(e) => onPayChange(e.target.value)}>
-          <option>Efectivo</option>
-          <option>Transferencia</option>
-        </SelectField>
+        <div className={styles.question}>Pago</div>
+        <div className={styles.choiceRow}>
+          <button
+            type="button"
+            className={`${styles.choiceButton} ${
+              pay === "Efectivo" ? styles.choiceButtonActive : ""
+            }`}
+            aria-pressed={pay === "Efectivo"}
+            onClick={() => onPayChange("Efectivo")}>
+            Efectivo
+          </button>
+          <button
+            type="button"
+            className={`${styles.choiceButton} ${
+              pay === "Transferencia" ? styles.choiceButtonActive : ""
+            }`}
+            aria-pressed={pay === "Transferencia"}
+            onClick={() => onPayChange("Transferencia")}>
+            Transferencia
+          </button>
+        </div>
 
-        <SelectField
-          value={whenMode}
-          onChange={(e) => onWhenModeChange(e.target.value)}>
-          <option value="Ahora">Lo antes posible</option>
-          <option value="Más tarde">Para más tarde</option>
-        </SelectField>
+        <div className={styles.question}>Horario</div>
+        <div className={styles.choiceRow}>
+          <button
+            type="button"
+            className={`${styles.choiceButton} ${
+              whenMode === "Ahora" ? styles.choiceButtonActive : ""
+            }`}
+            aria-pressed={whenMode === "Ahora"}
+            onClick={() => onWhenModeChange("Ahora")}>
+            Lo antes posible
+          </button>
+          <button
+            type="button"
+            className={`${styles.choiceButton} ${
+              whenMode === "Más tarde" ? styles.choiceButtonActive : ""
+            }`}
+            aria-pressed={whenMode === "Más tarde"}
+            onClick={() => onWhenModeChange("Más tarde")}>
+            Para más tarde
+          </button>
+        </div>
 
         {whenMode === "Más tarde" &&
           (availableSlots.length ? (
-            <SelectField
-              value={whenSlot}
-              onChange={(e) => onWhenSlotChange(e.target.value)}>
-              {availableSlots.map((slot) => (
-                <option key={slot.value} value={slot.value}>
-                  {slot.label}
-                </option>
-              ))}
-            </SelectField>
+            <>
+              <button
+                type="button"
+                className={styles.slotButton}
+                onClick={() => setSlotOpen(true)}>
+                {whenSlot || "Elegí horario"}
+              </button>
+              <TimeSlotModal
+                open={slotOpen}
+                slots={availableSlots}
+                selectedValue={whenSlot}
+                onSelect={(value) => {
+                  onWhenSlotChange(value);
+                  setSlotOpen(false);
+                }}
+                onClose={() => setSlotOpen(false)}
+              />
+            </>
           ) : (
             <div className={styles.emptySlots}>
               No hay horarios disponibles hoy (mínimo +30 min).

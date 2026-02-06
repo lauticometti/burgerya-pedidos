@@ -1,4 +1,5 @@
-﻿import Button from "../ui/Button";
+﻿import { useEffect } from "react";
+import Button from "../ui/Button";
 import CloseButton from "../ui/CloseButton";
 import { formatMoney } from "../../utils/formatMoney";
 import styles from "./PapasOptionModal.module.css";
@@ -12,6 +13,18 @@ export default function PapasOptionModal({
   onClose,
   onConfirm,
 }) {
+  useEffect(() => {
+    if (!open || typeof window === "undefined") return;
+    function onKeyDown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose?.();
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open, onClose]);
+
   if (!open) return null;
 
   return (

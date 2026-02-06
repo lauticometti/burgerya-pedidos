@@ -72,11 +72,12 @@ export default function Home() {
           subtitle="2x / 3x / 4x (Dobles o Triples)"
           imageSrc={promosImage}
           imageAlt="Promos Premium"
+          imagePosition="center 82%"
         />
         <HomeCard
           to="/papas"
-          title="Papas y más"
-          subtitle="Papas grandes y dips para acompañar"
+          title="Papas, bebidas y más"
+          subtitle="Papas grandes, bebidas y dips para acompañar"
         />
       </div>
 
@@ -91,4 +92,3 @@ export default function Home() {
     </Page>
   );
 }
-

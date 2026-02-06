@@ -5,19 +5,20 @@ export function buildWhatsAppText({
   address,
   cross,
   pay,
+  deliveryMode,
   when,
   items,
   total,
-  orderId,
 }) {
-  const safeOrderId = orderId || "1";
   const lines = [];
   const isLater = typeof when === "string" && when.startsWith("Para más tarde");
   const timeLabel = isLater
     ? when.replace("Para más tarde", "PARA").trim()
     : "";
   const header = isLater ? `${name} - ${timeLabel}` : name;
-  lines.push(`#${safeOrderId}`);
+  if (deliveryMode === "Retiro") {
+    lines.push("RETIRO");
+  }
   lines.push(header);
   lines.push("");
 
@@ -139,12 +140,13 @@ export function buildWhatsAppText({
   }
 
   lines.push("");
-  lines.push(address);
-  if (cross && cross.trim()) {
-    lines.push(cross.trim());
+  if (deliveryMode !== "Retiro") {
+    lines.push(address);
+    if (cross && cross.trim()) {
+      lines.push(cross.trim());
+    }
+    lines.push("");
   }
-
-  lines.push("");
   lines.push(`${formatMoney(total)} ${pay}`);
   return encodeURIComponent(lines.join("\n"));
 }

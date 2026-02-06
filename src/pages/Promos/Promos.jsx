@@ -59,10 +59,16 @@ export default function Promos() {
   const swipeStartY = useRef(null);
   const swipeActive = useRef(false);
 
-  const allowed = useMemo(() => {
-    if (!tier) return [];
+  const allowedByTier = useMemo(() => {
+    if (!tier) return { BASICA: [], PREMIUM: [], DELUXE: [] };
     const allowedTiers = promoRules[tier].allowedTiers;
-    return burgers.filter((b) => allowedTiers.includes(b.tier));
+    const grouped = { BASICA: [], PREMIUM: [], DELUXE: [] };
+    burgers.forEach((burger) => {
+      if (allowedTiers.includes(burger.tier)) {
+        grouped[burger.tier].push(burger);
+      }
+    });
+    return grouped;
   }, [tier]);
 
   const price = useMemo(() => {
@@ -86,6 +92,13 @@ export default function Promos() {
         : step === 3
           ? "Elegí tamaño doble o triple."
           : "Seleccioná las burgers para completar la promo.";
+
+  const tierLabels = {
+    BASICA: "de la promo basica:",
+    PREMIUM: "de la promo premium:",
+    DELUXE: "de la promo deluxe:",
+  };
+  const tierOrder = ["BASICA", "PREMIUM", "DELUXE"];
 
   function chooseTier(t) {
     setTier(t);
@@ -111,6 +124,10 @@ export default function Promos() {
 
   function undoLast() {
     setPicked((p) => p.slice(0, -1));
+  }
+
+  function removePick(index) {
+    setPicked((p) => p.filter((_, i) => i !== index));
   }
 
   function resetAll() {
@@ -275,7 +292,6 @@ export default function Promos() {
     resetAll();
   }
 
-  const pickedNames = picked.map((pick) => pick.name || pick.id);
   const flyersAllLoaded = PROMO_FLYERS.every(
     (flyer) => flyerStatus[flyer.tier] === "loaded",
   );
@@ -498,15 +514,29 @@ export default function Promos() {
                 </Button>
               </div>
 
-              <div className={`${styles.row} ${styles.rowWrap}`}>
-                {allowed.map((b) => (
-                  <Button
-                    key={b.id}
-                    onClick={() => pickBurger(b)}
-                    disabled={!canPickMore}>
-                    {b.name}
-                  </Button>
-                ))}
+              <div className={styles.pickGroups}>
+                {tierOrder.map((tierKey) => {
+                  const tierItems = allowedByTier[tierKey] || [];
+                  if (!tierItems.length) return null;
+                  return (
+                    <div key={tierKey} className={styles.pickGroup}>
+                      <div className={styles.pickGroupLabel}>
+                        {tierLabels[tierKey]}
+                      </div>
+                      <div
+                        className={`${styles.row} ${styles.rowWrap} ${styles.pickRow}`}>
+                        {tierItems.map((b) => (
+                          <Button
+                            key={b.id}
+                            onClick={() => pickBurger(b)}
+                            disabled={!canPickMore}>
+                            {b.name}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
               {picked.length === count && (
                 <div className={styles.remaining}>
@@ -519,14 +549,24 @@ export default function Promos() {
           <Card className={styles.card}>
             <div className={styles.sectionTitle}>Elegidas</div>
             <div className={styles.picksWrap}>
-              {pickedNames.length === 0 ? (
+              {picked.length === 0 ? (
                 <div className={styles.empty}>-</div>
               ) : (
-                pickedNames.map((name, i) => (
-                  <Pill key={`${name}-${i}`} active>
-                    {name}
-                  </Pill>
-                ))
+                picked.map((pick, i) => {
+                  const name = pick.name || pick.id;
+                  return (
+                    <Pill key={`${name}-${i}`} active className={styles.pickPill}>
+                      <span>{name}</span>
+                      <button
+                        type="button"
+                        className={styles.pickRemove}
+                        aria-label={`Quitar ${name}`}
+                        onClick={() => removePick(i)}>
+                        ×
+                      </button>
+                    </Pill>
+                  );
+                })
               )}
             </div>
           </Card>
@@ -564,5 +604,3 @@ export default function Promos() {
     </Page>
   );
 }
-
-

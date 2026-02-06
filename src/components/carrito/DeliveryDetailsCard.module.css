@@ -13,3 +13,43 @@
   gap: 10px;
 }
 
+.question {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.modeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.modeButton {
+  appearance: none;
+  border: 1px solid rgba(255, 198, 42, 0.5);
+  background: rgba(10, 8, 5, 0.9);
+  color: var(--y);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 0.06s ease,
+    filter 0.12s ease,
+    background 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.modeButton:active {
+  transform: scale(0.98);
+  filter: brightness(1.06);
+}
+
+.modeButtonActive {
+  background: var(--y);
+  color: #111;
+  border-color: transparent;
+  box-shadow: 0 0 0 1px rgba(255, 198, 42, 0.22);
+}
+

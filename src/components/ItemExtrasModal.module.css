@@ -45,6 +45,27 @@
   gap: 10px;
   overflow-y: auto;
   padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 198, 42, 0.7) rgba(255, 255, 255, 0.08);
+}
+
+.list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+}
+
+.list::-webkit-scrollbar-thumb {
+  background: rgba(255, 198, 42, 0.65);
+  border-radius: 999px;
+  border: 2px solid #0f0f10;
+}
+
+.list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 198, 42, 0.85);
 }
 
 .row {
@@ -73,7 +94,7 @@
   height: 18px;
   border-radius: 6px;
   border: 1px solid var(--line);
-  background: #1a1a1a;
+  background: #0b0b0b;
   display: inline-grid;
   place-content: center;
   appearance: none;

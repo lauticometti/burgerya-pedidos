@@ -13,6 +13,77 @@
   gap: 10px;
 }
 
+.question {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.choiceRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.choiceButton {
+  appearance: none;
+  border: 1px solid rgba(255, 198, 42, 0.5);
+  background: rgba(10, 8, 5, 0.9);
+  color: var(--y);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 0.06s ease,
+    filter 0.12s ease,
+    background 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.choiceButton:active {
+  transform: scale(0.98);
+  filter: brightness(1.06);
+}
+
+.choiceButtonActive {
+  background: var(--y);
+  color: #111;
+  border-color: transparent;
+  box-shadow: 0 0 0 1px rgba(255, 198, 42, 0.22);
+}
+
+.slotButton {
+  width: 100%;
+  text-align: left;
+  background: #0f0f0f;
+  color: var(--text);
+  border: 1px solid rgba(255, 198, 42, 0.45);
+  border-radius: 12px;
+  padding: 12px 36px 12px 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  position: relative;
+}
+
+.slotButton::after {
+  content: "";
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-right: 2px solid var(--y);
+  border-bottom: 2px solid var(--y);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.slotButton:focus-visible {
+  outline: 2px solid rgba(255, 220, 60, 0.5);
+  outline-offset: 2px;
+}
+
 .emptySlots {
   font-size: 13px;
   opacity: 0.8;

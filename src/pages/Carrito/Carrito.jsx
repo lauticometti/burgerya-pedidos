@@ -5,7 +5,6 @@ import ItemExtrasModal from "../../components/ItemExtrasModal";
 import { toast } from "../../utils/toast";
 import { getAvailableSlotsMin30, minutesToHHMM } from "../../utils/timeSlots";
 import { buildWhatsAppText } from "../../utils/whatsapp";
-import { getNextOrderId } from "../../utils/orderCounter";
 import Page from "../../components/layout/Page";
 import StickyBar from "../../components/layout/StickyBar";
 import CartSummary from "../../components/cart/CartSummary";
@@ -22,6 +21,7 @@ export default function Carrito() {
   const cart = useCart();
 
   const [step, setStep] = React.useState(1); // 1: Chequear pedido, 2: Datos y pago
+  const [deliveryMode, setDeliveryMode] = React.useState("");
   const [name, setName] = React.useState("");
   const [address, setAddress] = React.useState("");
   const [cross, setCross] = React.useState("");
@@ -37,7 +37,8 @@ export default function Carrito() {
   const [modalSelectedIds, setModalSelectedIds] = React.useState([]);
   const [bebidaOpen, setBebidaOpen] = React.useState(false);
   const [bebidaQuantities, setBebidaQuantities] = React.useState({});
-  const [orderId, setOrderId] = React.useState("");
+  const [undoItem, setUndoItem] = React.useState(null);
+  const undoTimerRef = React.useRef(null);
   const storageKey = "burgerya_carrito_form";
 
   React.useEffect(() => {
@@ -50,6 +51,7 @@ export default function Carrito() {
       if (saved?.address) setAddress(saved.address);
       if (saved?.cross) setCross(saved.cross);
       if (saved?.pay) setPay(saved.pay);
+      if (saved?.deliveryMode) setDeliveryMode(saved.deliveryMode);
       if (saved?.notes) setNotes(saved.notes);
       if (saved?.whenMode) setWhenMode(saved.whenMode);
       if (saved?.whenSlot) setWhenSlot(saved.whenSlot);
@@ -65,6 +67,7 @@ export default function Carrito() {
       address,
       cross,
       pay,
+      deliveryMode,
       notes,
       whenMode,
       whenSlot,
@@ -74,7 +77,7 @@ export default function Carrito() {
     } catch {
       // ignore storage errors
     }
-  }, [name, address, cross, pay, notes, whenMode, whenSlot]);
+  }, [name, address, cross, pay, deliveryMode, notes, whenMode, whenSlot]);
 
   const [availableSlots, setAvailableSlots] = React.useState(
     getAvailableSlotsMin30(),
@@ -88,31 +91,29 @@ export default function Carrito() {
   }, []);
 
   React.useEffect(() => {
-    if (whenMode === "MÃ¡s tarde" && !whenSlot && availableSlots.length) {
+    if (whenMode === "Más tarde" && !whenSlot && availableSlots.length) {
       setWhenSlot(minutesToHHMM(availableSlots[0]));
     }
   }, [whenMode, whenSlot, availableSlots]);
 
   const when =
-    whenMode === "Ahora" ? "Lo antes posible" : `Para mÃ¡s tarde (${whenSlot})`;
+    whenMode === "Ahora" ? "Lo antes posible" : `Para más tarde (${whenSlot})`;
 
   const hasTimeOk = whenMode === "Ahora" || !!whenSlot;
+  const hasDeliveryMode = !!deliveryMode;
+  const isDelivery = deliveryMode === "Delivery";
+  const hasAddressOk = !isDelivery || !!address.trim();
 
   const canSend =
     cart.items.length > 0 &&
     name.trim() &&
-    address.trim() &&
     pay.trim() &&
-    hasTimeOk;
+    hasTimeOk &&
+    hasAddressOk &&
+    hasDeliveryMode;
 
   const canContinue = cart.items.length > 0;
   const hasBebidas = cart.items.some((item) => item.meta?.type === "bebida");
-
-  React.useEffect(() => {
-    if (canSend && !orderId) {
-      setOrderId(getNextOrderId());
-    }
-  }, [canSend, orderId]);
 
   React.useEffect(() => {
     if (!canContinue && step !== 1) {
@@ -120,11 +121,66 @@ export default function Carrito() {
     }
   }, [canContinue, step]);
 
+  React.useEffect(() => {
+    if (step !== 2 || typeof window === "undefined") return;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step]);
+
+  function getUndoLabel(item) {
+    if (!item) return "producto";
+    if (item.meta?.type === "promo") return item.name || "promo";
+    const sizeLabel =
+      item.meta?.size === "doble"
+        ? "doble"
+        : item.meta?.size === "triple"
+          ? "triple"
+          : item.meta?.size === "simple"
+            ? "simple"
+            : "";
+    const baseName = item.name || "producto";
+    return sizeLabel ? `${baseName} ${sizeLabel}` : baseName;
+  }
+
+  React.useEffect(() => {
+    return () => {
+      if (undoTimerRef.current) {
+        clearTimeout(undoTimerRef.current);
+      }
+    };
+  }, []);
+
+  function handleRemove(item, groupKey, index) {
+    cart.remove(item.key);
+    if (undoTimerRef.current) {
+      clearTimeout(undoTimerRef.current);
+    }
+    setUndoItem({
+      item,
+      groupKey,
+      index,
+    });
+    undoTimerRef.current = setTimeout(() => {
+      setUndoItem(null);
+      undoTimerRef.current = null;
+    }, 3000);
+  }
+
+  function handleUndo() {
+    if (!undoItem?.item) return;
+    cart.add({ ...undoItem.item, qty: undoItem.item.qty || 1 });
+    setUndoItem(null);
+    if (undoTimerRef.current) {
+      clearTimeout(undoTimerRef.current);
+      undoTimerRef.current = null;
+    }
+  }
+
   const missingFields = [
-    !name.trim() ? "nombre" : null,
-    !address.trim() ? "direcciÃ³n" : null,
-    !pay.trim() ? "pago" : null,
-    !hasTimeOk ? "horario" : null,
+    !hasDeliveryMode ? "entrega" : null,
+    hasDeliveryMode && !name.trim() ? "nombre" : null,
+    hasDeliveryMode && isDelivery && !address.trim() ? "dirección" : null,
+    hasDeliveryMode && !pay.trim() ? "pago" : null,
+    hasDeliveryMode && !hasTimeOk ? "horario" : null,
   ].filter(Boolean);
 
   const waHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${buildWhatsAppText({
@@ -132,11 +188,11 @@ export default function Carrito() {
     address,
     cross,
     pay,
+    deliveryMode,
     when,
     notes,
     items: cart.items,
     total: cart.total,
-    orderId,
   })}`;
 
   const papasMejoras = React.useMemo(
@@ -353,46 +409,79 @@ export default function Carrito() {
             ) : (
               groupOrder.map((group) => {
                 const groupItems = groupedItems[group.key] || [];
-                if (!groupItems.length) return null;
+                const hasUndo = undoItem?.groupKey === group.key;
+                if (!groupItems.length && !hasUndo) return null;
+                const undoIndex = hasUndo
+                  ? Math.min(undoItem.index ?? 0, groupItems.length)
+                  : -1;
                 return (
                   <div key={group.key} className={styles.group}>
                     <div className={styles.groupTitle}>{group.title}</div>
                     <div className={styles.groupItems}>
-                      {groupItems.map((it) => {
+                      {groupItems.map((it, index) => {
                         const isPromo = it.meta?.type === "promo";
                         const canImprovePapas = it.meta?.type === "burger";
                         const canAddExtras = it.meta?.type === "burger";
                         return (
-                          <CartItemCard
-                            key={it.key}
-                            item={it}
-                            onChangeNote={(value) => setItemNote(it.key, value)}
-                            onDecrease={() => cart.setQty(it.key, it.qty - 1)}
-                            onIncrease={() => cart.setQty(it.key, it.qty + 1)}
-                            onRemove={() => cart.remove(it.key)}
-                            onOpenExtras={() => openExtrasModal(it, "extras")}
-                            onOpenPapas={() => openExtrasModal(it, "papas")}
-                            promoPicks={isPromo ? it.meta?.picks || [] : []}
-                            onPromoNoteChange={(index, value) => {
-                              const picks = (it.meta?.picks || []).map(
-                                (pick, pickIndex) =>
-                                  pickIndex === index
-                                    ? { ...pick, note: value }
-                                    : pick,
-                              );
-                              cart.setPromoPicks(it.key, picks);
-                            }}
-                            onPromoPickExtras={(index) =>
-                              openExtrasModal(it, "extras", index)
-                            }
-                            onPromoPickPapas={(index) =>
-                              openExtrasModal(it, "papas", index)
-                            }
-                            canImprovePapas={canImprovePapas}
-                            canAddExtras={canAddExtras}
-                          />
+                          <React.Fragment key={it.key}>
+                            {hasUndo && index === undoIndex ? (
+                              <div className={styles.undoBar}>
+                                <div className={styles.undoText}>
+                                  Se eliminó {getUndoLabel(undoItem.item)}.
+                                </div>
+                                <Button
+                                  size="xs"
+                                  className={styles.undoButton}
+                                  onClick={handleUndo}>
+                                  Deshacer
+                                </Button>
+                              </div>
+                            ) : null}
+                            <CartItemCard
+                              item={it}
+                              onChangeNote={(value) =>
+                                setItemNote(it.key, value)
+                              }
+                              onDecrease={() => cart.setQty(it.key, it.qty - 1)}
+                              onIncrease={() => cart.setQty(it.key, it.qty + 1)}
+                              onRemove={() => handleRemove(it, group.key, index)}
+                              onOpenExtras={() => openExtrasModal(it, "extras")}
+                              onOpenPapas={() => openExtrasModal(it, "papas")}
+                              promoPicks={isPromo ? it.meta?.picks || [] : []}
+                              onPromoNoteChange={(index, value) => {
+                                const picks = (it.meta?.picks || []).map(
+                                  (pick, pickIndex) =>
+                                    pickIndex === index
+                                      ? { ...pick, note: value }
+                                      : pick,
+                                );
+                                cart.setPromoPicks(it.key, picks);
+                              }}
+                              onPromoPickExtras={(index) =>
+                                openExtrasModal(it, "extras", index)
+                              }
+                              onPromoPickPapas={(index) =>
+                                openExtrasModal(it, "papas", index)
+                              }
+                              canImprovePapas={canImprovePapas}
+                              canAddExtras={canAddExtras}
+                            />
+                          </React.Fragment>
                         );
                       })}
+                      {hasUndo && undoIndex === groupItems.length ? (
+                        <div className={styles.undoBar}>
+                          <div className={styles.undoText}>
+                            Se eliminó {getUndoLabel(undoItem.item)}.
+                          </div>
+                          <Button
+                            size="xs"
+                            className={styles.undoButton}
+                            onClick={handleUndo}>
+                            Deshacer
+                          </Button>
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                 );
@@ -409,7 +498,9 @@ export default function Carrito() {
         </>
       ) : (
         <>
-          <DeliveryDetailsCard
+        <DeliveryDetailsCard
+            deliveryMode={deliveryMode}
+            onDeliveryModeChange={setDeliveryMode}
             name={name}
             address={address}
             cross={cross}
@@ -434,7 +525,7 @@ export default function Carrito() {
       {step === 2 ? (
         <div className={styles.sendInfo}>
           <div className={styles.stickyHint}>
-            Se abrirÃ¡ WhatsApp con tu pedido listo para enviar.
+            Se abrirá WhatsApp con tu pedido listo para enviar.
           </div>
           {missingFields.length > 0 && (
             <div className={styles.missing}>

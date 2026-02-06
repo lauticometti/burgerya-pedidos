@@ -74,3 +74,27 @@
   gap: 6px;
   margin-bottom: 12px;
 }
+
+.undoBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.undoText {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.undoButton {
+  border-color: rgba(255, 198, 42, 0.6);
+  color: var(--y);
+  background: rgba(255, 198, 42, 0.08);
+  font-weight: 800;
+}

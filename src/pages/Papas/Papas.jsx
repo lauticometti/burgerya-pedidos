@@ -1,6 +1,5 @@
 ﻿import { Link } from "react-router-dom";
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useCallback, useMemo, useState } from "react";
 import { papas, bebidas } from "../../data/menu";
 import { useCart } from "../../store/useCart";
 import { toast } from "../../utils/toast";
@@ -28,9 +27,10 @@ export default function Papas() {
     }, {});
   }, []);
 
-  function getPrice(id) {
-    return papasById[id]?.price ?? 0;
-  }
+  const getPrice = useCallback(
+    (id) => papasById[id]?.price ?? 0,
+    [papasById],
+  );
 
   const papasBase = [
     {
@@ -83,7 +83,7 @@ export default function Papas() {
         },
       ],
     }),
-    [papasById],
+    [getPrice],
   );
 
   const dipItems = papas.filter((item) => item.id.startsWith("dip_"));
@@ -211,6 +211,3 @@ export default function Papas() {
     </Page>
   );
 }
-
-
-

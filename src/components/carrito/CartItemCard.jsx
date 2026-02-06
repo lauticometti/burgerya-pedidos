@@ -50,7 +50,7 @@ export default function CartItemCard({
         <div className={styles.titleRow}>
           {!isPromo ? (
             <div className={styles.qtyControls}>
-              <Button size="xs" onClick={onDecrease}>
+              <Button size="xs" onClick={onDecrease} disabled={item.qty <= 1}>
                 -
               </Button>
               <span className={styles.qty}>{item.qty}</span>
@@ -98,7 +98,10 @@ export default function CartItemCard({
               <Button size="sm" onClick={onOpenExtras}>
                 Agregados
               </Button>
-              <Button size="sm" onClick={onOpenPapas}>
+              <Button
+                size="sm"
+                onClick={onOpenPapas}
+                className={styles.papasButton}>
                 Mejorar papas
               </Button>
             </>
@@ -152,7 +155,10 @@ export default function CartItemCard({
                 <Button size="xs" onClick={() => onPromoPickExtras?.(index)}>
                   Agregados
                 </Button>
-                <Button size="xs" onClick={() => onPromoPickPapas?.(index)}>
+                <Button
+                  size="xs"
+                  onClick={() => onPromoPickPapas?.(index)}
+                  className={styles.papasButton}>
                   Mejorar Papas
                 </Button>
               </div>

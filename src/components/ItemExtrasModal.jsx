@@ -17,6 +17,18 @@ export default function ItemExtrasModal({
   onClear,
   clearLabel = "Limpiar",
 }) {
+  React.useEffect(() => {
+    if (!open || typeof window === "undefined") return;
+    function onKeyDown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose?.();
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open, onClose]);
+
   if (!open) return null;
 
   return (
