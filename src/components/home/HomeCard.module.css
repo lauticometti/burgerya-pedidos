@@ -24,8 +24,14 @@
 .mediaWrap {
   position: relative;
   width: 100%;
-  height: clamp(150px, 30vw, 210px);
+  height: 180px;
   background: #0a0a0a;
+}
+
+@media (min-width: 768px) {
+  .mediaWrap {
+    height: 200px;
+  }
 }
 
 .mediaImage {

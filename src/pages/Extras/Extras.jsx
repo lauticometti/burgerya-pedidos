@@ -23,7 +23,7 @@ export default function Extras() {
       unitPrice: x.price,
       meta: { type: "extra" },
     });
-    toast(`+ ${x.name}`);
+    toast.success(`+ ${x.name}`);
   }
 
   return (
@@ -61,7 +61,7 @@ export default function Extras() {
       </div>
 
       <StickyBar>
-        <CartSummary total={cart.total} lastAdded={cart.lastAdded} />
+        <CartSummary total={cart.total} />
         <Link to="/carrito">
           <Button variant="primary" disabled={cart.items.length === 0}>
             Ir al carrito
@@ -71,6 +71,7 @@ export default function Extras() {
     </Page>
   );
 }
+
 
 
 

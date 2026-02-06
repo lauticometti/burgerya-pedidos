@@ -33,6 +33,7 @@ export function buildWhatsAppText({
     if (item.meta?.type === "papas" && item.key?.startsWith("papas:dip_"))
       return "dips";
     if (item.meta?.type === "papas") return "papas";
+    if (item.meta?.type === "bebida") return "bebidas";
     return "burgers";
   }
 
@@ -41,6 +42,7 @@ export function buildWhatsAppText({
     { key: "burgers", title: "BURGERS" },
     { key: "papas", title: "PAPAS" },
     { key: "dips", title: "DIPS" },
+    { key: "bebidas", title: "BEBIDAS" },
   ];
 
   let hasGroup = false;

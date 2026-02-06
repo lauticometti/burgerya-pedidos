@@ -343,59 +343,73 @@ export default function Promos() {
           <div
             className={styles.flyerModal}
             onClick={(event) => event.stopPropagation()}>
-            <div
-              className={styles.flyerModalCarousel}
-              onTouchStart={handleSwipeStart}
-              onTouchEnd={handleSwipeEnd}
-              onMouseDown={handleSwipeStart}
-              onMouseUp={handleSwipeEnd}>
-              <button
-                type="button"
-                className={`${styles.flyerNavButton} ${styles.flyerNavLeft}`}
-                onClick={goPrevFlyer}
-                aria-label="Ver flyer anterior">
-                ‹
-              </button>
-              <img
-                className={styles.flyerModalImage}
-                src={currentFlyer.img}
-                alt={`Promo ${currentFlyer.label}`}
-                draggable="false"
-              />
-              <button
-                type="button"
-                className={`${styles.flyerNavButton} ${styles.flyerNavRight}`}
-                onClick={goNextFlyer}
-                aria-label="Ver flyer siguiente">
-                ›
-              </button>
-            </div>
-            <div className={styles.flyerDots} role="tablist">
-              {PROMO_FLYERS.map((flyer, index) => (
+            <div className={styles.flyerModalContent}>
+              <div
+                className={styles.flyerModalCarousel}
+                onTouchStart={handleSwipeStart}
+                onTouchEnd={handleSwipeEnd}
+                onMouseDown={handleSwipeStart}
+                onMouseUp={handleSwipeEnd}>
                 <button
-                  key={flyer.tier}
                   type="button"
-                  className={`${styles.flyerDot} ${
-                    index === flyerPreviewIndex ? styles.flyerDotActive : ""
-                  }`}
-                  onClick={() => setFlyerPreviewIndex(index)}
-                  aria-label={`Ver promo ${flyer.label}`}
+                  className={`${styles.flyerNavButton} ${styles.flyerNavLeft}`}
+                  onClick={goPrevFlyer}
+                  aria-label="Ver flyer anterior">
+                  <svg
+                    className={styles.flyerNavIcon}
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                    focusable="false">
+                    <path d="M15 18 9 12l6-6" />
+                  </svg>
+                </button>
+                <img
+                  className={styles.flyerModalImage}
+                  src={currentFlyer.img}
+                  alt={`Promo ${currentFlyer.label}`}
+                  draggable="false"
                 />
-              ))}
-            </div>
-            <div className={styles.flyerModalActions}>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => {
-                  chooseTier(currentFlyer.tier);
-                  setFlyerPreviewIndex(null);
-                }}>
-                Elegir {currentFlyer.label}
-              </Button>
-              <Button size="sm" onClick={() => setFlyerPreviewIndex(null)}>
-                Cerrar
-              </Button>
+                <button
+                  type="button"
+                  className={`${styles.flyerNavButton} ${styles.flyerNavRight}`}
+                  onClick={goNextFlyer}
+                  aria-label="Ver flyer siguiente">
+                  <svg
+                    className={styles.flyerNavIcon}
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                    focusable="false">
+                    <path d="M9 6l6 6-6 6" />
+                  </svg>
+                </button>
+              </div>
+              <div className={styles.flyerDots} role="tablist">
+                {PROMO_FLYERS.map((flyer, index) => (
+                  <button
+                    key={flyer.tier}
+                    type="button"
+                    className={`${styles.flyerDot} ${
+                      index === flyerPreviewIndex ? styles.flyerDotActive : ""
+                    }`}
+                    onClick={() => setFlyerPreviewIndex(index)}
+                    aria-label={`Ver promo ${flyer.label}`}
+                  />
+                ))}
+              </div>
+              <div className={styles.flyerModalActions}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => {
+                    chooseTier(currentFlyer.tier);
+                    setFlyerPreviewIndex(null);
+                  }}>
+                  Elegir {currentFlyer.label.toLowerCase()}
+                </Button>
+                <Button size="sm" onClick={() => setFlyerPreviewIndex(null)}>
+                  Cerrar
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -540,7 +554,7 @@ export default function Promos() {
       )}
 
       <StickyBar>
-        <CartSummary total={cart.total} lastAdded={cart.lastAdded} />
+        <CartSummary total={cart.total} />
         <Link to="/carrito">
           <Button variant="primary" disabled={cart.items.length === 0}>
             Ir al carrito
@@ -550,3 +564,5 @@ export default function Promos() {
     </Page>
   );
 }
+
+

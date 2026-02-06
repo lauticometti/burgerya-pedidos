@@ -1,0 +1,15 @@
+.row {
+  grid-template-columns: auto 1fr auto;
+}
+
+.qtyControls {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qty {
+  min-width: 18px;
+  text-align: center;
+  font-weight: 700;
+}

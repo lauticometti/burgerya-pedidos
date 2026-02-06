@@ -1,6 +1,7 @@
 ﻿import { Link } from "react-router-dom";
 import { useMemo, useState } from "react";
-import { papas } from "../../data/menu";
+import { Link } from "react-router-dom";
+import { papas, bebidas } from "../../data/menu";
 import { useCart } from "../../store/useCart";
 import { toast } from "../../utils/toast";
 import TopNav from "../../components/TopNav";
@@ -87,6 +88,8 @@ export default function Papas() {
 
   const dipItems = papas.filter((item) => item.id.startsWith("dip_"));
 
+  const bebidaItems = bebidas || [];
+
   function openModal(size) {
     setActiveSize(size);
     setSelectedOptionId("solas");
@@ -118,7 +121,7 @@ export default function Papas() {
       meta: { type: "papas", size: activeSize, option: picked.id },
     });
 
-    toast(`+ ${name}`);
+    toast.success(`+ ${name}`);
     closeModal();
   }
 
@@ -153,7 +156,32 @@ export default function Papas() {
                     unitPrice: item.price,
                     meta: { type: "papas" },
                   });
-                  toast(`+ ${item.name}`);
+                  toast.success(`+ ${item.name}`);
+                }}
+              />
+            ))}
+          </div>
+        </>
+      ) : null}
+      {bebidaItems.length ? (
+        <>
+          <div className={styles.sectionLabel} id="bebidas">
+            Bebidas
+          </div>
+          <div className={styles.list}>
+            {bebidaItems.map((item) => (
+              <PapasItem
+                key={item.id}
+                item={item}
+                onAdd={() => {
+                  cart.add({
+                    key: `bebida:${item.id}`,
+                    name: item.name,
+                    qty: 1,
+                    unitPrice: item.price,
+                    meta: { type: "bebida" },
+                  });
+                  toast.success(`+ ${item.name}`);
                 }}
               />
             ))}
@@ -161,7 +189,7 @@ export default function Papas() {
         </>
       ) : null}
       <StickyBar>
-        <CartSummary total={cart.total} lastAdded={cart.lastAdded} />
+        <CartSummary total={cart.total} />
         <Link to="/carrito">
           <Button
             variant="primary"
@@ -183,3 +211,6 @@ export default function Papas() {
     </Page>
   );
 }
+
+
+

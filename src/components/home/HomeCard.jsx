@@ -24,6 +24,7 @@ export default function HomeCard({
               src={imageSrc}
               alt={imageAlt || title}
               loading="lazy"
+              decoding="async"
               style={imagePosition ? { objectPosition: imagePosition } : null}
             />
             <div className={styles.mediaOverlay} />

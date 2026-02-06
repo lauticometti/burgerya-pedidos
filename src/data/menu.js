@@ -173,11 +173,11 @@ export const extras = [
 ];
 
 export const papas = [
-  { id: "cheddar_liq", name: "Cheddar líquido", price: 1500 },
+  { id: "cheddar_liq", name: "Cheddar", price: 1500 },
   { id: "papas_bacon", name: "Bacon", price: 1500 },
   { id: "porcion_extra", name: "Porción de papas extras", price: 3000 },
 
-  { id: "porcion_grande_solas", name: "Porción grande solas", price: 9000 },
+  { id: "porcion_grande_solas", name: "Porción grande sola", price: 9000 },
   {
     id: "porcion_grande_cheddar",
     name: "Porción grande con cheddar",
@@ -189,6 +189,13 @@ export const papas = [
     price: 13000,
   },
 
-  { id: "dip_cheddar", name: "Dip de cheddar", price: 2500 },
-  { id: "dip_mil_islas", name: "Dip de salsa mil islas", price: 1500 },
+  { id: "dip_cheddar", name: "Dip de cheddar", price: 2000 },
+  { id: "dip_mil_islas", name: "Dip de Mil Islas", price: 1500 },
 ];
+export const bebidas = [
+  { id: "coca_600", name: "Coca Cola 600ml", price: 2000 },
+  { id: "coca_225", name: "Coca Cola 2.25L", price: 5000 },
+];
+
+
+

@@ -27,7 +27,7 @@ export default function DeliveryDetailsCard({
           onChange={(e) => onAddressChange(e.target.value)}
         />
         <TextInput
-          placeholder="Entre calles (opcional)"
+          placeholder="Entre calles (opcional, pero ponelas)"
           value={cross}
           autoComplete="address-line2"
           onChange={(e) => onCrossChange(e.target.value)}
@@ -36,4 +36,3 @@ export default function DeliveryDetailsCard({
     </Card>
   );
 }
-

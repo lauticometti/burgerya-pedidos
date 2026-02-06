@@ -64,7 +64,9 @@ export default function CartItemCard({
               {item.name}
               {!isPromo && sizeLabel ? ` ${sizeLabel}` : ""}
             </div>
-            {picksText ? <div className={styles.meta}>- {picksText}</div> : null}
+            {picksText ? (
+              <div className={styles.meta}>- {picksText}</div>
+            ) : null}
             {item.extras?.length ? (
               <div className={styles.metaSmall}>
                 Agregados: {item.extras.map((extra) => extra.name).join(joiner)}
@@ -72,7 +74,8 @@ export default function CartItemCard({
             ) : null}
             {item.papas?.length ? (
               <div className={styles.metaSmall}>
-                Mejorar papas: {item.papas.map((extra) => extra.name).join(joiner)}
+                Mejorar papas:{" "}
+                {item.papas.map((extra) => extra.name).join(joiner)}
               </div>
             ) : null}
             {item.note?.trim() ? (
@@ -96,7 +99,7 @@ export default function CartItemCard({
                 Agregados
               </Button>
               <Button size="sm" onClick={onOpenPapas}>
-                Mejorar Papas
+                Mejorar papas
               </Button>
             </>
           ) : (
@@ -107,7 +110,7 @@ export default function CartItemCard({
         </div>
       ) : null}
 
-      {!isPromo && item.meta?.type !== "papas" ? (
+      {!isPromo && item.meta?.type !== "papas" && item.meta?.type !== "bebida" ? (
         <div className={styles.noteEditor}>
           <TextareaField
             placeholder="Aclaraciones"
@@ -129,12 +132,14 @@ export default function CartItemCard({
                 </div>
                 {pick.extras?.length ? (
                   <div className={styles.metaSmall}>
-                    Agregados: {pick.extras.map((extra) => extra.name).join(joiner)}
+                    Agregados:{" "}
+                    {pick.extras.map((extra) => extra.name).join(joiner)}
                   </div>
                 ) : null}
                 {pick.papas?.length ? (
                   <div className={styles.metaSmall}>
-                    Mejorar papas: {pick.papas.map((extra) => extra.name).join(joiner)}
+                    Mejorar papas:{" "}
+                    {pick.papas.map((extra) => extra.name).join(joiner)}
                   </div>
                 ) : null}
                 {pick.note?.trim() ? (
@@ -170,9 +175,3 @@ export default function CartItemCard({
     </Card>
   );
 }
-
-
-
-
-
-

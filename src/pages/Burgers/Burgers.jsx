@@ -87,7 +87,7 @@ export default function Burgers() {
       />
 
       <StickyBar>
-        <CartSummary total={cart.total} lastAdded={cart.lastAdded} />
+        <CartSummary total={cart.total} />
         <Link to="/carrito">
           <Button variant="primary" disabled={cart.items.length === 0}>
             Ir al carrito
@@ -97,6 +97,7 @@ export default function Burgers() {
     </Page>
   );
 }
+
 
 
 
