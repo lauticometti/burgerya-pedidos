@@ -155,12 +155,67 @@
   gap: 10px;
 }
 
+.flyerModalCarousel {
+  position: relative;
+  display: grid;
+  place-items: center;
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.flyerModalCarousel:active {
+  cursor: grabbing;
+}
+
 .flyerModalImage {
   width: 100%;
   max-height: 75vh;
   object-fit: contain;
   border-radius: 12px;
   background: #0a0a0a;
+}
+
+.flyerNavButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+}
+
+.flyerNavLeft {
+  left: 8px;
+}
+
+.flyerNavRight {
+  right: 8px;
+}
+
+.flyerDots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.flyerDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 0;
+}
+
+.flyerDotActive {
+  background: var(--y);
 }
 
 .flyerModalActions {
