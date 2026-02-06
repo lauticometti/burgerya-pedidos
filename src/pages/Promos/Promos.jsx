@@ -16,6 +16,27 @@ import PageTitle from "../../components/ui/PageTitle.jsx";
 import styles from "./Promos.module.css";
 import BrandLogo from "../../components/brand/BrandLogo";
 
+const PROMO_FLYERS = [
+  {
+    tier: "BASICA",
+    label: "Básica",
+    img: "/promos/basica.jpg",
+    tone: "Basica",
+  },
+  {
+    tier: "PREMIUM",
+    label: "Premium",
+    img: "/promos/premium.jpg",
+    tone: "Premium",
+  },
+  {
+    tier: "DELUXE",
+    label: "Deluxe",
+    img: "/promos/deluxe.jpg",
+    tone: "Deluxe",
+  },
+];
+
 export default function Promos() {
   const cart = useCart();
 
@@ -23,6 +44,7 @@ export default function Promos() {
   const [count, setCount] = useState(null); // 2 | 3 | 4
   const [size, setSize] = useState(null); // doble | triple
   const [picked, setPicked] = useState([]); // { id, name, note }
+  const [flyerPreview, setFlyerPreview] = useState(null);
   const countRef = useRef(null);
   const sizeRef = useRef(null);
   const pickRef = useRef(null);
@@ -131,6 +153,17 @@ export default function Promos() {
     if (size) scrollToRef(pickRef);
   }, [size]);
 
+  useEffect(() => {
+    if (!flyerPreview) return;
+    function onKeyDown(event) {
+      if (event.key === "Escape") {
+        setFlyerPreview(null);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [flyerPreview]);
+
   function addPromoToCart() {
     if (!tier || !count || !size || picked.length !== count) return;
 
@@ -170,6 +203,71 @@ export default function Promos() {
 
       <TopNav />
       <PageTitle>Promos</PageTitle>
+
+      <section className={styles.flyerSection}>
+        <div className={styles.flyerHeader}>
+          <div className={styles.sectionTitle}>Promos más pedidas</div>
+          <div className={styles.subtle}>
+            Mirá los flyers y elegí el tipo de promo para empezar.
+          </div>
+        </div>
+
+        <div className={styles.flyerGrid}>
+          {PROMO_FLYERS.map((flyer) => (
+            <Card
+              key={flyer.tier}
+              className={`${styles.flyerCard} ${
+                styles[`flyer${flyer.tone}`]
+              } ${tier === flyer.tier ? styles.flyerSelected : ""}`}>
+              <button
+                type="button"
+                className={styles.flyerButton}
+                onClick={() => setFlyerPreview(flyer)}
+                aria-label={`Ver promo ${flyer.label} en grande`}>
+                <div className={styles.flyerMedia}>
+                  <img
+                    src={flyer.img}
+                    alt={`Promo ${flyer.label}`}
+                    loading="lazy"
+                  />
+                </div>
+              </button>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {flyerPreview ? (
+        <div
+          className={styles.flyerModalOverlay}
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setFlyerPreview(null)}>
+          <div
+            className={styles.flyerModal}
+            onClick={(event) => event.stopPropagation()}>
+            <img
+              className={styles.flyerModalImage}
+              src={flyerPreview.img}
+              alt={`Promo ${flyerPreview.label}`}
+            />
+            <div className={styles.flyerModalActions}>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => {
+                  chooseTier(flyerPreview.tier);
+                  setFlyerPreview(null);
+                }}>
+                Elegir {flyerPreview.label}
+              </Button>
+              <Button size="sm" onClick={() => setFlyerPreview(null)}>
+                Cerrar
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <PromoStepCard step={step} helpText={stepHelp} />
 
