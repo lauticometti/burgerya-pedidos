@@ -45,6 +45,12 @@ export default function Promos() {
   const [size, setSize] = useState(null); // doble | triple
   const [picked, setPicked] = useState([]); // { id, name, note }
   const [flyerPreview, setFlyerPreview] = useState(null);
+  const [flyerStatus, setFlyerStatus] = useState(() =>
+    PROMO_FLYERS.reduce((acc, flyer) => {
+      acc[flyer.tier] = "loading";
+      return acc;
+    }, {}),
+  );
   const countRef = useRef(null);
   const sizeRef = useRef(null);
   const pickRef = useRef(null);
@@ -154,6 +160,27 @@ export default function Promos() {
   }, [size]);
 
   useEffect(() => {
+    let isActive = true;
+
+    PROMO_FLYERS.forEach((flyer) => {
+      const img = new Image();
+      img.src = flyer.img;
+      img.onload = () => {
+        if (!isActive) return;
+        setFlyerStatus((prev) => ({ ...prev, [flyer.tier]: "loaded" }));
+      };
+      img.onerror = () => {
+        if (!isActive) return;
+        setFlyerStatus((prev) => ({ ...prev, [flyer.tier]: "error" }));
+      };
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!flyerPreview) return;
     function onKeyDown(event) {
       if (event.key === "Escape") {
@@ -196,6 +223,13 @@ export default function Promos() {
   }
 
   const pickedNames = picked.map((pick) => pick.name || pick.id);
+  const flyersAllLoaded = PROMO_FLYERS.every(
+    (flyer) => flyerStatus[flyer.tier] === "loaded",
+  );
+  const flyersAnyError = PROMO_FLYERS.some(
+    (flyer) => flyerStatus[flyer.tier] === "error",
+  );
+  const showFlyerSection = flyersAllLoaded && !flyersAnyError;
 
   return (
     <Page>
@@ -204,40 +238,48 @@ export default function Promos() {
       <TopNav />
       <PageTitle>Promos</PageTitle>
 
-      <section className={styles.flyerSection}>
-        <div className={styles.flyerHeader}>
-          <div className={styles.sectionTitle}>Promos más pedidas</div>
-          <div className={styles.subtle}>
-            Mirá los flyers y elegí el tipo de promo para empezar.
+      {showFlyerSection ? (
+        <section className={styles.flyerSection}>
+          <div className={styles.flyerHeader}>
+            <div className={styles.sectionTitle}>Promos más pedidas</div>
+            <div className={styles.subtle}>
+              Mirá los flyers y elegí el tipo de promo para empezar.
+            </div>
           </div>
-        </div>
 
-        <div className={styles.flyerGrid}>
-          {PROMO_FLYERS.map((flyer) => (
-            <Card
-              key={flyer.tier}
-              className={`${styles.flyerCard} ${
-                styles[`flyer${flyer.tone}`]
-              } ${tier === flyer.tier ? styles.flyerSelected : ""}`}>
-              <button
-                type="button"
-                className={styles.flyerButton}
-                onClick={() => setFlyerPreview(flyer)}
-                aria-label={`Ver promo ${flyer.label} en grande`}>
-                <div className={styles.flyerMedia}>
-                  <img
-                    src={flyer.img}
-                    alt={`Promo ${flyer.label}`}
-                    loading="lazy"
-                  />
-                </div>
-              </button>
-            </Card>
-          ))}
-        </div>
-      </section>
+          <div className={styles.flyerGrid}>
+            {PROMO_FLYERS.map((flyer) => (
+              <Card
+                key={flyer.tier}
+                className={`${styles.flyerCard} ${
+                  styles[`flyer${flyer.tone}`]
+                } ${tier === flyer.tier ? styles.flyerSelected : ""}`}>
+                <button
+                  type="button"
+                  className={styles.flyerButton}
+                  onClick={() => setFlyerPreview(flyer)}
+                  aria-label={`Ver promo ${flyer.label} en grande`}>
+                  <div className={styles.flyerMedia}>
+                    <img
+                      src={flyer.img}
+                      alt={`Promo ${flyer.label}`}
+                      loading="lazy"
+                      onError={() =>
+                        setFlyerStatus((prev) => ({
+                          ...prev,
+                          [flyer.tier]: "error",
+                        }))
+                      }
+                    />
+                  </div>
+                </button>
+              </Card>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
-      {flyerPreview ? (
+      {flyerPreview && showFlyerSection ? (
         <div
           className={styles.flyerModalOverlay}
           role="dialog"
