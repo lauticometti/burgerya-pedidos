@@ -250,7 +250,10 @@ export default function Carrito() {
   const bebidaItems = bebidas || [];
 
   const modalItem = cart.items.find((item) => item.key === modalItemKey);
-  const modalItems = modalMode === "papas" ? papasMejoras : extras;
+  const modalItems = React.useMemo(() => {
+    if (modalMode === "papas") return papasMejoras;
+    return extras;
+  }, [modalMode, papasMejoras]);
 
   function setItemNote(key, value) {
     cart.setNote(key, value);
@@ -468,6 +471,9 @@ export default function Carrito() {
                     <div className={styles.groupItems}>
                       {groupItems.map((it, index) => {
                         const isPromo = it.meta?.type === "promo";
+                        const isComboDomingo =
+                          it.meta?.type === "promo" &&
+                          it.meta?.special === "domingo";
                         const canImprovePapas = it.meta?.type === "burger";
                         const canAddExtras = it.meta?.type === "burger";
                         return (
@@ -495,7 +501,11 @@ export default function Carrito() {
                               onRemove={() => handleRemove(it, group.key, index)}
                               onOpenExtras={() => openExtrasModal(it, "extras")}
                               onOpenPapas={() => openExtrasModal(it, "papas")}
-                              promoPicks={isPromo ? it.meta?.picks || [] : []}
+                              promoPicks={
+                                isPromo && !isComboDomingo
+                                  ? it.meta?.picks || []
+                                  : []
+                              }
                               onPromoNoteChange={(index, value) => {
                                 const picks = (it.meta?.picks || []).map(
                                   (pick, pickIndex) =>

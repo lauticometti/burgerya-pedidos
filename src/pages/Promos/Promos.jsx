@@ -303,9 +303,9 @@ export default function Promos() {
       meta: {
         type: "promo",
         special: "domingo",
-        allowQty: true,
         description: comboDomingo.description,
         kitchenItems: comboDomingo.kitchenItems,
+        allowedExtrasIds: comboDomingo.allowedExtrasIds,
       },
     });
 

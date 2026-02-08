@@ -162,6 +162,7 @@ export const comboDomingo = {
   price: 28000,
   description: "2 Bacon dobles + 2 Coca 600",
   modalDescription: "2 Bacon dobles con papas + 2 Coquitas de 600ml",
+  allowedExtrasIds: [],
   kitchenItems: [
     { label: "bacon dobles", labelUpper: "BACON DOBLES", qty: 2 },
     {

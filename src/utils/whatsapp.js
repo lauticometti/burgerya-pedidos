@@ -79,9 +79,12 @@ export function buildWhatsAppText({
             .filter(Boolean);
 
           if (kitchenLines.length) {
-            kitchenLines.forEach((line) => lines.push(`  ${line}`));
+            kitchenLines.forEach((line) => lines.push(line));
           } else if (it.meta?.description) {
             lines.push(`  · ${it.meta.description.toUpperCase()}`);
+          }
+          if (it.note?.trim()) {
+            lines.push(`  Aclaración: ${it.note.trim()}`);
           }
           continue;
         }
@@ -138,26 +141,26 @@ export function buildWhatsAppText({
         for (const pickGroup of promoQueue.values()) {
           const qtyPrefix = hasRepeats ? `${pickGroup.picks.length} ` : "";
           const pickLine = `· ${qtyPrefix}${pickGroup.name.toUpperCase()}`.trim();
-          lines.push(`  ${pickLine}`);
+          lines.push(pickLine);
           const joiner = it.meta?.type === "promo" ? " / " : " + ";
 
           const samplePick = pickGroup.picks[0];
           if (samplePick.extras?.length) {
             lines.push(
-              `    Agregados: ${samplePick.extras
+              `  Agregados: ${samplePick.extras
                 .map((extra) => extra.name)
                 .join(joiner)}`,
             );
           }
           if (samplePick.papas?.length) {
             lines.push(
-              `    Mejorar papas: ${samplePick.papas
+              `  Mejorar papas: ${samplePick.papas
                 .map((extra) => extra.name)
                 .join(joiner)}`,
             );
           }
           if (samplePick.note?.trim()) {
-            lines.push(`    Aclaración: ${samplePick.note.trim()}`);
+            lines.push(`  Aclaración: ${samplePick.note.trim()}`);
           }
         }
       } else {
