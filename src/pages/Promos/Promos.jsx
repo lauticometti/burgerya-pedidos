@@ -1,6 +1,11 @@
 ﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { burgers, promoPrices, promoRules } from "../../data/menu.js";
+import {
+  burgers,
+  comboDomingo,
+  promoPrices,
+  promoRules,
+} from "../../data/menu.js";
 import { useCart } from "../../store/useCart.js";
 import { toast } from "../../utils/toast.js";
 import { formatMoney } from "../../utils/formatMoney.js";
@@ -22,18 +27,22 @@ const PROMO_FLYERS = [
     label: "Básica",
     img: "/promos/basica.jpg",
     tone: "Basica",
+    rank: 1,
+    badge: "Más elegida",
   },
   {
     tier: "PREMIUM",
     label: "Premium",
     img: "/promos/premium.jpg",
     tone: "Premium",
+    rank: 2,
   },
   {
     tier: "DELUXE",
     label: "Deluxe",
     img: "/promos/deluxe.jpg",
     tone: "Deluxe",
+    rank: 3,
   },
 ];
 
@@ -51,7 +60,11 @@ export default function Promos() {
       return acc;
     }, {}),
   );
-  const flyerCount = PROMO_FLYERS.length;
+  const orderedFlyers = useMemo(
+    () => [...PROMO_FLYERS].sort((a, b) => a.rank - b.rank),
+    [],
+  );
+  const flyerCount = orderedFlyers.length;
   const countRef = useRef(null);
   const sizeRef = useRef(null);
   const pickRef = useRef(null);
@@ -71,10 +84,29 @@ export default function Promos() {
     return grouped;
   }, [tier]);
 
+  const burgersById = useMemo(() => {
+    return burgers.reduce((acc, burger) => {
+      acc[burger.id] = burger;
+      return acc;
+    }, {});
+  }, []);
+
   const price = useMemo(() => {
     if (!tier || !count || !size) return null;
     return promoPrices[tier][size][count];
   }, [tier, count, size]);
+
+  const pickedTotal = useMemo(() => {
+    if (!size || picked.length === 0) return null;
+    return picked.reduce((sum, pick) => {
+      const burger = burgersById[pick.id];
+      const unit = burger?.prices?.[size] || 0;
+      return sum + unit;
+    }, 0);
+  }, [picked, size, burgersById]);
+
+  const showSavings = picked.length === count && price != null && pickedTotal;
+  const savingsValue = showSavings ? pickedTotal - price : null;
 
   const canPickMore = tier && count && size && picked.length < count;
   const step = !tier ? 1 : !count ? 2 : !size ? 3 : 4;
@@ -197,7 +229,7 @@ export default function Promos() {
   useEffect(() => {
     let isActive = true;
 
-    PROMO_FLYERS.forEach((flyer) => {
+    orderedFlyers.forEach((flyer) => {
       const img = new Image();
       img.src = flyer.img;
       img.onload = () => {
@@ -213,7 +245,7 @@ export default function Promos() {
     return () => {
       isActive = false;
     };
-  }, []);
+  }, [orderedFlyers]);
 
   useEffect(() => {
     if (flyerPreviewIndex == null) return;
@@ -261,6 +293,27 @@ export default function Promos() {
     swipeStartY.current = null;
   }
 
+  function addSpecialPromoToCart() {
+    const key = "promo:domingo";
+    cart.add({
+      key,
+      name: comboDomingo.cartLabel || comboDomingo.label,
+      qty: 1,
+      unitPrice: comboDomingo.price,
+      meta: {
+        type: "promo",
+        special: "domingo",
+        allowQty: true,
+        description: comboDomingo.description,
+        kitchenItems: comboDomingo.kitchenItems,
+      },
+    });
+
+    toast.promo(`Combo agregado - ${formatMoney(comboDomingo.price)}`, {
+      key: "promo-domingo-added",
+    });
+  }
+
   function addPromoToCart() {
     if (!tier || !count || !size || picked.length !== count) return;
 
@@ -287,20 +340,19 @@ export default function Promos() {
 
     toast.promo(`Promo agregada - ${formatMoney(price)}`, {
       key: "promo-added",
-      sound: true,
     });
     resetAll();
   }
 
-  const flyersAllLoaded = PROMO_FLYERS.every(
+  const flyersAllLoaded = orderedFlyers.every(
     (flyer) => flyerStatus[flyer.tier] === "loaded",
   );
-  const flyersAnyError = PROMO_FLYERS.some(
+  const flyersAnyError = orderedFlyers.some(
     (flyer) => flyerStatus[flyer.tier] === "error",
   );
   const showFlyerSection = flyersAllLoaded && !flyersAnyError;
   const currentFlyer =
-    flyerPreviewIndex != null ? PROMO_FLYERS[flyerPreviewIndex] : null;
+    flyerPreviewIndex != null ? orderedFlyers[flyerPreviewIndex] : null;
 
   return (
     <Page>
@@ -308,6 +360,24 @@ export default function Promos() {
 
       <TopNav />
       <PageTitle>Promos</PageTitle>
+
+      <section className={styles.comboSection}>
+        <div className={styles.comboHeader}>
+          <div className={styles.sectionTitle}>Solo hoy. Domingo 8.</div>
+        </div>
+        <Card className={styles.comboCard}>
+          <div className={styles.comboMedia}>
+            <img
+              src={comboDomingo.img}
+              alt={comboDomingo.label}
+              loading="lazy"
+            />
+          </div>
+          <Button variant="primary" onClick={addSpecialPromoToCart}>
+            Agregar al carrito
+          </Button>
+        </Card>
+      </section>
 
       {showFlyerSection ? (
         <section className={styles.flyerSection}>
@@ -319,7 +389,7 @@ export default function Promos() {
           </div>
 
           <div className={styles.flyerGrid}>
-            {PROMO_FLYERS.map((flyer, index) => (
+            {orderedFlyers.map((flyer, index) => (
               <Card
                 key={flyer.tier}
                 className={`${styles.flyerCard} ${
@@ -331,6 +401,9 @@ export default function Promos() {
                   onClick={() => setFlyerPreviewIndex(index)}
                   aria-label={`Ver promo ${flyer.label} en grande`}>
                   <div className={styles.flyerMedia}>
+                    {flyer.badge ? (
+                      <div className={styles.flyerBadge}>{flyer.badge}</div>
+                    ) : null}
                     <img
                       src={flyer.img}
                       alt={`Promo ${flyer.label}`}
@@ -400,7 +473,7 @@ export default function Promos() {
                 </button>
               </div>
               <div className={styles.flyerDots} role="tablist">
-                {PROMO_FLYERS.map((flyer, index) => (
+                {orderedFlyers.map((flyer, index) => (
                   <button
                     key={flyer.tier}
                     type="button"
@@ -436,21 +509,14 @@ export default function Promos() {
       <Card className={styles.card}>
         <div className={styles.sectionTitle}>Elegí promo</div>
         <div className={`${styles.row} ${styles.rowWrap}`}>
-          <Button
-            isActive={tier === "BASICA"}
-            onClick={() => chooseTier("BASICA")}>
-            Básica
-          </Button>
-          <Button
-            isActive={tier === "PREMIUM"}
-            onClick={() => chooseTier("PREMIUM")}>
-            Premium
-          </Button>
-          <Button
-            isActive={tier === "DELUXE"}
-            onClick={() => chooseTier("DELUXE")}>
-            Deluxe
-          </Button>
+          {orderedFlyers.map((flyer) => (
+            <Button
+              key={flyer.tier}
+              isActive={tier === flyer.tier}
+              onClick={() => chooseTier(flyer.tier)}>
+              {flyer.label}
+            </Button>
+          ))}
         </div>
       </Card>
 
@@ -490,6 +556,21 @@ export default function Promos() {
             {size && price != null && (
               <div className={styles.price}>
                 <b>Precio promo:</b> {formatMoney(price)}
+                {showSavings ? (
+                  <div className={styles.savings}>
+                    <span>Comprar sueltas: {formatMoney(pickedTotal)}</span>
+                    <span
+                      className={
+                        savingsValue >= 0
+                          ? styles.savingsPositive
+                          : styles.savingsNegative
+                      }>
+                      {savingsValue >= 0
+                        ? `Ahorrás ${formatMoney(savingsValue)}`
+                        : `Promo +${formatMoney(Math.abs(savingsValue))}`}
+                    </span>
+                  </div>
+                ) : null}
               </div>
             )}
           </Card>
@@ -555,7 +636,10 @@ export default function Promos() {
                 picked.map((pick, i) => {
                   const name = pick.name || pick.id;
                   return (
-                    <Pill key={`${name}-${i}`} active className={styles.pickPill}>
+                    <Pill
+                      key={`${name}-${i}`}
+                      active
+                      className={styles.pickPill}>
                       <span>{name}</span>
                       <button
                         type="button"

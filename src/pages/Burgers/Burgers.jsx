@@ -34,6 +34,18 @@ export default function Burgers() {
     setModalOpen(true);
   }
 
+  function scrollToBurger(burgerId) {
+    if (typeof window === "undefined") return;
+    const el = document.getElementById(`burger-${burgerId}`);
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const offset = 96;
+    const target = rect.top + window.scrollY - offset;
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: target, behavior: "smooth" });
+    });
+  }
+
   return (
     <Page>
       <BrandLogo />
@@ -47,11 +59,9 @@ export default function Burgers() {
         return (
           <BurgerSection key={tier} title={TIER_LABELS[tier]} variant={tier}>
             {list.map((burger) => (
-              <BurgerItem
-                key={burger.id}
-                burger={burger}
-                onOpen={() => openBurger(burger)}
-              />
+              <div key={burger.id} id={`burger-${burger.id}`}>
+                <BurgerItem burger={burger} onOpen={() => openBurger(burger)} />
+              </div>
             ))}
           </BurgerSection>
         );
@@ -83,6 +93,9 @@ export default function Burgers() {
               burger.prices[size],
             )}`,
           );
+          setModalOpen(false);
+          setActiveBurger(null);
+          scrollToBurger(burger.id);
         }}
       />
 

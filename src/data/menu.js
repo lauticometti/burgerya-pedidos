@@ -154,6 +154,26 @@ export const promoRules = {
   DELUXE: { allowedTiers: ["BASICA", "PREMIUM", "DELUXE"] },
 };
 
+export const comboDomingo = {
+  key: "DOMINGO",
+  label: "Promo Domingo",
+  cartLabel: "Combo Domingo",
+  img: "/combos/comboDomingo.png",
+  price: 28000,
+  description: "2 Bacon dobles + 2 Coca 600",
+  modalDescription: "2 Bacon dobles con papas + 2 Coquitas de 600ml",
+  kitchenItems: [
+    { label: "bacon dobles", labelUpper: "BACON DOBLES", qty: 2 },
+    {
+      label: "coca 600ml",
+      plural: "cocas 600ml",
+      labelUpper: "COCA 600ml",
+      pluralUpper: "COCAS 600ml",
+      qty: 2,
+    },
+  ],
+};
+
 export const extras = [
   { id: "carne_cheddar", name: "Carne extra c/ cheddar", price: 3000 },
   { id: "cheddar_extra", name: "Cheddar extra (2 fetas)", price: 1000 },

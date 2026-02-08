@@ -22,6 +22,8 @@ export default function CartItemCard({
   onPromoPickPapas,
 }) {
   const isPromo = item.meta?.type === "promo";
+  const allowPromoQty = item.meta?.allowQty;
+  const showQtyControls = !isPromo || allowPromoQty;
   const extrasTotal = (item.extras || []).reduce(
     (sum, extra) => sum + extra.price,
     0,
@@ -43,12 +45,13 @@ export default function CartItemCard({
         : item.meta?.size === "simple"
           ? "simple"
           : null;
+  const description = item.meta?.description;
 
   return (
     <Card className={styles.card}>
       <div className={styles.header}>
         <div className={styles.titleRow}>
-          {!isPromo ? (
+          {showQtyControls ? (
             <div className={styles.qtyControls}>
               <Button size="xs" onClick={onDecrease} disabled={item.qty <= 1}>
                 -
@@ -66,6 +69,9 @@ export default function CartItemCard({
             </div>
             {picksText ? (
               <div className={styles.meta}>- {picksText}</div>
+            ) : null}
+            {description ? (
+              <div className={styles.metaSmall}>{description}</div>
             ) : null}
             {item.extras?.length ? (
               <div className={styles.metaSmall}>

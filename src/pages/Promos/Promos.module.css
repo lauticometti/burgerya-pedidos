@@ -34,6 +34,24 @@
   opacity: 0.9;
 }
 
+.savings {
+  margin-top: 6px;
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.savingsPositive {
+  color: var(--y);
+  font-weight: 800;
+}
+
+.savingsNegative {
+  color: #ff8f8f;
+  font-weight: 800;
+}
+
 .totalPrice {
   font-size: 18px;
   font-weight: 800;
@@ -125,6 +143,44 @@
   margin-bottom: 10px;
 }
 
+.comboSection {
+  margin-bottom: 16px;
+}
+
+.comboHeader {
+  margin-bottom: 10px;
+}
+
+.comboCard {
+  display: grid;
+  gap: 10px;
+  padding: 8px;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.comboMedia {
+  border-radius: 12px;
+  overflow: hidden;
+  background: #0a0a0a;
+  width: min(280px, 100%);
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1 / 1;
+}
+
+.comboMedia img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.comboCard button {
+  width: 100%;
+}
+
+
 .flyerGrid {
   display: grid;
   gap: 12px;
@@ -170,6 +226,7 @@
   aspect-ratio: 9 / 16;
   display: grid;
   place-items: center;
+  position: relative;
 }
 
 .flyerMedia img {
@@ -188,6 +245,10 @@
 
 .flyerDeluxe {
   --flyer-accent: #f0b24c;
+}
+
+.flyerDomingo {
+  --flyer-accent: #7fd47c;
 }
 
 .flyerModalOverlay {
@@ -314,6 +375,20 @@
 
 .flyerModalActions button {
   width: 100%;
+}
+
+.flyerBadge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(255, 198, 42, 0.92);
+  color: #111;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.35);
 }
 
 @media (min-width: 720px) {

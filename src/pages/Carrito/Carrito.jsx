@@ -3,6 +3,7 @@ import { useCart } from "../../store/useCart";
 import { bebidas, extras, papas, WHATSAPP_NUMBER } from "../../data/menu";
 import ItemExtrasModal from "../../components/ItemExtrasModal";
 import { toast } from "../../utils/toast";
+import { formatMoney } from "../../utils/formatMoney";
 import { getAvailableSlotsMin30, minutesToHHMM } from "../../utils/timeSlots";
 import { buildWhatsAppText } from "../../utils/whatsapp";
 import Page from "../../components/layout/Page";
@@ -15,6 +16,7 @@ import PaymentScheduleCard from "../../components/carrito/PaymentScheduleCard";
 import CartItemCard from "../../components/carrito/CartItemCard";
 import BebidasModal from "../../components/carrito/BebidasModal";
 import PageTitle from "../../components/ui/PageTitle";
+import BrandLogo from "../../components/brand/BrandLogo";
 import styles from "./Carrito.module.css";
 
 export default function Carrito() {
@@ -37,6 +39,7 @@ export default function Carrito() {
   const [modalSelectedIds, setModalSelectedIds] = React.useState([]);
   const [bebidaOpen, setBebidaOpen] = React.useState(false);
   const [bebidaQuantities, setBebidaQuantities] = React.useState({});
+  const [upsellCollapsed, setUpsellCollapsed] = React.useState(false);
   const [undoItem, setUndoItem] = React.useState(null);
   const undoTimerRef = React.useRef(null);
   const storageKey = "burgerya_carrito_form";
@@ -79,6 +82,11 @@ export default function Carrito() {
     }
   }, [name, address, cross, pay, deliveryMode, notes, whenMode, whenSlot]);
 
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, []);
+
   const [availableSlots, setAvailableSlots] = React.useState(
     getAvailableSlotsMin30(),
   );
@@ -113,7 +121,18 @@ export default function Carrito() {
     hasDeliveryMode;
 
   const canContinue = cart.items.length > 0;
-  const hasBebidas = cart.items.some((item) => item.meta?.type === "bebida");
+  const firstBurgerItem = cart.items.find(
+    (item) => item.meta?.type === "burger",
+  );
+  const suggestedBebida = bebidas?.[0] || null;
+  const suggestedExtra =
+    extras.find((item) => item.id === "bacon_crocante") || extras[0];
+  const hasSuggestedExtra =
+    !!firstBurgerItem &&
+    !!suggestedExtra &&
+    (firstBurgerItem.extras || []).some(
+      (extra) => extra.id === suggestedExtra.id,
+    );
 
   React.useEffect(() => {
     if (!canContinue && step !== 1) {
@@ -122,8 +141,16 @@ export default function Carrito() {
   }, [canContinue, step]);
 
   React.useEffect(() => {
+    if (cart.items.length === 0 && upsellCollapsed) {
+      setUpsellCollapsed(false);
+    }
+  }, [cart.items.length, upsellCollapsed]);
+
+  React.useEffect(() => {
     if (step !== 2 || typeof window === "undefined") return;
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
   }, [step]);
 
   function getUndoLabel(item) {
@@ -173,6 +200,26 @@ export default function Carrito() {
       clearTimeout(undoTimerRef.current);
       undoTimerRef.current = null;
     }
+  }
+
+  function addSuggestedBebida() {
+    if (!suggestedBebida) return;
+    cart.add({
+      key: `bebida:${suggestedBebida.id}`,
+      name: suggestedBebida.name,
+      qty: 1,
+      unitPrice: suggestedBebida.price,
+      meta: { type: "bebida" },
+    });
+    toast.success(`+ ${suggestedBebida.name}`);
+    setUpsellCollapsed(true);
+  }
+
+  function addSuggestedExtra() {
+    if (!firstBurgerItem || !suggestedExtra || hasSuggestedExtra) return;
+    const nextExtras = [...(firstBurgerItem.extras || []), suggestedExtra];
+    cart.setExtras(firstBurgerItem.key, nextExtras);
+    toast.success(`+ ${suggestedExtra.name}`);
   }
 
   const missingFields = [
@@ -384,6 +431,7 @@ export default function Carrito() {
 
   return (
     <Page>
+      <BrandLogo />
       <CarritoHeader onClear={cart.clear} />
 
       <PageTitle>Carrito</PageTitle>
@@ -488,12 +536,47 @@ export default function Carrito() {
               })
             )}
           </div>
-          {cart.items.length > 0 ? (
-            <div className={styles.drinkCta}>
-              <Button className={styles.cokeButton} onClick={openBebidaModal}>
-                {hasBebidas ? "Quiero mas bebida" : "Tambien quiero para tomar"}
-              </Button>
-            </div>
+          {cart.items.length > 0 &&
+          (suggestedBebida || (firstBurgerItem && suggestedExtra)) ? (
+            upsellCollapsed ? (
+              <div className={styles.upsellSolo}>
+                <Button variant="primary" size="xs" onClick={openBebidaModal}>
+                  Quiero algo para tomar
+                </Button>
+              </div>
+            ) : (
+              <div className={styles.upsellCard}>
+                <div className={styles.upsellTitle}>Sumale algo al pedido</div>
+                <div className={styles.upsellRow}>
+                  {suggestedBebida ? (
+                    <Button
+                      size="sm"
+                      className={styles.upsellButton}
+                      onClick={addSuggestedBebida}>
+                      + {suggestedBebida.name}{" "}
+                      {formatMoney(suggestedBebida.price)}
+                    </Button>
+                  ) : null}
+                  {firstBurgerItem && suggestedExtra ? (
+                    <Button
+                      size="sm"
+                      className={styles.upsellButton}
+                      disabled={hasSuggestedExtra}
+                      onClick={addSuggestedExtra}>
+                      {hasSuggestedExtra
+                        ? "Extra ya agregado"
+                        : `+ ${suggestedExtra.name} ${formatMoney(suggestedExtra.price)}`}
+                    </Button>
+                  ) : null}
+                  <button
+                    type="button"
+                    className={styles.upsellLink}
+                    onClick={openBebidaModal}>
+                    Ver todas las bebidas
+                  </button>
+                </div>
+              </div>
+            )
           ) : null}
         </>
       ) : (

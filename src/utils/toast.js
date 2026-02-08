@@ -50,18 +50,30 @@ export const toast = {
 export function playToastSound() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const o = ctx.createOscillator();
+    const now = ctx.currentTime;
     const g = ctx.createGain();
-    o.type = "sine";
-    o.frequency.value = 880;
-    g.gain.value = 0.05;
-    o.connect(g);
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(0.06, now + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
     g.connect(ctx.destination);
-    o.start();
+
+    const o1 = ctx.createOscillator();
+    o1.type = "triangle";
+    o1.frequency.setValueAtTime(523.25, now); // C5
+    o1.connect(g);
+    o1.start(now);
+    o1.stop(now + 0.12);
+
+    const o2 = ctx.createOscillator();
+    o2.type = "triangle";
+    o2.frequency.setValueAtTime(659.25, now + 0.12); // E5
+    o2.connect(g);
+    o2.start(now + 0.12);
+    o2.stop(now + 0.24);
+
     setTimeout(() => {
-      o.stop();
       ctx.close();
-    }, 70);
+    }, 300);
   } catch {
     // no-op
   }
