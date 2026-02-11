@@ -57,38 +57,6 @@ export function buildWhatsAppText({
 
     for (const it of groupItems) {
       if (it.meta?.type === "promo") {
-        if (it.meta?.special === "domingo") {
-          const header =
-            it.qty > 1 ? `${it.qty} combos domingo` : "Combo domingo";
-          lines.push(`${header}:`);
-
-          const kitchenLines = (it.meta?.kitchenItems || [])
-            .map((item) => {
-              const total = (item.qty || 0) * (it.qty || 1);
-              if (!total) return null;
-              const label =
-                total === 1
-                  ? item.labelUpper || item.label
-                  : item.pluralUpper ||
-                    item.plural ||
-                    item.labelUpper ||
-                    item.label;
-              const finalLabel = (label || "").toUpperCase();
-              return `· ${total} ${finalLabel}`;
-            })
-            .filter(Boolean);
-
-          if (kitchenLines.length) {
-            kitchenLines.forEach((line) => lines.push(line));
-          } else if (it.meta?.description) {
-            lines.push(`  · ${it.meta.description.toUpperCase()}`);
-          }
-          if (it.note?.trim()) {
-            lines.push(`  Aclaración: ${it.note.trim()}`);
-          }
-          continue;
-        }
-
         const qtyPrefix = it.qty > 1 ? `${it.qty} ` : "";
         lines.push(`${qtyPrefix}${it.name.toLowerCase()}:`);
         if (it.meta?.description) {

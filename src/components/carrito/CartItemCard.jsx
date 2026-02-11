@@ -24,9 +24,7 @@ export default function CartItemCard({
 }) {
   const isPromo = item.meta?.type === "promo";
   const allowPromoQty = item.meta?.allowQty;
-  const isComboDomingo = item.meta?.special === "domingo";
-  const showQtyControls = !isPromo || allowPromoQty || isComboDomingo;
-  const shouldShowQtyInName = isComboDomingo && item.qty > 1;
+  const showQtyControls = !isPromo || allowPromoQty;
   const showActions = canAddExtras || canImprovePapas;
   const extrasTotal = (item.extras || []).reduce(
     (sum, extra) => sum + extra.price,
@@ -37,15 +35,10 @@ export default function CartItemCard({
     0,
   );
   const unitWithExtras = item.unitPrice + extrasTotal + papasTotal;
-  const showSubtotalPrice = isComboDomingo;
-  const displayPrice = showSubtotalPrice
-    ? unitWithExtras * item.qty
-    : unitWithExtras;
-  const picksText = isComboDomingo
-    ? null
-    : item.meta?.picks?.length
-      ? formatPickNames(item.meta.picks)
-      : null;
+  const displayPrice = unitWithExtras;
+  const picksText = item.meta?.picks?.length
+    ? formatPickNames(item.meta.picks)
+    : null;
   const joiner = isPromo ? " / " : " + ";
   const sizeLabel =
     item.meta?.size === "doble"
@@ -55,26 +48,7 @@ export default function CartItemCard({
         : item.meta?.size === "simple"
           ? "simple"
           : null;
-  function formatComboLine(kitchenItems = [], qty = 1) {
-    const parts = kitchenItems
-      .map((item) => {
-        const total = (item.qty || 0) * (qty || 1);
-        if (!total) return null;
-        const label =
-          total === 1
-            ? item.label || ""
-            : item.plural || item.label || "";
-        if (!label) return null;
-        return `${total} ${label.charAt(0).toUpperCase()}${label.slice(1)}`;
-      })
-      .filter(Boolean);
-    return parts.join(" + ");
-  }
-
-  const description =
-    isComboDomingo && item.meta?.kitchenItems?.length
-      ? formatComboLine(item.meta.kitchenItems, item.qty)
-      : item.meta?.description;
+  const description = item.meta?.description;
 
   return (
     <Card className={styles.card}>
@@ -93,14 +67,13 @@ export default function CartItemCard({
           ) : null}
           <div className={styles.nameBlock}>
             <div className={styles.name}>
-              {shouldShowQtyInName ? `${item.qty} ` : ""}
               {item.name}
               {!isPromo && sizeLabel ? ` ${sizeLabel}` : ""}
             </div>
             {picksText ? (
               <div className={styles.meta}>- {picksText}</div>
             ) : null}
-            {!isComboDomingo && description ? (
+            {description ? (
               <div className={styles.metaSmall}>{description}</div>
             ) : null}
             {item.extras?.length ? (
@@ -126,10 +99,6 @@ export default function CartItemCard({
           <CloseButton onClick={onRemove} aria-label={`Quitar ${item.name}`} />
         </div>
       </div>
-
-      {isComboDomingo && description ? (
-        <div className={styles.comboDescription}>{description}</div>
-      ) : null}
 
       {showActions ? (
         <div className={styles.actions}>

@@ -143,44 +143,6 @@
   margin-bottom: 10px;
 }
 
-.comboSection {
-  margin-bottom: 16px;
-}
-
-.comboHeader {
-  margin-bottom: 10px;
-}
-
-.comboCard {
-  display: grid;
-  gap: 10px;
-  padding: 8px;
-  max-width: 320px;
-  margin: 0 auto;
-}
-
-.comboMedia {
-  border-radius: 12px;
-  overflow: hidden;
-  background: #0a0a0a;
-  width: min(280px, 100%);
-  margin: 0 auto;
-  display: grid;
-  place-items: center;
-  aspect-ratio: 1 / 1;
-}
-
-.comboMedia img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.comboCard button {
-  width: 100%;
-}
-
-
 .flyerGrid {
   display: grid;
   gap: 12px;
@@ -245,10 +207,6 @@
 
 .flyerDeluxe {
   --flyer-accent: #f0b24c;
-}
-
-.flyerDomingo {
-  --flyer-accent: #7fd47c;
 }
 
 .flyerModalOverlay {

@@ -2,7 +2,6 @@
 import { Link } from "react-router-dom";
 import {
   burgers,
-  comboDomingo,
   promoPrices,
   promoRules,
 } from "../../data/menu.js";
@@ -293,27 +292,6 @@ export default function Promos() {
     swipeStartY.current = null;
   }
 
-  function addSpecialPromoToCart() {
-    const key = "promo:domingo";
-    cart.add({
-      key,
-      name: comboDomingo.cartLabel || comboDomingo.label,
-      qty: 1,
-      unitPrice: comboDomingo.price,
-      meta: {
-        type: "promo",
-        special: "domingo",
-        description: comboDomingo.description,
-        kitchenItems: comboDomingo.kitchenItems,
-        allowedExtrasIds: comboDomingo.allowedExtrasIds,
-      },
-    });
-
-    toast.promo(`Combo agregado - ${formatMoney(comboDomingo.price)}`, {
-      key: "promo-domingo-added",
-    });
-  }
-
   function addPromoToCart() {
     if (!tier || !count || !size || picked.length !== count) return;
 
@@ -360,24 +338,6 @@ export default function Promos() {
 
       <TopNav />
       <PageTitle>Promos</PageTitle>
-
-      <section className={styles.comboSection}>
-        <div className={styles.comboHeader}>
-          <div className={styles.sectionTitle}>Solo hoy. Domingo 8.</div>
-        </div>
-        <Card className={styles.comboCard}>
-          <div className={styles.comboMedia}>
-            <img
-              src={comboDomingo.img}
-              alt={comboDomingo.label}
-              loading="lazy"
-            />
-          </div>
-          <Button variant="primary" onClick={addSpecialPromoToCart}>
-            Agregar al carrito
-          </Button>
-        </Card>
-      </section>
 
       {showFlyerSection ? (
         <section className={styles.flyerSection}>

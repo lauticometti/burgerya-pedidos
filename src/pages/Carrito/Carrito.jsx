@@ -471,9 +471,6 @@ export default function Carrito() {
                     <div className={styles.groupItems}>
                       {groupItems.map((it, index) => {
                         const isPromo = it.meta?.type === "promo";
-                        const isComboDomingo =
-                          it.meta?.type === "promo" &&
-                          it.meta?.special === "domingo";
                         const canImprovePapas = it.meta?.type === "burger";
                         const canAddExtras = it.meta?.type === "burger";
                         return (
@@ -502,9 +499,7 @@ export default function Carrito() {
                               onOpenExtras={() => openExtrasModal(it, "extras")}
                               onOpenPapas={() => openExtrasModal(it, "papas")}
                               promoPicks={
-                                isPromo && !isComboDomingo
-                                  ? it.meta?.picks || []
-                                  : []
+                                isPromo ? it.meta?.picks || [] : []
                               }
                               onPromoNoteChange={(index, value) => {
                                 const picks = (it.meta?.picks || []).map(
