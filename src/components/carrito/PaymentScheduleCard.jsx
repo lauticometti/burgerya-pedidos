@@ -16,7 +16,6 @@ export default function PaymentScheduleCard({
   onNotesChange,
 }) {
   const [slotOpen, setSlotOpen] = useState(false);
-  const nextSlotLabel = availableSlots?.[0]?.label || null;
 
   useEffect(() => {
     if (whenMode !== "Más tarde") {
@@ -70,17 +69,6 @@ export default function PaymentScheduleCard({
             Para más tarde
           </button>
         </div>
-        <div className={styles.timingHint}>
-          {nextSlotLabel ? (
-            <>
-              <span>Próximo horario disponible: {nextSlotLabel}</span>
-              <br />
-              <span>Tiempo estimado: mínimo 30 min</span>
-            </>
-          ) : (
-            "No hay horarios disponibles hoy."
-          )}
-        </div>
 
         {whenMode === "Más tarde" &&
           (availableSlots.length ? (
@@ -104,7 +92,7 @@ export default function PaymentScheduleCard({
             </>
           ) : (
             <div className={styles.emptySlots}>
-              No hay horarios disponibles hoy (mínimo +30 min).
+              No hay horarios disponibles hoy.
             </div>
           ))}
 

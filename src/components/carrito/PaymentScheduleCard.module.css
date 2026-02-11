@@ -53,12 +53,6 @@
   box-shadow: 0 0 0 1px rgba(255, 198, 42, 0.22);
 }
 
-.timingHint {
-  font-size: 12px;
-  opacity: 0.75;
-  line-height: 1.4;
-}
-
 .slotButton {
   width: 100%;
   text-align: left;
