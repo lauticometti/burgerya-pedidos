@@ -150,6 +150,13 @@ export default function Promos() {
 
   function pickBurger(burger) {
     if (!canPickMore) return;
+    if (burger.isAvailable === false) {
+      const reason = burger.unavailableReason || "no disponible por hoy";
+      toast.error(`${burger.name}: ${reason}`, {
+        key: `promo-unavailable:${burger.id}`,
+      });
+      return;
+    }
     setPicked((p) => [...p, { id: burger.id, name: burger.name, note: "" }]);
   }
 
@@ -294,6 +301,18 @@ export default function Promos() {
 
   function addPromoToCart() {
     if (!tier || !count || !size || picked.length !== count) return;
+    const unavailablePick = picked.find(
+      (pick) => burgersById[pick.id]?.isAvailable === false,
+    );
+    if (unavailablePick) {
+      const reason =
+        burgersById[unavailablePick.id]?.unavailableReason ||
+        "no disponible por hoy";
+      toast.error(`${unavailablePick.name}: ${reason}`, {
+        key: `promo-unavailable:${unavailablePick.id}`,
+      });
+      return;
+    }
 
     const names = picked.map((pick) => pick.name || pick.id);
     const key = `promo:${tier}:${count}:${size}:${names.join(",")}:${Date.now()}`;
@@ -566,14 +585,25 @@ export default function Promos() {
                       </div>
                       <div
                         className={`${styles.row} ${styles.rowWrap} ${styles.pickRow}`}>
-                        {tierItems.map((b) => (
-                          <Button
-                            key={b.id}
-                            onClick={() => pickBurger(b)}
-                            disabled={!canPickMore}>
-                            {b.name}
-                          </Button>
-                        ))}
+                        {tierItems.map((b) => {
+                          const isUnavailable = b.isAvailable === false;
+                          const unavailableReason =
+                            b.unavailableReason || "no disponible por hoy";
+                          return (
+                            <Button
+                              key={b.id}
+                              onClick={() => pickBurger(b)}
+                              disabled={!canPickMore}
+                              aria-disabled={isUnavailable}
+                              title={isUnavailable ? unavailableReason : undefined}
+                              subLabel={isUnavailable ? unavailableReason : undefined}
+                              className={
+                                isUnavailable ? styles.pickUnavailable : ""
+                              }>
+                              {b.name}
+                            </Button>
+                          );
+                        })}
                       </div>
                     </div>
                   );

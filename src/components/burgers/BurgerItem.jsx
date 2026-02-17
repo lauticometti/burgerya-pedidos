@@ -4,26 +4,44 @@ import { formatMoney } from "../../utils/formatMoney";
 import { getMinPrice } from "../../utils/menuPricing";
 import { resolvePublicPath } from "../../utils/assetPath";
 
-export default function BurgerItem({ burger, onOpen }) {
+export default function BurgerItem({ burger, onOpen, onUnavailable }) {
   const minPrice = getMinPrice(burger.prices);
+  const isUnavailable = burger.isAvailable === false;
+  const unavailableReason = burger.unavailableReason || "no disponible por hoy";
+
+  function handleAction() {
+    if (isUnavailable) {
+      onUnavailable?.(burger, unavailableReason);
+      return;
+    }
+    onOpen?.();
+  }
 
   return (
     <div
-      className={styles.item}
+      className={`${styles.item} ${isUnavailable ? styles.itemUnavailable : ""}`}
       role="button"
       tabIndex={0}
-      aria-label={`Ver opciones de ${burger.name}`}
-      onClick={onOpen}
+      aria-label={
+        isUnavailable
+          ? `${burger.name}. ${unavailableReason}`
+          : `Ver opciones de ${burger.name}`
+      }
+      aria-disabled={isUnavailable}
+      onClick={handleAction}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
-          onOpen();
+          handleAction();
         }
       }}>
       <div className={styles.itemLeft}>
         <div className={styles.itemName}>{burger.name}</div>
         {burger.desc ? <div className={styles.itemDesc}>{burger.desc}</div> : null}
         <div className={styles.itemPrices}>Desde {formatMoney(minPrice)}</div>
+        {isUnavailable ? (
+          <div className={styles.unavailableLabel}>{unavailableReason}</div>
+        ) : null}
       </div>
 
       <div className={styles.itemRight}>
@@ -37,11 +55,14 @@ export default function BurgerItem({ burger, onOpen }) {
         </div>
         <Button
           size="xs"
-          className={styles.addBtnInline}
+          className={`${styles.addBtnInline} ${
+            isUnavailable ? styles.addBtnInlineUnavailable : ""
+          }`}
           type="button"
+          aria-disabled={isUnavailable}
           onClick={(event) => {
             event.stopPropagation();
-            onOpen();
+            handleAction();
           }}>
           Agregar
         </Button>

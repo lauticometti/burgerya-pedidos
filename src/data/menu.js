@@ -44,6 +44,8 @@ export const burgers = [
     prices: { simple: 11000, doble: 13500, triple: 16000 },
     desc: "Pan de papa · Carne smash · Lechuga · Tomate · Cebolla · Pepinos · Cheddar · Mil Islas",
     img: "/burgers/american.jpg",
+    isAvailable: false,
+    unavailableReason: "no disponible por hoy",
   },
   {
     id: "bacon",
@@ -128,6 +130,8 @@ export const burgers = [
     prices: { doble: 14500, triple: 17000 },
     desc: "Pan de papa especial · Carne smash · Lechuga · Pepinos · Cheddar · Mil Islas",
     img: "/burgers/bigsmash.jpg",
+    isAvailable: false,
+    unavailableReason: "no disponible por hoy",
   },
 ];
 
@@ -163,8 +167,20 @@ export const extras = [
   { id: "huevo", name: "Huevo frito", price: 800 },
   { id: "doritos_burger", name: "Doritos", price: 800 },
   { id: "papas_burger", name: "Papas", price: 800 },
-  { id: "lechuga", name: "Lechuga", price: 500 },
-  { id: "tomate", name: "Tomate", price: 500 },
+  {
+    id: "lechuga",
+    name: "Lechuga",
+    price: 500,
+    isAvailable: false,
+    unavailableReason: "no disponible por hoy",
+  },
+  {
+    id: "tomate",
+    name: "Tomate",
+    price: 500,
+    isAvailable: false,
+    unavailableReason: "no disponible por hoy",
+  },
   { id: "cebolla", name: "Cebolla", price: 500 },
   { id: "salsa_mil_islas", name: "Mil Islas", price: 500 },
   { id: "salsa_bbq", name: "Barbacoa", price: 500 },

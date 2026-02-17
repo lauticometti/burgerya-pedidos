@@ -28,3 +28,24 @@
   gap: 12px;
   align-items: center;
 }
+
+.unavailableCard {
+  border-color: rgba(255, 213, 120, 0.45);
+  background: rgba(255, 213, 120, 0.08);
+}
+
+.unavailableLabel {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #ffd77a;
+}
+
+.unavailableBtn {
+  border-color: rgba(255, 215, 122, 0.48);
+  background: rgba(255, 215, 122, 0.16);
+  color: #ffe8b8;
+  cursor: help;
+}

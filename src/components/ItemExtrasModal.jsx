@@ -49,15 +49,36 @@ export default function ItemExtrasModal({
         <div className={styles.list}>
           {items.map((item) => {
             const checked = selectedIds.includes(item.id);
+            const isUnavailable = item.isAvailable === false;
+            const unavailableReason =
+              item.unavailableReason || "no disponible por hoy";
             return (
-              <label key={item.id} className={styles.row}>
+              <label
+                key={item.id}
+                className={`${styles.row} ${isUnavailable ? styles.rowUnavailable : ""}`}
+                data-unavailable-message={
+                  isUnavailable ? unavailableReason : undefined
+                }>
                 <input
                   type="checkbox"
                   checked={checked}
-                  onChange={() => onToggle(item.id)}
+                  disabled={isUnavailable}
+                  aria-disabled={isUnavailable}
+                  title={isUnavailable ? unavailableReason : undefined}
+                  onChange={() => {
+                    if (isUnavailable) return;
+                    onToggle(item.id);
+                  }}
                   className={styles.checkbox}
                 />
-                <span className={styles.rowName}>{item.name}</span>
+                <span className={styles.rowNameWrap}>
+                  <span className={styles.rowName}>{item.name}</span>
+                  {isUnavailable ? (
+                    <span className={styles.unavailableHint}>
+                      {unavailableReason}
+                    </span>
+                  ) : null}
+                </span>
                 <span className={styles.rowPrice}>
                   +${item.price.toLocaleString("es-AR")}
                 </span>

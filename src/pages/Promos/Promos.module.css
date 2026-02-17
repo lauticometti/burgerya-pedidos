@@ -85,6 +85,12 @@
   gap: 10px;
 }
 
+.pickUnavailable {
+  border-color: rgba(255, 213, 120, 0.45);
+  background: rgba(255, 213, 120, 0.1);
+  color: #ffe5ad;
+}
+
 .picksWrap {
   display: flex;
   flex-wrap: wrap;

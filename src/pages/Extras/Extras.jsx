@@ -15,6 +15,13 @@ export default function Extras() {
   const cart = useCart();
 
   function addExtra(x) {
+    if (x.isAvailable === false) {
+      const reason = x.unavailableReason || "no disponible por hoy";
+      toast.error(`${x.name}: ${reason}`, {
+        key: `extra-unavailable:${x.id}`,
+      });
+      return;
+    }
     const key = `extra:${x.id}`;
     cart.add({
       key,
@@ -45,19 +52,33 @@ export default function Extras() {
       <PageTitle>Agregados</PageTitle>
 
       <div className={styles.list}>
-        {extras.map((x) => (
-          <Card key={x.id}>
-            <div className={styles.rowBetween}>
-              <div>
-                <b>{x.name}</b>
-              </div>
+        {extras.map((x) => {
+          const isUnavailable = x.isAvailable === false;
+          const unavailableReason = x.unavailableReason || "no disponible por hoy";
+          return (
+            <Card
+              key={x.id}
+              className={isUnavailable ? styles.unavailableCard : ""}>
+              <div className={styles.rowBetween}>
+                <div>
+                  <b>{x.name}</b>
+                  {isUnavailable ? (
+                    <div className={styles.unavailableLabel}>{unavailableReason}</div>
+                  ) : null}
+                </div>
 
-              <Button variant="primary" onClick={() => addExtra(x)}>
-                + {formatMoney(x.price)}
-              </Button>
-            </div>
-          </Card>
-        ))}
+                <Button
+                  variant="primary"
+                  onClick={() => addExtra(x)}
+                  aria-disabled={isUnavailable}
+                  title={isUnavailable ? unavailableReason : undefined}
+                  className={isUnavailable ? styles.unavailableBtn : ""}>
+                  + {formatMoney(x.price)}
+                </Button>
+              </div>
+            </Card>
+          );
+        })}
       </div>
 
       <StickyBar>

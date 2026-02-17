@@ -29,7 +29,17 @@ export default function Burgers() {
   const [modalOpen, setModalOpen] = React.useState(false);
   const [activeBurger, setActiveBurger] = React.useState(null);
 
+  function showUnavailableBurger(burger, reason = "no disponible por hoy") {
+    toast.error(`${burger.name}: ${reason}`, {
+      key: `burger-unavailable:${burger.id}`,
+    });
+  }
+
   function openBurger(burger) {
+    if (burger.isAvailable === false) {
+      showUnavailableBurger(burger, burger.unavailableReason);
+      return;
+    }
     setActiveBurger(burger);
     setModalOpen(true);
   }
@@ -60,7 +70,11 @@ export default function Burgers() {
           <BurgerSection key={tier} title={TIER_LABELS[tier]} variant={tier}>
             {list.map((burger) => (
               <div key={burger.id} id={`burger-${burger.id}`}>
-                <BurgerItem burger={burger} onOpen={() => openBurger(burger)} />
+                <BurgerItem
+                  burger={burger}
+                  onOpen={() => openBurger(burger)}
+                  onUnavailable={showUnavailableBurger}
+                />
               </div>
             ))}
           </BurgerSection>

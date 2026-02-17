@@ -278,6 +278,14 @@ export default function Carrito() {
   }
 
   function toggleModalSelection(id) {
+    const selectedItem = modalItems.find((item) => item.id === id);
+    if (selectedItem?.isAvailable === false) {
+      const reason = selectedItem.unavailableReason || "no disponible por hoy";
+      toast.error(`${selectedItem.name}: ${reason}`, {
+        key: `extra-unavailable:${selectedItem.id}`,
+      });
+      return;
+    }
     setModalSelectedIds((prev) =>
       prev.includes(id)
         ? prev.filter((itemId) => itemId !== id)
@@ -288,7 +296,7 @@ export default function Carrito() {
   function applyModalSelection() {
     if (!modalItem) return;
     const selectedExtras = modalItems.filter((item) =>
-      modalSelectedIds.includes(item.id),
+      modalSelectedIds.includes(item.id) && item.isAvailable !== false,
     );
     if (modalTarget === "item") {
       if (modalMode === "papas") {
