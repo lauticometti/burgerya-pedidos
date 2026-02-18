@@ -121,10 +121,17 @@ export default function Carrito() {
     hasDeliveryMode;
 
   const canContinue = cart.items.length > 0;
+  const availableBebidas = React.useMemo(
+    () => (bebidas || []).filter((item) => item.isAvailable !== false),
+    [],
+  );
   const firstBurgerItem = cart.items.find(
     (item) => item.meta?.type === "burger",
   );
-  const suggestedBebida = bebidas?.[0] || null;
+  const suggestedBebida =
+    availableBebidas.find((item) => item.id === "coca_225") ||
+    availableBebidas[0] ||
+    null;
   const suggestedExtra =
     extras.find((item) => item.id === "bacon_crocante") || extras[0];
   const hasSuggestedExtra =
@@ -378,7 +385,8 @@ export default function Carrito() {
 
   function applyBebidaSelection() {
     const selected = bebidaItems.filter(
-      (item) => (bebidaQuantities[item.id] || 0) > 0,
+      (item) =>
+        item.isAvailable !== false && (bebidaQuantities[item.id] || 0) > 0,
     );
     if (!selected.length) return;
 

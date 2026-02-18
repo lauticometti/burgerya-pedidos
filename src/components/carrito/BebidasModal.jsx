@@ -26,10 +26,10 @@ export default function BebidasModal({
 
   if (!open) return null;
 
-  const totalQty = Object.values(quantities || {}).reduce(
-    (sum, qty) => sum + qty,
-    0,
-  );
+  const totalQty = (items || []).reduce((sum, item) => {
+    if (item.isAvailable === false) return sum;
+    return sum + (quantities?.[item.id] || 0);
+  }, 0);
 
   return (
     <div className={baseStyles.backdrop} onMouseDown={onClose}>
@@ -51,21 +51,49 @@ export default function BebidasModal({
         <div className={baseStyles.list}>
           {items.map((item) => {
             const qty = quantities?.[item.id] || 0;
+            const isUnavailable = item.isAvailable === false;
+            const unavailableReason =
+              item.unavailableReason || "no disponible por hoy";
             return (
-              <div key={item.id} className={`${baseStyles.row} ${styles.row}`}>
+              <div
+                key={item.id}
+                className={`${baseStyles.row} ${styles.row} ${
+                  isUnavailable ? styles.rowUnavailable : ""
+                }`}
+                data-unavailable-message={
+                  isUnavailable ? unavailableReason : undefined
+                }>
                 <div className={styles.qtyControls}>
                   <Button
                     size="xs"
-                    onClick={() => onChangeQty(item.id, -1)}
-                    disabled={qty === 0}>
+                    onClick={() => {
+                      if (isUnavailable) return;
+                      onChangeQty(item.id, -1);
+                    }}
+                    disabled={qty === 0 || isUnavailable}
+                    title={isUnavailable ? unavailableReason : undefined}>
                     -
                   </Button>
                   <span className={styles.qty}>{qty}</span>
-                  <Button size="xs" onClick={() => onChangeQty(item.id, 1)}>
+                  <Button
+                    size="xs"
+                    onClick={() => {
+                      if (isUnavailable) return;
+                      onChangeQty(item.id, 1);
+                    }}
+                    disabled={isUnavailable}
+                    title={isUnavailable ? unavailableReason : undefined}>
                     +
                   </Button>
                 </div>
-                <span className={baseStyles.rowName}>{item.name}</span>
+                <span className={styles.nameWrap}>
+                  <span className={baseStyles.rowName}>{item.name}</span>
+                  {isUnavailable ? (
+                    <span className={styles.unavailableHint}>
+                      {unavailableReason}
+                    </span>
+                  ) : null}
+                </span>
                 <span className={baseStyles.rowPrice}>
                   +${item.price.toLocaleString("es-AR")}
                 </span>

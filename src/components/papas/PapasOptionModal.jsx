@@ -26,6 +26,9 @@ export default function PapasOptionModal({
   }, [open, onClose]);
 
   if (!open) return null;
+  const selectedOption = options.find((item) => item.id === selectedId);
+  const disableConfirm =
+    !selectedId || selectedOption?.isAvailable === false;
 
   return (
     <div className={styles.backdrop} onMouseDown={onClose}>
@@ -43,19 +46,44 @@ export default function PapasOptionModal({
         </div>
 
         <div className={styles.list}>
-          {options.map((item) => (
-            <label key={item.id} className={styles.row}>
-              <input
-                type="radio"
-                name="papas-option"
-                checked={selectedId === item.id}
-                onChange={() => onSelect?.(item.id)}
-                className={styles.radio}
-              />
-              <span className={styles.rowName}>{item.label}</span>
-              <span className={styles.rowPrice}>{formatMoney(item.price)}</span>
-            </label>
-          ))}
+          {options.map((item) => {
+            const isUnavailable = item.isAvailable === false;
+            const unavailableReason =
+              item.unavailableReason || "no disponible por hoy";
+            return (
+              <label
+                key={item.id}
+                className={`${styles.row} ${
+                  isUnavailable ? styles.rowUnavailable : ""
+                }`}
+                data-unavailable-message={
+                  isUnavailable ? unavailableReason : undefined
+                }>
+                <input
+                  type="radio"
+                  name="papas-option"
+                  checked={selectedId === item.id}
+                  disabled={isUnavailable}
+                  aria-disabled={isUnavailable}
+                  title={isUnavailable ? unavailableReason : undefined}
+                  onChange={() => {
+                    if (isUnavailable) return;
+                    onSelect?.(item.id);
+                  }}
+                  className={styles.radio}
+                />
+                <span className={styles.rowNameWrap}>
+                  <span className={styles.rowName}>{item.label}</span>
+                  {isUnavailable ? (
+                    <span className={styles.unavailableHint}>
+                      {unavailableReason}
+                    </span>
+                  ) : null}
+                </span>
+                <span className={styles.rowPrice}>{formatMoney(item.price)}</span>
+              </label>
+            );
+          })}
         </div>
 
         <div className={styles.footer}>
@@ -63,7 +91,7 @@ export default function PapasOptionModal({
             variant="primary"
             type="button"
             onClick={onConfirm}
-            disabled={!selectedId}>
+            disabled={disableConfirm}>
             Agregar
           </Button>
         </div>

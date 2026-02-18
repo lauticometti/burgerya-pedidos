@@ -1,7 +1,8 @@
-﻿.item {
+.item {
   cursor: pointer;
   width: 100%;
   text-align: left;
+  position: relative;
 
   border-radius: 16px;
   padding: 14px;
@@ -29,6 +30,40 @@
   transform: scale(0.99);
 }
 
+.itemUnavailable {
+  border-color: rgba(255, 213, 120, 0.45);
+  background: rgba(255, 213, 120, 0.1);
+  cursor: help;
+}
+
+.itemUnavailable::after {
+  content: attr(data-unavailable-message);
+  position: absolute;
+  right: 12px;
+  top: -12px;
+  transform: translateY(6px);
+  opacity: 0;
+  pointer-events: none;
+  padding: 5px 7px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(12, 12, 12, 0.96);
+  color: #ffe3a0;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  transition:
+    opacity 0.14s ease,
+    transform 0.14s ease;
+  z-index: 1;
+}
+
+.itemUnavailable:hover::after,
+.itemUnavailable:focus-visible::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .name {
   font-size: 16px;
   font-weight: 850;
@@ -43,3 +78,8 @@
   border: 1px solid rgba(255, 198, 42, 0.4);
 }
 
+.pricePillUnavailable {
+  background: rgba(255, 213, 120, 0.18);
+  border-color: rgba(255, 213, 120, 0.45);
+  color: #ffe5ad;
+}
