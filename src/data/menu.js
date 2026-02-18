@@ -70,6 +70,8 @@ export const burgers = [
     prices: { simple: 11500, doble: 14000, triple: 16500 },
     desc: "Pan de papa Â· Carne smash Â· Bacon Â· Doritos Â· Cheddar Â· Barbacoa",
     img: "/burgers/doritos.jpg",
+    isAvailable: false,
+    unavailableReason: "no disponible por hoy",
   },
   {
     id: "cochina",
@@ -161,7 +163,13 @@ export const extras = [
   { id: "cebolla_caram", name: "Cebolla caramelizada", price: 600 },
   { id: "pepinos", name: "Pepinos", price: 800 },
   { id: "huevo", name: "Huevo frito", price: 800 },
-  { id: "doritos_burger", name: "Doritos", price: 800 },
+  {
+    id: "doritos_burger",
+    name: "Doritos",
+    price: 800,
+    isAvailable: false,
+    unavailableReason: "no disponible por hoy",
+  },
   { id: "papas_burger", name: "Papas", price: 800 },
   {
     id: "lechuga",
