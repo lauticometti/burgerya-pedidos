@@ -3,6 +3,10 @@ import { extras } from "../../data/menu";
 import { useCart } from "../../store/useCart";
 import { toast } from "../../utils/toast";
 import { formatMoney } from "../../utils/formatMoney";
+import {
+  getUnavailableReason,
+  isItemUnavailable,
+} from "../../utils/availability";
 import Page from "../../components/layout/Page";
 import StickyBar from "../../components/layout/StickyBar";
 import CartSummary from "../../components/cart/CartSummary";
@@ -15,8 +19,8 @@ export default function Extras() {
   const cart = useCart();
 
   function addExtra(x) {
-    if (x.isAvailable === false) {
-      const reason = x.unavailableReason || "no disponible por hoy";
+    if (isItemUnavailable(x)) {
+      const reason = getUnavailableReason(x);
       toast.error(`${x.name}: ${reason}`, {
         key: `extra-unavailable:${x.id}`,
       });
@@ -53,8 +57,8 @@ export default function Extras() {
 
       <div className={styles.list}>
         {extras.map((x) => {
-          const isUnavailable = x.isAvailable === false;
-          const unavailableReason = x.unavailableReason || "no disponible por hoy";
+          const isUnavailable = isItemUnavailable(x);
+          const unavailableReason = getUnavailableReason(x);
           return (
             <Card
               key={x.id}

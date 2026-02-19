@@ -14,6 +14,10 @@ import PageTitle from "../../components/ui/PageTitle";
 import BurgerSection from "../../components/burgers/BurgerSection";
 import BurgerItem from "../../components/burgers/BurgerItem";
 import BrandLogo from "../../components/brand/BrandLogo";
+import {
+  getUnavailableReason,
+  isItemUnavailable,
+} from "../../utils/availability";
 
 const TIER_ORDER = ["BASICA", "PREMIUM", "DELUXE", "ESPECIAL"];
 const TIER_LABELS = {
@@ -36,8 +40,8 @@ export default function Burgers() {
   }
 
   function openBurger(burger) {
-    if (burger.isAvailable === false) {
-      showUnavailableBurger(burger, burger.unavailableReason);
+    if (isItemUnavailable(burger)) {
+      showUnavailableBurger(burger, getUnavailableReason(burger));
       return;
     }
     setActiveBurger(burger);
@@ -124,6 +128,7 @@ export default function Burgers() {
     </Page>
   );
 }
+
 
 
 

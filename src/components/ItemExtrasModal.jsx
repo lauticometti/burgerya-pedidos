@@ -1,7 +1,11 @@
-﻿import React from "react";
+import React from "react";
 import Button from "./ui/Button";
 import CloseButton from "./ui/CloseButton";
 import styles from "./ItemExtrasModal.module.css";
+import {
+  getUnavailableReason,
+  isItemUnavailable,
+} from "../utils/availability";
 
 export default function ItemExtrasModal({
   open,
@@ -49,9 +53,9 @@ export default function ItemExtrasModal({
         <div className={styles.list}>
           {items.map((item) => {
             const checked = selectedIds.includes(item.id);
-            const isUnavailable = item.isAvailable === false;
+            const isUnavailable = isItemUnavailable(item);
             const unavailableReason =
-              item.unavailableReason || "no disponible por hoy";
+              getUnavailableReason(item);
             return (
               <label
                 key={item.id}

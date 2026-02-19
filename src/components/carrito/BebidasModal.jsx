@@ -3,6 +3,10 @@ import Button from "../ui/Button";
 import CloseButton from "../ui/CloseButton";
 import baseStyles from "../ItemExtrasModal.module.css";
 import styles from "./BebidasModal.module.css";
+import {
+  getUnavailableReason,
+  isItemUnavailable,
+} from "../../utils/availability";
 
 export default function BebidasModal({
   open,
@@ -27,7 +31,7 @@ export default function BebidasModal({
   if (!open) return null;
 
   const totalQty = (items || []).reduce((sum, item) => {
-    if (item.isAvailable === false) return sum;
+    if (isItemUnavailable(item)) return sum;
     return sum + (quantities?.[item.id] || 0);
   }, 0);
 
@@ -51,9 +55,8 @@ export default function BebidasModal({
         <div className={baseStyles.list}>
           {items.map((item) => {
             const qty = quantities?.[item.id] || 0;
-            const isUnavailable = item.isAvailable === false;
-            const unavailableReason =
-              item.unavailableReason || "no disponible por hoy";
+            const isUnavailable = isItemUnavailable(item);
+            const unavailableReason = getUnavailableReason(item);
             return (
               <div
                 key={item.id}
@@ -115,3 +118,4 @@ export default function BebidasModal({
     </div>
   );
 }
+

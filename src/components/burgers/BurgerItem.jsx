@@ -1,13 +1,17 @@
-﻿import Button from "../ui/Button";
+import Button from "../ui/Button";
 import styles from "./BurgerItem.module.css";
 import { formatMoney } from "../../utils/formatMoney";
 import { getMinPrice } from "../../utils/menuPricing";
 import { resolvePublicPath } from "../../utils/assetPath";
+import {
+  getUnavailableReason,
+  isItemUnavailable,
+} from "../../utils/availability";
 
 export default function BurgerItem({ burger, onOpen, onUnavailable }) {
   const minPrice = getMinPrice(burger.prices);
-  const isUnavailable = burger.isAvailable === false;
-  const unavailableReason = burger.unavailableReason || "no disponible por hoy";
+  const isUnavailable = isItemUnavailable(burger);
+  const unavailableReason = getUnavailableReason(burger);
 
   function handleAction() {
     if (isUnavailable) {

@@ -1,8 +1,12 @@
-﻿import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useCallback, useMemo, useState } from "react";
 import { papas, bebidas } from "../../data/menu";
 import { useCart } from "../../store/useCart";
 import { toast } from "../../utils/toast";
+import {
+  getUnavailableReason,
+  isItemUnavailable,
+} from "../../utils/availability";
 import TopNav from "../../components/TopNav";
 import Page from "../../components/layout/Page";
 import StickyBar from "../../components/layout/StickyBar";
@@ -36,8 +40,8 @@ export default function Papas() {
     (id) => {
       const item = papasById[id];
       return {
-        isAvailable: item?.isAvailable !== false,
-        unavailableReason: item?.unavailableReason || "no disponible por hoy",
+        isAvailable: !isItemUnavailable(item),
+        unavailableReason: getUnavailableReason(item),
       };
     },
     [papasById],
@@ -125,8 +129,8 @@ export default function Papas() {
     const options = optionsBySize[activeSize] || [];
     const picked = options.find((opt) => opt.id === selectedOptionId);
     if (!picked) return;
-    if (picked.isAvailable === false) {
-      const reason = picked.unavailableReason || "no disponible por hoy";
+    if (isItemUnavailable(picked)) {
+      const reason = getUnavailableReason(picked);
       toast.error(`${picked.label}: ${reason}`, {
         key: `papas-option-unavailable:${activeSize}:${picked.id}`,
       });
@@ -174,11 +178,11 @@ export default function Papas() {
               <PapasItem
                 key={item.id}
                 item={item}
-                isUnavailable={item.isAvailable === false}
+                isUnavailable={isItemUnavailable(item)}
                 unavailableReason={item.unavailableReason}
                 onAdd={() => {
-                  if (item.isAvailable === false) {
-                    const reason = item.unavailableReason || "no disponible por hoy";
+                  if (isItemUnavailable(item)) {
+                    const reason = getUnavailableReason(item);
                     toast.error(`${item.name}: ${reason}`, {
                       key: `papas-unavailable:${item.id}`,
                     });
@@ -208,11 +212,11 @@ export default function Papas() {
               <PapasItem
                 key={item.id}
                 item={item}
-                isUnavailable={item.isAvailable === false}
+                isUnavailable={isItemUnavailable(item)}
                 unavailableReason={item.unavailableReason}
                 onAdd={() => {
-                  if (item.isAvailable === false) {
-                    const reason = item.unavailableReason || "no disponible por hoy";
+                  if (isItemUnavailable(item)) {
+                    const reason = getUnavailableReason(item);
                     toast.error(`${item.name}: ${reason}`, {
                       key: `bebida-unavailable:${item.id}`,
                     });

@@ -1,7 +1,9 @@
-﻿export const WHATSAPP_NUMBER = "5491134158607";
+import { withAvailabilityDefaults } from "../utils/availability";
+
+export const WHATSAPP_NUMBER = "5491134158607";
 
 // Burgers con precios
-export const burgers = [
+export const burgers = withAvailabilityDefaults([
   // BASICAS
   {
     id: "cheese",
@@ -54,7 +56,7 @@ export const burgers = [
     img: "/burgers/bacon.jpg",
   },
 
-  // DELUXE (incluye las 3 que faltaban)
+  // DELUXE
   {
     id: "bbqueen",
     name: "BBQueen",
@@ -70,7 +72,7 @@ export const burgers = [
     prices: { simple: 11500, doble: 14000, triple: 16500 },
     desc: "Pan de papa · Carne smash · Bacon · Doritos · Cheddar · Barbacoa",
     img: "/burgers/doritos.jpg",
-    isAvailable: false,
+    isAvailable: 0,
     unavailableReason: "no disponible por hoy",
   },
   {
@@ -88,7 +90,7 @@ export const burgers = [
     prices: { simple: 11500, doble: 14000, triple: 16500 },
     desc: "Pan de papa · Carne smash con cebolla ultrafina · Bacon · Cheddar · Mil Islas",
     img: "/burgers/smoklahoma.jpg",
-  }, // asumido
+  },
   {
     id: "sos",
     name: "SOS",
@@ -96,15 +98,15 @@ export const burgers = [
     prices: { simple: 11500, doble: 14000, triple: 16500 },
     desc: "Pan de papa · Carne smash · Bacon · Huevo frito · Papas · Cheddar",
     img: "/burgers/sos.jpg",
-  }, // asumido
+  },
   {
     id: "triunfos",
     name: "Triunfos",
     tier: "DELUXE",
     prices: { simple: 11500, doble: 14000, triple: 16500 },
-    desc: "Pan de papa · Carne Smash · Bacon · Cebolla caramelizada · Cheddar · Mil Islas.",
+    desc: "Pan de papa · Carne smash · Bacon · Cebolla caramelizada · Cheddar · Mil Islas",
     img: "/burgers/triunfos.jpg",
-  }, // asumido
+  },
 
   // ESPECIALES (sin simple)
   {
@@ -131,7 +133,7 @@ export const burgers = [
     desc: "Pan de papa especial · Carne smash · Lechuga · Pepinos · Cheddar · Mil Islas",
     img: "/burgers/bigsmash.jpg",
   },
-];
+]);
 
 // Precios de promos (flyers)
 export const promoPrices = {
@@ -149,14 +151,14 @@ export const promoPrices = {
   },
 };
 
-// Reglas de qué puede elegir cada promo (como vos definiste)
+// Reglas de qué puede elegir cada promo
 export const promoRules = {
   BASICA: { allowedTiers: ["BASICA"] },
   PREMIUM: { allowedTiers: ["BASICA", "PREMIUM"] },
   DELUXE: { allowedTiers: ["BASICA", "PREMIUM", "DELUXE"] },
 };
 
-export const extras = [
+export const extras = withAvailabilityDefaults([
   { id: "carne_cheddar", name: "Carne extra c/ cheddar", price: 3000 },
   { id: "cheddar_extra", name: "Cheddar extra (2 fetas)", price: 1000 },
   { id: "bacon_crocante", name: "Bacon", price: 1500 },
@@ -167,75 +169,60 @@ export const extras = [
     id: "doritos_burger",
     name: "Doritos",
     price: 800,
-    isAvailable: false,
+    isAvailable: 0,
     unavailableReason: "no disponible por hoy",
   },
   { id: "papas_burger", name: "Papas", price: 800 },
-  {
-    id: "lechuga",
-    name: "Lechuga",
-    price: 500,
-  },
-  {
-    id: "tomate",
-    name: "Tomate",
-    price: 500,
-  },
+  { id: "lechuga", name: "Lechuga", price: 500 },
+  { id: "tomate", name: "Tomate", price: 500 },
   { id: "cebolla", name: "Cebolla", price: 500 },
   { id: "salsa_mil_islas", name: "Mil Islas", price: 500 },
   { id: "salsa_bbq", name: "Barbacoa", price: 500 },
   { id: "salsa_ketchup", name: "Ketchup", price: 500 },
   { id: "salsa_mostaza", name: "Mostaza", price: 500 },
-];
+]);
 
-export const papas = [
+export const papas = withAvailabilityDefaults([
   {
     id: "cheddar_liq",
     name: "Cheddar",
     price: 1500,
-    isAvailable: false,
+    isAvailable: 0,
     unavailableReason: "no disponible por hoy",
   },
   { id: "papas_bacon", name: "Bacon", price: 1500 },
   { id: "porcion_extra", name: "Porción de papas extras", price: 3000 },
-
   { id: "porcion_grande_solas", name: "Porción grande sola", price: 9000 },
   {
     id: "porcion_grande_cheddar",
     name: "Porción grande con cheddar",
     price: 11000,
-    isAvailable: false,
+    isAvailable: 0,
     unavailableReason: "no disponible por hoy",
   },
   {
     id: "porcion_grande_cheddar_bacon",
     name: "Porción grande con cheddar y bacon",
     price: 13000,
-    isAvailable: false,
+    isAvailable: 0,
     unavailableReason: "no disponible por hoy",
   },
-
   {
     id: "dip_cheddar",
     name: "Dip de cheddar",
     price: 2000,
-    isAvailable: false,
+    isAvailable: 0,
     unavailableReason: "no disponible por hoy",
   },
   { id: "dip_mil_islas", name: "Dip de Mil Islas", price: 1500 },
-];
-export const bebidas = [
+]);
+
+export const bebidas = withAvailabilityDefaults([
   {
     id: "coca_600",
     name: "Coca Cola 600ml",
     price: 2500,
-    isAvailable: false,
-    unavailableReason: "no disponible por hoy",
+    isAvailable: 1,
   },
   { id: "coca_225", name: "Coca Cola 2.25L", price: 6000 },
-];
-
-
-
-
-
+]);

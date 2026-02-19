@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   burgers,
@@ -8,6 +8,10 @@ import {
 import { useCart } from "../../store/useCart.js";
 import { toast } from "../../utils/toast.js";
 import { formatMoney } from "../../utils/formatMoney.js";
+import {
+  getUnavailableReason,
+  isItemUnavailable,
+} from "../../utils/availability.js";
 import TopNav from "../../components/TopNav.jsx";
 import Page from "../../components/layout/Page.jsx";
 import StickyBar from "../../components/layout/StickyBar.jsx";
@@ -150,8 +154,8 @@ export default function Promos() {
 
   function pickBurger(burger) {
     if (!canPickMore) return;
-    if (burger.isAvailable === false) {
-      const reason = burger.unavailableReason || "no disponible por hoy";
+    if (isItemUnavailable(burger)) {
+      const reason = getUnavailableReason(burger);
       toast.error(`${burger.name}: ${reason}`, {
         key: `promo-unavailable:${burger.id}`,
       });
@@ -301,13 +305,11 @@ export default function Promos() {
 
   function addPromoToCart() {
     if (!tier || !count || !size || picked.length !== count) return;
-    const unavailablePick = picked.find(
-      (pick) => burgersById[pick.id]?.isAvailable === false,
+    const unavailablePick = picked.find((pick) =>
+      isItemUnavailable(burgersById[pick.id]),
     );
     if (unavailablePick) {
-      const reason =
-        burgersById[unavailablePick.id]?.unavailableReason ||
-        "no disponible por hoy";
+      const reason = getUnavailableReason(burgersById[unavailablePick.id]);
       toast.error(`${unavailablePick.name}: ${reason}`, {
         key: `promo-unavailable:${unavailablePick.id}`,
       });
@@ -586,9 +588,8 @@ export default function Promos() {
                       <div
                         className={`${styles.row} ${styles.rowWrap} ${styles.pickRow}`}>
                         {tierItems.map((b) => {
-                          const isUnavailable = b.isAvailable === false;
-                          const unavailableReason =
-                            b.unavailableReason || "no disponible por hoy";
+                          const isUnavailable = isItemUnavailable(b);
+                          const unavailableReason = getUnavailableReason(b);
                           return (
                             <Button
                               key={b.id}

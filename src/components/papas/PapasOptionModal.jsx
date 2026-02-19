@@ -1,8 +1,12 @@
-﻿import { useEffect } from "react";
+import { useEffect } from "react";
 import Button from "../ui/Button";
 import CloseButton from "../ui/CloseButton";
 import { formatMoney } from "../../utils/formatMoney";
 import styles from "./PapasOptionModal.module.css";
+import {
+  getUnavailableReason,
+  isItemUnavailable,
+} from "../../utils/availability";
 
 export default function PapasOptionModal({
   open,
@@ -27,8 +31,7 @@ export default function PapasOptionModal({
 
   if (!open) return null;
   const selectedOption = options.find((item) => item.id === selectedId);
-  const disableConfirm =
-    !selectedId || selectedOption?.isAvailable === false;
+  const disableConfirm = !selectedId || isItemUnavailable(selectedOption);
 
   return (
     <div className={styles.backdrop} onMouseDown={onClose}>
@@ -47,9 +50,8 @@ export default function PapasOptionModal({
 
         <div className={styles.list}>
           {options.map((item) => {
-            const isUnavailable = item.isAvailable === false;
-            const unavailableReason =
-              item.unavailableReason || "no disponible por hoy";
+            const isUnavailable = isItemUnavailable(item);
+            const unavailableReason = getUnavailableReason(item);
             return (
               <label
                 key={item.id}

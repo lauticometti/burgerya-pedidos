@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { useCart } from "../../store/useCart";
 import { bebidas, extras, papas, WHATSAPP_NUMBER } from "../../data/menu";
 import ItemExtrasModal from "../../components/ItemExtrasModal";
@@ -6,6 +6,10 @@ import { toast } from "../../utils/toast";
 import { formatMoney } from "../../utils/formatMoney";
 import { getAvailableSlotsMin30, minutesToHHMM } from "../../utils/timeSlots";
 import { buildWhatsAppText } from "../../utils/whatsapp";
+import {
+  getUnavailableReason,
+  isItemUnavailable,
+} from "../../utils/availability";
 import Page from "../../components/layout/Page";
 import StickyBar from "../../components/layout/StickyBar";
 import CartSummary from "../../components/cart/CartSummary";
@@ -122,7 +126,7 @@ export default function Carrito() {
 
   const canContinue = cart.items.length > 0;
   const availableBebidas = React.useMemo(
-    () => (bebidas || []).filter((item) => item.isAvailable !== false),
+    () => (bebidas || []).filter((item) => !isItemUnavailable(item)),
     [],
   );
   const firstBurgerItem = cart.items.find(
@@ -286,8 +290,8 @@ export default function Carrito() {
 
   function toggleModalSelection(id) {
     const selectedItem = modalItems.find((item) => item.id === id);
-    if (selectedItem?.isAvailable === false) {
-      const reason = selectedItem.unavailableReason || "no disponible por hoy";
+    if (isItemUnavailable(selectedItem)) {
+      const reason = getUnavailableReason(selectedItem);
       toast.error(`${selectedItem.name}: ${reason}`, {
         key: `extra-unavailable:${selectedItem.id}`,
       });
@@ -303,7 +307,7 @@ export default function Carrito() {
   function applyModalSelection() {
     if (!modalItem) return;
     const selectedExtras = modalItems.filter((item) =>
-      modalSelectedIds.includes(item.id) && item.isAvailable !== false,
+      modalSelectedIds.includes(item.id) && !isItemUnavailable(item),
     );
     if (modalTarget === "item") {
       if (modalMode === "papas") {
@@ -385,8 +389,7 @@ export default function Carrito() {
 
   function applyBebidaSelection() {
     const selected = bebidaItems.filter(
-      (item) =>
-        item.isAvailable !== false && (bebidaQuantities[item.id] || 0) > 0,
+      (item) => !isItemUnavailable(item) && (bebidaQuantities[item.id] || 0) > 0,
     );
     if (!selected.length) return;
 
