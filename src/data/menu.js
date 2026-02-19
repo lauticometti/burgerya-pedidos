@@ -1,9 +1,7 @@
-import { withAvailabilityDefaults } from "../utils/availability";
-
 export const WHATSAPP_NUMBER = "5491134158607";
 
 // Burgers con precios
-export const burgers = withAvailabilityDefaults([
+export const burgers = [
   // BASICAS
   {
     id: "cheese",
@@ -12,6 +10,7 @@ export const burgers = withAvailabilityDefaults([
     prices: { simple: 10500, doble: 13000, triple: 15500 },
     desc: "Pan de papa · Carne smash · Cheddar",
     img: "/burgers/cheese.jpg",
+    isAvailable: 1,
   },
   {
     id: "cuarto",
@@ -20,6 +19,7 @@ export const burgers = withAvailabilityDefaults([
     prices: { simple: 10500, doble: 13000, triple: 15500 },
     desc: "Pan de papa · Carne smash · Ketchup · Mostaza · Cebolla · Cheddar",
     img: "/burgers/cuarto.jpg",
+    isAvailable: 1,
   },
   {
     id: "oklahoma",
@@ -28,6 +28,7 @@ export const burgers = withAvailabilityDefaults([
     prices: { simple: 10500, doble: 13000, triple: 15500 },
     desc: "Pan de papa · Carne smash con cebolla ultrafina · Cheddar",
     img: "/burgers/oklahoma.jpg",
+    isAvailable: 1,
   },
 
   // PREMIUM
@@ -38,6 +39,7 @@ export const burgers = withAvailabilityDefaults([
     prices: { simple: 11000, doble: 13500, triple: 16000 },
     desc: "Pan de papa · Carne smash · Cebolla caramelizada · Cheddar · Mil Islas.",
     img: "/burgers/lautiboom.jpg",
+    isAvailable: 1,
   },
   {
     id: "american",
@@ -46,6 +48,7 @@ export const burgers = withAvailabilityDefaults([
     prices: { simple: 11000, doble: 13500, triple: 16000 },
     desc: "Pan de papa · Carne smash · Lechuga · Tomate · Cebolla · Pepinos · Cheddar · Mil Islas",
     img: "/burgers/american.jpg",
+    isAvailable: 1,
   },
   {
     id: "bacon",
@@ -54,6 +57,7 @@ export const burgers = withAvailabilityDefaults([
     prices: { simple: 11000, doble: 13500, triple: 16000 },
     desc: "Pan de papa · Carne smash · Bacon · Cheddar",
     img: "/burgers/bacon.jpg",
+    isAvailable: 1,
   },
 
   // DELUXE
@@ -64,6 +68,7 @@ export const burgers = withAvailabilityDefaults([
     prices: { simple: 11500, doble: 14000, triple: 16500 },
     desc: "Pan de papa · Carne smash · Bacon · Tomate · Cebolla caramelizada · Cheddar · Barbacoa",
     img: "/burgers/bbqueen.jpg",
+    isAvailable: 1,
   },
   {
     id: "doritos",
@@ -82,6 +87,7 @@ export const burgers = withAvailabilityDefaults([
     prices: { simple: 11500, doble: 14000, triple: 16500 },
     desc: "Pan de papa · Carne smash · Huevo frito · Papas · Cheddar",
     img: "/burgers/cochina.jpg",
+    isAvailable: 1,
   },
   {
     id: "smoklahoma",
@@ -90,6 +96,7 @@ export const burgers = withAvailabilityDefaults([
     prices: { simple: 11500, doble: 14000, triple: 16500 },
     desc: "Pan de papa · Carne smash con cebolla ultrafina · Bacon · Cheddar · Mil Islas",
     img: "/burgers/smoklahoma.jpg",
+    isAvailable: 1,
   },
   {
     id: "sos",
@@ -98,6 +105,7 @@ export const burgers = withAvailabilityDefaults([
     prices: { simple: 11500, doble: 14000, triple: 16500 },
     desc: "Pan de papa · Carne smash · Bacon · Huevo frito · Papas · Cheddar",
     img: "/burgers/sos.jpg",
+    isAvailable: 1,
   },
   {
     id: "triunfos",
@@ -106,6 +114,7 @@ export const burgers = withAvailabilityDefaults([
     prices: { simple: 11500, doble: 14000, triple: 16500 },
     desc: "Pan de papa · Carne smash · Bacon · Cebolla caramelizada · Cheddar · Mil Islas",
     img: "/burgers/triunfos.jpg",
+    isAvailable: 1,
   },
 
   // ESPECIALES (sin simple)
@@ -116,6 +125,7 @@ export const burgers = withAvailabilityDefaults([
     prices: { doble: 17500, triple: 20000 },
     desc: "Doble pan de papa relleno con cheddar · Carne smash · Bacon abajo y arriba · Cebolla caramelizada · Cheddar · Mil Islas",
     img: "/burgers/titanica.jpg",
+    isAvailable: 1,
   },
   {
     id: "bacon_deluxe",
@@ -124,6 +134,7 @@ export const burgers = withAvailabilityDefaults([
     prices: { doble: 16000, triple: 18500 },
     desc: "Pan de papa · Carne smash · Bacon en todas las carnes · Mil Islas",
     img: "/burgers/bacondeluxe.jpg",
+    isAvailable: 1,
   },
   {
     id: "big_smash",
@@ -132,8 +143,9 @@ export const burgers = withAvailabilityDefaults([
     prices: { doble: 14500, triple: 17000 },
     desc: "Pan de papa especial · Carne smash · Lechuga · Pepinos · Cheddar · Mil Islas",
     img: "/burgers/bigsmash.jpg",
+    isAvailable: 1,
   },
-]);
+];
 
 // Precios de promos (flyers)
 export const promoPrices = {
@@ -158,13 +170,13 @@ export const promoRules = {
   DELUXE: { allowedTiers: ["BASICA", "PREMIUM", "DELUXE"] },
 };
 
-export const extras = withAvailabilityDefaults([
-  { id: "carne_cheddar", name: "Carne extra c/ cheddar", price: 3000 },
-  { id: "cheddar_extra", name: "Cheddar extra (2 fetas)", price: 1000 },
-  { id: "bacon_crocante", name: "Bacon", price: 1500 },
-  { id: "cebolla_caram", name: "Cebolla caramelizada", price: 600 },
-  { id: "pepinos", name: "Pepinos", price: 800 },
-  { id: "huevo", name: "Huevo frito", price: 800 },
+export const extras = [
+  { id: "carne_cheddar", name: "Carne extra c/ cheddar", price: 3000, isAvailable: 1 },
+  { id: "cheddar_extra", name: "Cheddar extra (2 fetas)", price: 1000, isAvailable: 1 },
+  { id: "bacon_crocante", name: "Bacon", price: 1500, isAvailable: 1 },
+  { id: "cebolla_caram", name: "Cebolla caramelizada", price: 600, isAvailable: 1 },
+  { id: "pepinos", name: "Pepinos", price: 800, isAvailable: 1 },
+  { id: "huevo", name: "Huevo frito", price: 800, isAvailable: 1 },
   {
     id: "doritos_burger",
     name: "Doritos",
@@ -172,17 +184,17 @@ export const extras = withAvailabilityDefaults([
     isAvailable: 0,
     unavailableReason: "no disponible por hoy",
   },
-  { id: "papas_burger", name: "Papas", price: 800 },
-  { id: "lechuga", name: "Lechuga", price: 500 },
-  { id: "tomate", name: "Tomate", price: 500 },
-  { id: "cebolla", name: "Cebolla", price: 500 },
-  { id: "salsa_mil_islas", name: "Mil Islas", price: 500 },
-  { id: "salsa_bbq", name: "Barbacoa", price: 500 },
-  { id: "salsa_ketchup", name: "Ketchup", price: 500 },
-  { id: "salsa_mostaza", name: "Mostaza", price: 500 },
-]);
+  { id: "papas_burger", name: "Papas", price: 800, isAvailable: 1 },
+  { id: "lechuga", name: "Lechuga", price: 500, isAvailable: 1 },
+  { id: "tomate", name: "Tomate", price: 500, isAvailable: 1 },
+  { id: "cebolla", name: "Cebolla", price: 500, isAvailable: 1 },
+  { id: "salsa_mil_islas", name: "Mil Islas", price: 500, isAvailable: 1 },
+  { id: "salsa_bbq", name: "Barbacoa", price: 500, isAvailable: 1 },
+  { id: "salsa_ketchup", name: "Ketchup", price: 500, isAvailable: 1 },
+  { id: "salsa_mostaza", name: "Mostaza", price: 500, isAvailable: 1 },
+];
 
-export const papas = withAvailabilityDefaults([
+export const papas = [
   {
     id: "cheddar_liq",
     name: "Cheddar",
@@ -190,9 +202,9 @@ export const papas = withAvailabilityDefaults([
     isAvailable: 0,
     unavailableReason: "no disponible por hoy",
   },
-  { id: "papas_bacon", name: "Bacon", price: 1500 },
-  { id: "porcion_extra", name: "Porción de papas extras", price: 3000 },
-  { id: "porcion_grande_solas", name: "Porción grande sola", price: 9000 },
+  { id: "papas_bacon", name: "Bacon", price: 1500, isAvailable: 1 },
+  { id: "porcion_extra", name: "Porción de papas extras", price: 3000, isAvailable: 1 },
+  { id: "porcion_grande_solas", name: "Porción grande sola", price: 9000, isAvailable: 1 },
   {
     id: "porcion_grande_cheddar",
     name: "Porción grande con cheddar",
@@ -214,15 +226,10 @@ export const papas = withAvailabilityDefaults([
     isAvailable: 0,
     unavailableReason: "no disponible por hoy",
   },
-  { id: "dip_mil_islas", name: "Dip de Mil Islas", price: 1500 },
-]);
+  { id: "dip_mil_islas", name: "Dip de Mil Islas", price: 1500, isAvailable: 1 },
+];
 
-export const bebidas = withAvailabilityDefaults([
-  {
-    id: "coca_600",
-    name: "Coca Cola 600ml",
-    price: 2500,
-    isAvailable: 1,
-  },
-  { id: "coca_225", name: "Coca Cola 2.25L", price: 6000 },
-]);
+export const bebidas = [
+  { id: "coca_600", name: "Coca Cola 600ml", price: 2500, isAvailable: 1 },
+  { id: "coca_225", name: "Coca Cola 2.25L", price: 6000, isAvailable: 1 },
+];
