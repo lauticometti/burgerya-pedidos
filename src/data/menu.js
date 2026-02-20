@@ -77,8 +77,7 @@ export const burgers = [
     prices: { simple: 11500, doble: 14000, triple: 16500 },
     desc: "Pan de papa · Carne smash · Bacon · Doritos · Cheddar · Barbacoa",
     img: "/burgers/doritos.jpg",
-    isAvailable: 0,
-    unavailableReason: "no disponible por hoy",
+    isAvailable: 1,
   },
   {
     id: "cochina",
