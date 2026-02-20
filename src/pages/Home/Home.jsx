@@ -61,7 +61,7 @@ export default function Home() {
         <HomeCard
           to="/burgers"
           title="Burgers"
-          subtitle="Armar pedido por unidad"
+          subtitle="Armar pedido por unidad - incluyen papas"
           imageSrc={burgerImage}
           imageAlt="Burger Bacon"
           imagePosition="center 65%"
@@ -69,7 +69,7 @@ export default function Home() {
         <HomeCard
           to="/promos"
           title="Promos"
-          subtitle="2x / 3x / 4x (Dobles o Triples)"
+          subtitle="2x / 3x / 4x (Dobles o Triples) - incluyen papas"
           imageSrc={promosImage}
           imageAlt="Promos Premium"
           imagePosition="center 82%"

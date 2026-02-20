@@ -14,6 +14,8 @@ import PageTitle from "../../components/ui/PageTitle";
 import BurgerSection from "../../components/burgers/BurgerSection";
 import BurgerItem from "../../components/burgers/BurgerItem";
 import BrandLogo from "../../components/brand/BrandLogo";
+import styles from "./Burgers.module.css";
+import { getBurgerPriceInfo } from "../../utils/burgerPricing";
 import {
   getUnavailableReason,
   isItemUnavailable,
@@ -65,6 +67,7 @@ export default function Burgers() {
       <BrandLogo />
       <TopNav />
       <PageTitle>Burgers</PageTitle>
+      <p className={styles.note}>Todas las burgers vienen con papas.</p>
 
       {TIER_ORDER.map((tier) => {
         const list = burgers.filter((b) => b.tier === tier);
@@ -90,27 +93,32 @@ export default function Burgers() {
         burger={activeBurger}
         onClose={() => setModalOpen(false)}
         onAdd={(burger, size) => {
+          const price = getBurgerPriceInfo(burger, size);
           const key = `burger:${burger.id}:${size}`;
           cart.add({
             key,
             name: burger.name,
             qty: 1,
-            unitPrice: burger.prices[size],
+            unitPrice: price.finalPrice,
             meta: {
               type: "burger",
               burgerId: burger.id,
               size,
               burgerName: burger.name,
-              basePrice: burger.prices[size],
+              basePrice: price.basePrice,
+              discountAmount: price.discountAmount,
               extrasIds: [],
               friesId: null,
             },
           });
-          toast.success(
-            `Agregado: ${burger.name} ${size} - ${formatMoney(
-              burger.prices[size],
-            )}`,
-          );
+          const addedText = price.hasDiscount
+            ? `Agregado: ${burger.name} ${size} - ${formatMoney(
+                price.finalPrice,
+              )} (antes ${formatMoney(price.basePrice)})`
+            : `Agregado: ${burger.name} ${size} - ${formatMoney(
+                price.finalPrice,
+              )}`;
+          toast.success(addedText);
           setModalOpen(false);
           setActiveBurger(null);
           scrollToBurger(burger.id);

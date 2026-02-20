@@ -2,6 +2,7 @@ import React from "react";
 import styles from "./BurgerModal.module.css";
 import { formatMoney } from "../../utils/formatMoney";
 import { resolvePublicPath } from "../../utils/assetPath";
+import { getBurgerPriceInfo } from "../../utils/burgerPricing";
 import CloseButton from "../../components/ui/CloseButton";
 
 const SIZE_ORDER = ["simple", "doble", "triple"];
@@ -27,6 +28,7 @@ export default function BurgerModal({ open, burger, onClose, onAdd }) {
   if (!open || !burger) return null;
 
   const sizes = SIZE_ORDER.filter((s) => burger.prices?.[s] != null);
+  const selectedPrice = size ? getBurgerPriceInfo(burger, size) : null;
   return (
     <div className={styles.backdrop} onMouseDown={onClose}>
       <div
@@ -48,18 +50,33 @@ export default function BurgerModal({ open, burger, onClose, onAdd }) {
           {burger.desc ? <div className={styles.desc}>{burger.desc}</div> : null}
 
           <div className={styles.sizeRow}>
-            {sizes.map((s) => (
-              <button
-                key={s}
-                type="button"
-                className={`${styles.sizeBtn} ${size === s ? styles.sizeBtnOn : ""}`}
-                onClick={() => setSize(s)}>
-                <div className={styles.sizeTop}>{SIZE_LABEL[s]}</div>
-                <div className={styles.sizePrice}>
-                  {formatMoney(burger.prices[s])}
-                </div>
-              </button>
-            ))}
+            {sizes.map((s) => {
+              const price = getBurgerPriceInfo(burger, s);
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  className={`${styles.sizeBtn} ${size === s ? styles.sizeBtnOn : ""}`}
+                  onClick={() => setSize(s)}>
+                  <div className={styles.sizeTop}>{SIZE_LABEL[s]}</div>
+                  <div className={styles.sizePriceWrap}>
+                    {price.hasDiscount ? (
+                      <div className={styles.sizePriceBase}>
+                        {formatMoney(price.basePrice)}
+                      </div>
+                    ) : null}
+                    <div className={styles.sizePrice}>
+                      {formatMoney(price.finalPrice)}
+                    </div>
+                    {price.hasDiscount ? (
+                      <div className={styles.sizePriceDiscount}>
+                        -{formatMoney(price.discountAmount)}
+                      </div>
+                    ) : null}
+                  </div>
+                </button>
+              );
+            })}
           </div>
 
           <button
@@ -67,7 +84,9 @@ export default function BurgerModal({ open, burger, onClose, onAdd }) {
             type="button"
             disabled={!size}
             onClick={() => onAdd?.(burger, size)}>
-            {size ? `Agregar ${formatMoney(burger.prices[size])}` : "Agregar"}
+            {selectedPrice
+              ? `Agregar ${formatMoney(selectedPrice.finalPrice)}`
+              : "Agregar"}
           </button>
         </div>
       </div>

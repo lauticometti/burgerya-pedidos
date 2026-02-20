@@ -34,6 +34,14 @@ export default function CartItemCard({
     (sum, extra) => sum + extra.price,
     0,
   );
+  const baseUnitPrice =
+    typeof item.meta?.basePrice === "number" ? item.meta.basePrice : item.unitPrice;
+  const hasDiscount =
+    item.meta?.type === "burger" &&
+    typeof item.meta?.basePrice === "number" &&
+    item.meta.basePrice > item.unitPrice;
+  const discountAmount = hasDiscount ? item.meta.basePrice - item.unitPrice : 0;
+  const baseUnitWithExtras = baseUnitPrice + extrasTotal + papasTotal;
   const unitWithExtras = item.unitPrice + extrasTotal + papasTotal;
   const displayPrice = unitWithExtras;
   const picksText = item.meta?.picks?.length
@@ -95,7 +103,19 @@ export default function CartItemCard({
           </div>
         </div>
         <div className={styles.rightBlock}>
-          <div className={styles.price}>{formatMoney(displayPrice)}</div>
+          <div className={styles.priceBlock}>
+            {hasDiscount ? (
+              <div className={styles.priceOriginal}>
+                {formatMoney(baseUnitWithExtras)}
+              </div>
+            ) : null}
+            <div className={styles.price}>{formatMoney(displayPrice)}</div>
+            {hasDiscount ? (
+              <div className={styles.priceDiscount}>
+                -{formatMoney(discountAmount)}
+              </div>
+            ) : null}
+          </div>
           <CloseButton onClick={onRemove} aria-label={`Quitar ${item.name}`} />
         </div>
       </div>
@@ -118,7 +138,9 @@ export default function CartItemCard({
         </div>
       ) : null}
 
-      {!isPromo && item.meta?.type !== "papas" && item.meta?.type !== "bebida" ? (
+      {!isPromo &&
+      item.meta?.type !== "papas" &&
+      item.meta?.type !== "bebida" ? (
         <div className={styles.noteEditor}>
           <TextareaField
             placeholder="Aclaraciones"

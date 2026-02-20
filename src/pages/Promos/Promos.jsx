@@ -8,6 +8,7 @@ import {
 import { useCart } from "../../store/useCart.js";
 import { toast } from "../../utils/toast.js";
 import { formatMoney } from "../../utils/formatMoney.js";
+import { getBurgerPrice } from "../../utils/burgerPricing.js";
 import {
   getUnavailableReason,
   isItemUnavailable,
@@ -103,7 +104,7 @@ export default function Promos() {
     if (!size || picked.length === 0) return null;
     return picked.reduce((sum, pick) => {
       const burger = burgersById[pick.id];
-      const unit = burger?.prices?.[size] || 0;
+      const unit = getBurgerPrice(burger, size);
       return sum + unit;
     }, 0);
   }, [picked, size, burgersById]);
@@ -359,6 +360,7 @@ export default function Promos() {
 
       <TopNav />
       <PageTitle>Promos</PageTitle>
+      <p className={styles.pageNote}>Todas las promos incluyen papas.</p>
 
       {showFlyerSection ? (
         <section className={styles.flyerSection}>

@@ -1,5 +1,11 @@
-﻿.card {
+.card {
   margin-bottom: 12px;
+}
+
+.pageNote {
+  margin: 0 0 14px;
+  font-size: 13px;
+  opacity: 0.8;
 }
 
 .sectionTitle {
@@ -363,3 +369,4 @@
     overflow: visible;
   }
 }
+
