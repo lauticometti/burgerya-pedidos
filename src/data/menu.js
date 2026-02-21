@@ -1,4 +1,12 @@
 export const WHATSAPP_NUMBER = "5491134158607";
+const STOCK = {
+  huevo: 0,
+};
+const STOCK_OUT_REASON = "no disponible por hoy";
+const withStock = (enabled) =>
+  enabled
+    ? { isAvailable: 1 }
+    : { isAvailable: 0, unavailableReason: STOCK_OUT_REASON };
 
 // Burgers con precios
 export const burgers = [
@@ -86,8 +94,7 @@ export const burgers = [
     prices: { simple: 11500, doble: 14000, triple: 16500 },
     desc: "Pan de papa · Carne smash · Huevo frito · Papas · Cheddar",
     img: "/burgers/cochina.jpg",
-    isAvailable: 0,
-    unavailableReason: "no disponible por hoy",
+    ...withStock(STOCK.huevo),
   },
   {
     id: "smoklahoma",
@@ -105,8 +112,7 @@ export const burgers = [
     prices: { simple: 11500, doble: 14000, triple: 16500 },
     desc: "Pan de papa · Carne smash · Bacon · Huevo frito · Papas · Cheddar",
     img: "/burgers/sos.jpg",
-    isAvailable: 0,
-    unavailableReason: "no disponible por hoy",
+    ...withStock(STOCK.huevo),
   },
   {
     id: "triunfos",
@@ -181,8 +187,7 @@ export const extras = [
     id: "huevo",
     name: "Huevo frito",
     price: 800,
-    isAvailable: 0,
-    unavailableReason: "no disponible por hoy",
+    ...withStock(STOCK.huevo),
   },
   {
     id: "doritos_burger",

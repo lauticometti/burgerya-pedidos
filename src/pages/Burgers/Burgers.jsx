@@ -28,6 +28,7 @@ const TIER_LABELS = {
   DELUXE: "Deluxe",
   ESPECIAL: "Bestias",
 };
+const TIER_BADGES = {};
 
 export default function Burgers() {
   const cart = useCart();
@@ -74,7 +75,11 @@ export default function Burgers() {
         if (!list.length) return null;
 
         return (
-          <BurgerSection key={tier} title={TIER_LABELS[tier]} variant={tier}>
+          <BurgerSection
+            key={tier}
+            title={TIER_LABELS[tier]}
+            variant={tier}
+            badgeText={TIER_BADGES[tier]}>
             {list.map((burger) => (
               <div key={burger.id} id={`burger-${burger.id}`}>
                 <BurgerItem
@@ -136,8 +141,3 @@ export default function Burgers() {
     </Page>
   );
 }
-
-
-
-
-

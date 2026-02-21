@@ -1,9 +1,19 @@
-const DISCOUNT_TIERS = new Set(["BASICA", "PREMIUM"]);
+// Add future burger offers here (example: size/tier/id based discounts).
+export const BURGER_PRICE_OFFERS = [];
 
-export const BURGER_TRIPLE_DISCOUNT = 1500;
+function matchesOffer(offer, burger, size) {
+  if (Array.isArray(offer?.sizes) && !offer.sizes.includes(size)) return false;
+  if (Array.isArray(offer?.tiers) && !offer.tiers.includes(burger?.tier)) {
+    return false;
+  }
+  if (Array.isArray(offer?.burgerIds) && !offer.burgerIds.includes(burger?.id)) {
+    return false;
+  }
+  return true;
+}
 
-export function isTripleDiscountEligible(burger) {
-  return DISCOUNT_TIERS.has(burger?.tier);
+function getActiveOffer(burger, size) {
+  return BURGER_PRICE_OFFERS.find((offer) => matchesOffer(offer, burger, size)) || null;
 }
 
 export function getBurgerPriceInfo(burger, size) {
@@ -14,11 +24,14 @@ export function getBurgerPriceInfo(burger, size) {
       finalPrice: 0,
       discountAmount: 0,
       hasDiscount: false,
+      offerId: null,
+      offerLabel: null,
     };
   }
 
-  const hasDiscount = size === "triple" && isTripleDiscountEligible(burger);
-  const discountAmount = hasDiscount ? BURGER_TRIPLE_DISCOUNT : 0;
+  const activeOffer = getActiveOffer(burger, size);
+  const discountAmount = Math.max(activeOffer?.discountAmount || 0, 0);
+  const hasDiscount = discountAmount > 0;
   const finalPrice = Math.max(basePrice - discountAmount, 0);
 
   return {
@@ -26,6 +39,8 @@ export function getBurgerPriceInfo(burger, size) {
     finalPrice,
     discountAmount,
     hasDiscount,
+    offerId: activeOffer?.id || null,
+    offerLabel: activeOffer?.label || null,
   };
 }
 

@@ -7,19 +7,22 @@ const VARIANT_CLASS = {
   ESPECIAL: styles.especial,
 };
 
-const TRIPLE_HINT_VARIANTS = new Set(["BASICA", "PREMIUM"]);
-
-export default function BurgerSection({ title, variant, children }) {
+export default function BurgerSection({
+  title,
+  variant,
+  badgeText = "",
+  children,
+}) {
   const variantClass = VARIANT_CLASS[variant] || "";
-  const showTripleHint = TRIPLE_HINT_VARIANTS.has(variant);
+  const showBadge = Boolean(badgeText);
 
   return (
     <section className={`${styles.section} ${variantClass}`.trim()}>
       <div className={styles.header}>
         <div className={styles.titleRow}>
           <h2 className={styles.title}>{title}</h2>
-          {showTripleHint ? (
-            <span className={styles.tripleHint}>Hoy conviene triples</span>
+          {showBadge ? (
+            <span className={styles.sectionBadge}>{badgeText}</span>
           ) : null}
         </div>
       </div>
