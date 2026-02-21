@@ -1,10 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  burgers,
-  promoPrices,
-  promoRules,
-} from "../../data/menu.js";
+import { burgers, promoPrices, promoRules } from "../../data/menu.js";
 import { useCart } from "../../store/useCart.js";
 import { toast } from "../../utils/toast.js";
 import { formatMoney } from "../../utils/formatMoney.js";
@@ -25,29 +21,10 @@ import PageTitle from "../../components/ui/PageTitle.jsx";
 import styles from "./Promos.module.css";
 import BrandLogo from "../../components/brand/BrandLogo";
 
-const PROMO_FLYERS = [
-  {
-    tier: "BASICA",
-    label: "Básica",
-    img: "/promos/basica.jpg",
-    tone: "Basica",
-    rank: 1,
-    badge: "Más elegida",
-  },
-  {
-    tier: "PREMIUM",
-    label: "Premium",
-    img: "/promos/premium.jpg",
-    tone: "Premium",
-    rank: 2,
-  },
-  {
-    tier: "DELUXE",
-    label: "Deluxe",
-    img: "/promos/deluxe.jpg",
-    tone: "Deluxe",
-    rank: 3,
-  },
+const PROMO_OPTIONS = [
+  { tier: "BASICA", label: "Basica", rank: 1 },
+  { tier: "PREMIUM", label: "Premium", rank: 2 },
+  { tier: "DELUXE", label: "Deluxe", rank: 3 },
 ];
 
 export default function Promos() {
@@ -57,24 +34,13 @@ export default function Promos() {
   const [count, setCount] = useState(null); // 2 | 3 | 4
   const [size, setSize] = useState(null); // doble | triple
   const [picked, setPicked] = useState([]); // { id, name, note }
-  const [flyerPreviewIndex, setFlyerPreviewIndex] = useState(null);
-  const [flyerStatus, setFlyerStatus] = useState(() =>
-    PROMO_FLYERS.reduce((acc, flyer) => {
-      acc[flyer.tier] = "loading";
-      return acc;
-    }, {}),
-  );
-  const orderedFlyers = useMemo(
-    () => [...PROMO_FLYERS].sort((a, b) => a.rank - b.rank),
+  const promoOptions = useMemo(
+    () => [...PROMO_OPTIONS].sort((a, b) => a.rank - b.rank),
     [],
   );
-  const flyerCount = orderedFlyers.length;
   const countRef = useRef(null);
   const sizeRef = useRef(null);
   const pickRef = useRef(null);
-  const swipeStartX = useRef(null);
-  const swipeStartY = useRef(null);
-  const swipeActive = useRef(false);
 
   const allowedByTier = useMemo(() => {
     if (!tier) return { BASICA: [], PREMIUM: [], DELUXE: [] };
@@ -122,12 +88,12 @@ export default function Promos() {
 
   const stepHelp =
     step === 1
-      ? "Elegí el tipo de promo."
+      ? "Elegi el tipo de promo."
       : step === 2
-        ? "Definí cuántas burgers querés."
+        ? "Defini cuantas burgers queres."
         : step === 3
-          ? "Elegí tamaño doble o triple."
-          : "Seleccioná las burgers para completar la promo.";
+          ? "Elegi tamano doble o triple."
+          : "Selecciona las burgers para completar la promo.";
 
   const tierLabels = {
     BASICA: "de la promo basica:",
@@ -136,20 +102,20 @@ export default function Promos() {
   };
   const tierOrder = ["BASICA", "PREMIUM", "DELUXE"];
 
-  function chooseTier(t) {
-    setTier(t);
+  function chooseTier(nextTier) {
+    setTier(nextTier);
     setCount(null);
     setSize(null);
     setPicked([]);
   }
 
-  function chooseCount(n) {
-    setCount(n);
+  function chooseCount(nextCount) {
+    setCount(nextCount);
     setPicked([]);
   }
 
-  function chooseSize(s) {
-    setSize(s);
+  function chooseSize(nextSize) {
+    setSize(nextSize);
     setPicked([]);
   }
 
@@ -162,15 +128,15 @@ export default function Promos() {
       });
       return;
     }
-    setPicked((p) => [...p, { id: burger.id, name: burger.name, note: "" }]);
+    setPicked((prev) => [...prev, { id: burger.id, name: burger.name, note: "" }]);
   }
 
   function undoLast() {
-    setPicked((p) => p.slice(0, -1));
+    setPicked((prev) => prev.slice(0, -1));
   }
 
   function removePick(index) {
-    setPicked((p) => p.filter((_, i) => i !== index));
+    setPicked((prev) => prev.filter((_, i) => i !== index));
   }
 
   function resetAll() {
@@ -178,20 +144,6 @@ export default function Promos() {
     setCount(null);
     setSize(null);
     setPicked([]);
-  }
-
-  function goPrevFlyer() {
-    setFlyerPreviewIndex((prev) => {
-      if (prev == null) return 0;
-      return (prev - 1 + flyerCount) % flyerCount;
-    });
-  }
-
-  function goNextFlyer() {
-    setFlyerPreviewIndex((prev) => {
-      if (prev == null) return 0;
-      return (prev + 1) % flyerCount;
-    });
   }
 
   function scrollToRef(ref) {
@@ -213,15 +165,15 @@ export default function Promos() {
       const duration = 500;
       let startTime = null;
 
-      function step(timestamp) {
+      function stepScroll(timestamp) {
         if (!startTime) startTime = timestamp;
         const progress = Math.min((timestamp - startTime) / duration, 1);
         const ease = 1 - Math.pow(1 - progress, 3);
         window.scrollTo(0, start + distance * ease);
-        if (progress < 1) window.requestAnimationFrame(step);
+        if (progress < 1) window.requestAnimationFrame(stepScroll);
       }
 
-      window.requestAnimationFrame(step);
+      window.requestAnimationFrame(stepScroll);
     }, 80);
   }
 
@@ -237,75 +189,9 @@ export default function Promos() {
     if (size) scrollToRef(pickRef);
   }, [size]);
 
-  useEffect(() => {
-    let isActive = true;
-
-    orderedFlyers.forEach((flyer) => {
-      const img = new Image();
-      img.src = flyer.img;
-      img.onload = () => {
-        if (!isActive) return;
-        setFlyerStatus((prev) => ({ ...prev, [flyer.tier]: "loaded" }));
-      };
-      img.onerror = () => {
-        if (!isActive) return;
-        setFlyerStatus((prev) => ({ ...prev, [flyer.tier]: "error" }));
-      };
-    });
-
-    return () => {
-      isActive = false;
-    };
-  }, [orderedFlyers]);
-
-  useEffect(() => {
-    if (flyerPreviewIndex == null) return;
-    function onKeyDown(event) {
-      if (event.key === "Escape") {
-        setFlyerPreviewIndex(null);
-      }
-      if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        goPrevFlyer();
-      }
-      if (event.key === "ArrowRight") {
-        event.preventDefault();
-        goNextFlyer();
-      }
-    }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [flyerPreviewIndex]);
-
-  function handleSwipeStart(event) {
-    const point = event.touches ? event.touches[0] : event;
-    swipeStartX.current = point.clientX;
-    swipeStartY.current = point.clientY;
-    swipeActive.current = true;
-  }
-
-  function handleSwipeEnd(event) {
-    if (!swipeActive.current) return;
-    const point = event.changedTouches ? event.changedTouches[0] : event;
-    const deltaX = point.clientX - swipeStartX.current;
-    const deltaY = point.clientY - swipeStartY.current;
-    const threshold = 48;
-
-    if (Math.abs(deltaX) > threshold && Math.abs(deltaX) > Math.abs(deltaY)) {
-      if (deltaX < 0) {
-        goNextFlyer();
-      } else {
-        goPrevFlyer();
-      }
-    }
-
-    swipeActive.current = false;
-    swipeStartX.current = null;
-    swipeStartY.current = null;
-  }
-
   function addPromoToCart() {
-    if (!tier || !count || !size || picked.length !== count) return;
+    if (!tier || !count || !size || picked.length !== count || price == null) return;
+
     const unavailablePick = picked.find((pick) =>
       isItemUnavailable(burgersById[pick.id]),
     );
@@ -344,16 +230,6 @@ export default function Promos() {
     resetAll();
   }
 
-  const flyersAllLoaded = orderedFlyers.every(
-    (flyer) => flyerStatus[flyer.tier] === "loaded",
-  );
-  const flyersAnyError = orderedFlyers.some(
-    (flyer) => flyerStatus[flyer.tier] === "error",
-  );
-  const showFlyerSection = flyersAllLoaded && !flyersAnyError;
-  const currentFlyer =
-    flyerPreviewIndex != null ? orderedFlyers[flyerPreviewIndex] : null;
-
   return (
     <Page>
       <BrandLogo />
@@ -362,142 +238,17 @@ export default function Promos() {
       <PageTitle>Promos</PageTitle>
       <p className={styles.pageNote}>Todas las promos incluyen papas.</p>
 
-      {showFlyerSection ? (
-        <section className={styles.flyerSection}>
-          <div className={styles.flyerHeader}>
-            <div className={styles.sectionTitle}>Promos más pedidas</div>
-            <div className={styles.subtle}>
-              Mirá los flyers y elegí el tipo de promo para empezar.
-            </div>
-          </div>
-
-          <div className={styles.flyerGrid}>
-            {orderedFlyers.map((flyer, index) => (
-              <Card
-                key={flyer.tier}
-                className={`${styles.flyerCard} ${
-                  styles[`flyer${flyer.tone}`]
-                } ${tier === flyer.tier ? styles.flyerSelected : ""}`}>
-                <button
-                  type="button"
-                  className={styles.flyerButton}
-                  onClick={() => setFlyerPreviewIndex(index)}
-                  aria-label={`Ver promo ${flyer.label} en grande`}>
-                  <div className={styles.flyerMedia}>
-                    {flyer.badge ? (
-                      <div className={styles.flyerBadge}>{flyer.badge}</div>
-                    ) : null}
-                    <img
-                      src={flyer.img}
-                      alt={`Promo ${flyer.label}`}
-                      loading="lazy"
-                      onError={() =>
-                        setFlyerStatus((prev) => ({
-                          ...prev,
-                          [flyer.tier]: "error",
-                        }))
-                      }
-                    />
-                  </div>
-                </button>
-              </Card>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {currentFlyer && showFlyerSection ? (
-        <div
-          className={styles.flyerModalOverlay}
-          role="dialog"
-          aria-modal="true"
-          onClick={() => setFlyerPreviewIndex(null)}>
-          <div
-            className={styles.flyerModal}
-            onClick={(event) => event.stopPropagation()}>
-            <div className={styles.flyerModalContent}>
-              <div
-                className={styles.flyerModalCarousel}
-                onTouchStart={handleSwipeStart}
-                onTouchEnd={handleSwipeEnd}
-                onMouseDown={handleSwipeStart}
-                onMouseUp={handleSwipeEnd}>
-                <button
-                  type="button"
-                  className={`${styles.flyerNavButton} ${styles.flyerNavLeft}`}
-                  onClick={goPrevFlyer}
-                  aria-label="Ver flyer anterior">
-                  <svg
-                    className={styles.flyerNavIcon}
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                    focusable="false">
-                    <path d="M15 18 9 12l6-6" />
-                  </svg>
-                </button>
-                <img
-                  className={styles.flyerModalImage}
-                  src={currentFlyer.img}
-                  alt={`Promo ${currentFlyer.label}`}
-                  draggable="false"
-                />
-                <button
-                  type="button"
-                  className={`${styles.flyerNavButton} ${styles.flyerNavRight}`}
-                  onClick={goNextFlyer}
-                  aria-label="Ver flyer siguiente">
-                  <svg
-                    className={styles.flyerNavIcon}
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                    focusable="false">
-                    <path d="M9 6l6 6-6 6" />
-                  </svg>
-                </button>
-              </div>
-              <div className={styles.flyerDots} role="tablist">
-                {orderedFlyers.map((flyer, index) => (
-                  <button
-                    key={flyer.tier}
-                    type="button"
-                    className={`${styles.flyerDot} ${
-                      index === flyerPreviewIndex ? styles.flyerDotActive : ""
-                    }`}
-                    onClick={() => setFlyerPreviewIndex(index)}
-                    aria-label={`Ver promo ${flyer.label}`}
-                  />
-                ))}
-              </div>
-              <div className={styles.flyerModalActions}>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={() => {
-                    chooseTier(currentFlyer.tier);
-                    setFlyerPreviewIndex(null);
-                  }}>
-                  Elegir {currentFlyer.label.toLowerCase()}
-                </Button>
-                <Button size="sm" onClick={() => setFlyerPreviewIndex(null)}>
-                  Cerrar
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
       <PromoStepCard step={step} helpText={stepHelp} />
 
       <Card className={styles.card}>
-        <div className={styles.sectionTitle}>Elegí promo</div>
+        <div className={styles.sectionTitle}>Elegi promo</div>
         <div className={`${styles.row} ${styles.rowWrap}`}>
-          {orderedFlyers.map((flyer) => (
+          {promoOptions.map((option) => (
             <Button
-              key={flyer.tier}
-              isActive={tier === flyer.tier}
-              onClick={() => chooseTier(flyer.tier)}>
-              {flyer.label}
+              key={option.tier}
+              isActive={tier === option.tier}
+              onClick={() => chooseTier(option.tier)}>
+              {option.label}
             </Button>
           ))}
         </div>
@@ -506,13 +257,10 @@ export default function Promos() {
       {tier && (
         <div ref={countRef}>
           <Card className={styles.card}>
-            <div className={styles.sectionTitle}>¿Cuántas burgers?</div>
+            <div className={styles.sectionTitle}>Cuantas burgers?</div>
             <div className={`${styles.row} ${styles.rowWrap}`}>
               {[2, 3, 4].map((n) => (
-                <Button
-                  key={n}
-                  isActive={count === n}
-                  onClick={() => chooseCount(n)}>
+                <Button key={n} isActive={count === n} onClick={() => chooseCount(n)}>
                   {n}
                 </Button>
               ))}
@@ -524,19 +272,16 @@ export default function Promos() {
       {tier && count && (
         <div ref={sizeRef}>
           <Card className={styles.card}>
-            <div className={styles.sectionTitle}>¿Dobles o triples?</div>
+            <div className={styles.sectionTitle}>Dobles o triples?</div>
             <div className={`${styles.row} ${styles.rowWrap}`}>
               {["doble", "triple"].map((s) => (
-                <Button
-                  key={s}
-                  isActive={size === s}
-                  onClick={() => chooseSize(s)}>
+                <Button key={s} isActive={size === s} onClick={() => chooseSize(s)}>
                   {s === "doble" ? "Dobles" : "Triples"}
                 </Button>
               ))}
             </div>
 
-            {size && price != null && (
+            {size && price != null ? (
               <div className={styles.price}>
                 <b>Precio promo:</b> {formatMoney(price)}
                 {showSavings ? (
@@ -544,36 +289,31 @@ export default function Promos() {
                     <span>Comprar sueltas: {formatMoney(pickedTotal)}</span>
                     <span
                       className={
-                        savingsValue >= 0
-                          ? styles.savingsPositive
-                          : styles.savingsNegative
+                        savingsValue >= 0 ? styles.savingsPositive : styles.savingsNegative
                       }>
                       {savingsValue >= 0
-                        ? `Ahorrás ${formatMoney(savingsValue)}`
+                        ? `Ahorras ${formatMoney(savingsValue)}`
                         : `Promo +${formatMoney(Math.abs(savingsValue))}`}
                     </span>
                   </div>
                 ) : null}
               </div>
-            )}
+            ) : null}
           </Card>
         </div>
       )}
 
-      {tier && count && size && (
+      {tier && count && size ? (
         <>
           <div ref={pickRef}>
             <Card className={styles.card}>
               <div className={styles.rowBetween}>
                 <div>
-                  <b>Elegí burgers</b> ({picked.length}/{count})
+                  <b>Elegi burgers</b> ({picked.length}/{count})
                   <div className={styles.subtle}>Se pueden repetir.</div>
                 </div>
 
-                <Button
-                  size="sm"
-                  onClick={undoLast}
-                  disabled={picked.length === 0}>
+                <Button size="sm" onClick={undoLast} disabled={picked.length === 0}>
                   Deshacer
                 </Button>
               </div>
@@ -584,11 +324,8 @@ export default function Promos() {
                   if (!tierItems.length) return null;
                   return (
                     <div key={tierKey} className={styles.pickGroup}>
-                      <div className={styles.pickGroupLabel}>
-                        {tierLabels[tierKey]}
-                      </div>
-                      <div
-                        className={`${styles.row} ${styles.rowWrap} ${styles.pickRow}`}>
+                      <div className={styles.pickGroupLabel}>{tierLabels[tierKey]}</div>
+                      <div className={`${styles.row} ${styles.rowWrap} ${styles.pickRow}`}>
                         {tierItems.map((b) => {
                           const isUnavailable = isItemUnavailable(b);
                           const unavailableReason = getUnavailableReason(b);
@@ -600,9 +337,7 @@ export default function Promos() {
                               aria-disabled={isUnavailable}
                               title={isUnavailable ? unavailableReason : undefined}
                               subLabel={isUnavailable ? unavailableReason : undefined}
-                              className={
-                                isUnavailable ? styles.pickUnavailable : ""
-                              }>
+                              className={isUnavailable ? styles.pickUnavailable : ""}>
                               {b.name}
                             </Button>
                           );
@@ -612,11 +347,11 @@ export default function Promos() {
                   );
                 })}
               </div>
-              {picked.length === count && (
+              {picked.length === count ? (
                 <div className={styles.remaining}>
                   Ya elegiste las {count} burgers de tu promo.
                 </div>
-              )}
+              ) : null}
             </Card>
           </div>
 
@@ -629,17 +364,14 @@ export default function Promos() {
                 picked.map((pick, i) => {
                   const name = pick.name || pick.id;
                   return (
-                    <Pill
-                      key={`${name}-${i}`}
-                      active
-                      className={styles.pickPill}>
+                    <Pill key={`${name}-${i}`} active className={styles.pickPill}>
                       <span>{name}</span>
                       <button
                         type="button"
                         className={styles.pickRemove}
                         aria-label={`Quitar ${name}`}
                         onClick={() => removePick(i)}>
-                        ×
+                        x
                       </button>
                     </Pill>
                   );
@@ -652,9 +384,7 @@ export default function Promos() {
             <div className={styles.rowBetween}>
               <div>
                 <div className={styles.subtle}>Listo para agregar</div>
-                <div className={styles.totalPrice}>
-                  {formatMoney(price ?? 0)}
-                </div>
+                <div className={styles.totalPrice}>{formatMoney(price ?? 0)}</div>
               </div>
 
               <Button
@@ -668,7 +398,7 @@ export default function Promos() {
             </div>
           </Card>
         </>
-      )}
+      ) : null}
 
       <StickyBar>
         <CartSummary total={cart.total} />
