@@ -1,6 +1,6 @@
 export const WHATSAPP_NUMBER = "5491134158607";
 const STOCK = {
-  huevo: 0,
+  huevo: 1,
 };
 const STOCK_OUT_REASON = "no disponible por hoy";
 const withStock = (enabled) =>
@@ -193,7 +193,7 @@ export const extras = [
     id: "doritos_burger",
     name: "Doritos",
     price: 800,
-    isAvailable: 0,
+    isAvailable: 1,
     unavailableReason: "no disponible por hoy",
   },
   { id: "papas_burger", name: "Papas", price: 800, isAvailable: 1 },
