@@ -86,7 +86,8 @@ export const burgers = [
     prices: { simple: 11500, doble: 14000, triple: 16500 },
     desc: "Pan de papa · Carne smash · Huevo frito · Papas · Cheddar",
     img: "/burgers/cochina.jpg",
-    isAvailable: 1,
+    isAvailable: 0,
+    unavailableReason: "no disponible por hoy",
   },
   {
     id: "smoklahoma",
@@ -104,7 +105,8 @@ export const burgers = [
     prices: { simple: 11500, doble: 14000, triple: 16500 },
     desc: "Pan de papa · Carne smash · Bacon · Huevo frito · Papas · Cheddar",
     img: "/burgers/sos.jpg",
-    isAvailable: 1,
+    isAvailable: 0,
+    unavailableReason: "no disponible por hoy",
   },
   {
     id: "triunfos",
@@ -175,7 +177,13 @@ export const extras = [
   { id: "bacon_crocante", name: "Bacon", price: 1500, isAvailable: 1 },
   { id: "cebolla_caram", name: "Cebolla caramelizada", price: 600, isAvailable: 1 },
   { id: "pepinos", name: "Pepinos", price: 800, isAvailable: 1 },
-  { id: "huevo", name: "Huevo frito", price: 800, isAvailable: 1 },
+  {
+    id: "huevo",
+    name: "Huevo frito",
+    price: 800,
+    isAvailable: 0,
+    unavailableReason: "no disponible por hoy",
+  },
   {
     id: "doritos_burger",
     name: "Doritos",
