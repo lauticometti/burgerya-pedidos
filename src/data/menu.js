@@ -36,7 +36,8 @@ export const burgers = [
     prices: { simple: 10500, doble: 13500, triple: 16500 },
     desc: "Pan de papa · Carne smash con cebolla ultrafina · Cheddar",
     img: "/burgers/oklahoma.jpg",
-    isAvailable: 1,
+    isAvailable: 0,
+    unavailableReason: "no disponible por hoy",
   },
 
   // PREMIUM
@@ -103,7 +104,8 @@ export const burgers = [
     prices: { simple: 12000, doble: 15000, triple: 18000 },
     desc: "Pan de papa · Carne smash con cebolla ultrafina · Bacon · Cheddar · Mil Islas",
     img: "/burgers/smoklahoma.jpg",
-    isAvailable: 1,
+    isAvailable: 0,
+    unavailableReason: "no disponible por hoy",
   },
   {
     id: "sos",
