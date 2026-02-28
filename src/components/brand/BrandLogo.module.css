@@ -18,7 +18,7 @@
 
 .text {
   font-family: "Archivo Black", system-ui, sans-serif;
-  font-size: clamp(36px, 7vw, 64px);
+  font-size: clamp(54px, 10.5vw, 96px);
   letter-spacing: -1px;
   text-transform: none;
   color: #ffc62a;

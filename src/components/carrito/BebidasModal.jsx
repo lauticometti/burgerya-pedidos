@@ -1,8 +1,8 @@
-import { useEffect } from "react";
 import Button from "../ui/Button";
 import CloseButton from "../ui/CloseButton";
 import baseStyles from "../ItemExtrasModal.module.css";
 import styles from "./BebidasModal.module.css";
+import useEscapeToClose from "../../hooks/useEscapeToClose";
 import {
   getUnavailableReason,
   isItemUnavailable,
@@ -16,17 +16,7 @@ export default function BebidasModal({
   onClose,
   onApply,
 }) {
-  useEffect(() => {
-    if (!open || typeof window === "undefined") return;
-    function onKeyDown(event) {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        onClose?.();
-      }
-    }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose]);
+  useEscapeToClose(open, onClose);
 
   if (!open) return null;
 

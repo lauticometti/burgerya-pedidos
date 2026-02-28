@@ -40,6 +40,12 @@
   opacity: 0.9;
 }
 
+.unitPrice {
+  font-size: 12px;
+  opacity: 0.85;
+  margin-left: 6px;
+}
+
 .savings {
   margin-top: 6px;
   display: grid;

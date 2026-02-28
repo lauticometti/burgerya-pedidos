@@ -1,5 +1,5 @@
 ﻿import Card from "../ui/Card";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { TextareaField } from "../ui/FormFields";
 import styles from "./PaymentScheduleCard.module.css";
 import TimeSlotModal from "./TimeSlotModal";
@@ -16,12 +16,6 @@ export default function PaymentScheduleCard({
   onNotesChange,
 }) {
   const [slotOpen, setSlotOpen] = useState(false);
-
-  useEffect(() => {
-    if (whenMode !== "Más tarde") {
-      setSlotOpen(false);
-    }
-  }, [whenMode]);
 
   return (
     <Card className={styles.card}>
@@ -56,7 +50,10 @@ export default function PaymentScheduleCard({
               whenMode === "Ahora" ? styles.choiceButtonActive : ""
             }`}
             aria-pressed={whenMode === "Ahora"}
-            onClick={() => onWhenModeChange("Ahora")}>
+            onClick={() => {
+              setSlotOpen(false);
+              onWhenModeChange("Ahora");
+            }}>
             Lo antes posible
           </button>
           <button

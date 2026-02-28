@@ -64,7 +64,7 @@ export default function Home() {
           subtitle="Armar pedido por unidad - incluyen papas"
           imageSrc={burgerImage}
           imageAlt="Burger Bacon"
-          imagePosition="center 65%"
+          imagePositionKey="burgers"
         />
         <HomeCard
           to="/promos"
@@ -72,7 +72,7 @@ export default function Home() {
           subtitle="2x / 3x / 4x (Dobles o Triples) - incluyen papas"
           imageSrc={promosImage}
           imageAlt="Promos Premium"
-          imagePosition="center 82%"
+          imagePositionKey="promos"
         />
         <HomeCard
           to="/papas"

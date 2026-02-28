@@ -15,8 +15,8 @@
 
 .modal {
   width: 100%;
-  max-width: 520px;
-  max-height: calc(100vh - 140px);
+  max-width: min(92vw, 720px);
+  max-height: min(88vh, 760px);
   border-radius: 18px;
   background: #0f0f10;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -35,10 +35,14 @@
 }
 
 .img {
-  width: 100%;
-  height: 220px;
-  object-fit: cover;
+  width: 90%;
+  max-width: 95%;
+  max-height: min(520px, calc(100vh - 240px));
+  height: auto;
+  object-fit: contain;
   display: block;
+  margin: 0 auto;
+  padding: 6px 8px 0;
 }
 
 .body {
@@ -51,6 +55,12 @@
 .name {
   font-size: 22px;
   font-weight: 900;
+}
+
+.nameWithFries {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffda7d;
 }
 
 .desc {
@@ -114,6 +124,11 @@
   background: #ffc62a;
   color: #111;
   font-weight: 900;
+}
+
+.addBtnChallenge {
+  background: linear-gradient(135deg, #ff4e2a, #ff8640);
+  color: #150a06;
 }
 
 .btn,

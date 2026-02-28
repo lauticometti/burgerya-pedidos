@@ -10,148 +10,74 @@ const withStock = (enabled) =>
 
 // Burgers con precios
 export const burgers = [
-  // BASICAS
-  {
-    id: "cheese",
-    name: "Cheese",
-    tier: "BASICA",
-    prices: { simple: 10500, doble: 13500, triple: 16500 },
-    desc: "Pan de papa · Carne smash · Cheddar",
-    img: "/burgers/cheese.jpg",
-    isAvailable: 1,
-  },
-  {
-    id: "cuarto",
-    name: "Cuarto",
-    tier: "BASICA",
-    prices: { simple: 10500, doble: 13500, triple: 16500 },
-    desc: "Pan de papa · Carne smash · Ketchup · Mostaza · Cebolla · Cheddar",
-    img: "/burgers/cuarto.jpg",
-    isAvailable: 1,
-  },
-  {
-    id: "oklahoma",
-    name: "Oklahoma",
-    tier: "BASICA",
-    prices: { simple: 10500, doble: 13500, triple: 16500 },
-    desc: "Pan de papa · Carne smash con cebolla ultrafina · Cheddar",
-    img: "/burgers/oklahoma.jpg",
-    isAvailable: 0,
-    unavailableReason: "no disponible por hoy",
-  },
-
-  // PREMIUM
-  {
-    id: "lautiboom",
-    name: "Lautiboom",
-    tier: "PREMIUM",
-    prices: { simple: 11500, doble: 14500, triple: 17500 },
-    desc: "Pan de papa · Carne smash · Cebolla caramelizada · Cheddar · Mil Islas.",
-    img: "/burgers/lautiboom.jpg",
-    isAvailable: 1,
-  },
-  {
-    id: "american",
-    name: "American",
-    tier: "PREMIUM",
-    prices: { simple: 11500, doble: 14500, triple: 17500 },
-    desc: "Pan de papa · Carne smash · Lechuga · Tomate · Cebolla · Pepinos · Cheddar · Mil Islas",
-    img: "/burgers/american.jpg",
-    isAvailable: 1,
-  },
+  // LAS QUE TE GUSTAN
   {
     id: "bacon",
     name: "Bacon",
     tier: "PREMIUM",
     prices: { simple: 11500, doble: 14500, triple: 17500 },
-    desc: "Pan de papa · Carne smash · Bacon · Cheddar",
-    img: "/burgers/bacon.jpg",
+    desc: "Pan de papa, carne smash, bacon y cheddar.",
+    img: "/burgers/bacon.svg",
+    isAvailable: 1,
+  },
+  {
+    id: "cheese",
+    name: "Cheese",
+    tier: "BASICA",
+    prices: { simple: 10500, doble: 13500, triple: 16500 },
+    desc: "Pan de papa, carne smash y cheddar.",
+    img: "/burgers/cheese.svg",
     isAvailable: 1,
   },
 
-  // DELUXE
+  // LAS QUE LA ROMPEN
+  {
+    id: "american",
+    name: "American",
+    tier: "PREMIUM",
+    prices: { simple: 11500, doble: 14500, triple: 17500 },
+    desc: "Pan de papa, carne smash, lechuga, tomate, cebolla, pepinos, cheddar y salsa secreta.",
+    img: "/burgers/american.svg",
+    isAvailable: 1,
+  },
+  {
+    id: "lautiboom",
+    name: "Lautiboom",
+    tier: "PREMIUM",
+    prices: { simple: 11500, doble: 14500, triple: 17500 },
+    desc: "Pan de papa, carne smash, cebolla caramelizada, cheddar y salsa secreta.",
+    img: "/burgers/lautiboom.svg",
+    isAvailable: 1,
+  },
+
+  // BURGERS DELUXE
   {
     id: "bbqueen",
     name: "BBQueen",
     tier: "DELUXE",
     prices: { simple: 12000, doble: 15000, triple: 18000 },
-    desc: "Pan de papa · Carne smash · Bacon · Tomate · Cebolla caramelizada · Cheddar · Barbacoa",
-    img: "/burgers/bbqueen.jpg",
+    desc: "Pan de papa, carne smash, bacon, tomate, cebolla caramelizada, cheddar y barbacoa.",
+    img: "/burgers/bbqueen.svg",
     isAvailable: 1,
-  },
-  {
-    id: "doritos",
-    name: "Doritos",
-    tier: "DELUXE",
-    prices: { simple: 12000, doble: 15000, triple: 18000 },
-    desc: "Pan de papa · Carne smash · Bacon · Doritos · Cheddar · Barbacoa",
-    img: "/burgers/doritos.jpg",
-    isAvailable: 1,
-  },
-  {
-    id: "cochina",
-    name: "Cochina",
-    tier: "DELUXE",
-    prices: { simple: 12000, doble: 15000, triple: 18000 },
-    desc: "Pan de papa · Carne smash · Huevo frito · Papas · Cheddar",
-    img: "/burgers/cochina.jpg",
-    ...withStock(STOCK.huevo),
   },
   {
     id: "smoklahoma",
     name: "Smoklahoma",
     tier: "DELUXE",
     prices: { simple: 12000, doble: 15000, triple: 18000 },
-    desc: "Pan de papa · Carne smash con cebolla ultrafina · Bacon · Cheddar · Mil Islas",
-    img: "/burgers/smoklahoma.jpg",
-    isAvailable: 0,
-    unavailableReason: "no disponible por hoy",
-  },
-  {
-    id: "sos",
-    name: "SOS",
-    tier: "DELUXE",
-    prices: { simple: 12000, doble: 15000, triple: 18000 },
-    desc: "Pan de papa · Carne smash · Bacon · Huevo frito · Papas · Cheddar",
-    img: "/burgers/sos.jpg",
-    ...withStock(STOCK.huevo),
-  },
-  {
-    id: "triunfos",
-    name: "Triunfos",
-    tier: "DELUXE",
-    prices: { simple: 12000, doble: 15000, triple: 18000 },
-    desc: "Pan de papa · Carne smash · Bacon · Cebolla caramelizada · Cheddar · Mil Islas",
-    img: "/burgers/triunfos.jpg",
+    desc: "Pan de papa, carne smash con cebolla ultrafina, bacon, cheddar y salsa secreta.",
+    img: "/burgers/smoklahoma.svg",
     isAvailable: 1,
   },
 
-  // ESPECIALES (sin simple)
+  // EL DESAFIO
   {
     id: "titanica",
     name: "Titanica",
     tier: "ESPECIAL",
     prices: { triple: 27000 },
-    desc: "Doble pan de papa relleno con cheddar · Carne smash · Bacon abajo y arriba · Cebolla caramelizada · Cheddar · Mil Islas",
-    img: "/burgers/titanica.jpg",
-    isAvailable: 1,
-  },
-  {
-    id: "bacon_deluxe",
-    name: "Bacon Deluxe",
-    tier: "ESPECIAL",
-    prices: { triple: 24000 },
-    desc: "Pan de papa · Carne smash · Bacon en todas las carnes · Mil Islas",
-    img: "/burgers/bacondeluxe.jpg",
-    isAvailable: 1,
-  },
-  {
-    id: "big_smash",
-    name: "Big Smash",
-    tier: "ESPECIAL",
-    prices: { triple: 22000 },
-    desc: "Pan de papa especial · Carne smash · Lechuga · Pepinos · Cheddar · Mil Islas",
-    img: "/burgers/bigsmash.jpg",
+    desc: "Siempre triple, doble pan relleno con cheddar arriba y abajo, bacon en corona y base, cebolla caramelizada y salsa secreta.",
+    img: "/burgers/titanica.svg",
     isAvailable: 1,
   },
 ];
@@ -246,3 +172,4 @@ export const bebidas = [
   { id: "coca_600", name: "Coca Cola 600ml", price: 2500, isAvailable: 1 },
   { id: "coca_225", name: "Coca Cola 2.25L", price: 6000, isAvailable: 1 },
 ];
+

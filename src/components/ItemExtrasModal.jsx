@@ -2,6 +2,7 @@ import React from "react";
 import Button from "./ui/Button";
 import CloseButton from "./ui/CloseButton";
 import styles from "./ItemExtrasModal.module.css";
+import useEscapeToClose from "../hooks/useEscapeToClose";
 import {
   getUnavailableReason,
   isItemUnavailable,
@@ -21,17 +22,7 @@ export default function ItemExtrasModal({
   onClear,
   clearLabel = "Limpiar",
 }) {
-  React.useEffect(() => {
-    if (!open || typeof window === "undefined") return;
-    function onKeyDown(event) {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        onClose?.();
-      }
-    }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose]);
+  useEscapeToClose(open, onClose);
 
   if (!open) return null;
 

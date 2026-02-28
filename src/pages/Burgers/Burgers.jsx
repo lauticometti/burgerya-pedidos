@@ -4,129 +4,209 @@ import { burgers } from "../../data/menu";
 import { useCart } from "../../store/useCart";
 import BurgerModal from "./BurgerModal";
 import { toast } from "../../utils/toast";
-import { formatMoney } from "../../utils/formatMoney";
 import TopNav from "../../components/TopNav";
 import Page from "../../components/layout/Page";
 import StickyBar from "../../components/layout/StickyBar";
 import CartSummary from "../../components/cart/CartSummary";
 import Button from "../../components/ui/Button";
-import PageTitle from "../../components/ui/PageTitle";
-import BurgerSection from "../../components/burgers/BurgerSection";
-import BurgerItem from "../../components/burgers/BurgerItem";
 import BrandLogo from "../../components/brand/BrandLogo";
 import styles from "./Burgers.module.css";
 import { getBurgerPriceInfo } from "../../utils/burgerPricing";
+import { resolvePublicPath } from "../../utils/assetPath";
 import {
   getUnavailableReason,
   isItemUnavailable,
 } from "../../utils/availability";
+import {
+  buildBurgerAddedToastText,
+  buildBurgerCartItem,
+  notifyUnavailableBurger,
+  scrollToBurgerCard,
+} from "./burgersUtils";
 
-const TIER_ORDER = ["BASICA", "PREMIUM", "DELUXE", "ESPECIAL"];
-const TIER_LABELS = {
-  BASICA: "Básicas",
-  PREMIUM: "Premium",
-  DELUXE: "Deluxe",
-  ESPECIAL: "Bestias",
+const SHOWCASE_SECTIONS = [
+  {
+    id: "gustan",
+    title: "Las que no fallan",
+    subtitle: "Las más vendidas.",
+    tone: "gustan",
+    layout: "pairHero",
+    items: [
+      { id: "bacon", badge: "TOP #1", emphasis: "top" },
+      { id: "cheese", badge: "TOP #2", emphasis: "top" },
+    ],
+  },
+  {
+    id: "rompen",
+    title: "Las que la rompen",
+    subtitle: "Más premium, más ingredientes.",
+    tone: "rompen",
+    layout: "pair",
+    items: [
+      { id: "american", emphasis: "mid" },
+      { id: "lautiboom", emphasis: "mid" },
+    ],
+  },
+  {
+    id: "deluxe",
+    title: "Burgers deluxe",
+    subtitle: "Sabor de lujo.",
+    tone: "deluxe",
+    layout: "pair",
+    items: [
+      { id: "bbqueen", emphasis: "deluxe" },
+      { id: "smoklahoma", emphasis: "deluxe" },
+    ],
+  },
+  {
+    id: "desafio",
+    title: "El desafio",
+    subtitle: "Titanica. Gigante, intensa y siempre triple.",
+    tone: "desafio",
+    layout: "single",
+    items: [{ id: "titanica", emphasis: "challenge" }],
+  },
+];
+
+const SECTION_CLASS = {
+  gustan: styles.sectionGustan,
+  rompen: styles.sectionRompen,
+  deluxe: styles.sectionDeluxe,
+  desafio: styles.sectionDesafio,
 };
-const TIER_BADGES = {};
+
+const LAYOUT_CLASS = {
+  pairHero: styles.layoutPairHero,
+  pair: styles.layoutPair,
+  single: styles.layoutSingle,
+};
+
+const CARD_CLASS = {
+  top: styles.cardTop,
+  mid: styles.cardMid,
+  deluxe: styles.cardDeluxe,
+  challenge: styles.cardChallenge,
+};
+
+function mapBurgersById(list) {
+  return list.reduce((acc, burger) => {
+    acc[burger.id] = burger;
+    return acc;
+  }, {});
+}
 
 export default function Burgers() {
   const cart = useCart();
 
   const [modalOpen, setModalOpen] = React.useState(false);
   const [activeBurger, setActiveBurger] = React.useState(null);
+  const burgersById = React.useMemo(() => mapBurgersById(burgers), []);
 
-  function showUnavailableBurger(burger, reason = "no disponible por hoy") {
-    toast.error(`${burger.name}: ${reason}`, {
-      key: `burger-unavailable:${burger.id}`,
-    });
-  }
+  const sections = React.useMemo(
+    () =>
+      SHOWCASE_SECTIONS.map((section) => {
+        const items = section.items
+          .map((item) => {
+            const burger = burgersById[item.id];
+            if (!burger) return null;
+            return { ...item, burger };
+          })
+          .filter(Boolean);
+
+        if (!items.length) return null;
+        return { ...section, items };
+      }).filter(Boolean),
+    [burgersById],
+  );
 
   function openBurger(burger) {
     if (isItemUnavailable(burger)) {
-      showUnavailableBurger(burger, getUnavailableReason(burger));
+      notifyUnavailableBurger(burger, getUnavailableReason(burger));
       return;
     }
     setActiveBurger(burger);
     setModalOpen(true);
   }
 
-  function scrollToBurger(burgerId) {
-    if (typeof window === "undefined") return;
-    const el = document.getElementById(`burger-${burgerId}`);
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const offset = 96;
-    const target = rect.top + window.scrollY - offset;
-    window.requestAnimationFrame(() => {
-      window.scrollTo({ top: target, behavior: "smooth" });
-    });
+  function addBurgerToCart(burger, size) {
+    const price = getBurgerPriceInfo(burger, size);
+    cart.add(buildBurgerCartItem(burger, size, price));
+    const addedText = buildBurgerAddedToastText(burger.name, size, price);
+    toast.success(addedText);
+    scrollToBurgerCard(burger.id);
   }
 
   return (
     <Page>
       <BrandLogo />
       <TopNav />
-      <PageTitle>Burgers</PageTitle>
-      <p className={styles.note}>Todas las burgers vienen con papas.</p>
 
-      {TIER_ORDER.map((tier) => {
-        const list = burgers.filter((b) => b.tier === tier);
-        if (!list.length) return null;
+      {sections.map((section) => (
+        <section
+          key={section.id}
+          className={`${styles.section} ${SECTION_CLASS[section.tone] || ""}`}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>{section.title}</h2>
+            <p className={styles.sectionSubtitle}>{section.subtitle}</p>
+          </div>
 
-        return (
-          <BurgerSection
-            key={tier}
-            title={TIER_LABELS[tier]}
-            variant={tier}
-            badgeText={TIER_BADGES[tier]}>
-            {list.map((burger) => (
-              <div key={burger.id} id={`burger-${burger.id}`}>
-                <BurgerItem
-                  burger={burger}
-                  onOpen={() => openBurger(burger)}
-                  onUnavailable={showUnavailableBurger}
-                />
-              </div>
-            ))}
-          </BurgerSection>
-        );
-      })}
+          <div
+            className={`${styles.cards} ${LAYOUT_CLASS[section.layout] || ""}`}>
+            {section.items.map((entry) => {
+              const burger = entry.burger;
+              const isUnavailable = isItemUnavailable(burger);
+              const unavailableReason = getUnavailableReason(burger);
+
+              return (
+                <article
+                  key={burger.id}
+                  id={`burger-${burger.id}`}
+                  className={`${styles.card} ${CARD_CLASS[entry.emphasis] || ""}`}>
+                  <button
+                    type="button"
+                    className={styles.mediaWrap}
+                    onClick={() => openBurger(burger)}
+                    aria-label={`Ver opciones de ${burger.name}`}>
+                    <img
+                      className={styles.media}
+                      src={resolvePublicPath(
+                        burger.img || "/burgers/placeholder.jpg",
+                      )}
+                      alt={burger.name}
+                      loading="lazy"
+                    />
+                    {entry.badge ? (
+                      <span className={styles.badge}>{entry.badge}</span>
+                    ) : null}
+                  </button>
+
+                  <div className={styles.cardBody}>
+                    <div className={styles.cardTopRow}>
+                      <h3 className={styles.cardTitle}>{burger.name}</h3>
+                    </div>
+
+                    {isUnavailable ? (
+                      <p className={styles.unavailable}>{unavailableReason}</p>
+                    ) : null}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      ))}
 
       <BurgerModal
         open={modalOpen}
         burger={activeBurger}
-        onClose={() => setModalOpen(false)}
-        onAdd={(burger, size) => {
-          const price = getBurgerPriceInfo(burger, size);
-          const key = `burger:${burger.id}:${size}`;
-          cart.add({
-            key,
-            name: burger.name,
-            qty: 1,
-            unitPrice: price.finalPrice,
-            meta: {
-              type: "burger",
-              burgerId: burger.id,
-              size,
-              burgerName: burger.name,
-              basePrice: price.basePrice,
-              discountAmount: price.discountAmount,
-              extrasIds: [],
-              friesId: null,
-            },
-          });
-          const addedText = price.hasDiscount
-            ? `Agregado: ${burger.name} ${size} - ${formatMoney(
-                price.finalPrice,
-              )} (antes ${formatMoney(price.basePrice)})`
-            : `Agregado: ${burger.name} ${size} - ${formatMoney(
-                price.finalPrice,
-              )}`;
-          toast.success(addedText);
+        onClose={() => {
           setModalOpen(false);
           setActiveBurger(null);
-          scrollToBurger(burger.id);
+        }}
+        onAdd={(burger, size) => {
+          addBurgerToCart(burger, size);
+          setModalOpen(false);
+          setActiveBurger(null);
         }}
       />
 

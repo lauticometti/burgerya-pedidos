@@ -42,6 +42,14 @@
   display: block;
 }
 
+.mediaImagePosBurgers {
+  object-position: center 65%;
+}
+
+.mediaImagePosPromos {
+  object-position: center 82%;
+}
+
 .mediaOverlay {
   position: absolute;
   inset: 0;

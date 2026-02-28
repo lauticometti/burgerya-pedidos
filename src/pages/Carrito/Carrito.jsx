@@ -1,15 +1,11 @@
 import React from "react";
 import { useCart } from "../../store/useCart";
-import { bebidas, extras, papas, WHATSAPP_NUMBER } from "../../data/menu";
+import { bebidas, extras, papas } from "../../data/menu";
 import ItemExtrasModal from "../../components/ItemExtrasModal";
 import { toast } from "../../utils/toast";
 import { formatMoney } from "../../utils/formatMoney";
 import { getAvailableSlotsMin30, minutesToHHMM } from "../../utils/timeSlots";
-import { buildWhatsAppText } from "../../utils/whatsapp";
-import {
-  getUnavailableReason,
-  isItemUnavailable,
-} from "../../utils/availability";
+import { isItemUnavailable } from "../../utils/availability";
 import Page from "../../components/layout/Page";
 import StickyBar from "../../components/layout/StickyBar";
 import CartSummary from "../../components/cart/CartSummary";
@@ -17,74 +13,46 @@ import Button from "../../components/ui/Button";
 import CarritoHeader from "../../components/carrito/CarritoHeader";
 import DeliveryDetailsCard from "../../components/carrito/DeliveryDetailsCard";
 import PaymentScheduleCard from "../../components/carrito/PaymentScheduleCard";
-import CartItemCard from "../../components/carrito/CartItemCard";
 import BebidasModal from "../../components/carrito/BebidasModal";
+import CartGroupsList from "../../components/carrito/CartGroupsList";
 import PageTitle from "../../components/ui/PageTitle";
 import BrandLogo from "../../components/brand/BrandLogo";
 import styles from "./Carrito.module.css";
+import {
+  CART_GROUP_ORDER,
+  getUndoLabel,
+  groupItemsByCategory,
+} from "./carritoUtils";
+import useCartUndo from "./useCartUndo";
+import useBebidaModal from "./useBebidaModal";
+import useItemExtrasModal from "./useItemExtrasModal";
+import useCarritoCheckoutForm from "./useCarritoCheckoutForm";
+import useCheckoutValidation from "./useCheckoutValidation";
 
 export default function Carrito() {
   const cart = useCart();
 
   const [step, setStep] = React.useState(1); // 1: Chequear pedido, 2: Datos y pago
-  const [deliveryMode, setDeliveryMode] = React.useState("");
-  const [name, setName] = React.useState("");
-  const [address, setAddress] = React.useState("");
-  const [cross, setCross] = React.useState("");
-  const [pay, setPay] = React.useState("Efectivo");
-
-  const [notes, setNotes] = React.useState("");
-  const [whenMode, setWhenMode] = React.useState("Ahora");
-  const [whenSlot, setWhenSlot] = React.useState("");
-  const [modalItemKey, setModalItemKey] = React.useState(null);
-  const [modalMode, setModalMode] = React.useState(null);
-  const [modalTarget, setModalTarget] = React.useState("item");
-  const [modalPickIndex, setModalPickIndex] = React.useState(null);
-  const [modalSelectedIds, setModalSelectedIds] = React.useState([]);
-  const [bebidaOpen, setBebidaOpen] = React.useState(false);
-  const [bebidaQuantities, setBebidaQuantities] = React.useState({});
+  const {
+    deliveryMode,
+    setDeliveryMode,
+    name,
+    setName,
+    address,
+    setAddress,
+    cross,
+    setCross,
+    pay,
+    setPay,
+    notes,
+    setNotes,
+    whenMode,
+    setWhenMode,
+    whenSlot,
+    setWhenSlot,
+  } = useCarritoCheckoutForm();
   const [upsellCollapsed, setUpsellCollapsed] = React.useState(false);
-  const [undoItem, setUndoItem] = React.useState(null);
-  const undoTimerRef = React.useRef(null);
-  const storageKey = "burgerya_carrito_form";
-
-  React.useEffect(() => {
-    if (typeof window === "undefined" || !window.localStorage) return;
-    try {
-      const raw = window.localStorage.getItem(storageKey);
-      if (!raw) return;
-      const saved = JSON.parse(raw);
-      if (saved?.name) setName(saved.name);
-      if (saved?.address) setAddress(saved.address);
-      if (saved?.cross) setCross(saved.cross);
-      if (saved?.pay) setPay(saved.pay);
-      if (saved?.deliveryMode) setDeliveryMode(saved.deliveryMode);
-      if (saved?.notes) setNotes(saved.notes);
-      if (saved?.whenMode) setWhenMode(saved.whenMode);
-      if (saved?.whenSlot) setWhenSlot(saved.whenSlot);
-    } catch {
-      // ignore storage errors
-    }
-  }, []);
-
-  React.useEffect(() => {
-    if (typeof window === "undefined" || !window.localStorage) return;
-    const payload = {
-      name,
-      address,
-      cross,
-      pay,
-      deliveryMode,
-      notes,
-      whenMode,
-      whenSlot,
-    };
-    try {
-      window.localStorage.setItem(storageKey, JSON.stringify(payload));
-    } catch {
-      // ignore storage errors
-    }
-  }, [name, address, cross, pay, deliveryMode, notes, whenMode, whenSlot]);
+  const { undoItem, handleRemove, handleUndo } = useCartUndo(cart);
 
   React.useEffect(() => {
     if (typeof window === "undefined") return;
@@ -106,25 +74,21 @@ export default function Carrito() {
     if (whenMode === "Más tarde" && !whenSlot && availableSlots.length) {
       setWhenSlot(minutesToHHMM(availableSlots[0]));
     }
-  }, [whenMode, whenSlot, availableSlots]);
-
-  const when =
-    whenMode === "Ahora" ? "Lo antes posible" : `Para más tarde (${whenSlot})`;
-
-  const hasTimeOk = whenMode === "Ahora" || !!whenSlot;
-  const hasDeliveryMode = !!deliveryMode;
-  const isDelivery = deliveryMode === "Delivery";
-  const hasAddressOk = !isDelivery || !!address.trim();
-
-  const canSend =
-    cart.items.length > 0 &&
-    name.trim() &&
-    pay.trim() &&
-    hasTimeOk &&
-    hasAddressOk &&
-    hasDeliveryMode;
+  }, [whenMode, whenSlot, availableSlots, setWhenSlot]);
 
   const canContinue = cart.items.length > 0;
+  const { canSend, missingFields, waHref } = useCheckoutValidation({
+    deliveryMode,
+    name,
+    address,
+    cross,
+    pay,
+    notes,
+    whenMode,
+    whenSlot,
+    items: cart.items,
+    total: cart.total,
+  });
   const availableBebidas = React.useMemo(
     () => (bebidas || []).filter((item) => !isItemUnavailable(item)),
     [],
@@ -164,55 +128,6 @@ export default function Carrito() {
     });
   }, [step]);
 
-  function getUndoLabel(item) {
-    if (!item) return "producto";
-    if (item.meta?.type === "promo") return item.name || "promo";
-    const sizeLabel =
-      item.meta?.size === "doble"
-        ? "doble"
-        : item.meta?.size === "triple"
-          ? "triple"
-          : item.meta?.size === "simple"
-            ? "simple"
-            : "";
-    const baseName = item.name || "producto";
-    return sizeLabel ? `${baseName} ${sizeLabel}` : baseName;
-  }
-
-  React.useEffect(() => {
-    return () => {
-      if (undoTimerRef.current) {
-        clearTimeout(undoTimerRef.current);
-      }
-    };
-  }, []);
-
-  function handleRemove(item, groupKey, index) {
-    cart.remove(item.key);
-    if (undoTimerRef.current) {
-      clearTimeout(undoTimerRef.current);
-    }
-    setUndoItem({
-      item,
-      groupKey,
-      index,
-    });
-    undoTimerRef.current = setTimeout(() => {
-      setUndoItem(null);
-      undoTimerRef.current = null;
-    }, 3000);
-  }
-
-  function handleUndo() {
-    if (!undoItem?.item) return;
-    cart.add({ ...undoItem.item, qty: undoItem.item.qty || 1 });
-    setUndoItem(null);
-    if (undoTimerRef.current) {
-      clearTimeout(undoTimerRef.current);
-      undoTimerRef.current = null;
-    }
-  }
-
   function addSuggestedBebida() {
     if (!suggestedBebida) return;
     cart.add({
@@ -233,223 +148,61 @@ export default function Carrito() {
     toast.success(`+ ${suggestedExtra.name}`);
   }
 
-  const missingFields = [
-    !hasDeliveryMode ? "entrega" : null,
-    hasDeliveryMode && !name.trim() ? "nombre" : null,
-    hasDeliveryMode && isDelivery && !address.trim() ? "dirección" : null,
-    hasDeliveryMode && !pay.trim() ? "pago" : null,
-    hasDeliveryMode && !hasTimeOk ? "horario" : null,
-  ].filter(Boolean);
-
-  const waHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${buildWhatsAppText({
-    name,
-    address,
-    cross,
-    pay,
-    deliveryMode,
-    when,
-    notes,
-    items: cart.items,
-    total: cart.total,
-  })}`;
-
   const papasMejoras = React.useMemo(
     () =>
       papas.filter((item) => ["cheddar_liq", "papas_bacon"].includes(item.id)),
     [],
   );
   const bebidaItems = bebidas || [];
+  const {
+    modalItem,
+    modalItems,
+    modalSelectedIds,
+    openExtrasModal,
+    toggleModalSelection,
+    applyModalSelection,
+    closeExtrasModal,
+    disableApply: disableExtrasApply,
+    applyLabel: extrasApplyLabel,
+    clearLabel: extrasClearLabel,
+    clearHandler: onClearExtrasSelection,
+    title: extrasModalTitle,
+    description: extrasModalDescription,
+  } = useItemExtrasModal({
+    cart,
+    papasMejoras,
+    extraItems: extras,
+  });
 
-  const modalItem = cart.items.find((item) => item.key === modalItemKey);
-  const modalItems = React.useMemo(() => {
-    if (modalMode === "papas") return papasMejoras;
-    return extras;
-  }, [modalMode, papasMejoras]);
-
-  function setItemNote(key, value) {
-    cart.setNote(key, value);
-  }
-
-  function openExtrasModal(item, mode, pickIndex = null) {
-    setModalItemKey(item.key);
-    setModalMode(mode);
-    if (pickIndex == null) {
-      setModalTarget("item");
-      setModalPickIndex(null);
-      const selected = mode === "papas" ? item.papas || [] : item.extras || [];
-      setModalSelectedIds(selected.map((extra) => extra.id));
-      return;
-    }
-
-    const pick = item.meta?.picks?.[pickIndex];
-    const pickExtras = mode === "papas" ? pick?.papas : pick?.extras;
-    setModalTarget("pick");
-    setModalPickIndex(pickIndex);
-    setModalSelectedIds((pickExtras || []).map((extra) => extra.id));
-  }
-
-  function toggleModalSelection(id) {
-    const selectedItem = modalItems.find((item) => item.id === id);
-    if (isItemUnavailable(selectedItem)) {
-      const reason = getUnavailableReason(selectedItem);
-      toast.error(`${selectedItem.name}: ${reason}`, {
-        key: `extra-unavailable:${selectedItem.id}`,
-      });
-      return;
-    }
-    setModalSelectedIds((prev) =>
-      prev.includes(id)
-        ? prev.filter((itemId) => itemId !== id)
-        : [...prev, id],
-    );
-  }
-
-  function applyModalSelection() {
-    if (!modalItem) return;
-    const selectedExtras = modalItems.filter((item) =>
-      modalSelectedIds.includes(item.id) && !isItemUnavailable(item),
-    );
-    if (modalTarget === "item") {
-      if (modalMode === "papas") {
-        cart.setPapas(modalItem.key, selectedExtras);
-      } else {
-        cart.setExtras(modalItem.key, selectedExtras);
-      }
-      if (selectedExtras.length > 0) {
-        toast.success(
-          modalMode === "papas" ? "Papas mejoradas." : "Agregados aplicados.",
-        );
-      }
-    } else {
-      const picks = (modalItem.meta?.picks || []).map((pick, index) => {
-        if (index !== modalPickIndex) return pick;
-        if (modalMode === "papas") return { ...pick, papas: selectedExtras };
-        return { ...pick, extras: selectedExtras };
-      });
-      cart.setPromoPicks(modalItem.key, picks);
-      if (selectedExtras.length > 0) {
-        toast.success(
-          modalMode === "papas" ? "Papas mejoradas." : "Agregados aplicados.",
-        );
-      }
-    }
-    setModalItemKey(null);
-    setModalMode(null);
-    setModalTarget("item");
-    setModalPickIndex(null);
-    setModalSelectedIds([]);
-  }
-
-  function clearModalSelectionAndApply() {
-    if (!modalItem) return;
-    if (modalTarget === "item") {
-      if (modalMode === "papas") {
-        cart.setPapas(modalItem.key, []);
-        toast.success("Mejoras de papas quitadas.");
-      } else {
-        cart.setExtras(modalItem.key, []);
-        toast.success("Agregados quitados.");
-      }
-    } else {
-      const picks = (modalItem.meta?.picks || []).map((pick, index) => {
-        if (index !== modalPickIndex) return pick;
-        if (modalMode === "papas") return { ...pick, papas: [] };
-        return { ...pick, extras: [] };
-      });
-      cart.setPromoPicks(modalItem.key, picks);
-      toast.success(
-        modalMode === "papas"
-          ? "Mejoras de papas quitadas."
-          : "Agregados quitados.",
-      );
-    }
-    setModalItemKey(null);
-    setModalMode(null);
-    setModalTarget("item");
-    setModalPickIndex(null);
-    setModalSelectedIds([]);
-  }
-
-  function openBebidaModal() {
-    const initial = bebidaItems.reduce((acc, item) => {
-      acc[item.id] = 0;
-      return acc;
-    }, {});
-    setBebidaQuantities(initial);
-    setBebidaOpen(true);
-  }
-
-  function adjustBebidaQty(id, delta) {
-    setBebidaQuantities((prev) => {
-      const current = prev[id] || 0;
-      const nextQty = Math.max(current + delta, 0);
-      return { ...prev, [id]: nextQty };
-    });
-  }
-
-  function applyBebidaSelection() {
-    const selected = bebidaItems.filter(
-      (item) => !isItemUnavailable(item) && (bebidaQuantities[item.id] || 0) > 0,
-    );
-    if (!selected.length) return;
-
-    selected.forEach((item) => {
-      const qty = bebidaQuantities[item.id] || 0;
-      cart.add({
-        key: `bebida:${item.id}`,
-        name: item.name,
-        qty,
-        unitPrice: item.price,
-        meta: { type: "bebida" },
-      });
-    });
-
-    toast.success(
-      selected.length === 1
-        ? `+ ${selected[0].name}`
-        : "Bebidas agregadas.",
-    );
-
-    setBebidaOpen(false);
-    setBebidaQuantities({});
-  }
-
-  function getCategory(item) {
-    if (item.meta?.type === "promo") return "promos";
-    if (item.meta?.type === "bebida") return "bebidas";
-    if (item.meta?.type === "papas" && item.key?.startsWith("papas:dip_"))
-      return "dips";
-    if (item.meta?.type === "papas") return "papas";
-    return "burgers";
-  }
-
-  const groupOrder = [
-    { key: "promos", title: "PROMOS" },
-    { key: "burgers", title: "BURGERS" },
-    { key: "papas", title: "PAPAS" },
-    { key: "dips", title: "DIPS" },
-    { key: "bebidas", title: "BEBIDAS" },
-  ];
+  const {
+    bebidaOpen,
+    bebidaQuantities,
+    openBebidaModal,
+    closeBebidaModal,
+    adjustBebidaQty,
+    applyBebidaSelection,
+  } = useBebidaModal({
+    cart,
+    bebidaItems,
+  });
 
   const groupedItems = React.useMemo(() => {
-    const grouped = {
-      promos: [],
-      burgers: [],
-      papas: [],
-      dips: [],
-      bebidas: [],
-    };
-    for (const item of cart.items) {
-      const category = getCategory(item);
-      grouped[category].push(item);
-    }
-    return grouped;
+    return groupItemsByCategory(cart.items);
   }, [cart.items]);
 
   const slotOptions = availableSlots.map((m) => ({
     value: minutesToHHMM(m),
     label: minutesToHHMM(m),
   }));
+
+  const groupListClasses = {
+    group: styles.group,
+    groupTitle: styles.groupTitle,
+    groupItems: styles.groupItems,
+    undoBar: styles.undoBar,
+    undoText: styles.undoText,
+    undoButton: styles.undoButton,
+  };
 
   return (
     <Page>
@@ -477,87 +230,19 @@ export default function Carrito() {
             {cart.items.length === 0 ? (
               <div>No hay items.</div>
             ) : (
-              groupOrder.map((group) => {
-                const groupItems = groupedItems[group.key] || [];
-                const hasUndo = undoItem?.groupKey === group.key;
-                if (!groupItems.length && !hasUndo) return null;
-                const undoIndex = hasUndo
-                  ? Math.min(undoItem.index ?? 0, groupItems.length)
-                  : -1;
-                return (
-                  <div key={group.key} className={styles.group}>
-                    <div className={styles.groupTitle}>{group.title}</div>
-                    <div className={styles.groupItems}>
-                      {groupItems.map((it, index) => {
-                        const isPromo = it.meta?.type === "promo";
-                        const canImprovePapas = it.meta?.type === "burger";
-                        const canAddExtras = it.meta?.type === "burger";
-                        return (
-                          <React.Fragment key={it.key}>
-                            {hasUndo && index === undoIndex ? (
-                              <div className={styles.undoBar}>
-                                <div className={styles.undoText}>
-                                  Se eliminó {getUndoLabel(undoItem.item)}.
-                                </div>
-                                <Button
-                                  size="xs"
-                                  className={styles.undoButton}
-                                  onClick={handleUndo}>
-                                  Deshacer
-                                </Button>
-                              </div>
-                            ) : null}
-                            <CartItemCard
-                              item={it}
-                              onChangeNote={(value) =>
-                                setItemNote(it.key, value)
-                              }
-                              onDecrease={() => cart.setQty(it.key, it.qty - 1)}
-                              onIncrease={() => cart.setQty(it.key, it.qty + 1)}
-                              onRemove={() => handleRemove(it, group.key, index)}
-                              onOpenExtras={() => openExtrasModal(it, "extras")}
-                              onOpenPapas={() => openExtrasModal(it, "papas")}
-                              promoPicks={
-                                isPromo ? it.meta?.picks || [] : []
-                              }
-                              onPromoNoteChange={(index, value) => {
-                                const picks = (it.meta?.picks || []).map(
-                                  (pick, pickIndex) =>
-                                    pickIndex === index
-                                      ? { ...pick, note: value }
-                                      : pick,
-                                );
-                                cart.setPromoPicks(it.key, picks);
-                              }}
-                              onPromoPickExtras={(index) =>
-                                openExtrasModal(it, "extras", index)
-                              }
-                              onPromoPickPapas={(index) =>
-                                openExtrasModal(it, "papas", index)
-                              }
-                              canImprovePapas={canImprovePapas}
-                              canAddExtras={canAddExtras}
-                            />
-                          </React.Fragment>
-                        );
-                      })}
-                      {hasUndo && undoIndex === groupItems.length ? (
-                        <div className={styles.undoBar}>
-                          <div className={styles.undoText}>
-                            Se eliminó {getUndoLabel(undoItem.item)}.
-                          </div>
-                          <Button
-                            size="xs"
-                            className={styles.undoButton}
-                            onClick={handleUndo}>
-                            Deshacer
-                          </Button>
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                );
-              })
+              <CartGroupsList
+                groups={CART_GROUP_ORDER}
+                groupedItems={groupedItems}
+                undoItem={undoItem}
+                getUndoLabel={getUndoLabel}
+                onUndo={handleUndo}
+                onSetItemNote={cart.setNote}
+                onSetQty={cart.setQty}
+                onRemove={handleRemove}
+                onOpenExtrasModal={openExtrasModal}
+                onSetPromoPicks={cart.setPromoPicks}
+                classes={groupListClasses}
+              />
             )}
           </div>
           {cart.items.length > 0 &&
@@ -605,7 +290,7 @@ export default function Carrito() {
         </>
       ) : (
         <>
-        <DeliveryDetailsCard
+          <DeliveryDetailsCard
             deliveryMode={deliveryMode}
             onDeliveryModeChange={setDeliveryMode}
             name={name}
@@ -671,50 +356,28 @@ export default function Carrito() {
 
       <ItemExtrasModal
         open={!!modalItem}
-        title={modalMode === "papas" ? "Mejorar papas" : "Agregados"}
-        description={
-          modalMode === "papas" ? "" : "Agrega extras a este producto."
-        }
+        title={extrasModalTitle}
+        description={extrasModalDescription}
         items={modalItems}
         selectedIds={modalSelectedIds}
         onToggle={toggleModalSelection}
-        onClose={() => {
-          setModalItemKey(null);
-          setModalMode(null);
-          setModalTarget("item");
-          setModalPickIndex(null);
-          setModalSelectedIds([]);
-        }}
+        onClose={closeExtrasModal}
         onApply={applyModalSelection}
-        disableApply={modalMode === "papas" && modalSelectedIds.length === 0}
-        applyLabel={modalMode === "papas" ? "Mejorar" : "Aplicar"}
-        onClear={
-          modalItem &&
-          ((modalTarget === "item" &&
-            (modalMode === "papas"
-              ? modalItem.papas?.length
-              : modalItem.extras?.length)) ||
-            (modalTarget === "pick" &&
-              (modalMode === "papas"
-                ? modalItem.meta?.picks?.[modalPickIndex]?.papas?.length
-                : modalItem.meta?.picks?.[modalPickIndex]?.extras?.length)))
-            ? clearModalSelectionAndApply
-            : undefined
-        }
-        clearLabel={modalMode === "papas" ? "Quitar mejoras" : "Limpiar"}
+        disableApply={disableExtrasApply}
+        applyLabel={extrasApplyLabel}
+        onClear={onClearExtrasSelection}
+        clearLabel={extrasClearLabel}
       />
       <BebidasModal
         open={bebidaOpen}
         items={bebidaItems}
         quantities={bebidaQuantities}
         onChangeQty={adjustBebidaQty}
-        onClose={() => {
-          setBebidaOpen(false);
-          setBebidaQuantities({});
-        }}
+        onClose={closeBebidaModal}
         onApply={applyBebidaSelection}
       />
     </Page>
   );
 }
+
 

@@ -2,6 +2,11 @@
 import Card from "../ui/Card";
 import styles from "./HomeCard.module.css";
 
+const IMAGE_POSITION_CLASSES = {
+  burgers: styles.mediaImagePosBurgers,
+  promos: styles.mediaImagePosPromos,
+};
+
 export default function HomeCard({
   to,
   title,
@@ -9,8 +14,12 @@ export default function HomeCard({
   emoji,
   imageSrc,
   imageAlt,
-  imagePosition,
+  imagePositionKey,
 }) {
+  const imagePositionClass = imagePositionKey
+    ? IMAGE_POSITION_CLASSES[imagePositionKey] || ""
+    : "";
+
   return (
     <Link to={to} className={styles.link}>
       <Card
@@ -20,12 +29,11 @@ export default function HomeCard({
         {imageSrc ? (
           <div className={styles.mediaWrap}>
             <img
-              className={styles.mediaImage}
+              className={`${styles.mediaImage} ${imagePositionClass}`}
               src={imageSrc}
               alt={imageAlt || title}
               loading="lazy"
               decoding="async"
-              style={imagePosition ? { objectPosition: imagePosition } : null}
             />
             <div className={styles.mediaOverlay} />
             <div className={styles.mediaText}>

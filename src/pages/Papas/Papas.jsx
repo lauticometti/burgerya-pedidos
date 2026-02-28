@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { papas, bebidas } from "../../data/menu";
 import { useCart } from "../../store/useCart";
 import { toast } from "../../utils/toast";
@@ -17,6 +17,12 @@ import PapasOptionModal from "../../components/papas/PapasOptionModal";
 import PageTitle from "../../components/ui/PageTitle";
 import styles from "./Papas.module.css";
 import BrandLogo from "../../components/brand/BrandLogo";
+import {
+  buildPapasBase,
+  buildPapasCartItem,
+  buildPapasOptionsBySize,
+  indexPapasById,
+} from "./papasUtils";
 
 export default function Papas() {
   const cart = useCart();
@@ -24,89 +30,11 @@ export default function Papas() {
   const [activeSize, setActiveSize] = useState(null);
   const [selectedOptionId, setSelectedOptionId] = useState("solas");
 
-  const papasById = useMemo(() => {
-    return papas.reduce((acc, item) => {
-      acc[item.id] = item;
-      return acc;
-    }, {});
-  }, []);
-
-  const getPrice = useCallback(
-    (id) => papasById[id]?.price ?? 0,
-    [papasById],
-  );
-
-  const getAvailability = useCallback(
-    (id) => {
-      const item = papasById[id];
-      return {
-        isAvailable: !isItemUnavailable(item),
-        unavailableReason: getUnavailableReason(item),
-      };
-    },
-    [papasById],
-  );
-
-  const papasBase = [
-    {
-      id: "papas_chicas",
-      label: "Papas chicas",
-      size: "chica",
-      basePrice: getPrice("porcion_extra"),
-    },
-    {
-      id: "papas_grandes",
-      label: "Papas grandes",
-      size: "grande",
-      basePrice: getPrice("porcion_grande_solas"),
-    },
-  ];
-
+  const papasById = useMemo(() => indexPapasById(papas), []);
+  const papasBase = useMemo(() => buildPapasBase(papasById), [papasById]);
   const optionsBySize = useMemo(
-    () => ({
-      chica: [
-        {
-          id: "solas",
-          label: "Solas",
-          price: getPrice("porcion_extra"),
-        },
-        {
-          id: "cheddar",
-          label: "Con cheddar",
-          price: getPrice("porcion_extra") + getPrice("cheddar_liq"),
-          ...getAvailability("cheddar_liq"),
-        },
-        {
-          id: "cheddar_bacon",
-          label: "Con cheddar y bacon",
-          price:
-            getPrice("porcion_extra") +
-            getPrice("cheddar_liq") +
-            getPrice("papas_bacon"),
-          ...getAvailability("cheddar_liq"),
-        },
-      ],
-      grande: [
-        {
-          id: "solas",
-          label: "Solas",
-          price: getPrice("porcion_grande_solas"),
-        },
-        {
-          id: "cheddar",
-          label: "Con cheddar",
-          price: getPrice("porcion_grande_cheddar"),
-          ...getAvailability("porcion_grande_cheddar"),
-        },
-        {
-          id: "cheddar_bacon",
-          label: "Con cheddar y bacon",
-          price: getPrice("porcion_grande_cheddar_bacon"),
-          ...getAvailability("porcion_grande_cheddar_bacon"),
-        },
-      ],
-    }),
-    [getPrice, getAvailability],
+    () => buildPapasOptionsBySize(papasById),
+    [papasById],
   );
 
   const dipItems = papas.filter((item) => item.id.startsWith("dip_"));
@@ -137,21 +65,10 @@ export default function Papas() {
       return;
     }
 
-    const sizeLabel = activeSize === "chica" ? "Papas chicas" : "Papas grandes";
-    const optionLabel =
-      picked.label.charAt(0).toLowerCase() + picked.label.slice(1);
-    const name = `${sizeLabel} ${optionLabel}`;
-    const key = `papas:${activeSize}:${picked.id}`;
-
-    cart.add({
-      key,
-      name,
-      qty: 1,
-      unitPrice: picked.price,
-      meta: { type: "papas", size: activeSize, option: picked.id },
-    });
-
-    toast.success(`+ ${name}`);
+    const cartItem = buildPapasCartItem(activeSize, picked);
+    if (!cartItem) return;
+    cart.add(cartItem);
+    toast.success(`+ ${cartItem.name}`);
     closeModal();
   }
 
