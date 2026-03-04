@@ -1,5 +1,6 @@
-﻿import React, { useMemo, useReducer } from "react";
+import React, { useMemo, useReducer } from "react";
 import { CartContext } from "./cartContext";
+import { getPapasUpgradePrice } from "../utils/papasPricing";
 
 function reducer(state, action) {
   switch (action.type) {
@@ -123,29 +124,28 @@ export function CartProvider({ children }) {
 
   const api = useMemo(() => {
     const items = Object.values(state.items);
-      const total = items.reduce((sum, it) => {
-        const extrasTotal = (it.extras || []).reduce(
-          (extrasSum, extra) => extrasSum + extra.price,
-          0,
-        );
-        const papasTotal = (it.papas || []).reduce(
-          (papasSum, extra) => papasSum + extra.price,
-          0,
-        );
-        const picksExtrasTotal = (it.meta?.picks || []).reduce(
-          (picksSum, pick) => {
-          const pickExtras = (pick.extras || []).reduce(
-            (pickSum, extra) => pickSum + extra.price,
-            0,
-          );
-          const pickPapas = (pick.papas || []).reduce(
-            (pickSum, extra) => pickSum + extra.price,
-            0,
-          );
-          return picksSum + pickExtras + pickPapas;
-        },
+    const total = items.reduce((sum, it) => {
+      const papasContext = { size: it.meta?.size, itemType: it.meta?.type };
+      const extrasTotal = (it.extras || []).reduce(
+        (extrasSum, extra) => extrasSum + extra.price,
         0,
       );
+      const papasTotal = (it.papas || []).reduce(
+        (papasSum, extra) => papasSum + getPapasUpgradePrice(extra, papasContext),
+        0,
+      );
+      const picksExtrasTotal = (it.meta?.picks || []).reduce((picksSum, pick) => {
+        const pickExtras = (pick.extras || []).reduce(
+          (pickSum, extra) => pickSum + extra.price,
+          0,
+        );
+        const pickPapas = (pick.papas || []).reduce(
+          (pickSum, extra) => pickSum + getPapasUpgradePrice(extra, papasContext),
+          0,
+        );
+        return picksSum + pickExtras + pickPapas;
+      }, 0);
+
       return sum + it.qty * (it.unitPrice + extrasTotal + papasTotal + picksExtrasTotal);
     }, 0);
     return {
@@ -166,4 +166,3 @@ export function CartProvider({ children }) {
 
   return <CartContext.Provider value={api}>{children}</CartContext.Provider>;
 }
-

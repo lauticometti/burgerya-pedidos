@@ -4,6 +4,10 @@ import {
   getUnavailableReason,
   isItemUnavailable,
 } from "../../utils/availability";
+import {
+  getPapasUpgradePrice,
+  isCheddarFreeForPapas,
+} from "../../utils/papasPricing";
 
 export default function useItemExtrasModal({ cart, papasMejoras, extraItems }) {
   const [modalItemKey, setModalItemKey] = React.useState(null);
@@ -17,10 +21,20 @@ export default function useItemExtrasModal({ cart, papasMejoras, extraItems }) {
     [cart.items, modalItemKey],
   );
 
+  const papasContext = React.useMemo(() => {
+    if (!modalItem || modalMode !== "papas") return null;
+    return { size: modalItem.meta?.size };
+  }, [modalItem, modalMode]);
+
   const modalItems = React.useMemo(() => {
-    if (modalMode === "papas") return papasMejoras;
+    if (modalMode === "papas") {
+      return papasMejoras.map((item) => ({
+        ...item,
+        price: getPapasUpgradePrice(item, papasContext),
+      }));
+    }
     return extraItems;
-  }, [modalMode, papasMejoras, extraItems]);
+  }, [modalMode, papasMejoras, extraItems, papasContext]);
 
   const resetModalState = React.useCallback(() => {
     setModalItemKey(null);
@@ -157,7 +171,14 @@ export default function useItemExtrasModal({ cart, papasMejoras, extraItems }) {
   const applyLabel = modalMode === "papas" ? "Mejorar" : "Aplicar";
   const clearLabel = modalMode === "papas" ? "Quitar mejoras" : "Limpiar";
   const title = modalMode === "papas" ? "Mejorar papas" : "Agregados";
-  const description = modalMode === "papas" ? "" : "Agrega extras a este producto.";
+  const cheddarPromoActive =
+    modalMode === "papas" && isCheddarFreeForPapas(papasContext);
+  const description =
+    modalMode === "papas"
+      ? cheddarPromoActive
+        ? "Solo por hoy: el cheddar para las papas de burgers dobles o triples es bonificado."
+        : ""
+      : "Agrega extras a este producto.";
   const clearHandler = hasClearSelection ? clearModalSelectionAndApply : undefined;
 
   return {

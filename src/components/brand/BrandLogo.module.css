@@ -16,6 +16,12 @@
   margin: 6px 0 14px;
 }
 
+.link {
+  text-decoration: none;
+  color: inherit;
+  display: inline-block;
+}
+
 .text {
   font-family: "Archivo Black", system-ui, sans-serif;
   font-size: clamp(54px, 10.5vw, 96px);

@@ -5,6 +5,7 @@ import CloseButton from "../ui/CloseButton";
 import styles from "./CartItemCard.module.css";
 import { formatMoney } from "../../utils/formatMoney";
 import { formatPickNames } from "../../utils/formatPicks";
+import { getPapasUpgradePrice } from "../../utils/papasPricing";
 
 export default function CartItemCard({
   item,
@@ -26,12 +27,13 @@ export default function CartItemCard({
   const allowPromoQty = item.meta?.allowQty;
   const showQtyControls = !isPromo || allowPromoQty;
   const showActions = canAddExtras || canImprovePapas;
+  const papasContext = { size: item.meta?.size, itemType: item.meta?.type };
   const extrasTotal = (item.extras || []).reduce(
     (sum, extra) => sum + extra.price,
     0,
   );
   const papasTotal = (item.papas || []).reduce(
-    (sum, extra) => sum + extra.price,
+    (sum, extra) => sum + getPapasUpgradePrice(extra, papasContext),
     0,
   );
   const baseUnitPrice =
