@@ -170,6 +170,6 @@ export const papas = [
 
 export const bebidas = [
   { id: "coca_600", name: "Coca Cola 600ml", price: 2500, isAvailable: 1 },
-  { id: "coca_225", name: "Coca Cola 2.25L", price: 6000, isAvailable: 1 },
+  { id: "coca_225", name: "Coca Cola 2.25L", price: 6500, isAvailable: 1 },
 ];
 
