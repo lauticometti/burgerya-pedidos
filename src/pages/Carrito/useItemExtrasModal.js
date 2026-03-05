@@ -6,7 +6,6 @@ import {
 } from "../../utils/availability";
 import {
   getPapasUpgradePrice,
-  isCheddarFreeForPapas,
 } from "../../utils/papasPricing";
 
 export default function useItemExtrasModal({ cart, papasMejoras, extraItems }) {
@@ -171,14 +170,8 @@ export default function useItemExtrasModal({ cart, papasMejoras, extraItems }) {
   const applyLabel = modalMode === "papas" ? "Mejorar" : "Aplicar";
   const clearLabel = modalMode === "papas" ? "Quitar mejoras" : "Limpiar";
   const title = modalMode === "papas" ? "Mejorar papas" : "Agregados";
-  const cheddarPromoActive =
-    modalMode === "papas" && isCheddarFreeForPapas(papasContext);
   const description =
-    modalMode === "papas"
-      ? cheddarPromoActive
-        ? "Solo por hoy: el cheddar para las papas de burgers dobles o triples es bonificado."
-        : ""
-      : "Agrega extras a este producto.";
+    modalMode === "papas" ? "" : "Agrega extras a este producto.";
   const clearHandler = hasClearSelection ? clearModalSelectionAndApply : undefined;
 
   return {

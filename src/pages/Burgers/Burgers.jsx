@@ -100,6 +100,7 @@ export default function Burgers() {
 
   const [modalOpen, setModalOpen] = React.useState(false);
   const [activeBurger, setActiveBurger] = React.useState(null);
+  const [modalOrigin, setModalOrigin] = React.useState(null);
   const burgersById = React.useMemo(() => mapBurgersById(burgers), []);
 
   const sections = React.useMemo(
@@ -119,11 +120,20 @@ export default function Burgers() {
     [burgersById],
   );
 
-  function openBurger(burger) {
+  function openBurger(burger, evt) {
     if (isItemUnavailable(burger)) {
       notifyUnavailableBurger(burger, getUnavailableReason(burger));
       return;
     }
+    const rect = evt?.currentTarget?.getBoundingClientRect();
+    const origin = rect
+      ? {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+          imageSrc: resolvePublicPath(burger.img || "/burgers/placeholder.jpg"),
+        }
+      : null;
+    setModalOrigin(origin);
     setActiveBurger(burger);
     setModalOpen(true);
   }
@@ -165,7 +175,7 @@ export default function Burgers() {
                   <button
                     type="button"
                     className={styles.mediaWrap}
-                    onClick={() => openBurger(burger)}
+                    onClick={(e) => openBurger(burger, e)}
                     aria-label={`Ver opciones de ${burger.name}`}>
                     <img
                       className={styles.media}
@@ -199,14 +209,17 @@ export default function Burgers() {
       <BurgerModal
         open={modalOpen}
         burger={activeBurger}
+        origin={modalOrigin}
         onClose={() => {
           setModalOpen(false);
           setActiveBurger(null);
+          setModalOrigin(null);
         }}
         onAdd={(burger, size) => {
           addBurgerToCart(burger, size);
           setModalOpen(false);
           setActiveBurger(null);
+          setModalOrigin(null);
         }}
       />
 

@@ -9,8 +9,9 @@ import useEscapeToClose from "../../hooks/useEscapeToClose";
 const SIZE_ORDER = ["simple", "doble", "triple"];
 const SIZE_LABEL = { simple: "Simple", doble: "Doble", triple: "Triple" };
 
-export default function BurgerModal({ open, burger, onClose, onAdd }) {
+export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
   const [size, setSize] = React.useState(null);
+  const [show, setShow] = React.useState(false);
 
   React.useEffect(() => {
     if (!open || !burger) return;
@@ -20,15 +21,34 @@ export default function BurgerModal({ open, burger, onClose, onAdd }) {
 
   useEscapeToClose(open, onClose);
 
+  React.useEffect(() => {
+    if (!open) {
+      setShow(false);
+      return;
+    }
+    const raf = requestAnimationFrame(() => setShow(true));
+    return () => cancelAnimationFrame(raf);
+  }, [open]);
+
   if (!open || !burger) return null;
 
   const isTitanica = burger.id === "titanica";
   const sizes = SIZE_ORDER.filter((s) => burger.prices?.[s] != null);
   const selectedSize = isTitanica ? "triple" : size;
   const selectedPrice = selectedSize ? getBurgerPriceInfo(burger, selectedSize) : null;
+  const originStyle = origin
+    ? { "--origin-x": `${origin.x}px`, "--origin-y": `${origin.y}px` }
+    : undefined;
+  const burgerImg =
+    origin?.imageSrc ||
+    resolvePublicPath(burger.img || "/burgers/placeholder.jpg");
 
   return (
-    <div className={styles.backdrop} onMouseDown={onClose}>
+    <div
+      className={`${styles.backdrop} ${show ? styles.backdropShow : ""}`}
+      style={originStyle}
+      onMouseDown={onClose}>
+      <span className={styles.burst} aria-hidden />
       <div
         className={styles.modal}
         onMouseDown={(e) => e.stopPropagation()}
@@ -38,7 +58,7 @@ export default function BurgerModal({ open, burger, onClose, onAdd }) {
 
         <img
           className={styles.img}
-          src={resolvePublicPath(burger.img || "/burgers/placeholder.jpg")}
+          src={burgerImg}
           alt={burger.name}
           loading="eager"
           decoding="async"
