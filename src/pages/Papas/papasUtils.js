@@ -50,8 +50,7 @@ export function buildPapasOptionsBySize(papasById) {
       {
         id: "cheddar",
         label: "Con cheddar",
-        price:
-          getPrice(papasById, "porcion_extra") + getPrice(papasById, "cheddar_liq"),
+        price: getPrice(papasById, "cheddar_liq"), // recargo
         isAvailable: true,
         unavailableReason: undefined,
       },
@@ -59,7 +58,7 @@ export function buildPapasOptionsBySize(papasById) {
         id: "cheddar_bacon",
         label: "Con cheddar (incluye bacon)",
         price:
-          getPrice(papasById, "porcion_extra") + getPrice(papasById, "cheddar_liq"),
+          getPrice(papasById, "cheddar_liq") + getPrice(papasById, "papas_bacon"), // recargo
         isAvailable: true,
         unavailableReason: undefined,
       },
@@ -73,14 +72,15 @@ export function buildPapasOptionsBySize(papasById) {
       {
         id: "cheddar",
         label: "Con cheddar",
-        price: getPrice(papasById, "porcion_grande_cheddar"),
+        price: getPrice(papasById, "cheddar_liq"), // recargo
         isAvailable: true,
         unavailableReason: undefined,
       },
       {
         id: "cheddar_bacon",
         label: "Con cheddar (incluye bacon)",
-        price: getPrice(papasById, "porcion_grande_cheddar"),
+        price:
+          getPrice(papasById, "cheddar_liq") + getPrice(papasById, "papas_bacon"), // recargo
         isAvailable: true,
         unavailableReason: undefined,
       },
