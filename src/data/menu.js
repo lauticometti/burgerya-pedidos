@@ -198,6 +198,7 @@ export const papas = [
     name: "Cheddar",
     price: 1500,
     isAvailable: 1,
+    unavailableReason: undefined,
   },
   { id: "papas_bacon", name: "Bacon", price: 1500, isAvailable: 1 },
   {
@@ -217,18 +218,21 @@ export const papas = [
     name: "Porción grande con cheddar",
     price: 11000,
     isAvailable: 1,
+    unavailableReason: undefined,
   },
   {
     id: "porcion_grande_cheddar_bacon",
     name: "Porción grande con cheddar y bacon",
     price: 13000,
     isAvailable: 1,
+    unavailableReason: undefined,
   },
   {
     id: "dip_cheddar",
     name: "Dip de cheddar",
     price: 2000,
     isAvailable: 1,
+    unavailableReason: undefined,
   },
   {
     id: "dip_mil_islas",
