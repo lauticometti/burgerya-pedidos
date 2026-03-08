@@ -148,11 +148,30 @@ export default function Carrito() {
     toast.success(`+ ${suggestedExtra.name}`);
   }
 
-  const papasMejoras = React.useMemo(
-    () =>
-      papas.filter((item) => ["cheddar_liq", "papas_bacon"].includes(item.id)),
-    [],
-  );
+  const papasMejoras = React.useMemo(() => {
+    const cheddar = papas.find((item) => item.id === "cheddar_liq");
+    const bacon = papas.find((item) => item.id === "papas_bacon");
+    const cheddarSolo = cheddar
+      ? {
+          ...cheddar,
+          id: "papas_cheddar",
+          name: "Cheddar",
+          price: cheddar.price || 1500,
+          isAvailable: 1,
+        }
+      : null;
+    const cheddarBacon =
+      cheddar && bacon
+        ? {
+            ...cheddar,
+            id: "papas_cheddar_bacon",
+            name: "Cheddar y bacon",
+            price: (cheddar.price || 0) + (bacon.price || 0) || 3000,
+            isAvailable: 1,
+          }
+        : null;
+    return [cheddarSolo, cheddarBacon].filter(Boolean);
+  }, []);
   const bebidaItems = bebidas || [];
   const {
     modalItem,
