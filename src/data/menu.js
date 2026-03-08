@@ -9,7 +9,7 @@ export const burgers = [
     tier: "BASICA",
     prices: { simple: 10500, doble: 13000, triple: 15500 },
     desc: "Pan de papa · Carne smash · Cheddar",
-    img: "/burgers/cheese.jpg",
+    img: "/burgers/cheese.svg",
     isAvailable: 1,
   },
   {
@@ -38,7 +38,7 @@ export const burgers = [
     tier: "PREMIUM",
     prices: { simple: 11000, doble: 13500, triple: 16000 },
     desc: "Pan de papa · Carne smash · Cebolla caramelizada · Cheddar · Mil Islas.",
-    img: "/burgers/lautiboom.jpg",
+    img: "/burgers/lautiboom.svg",
     isAvailable: 1,
   },
   {
@@ -47,7 +47,7 @@ export const burgers = [
     tier: "PREMIUM",
     prices: { simple: 11000, doble: 13500, triple: 16000 },
     desc: "Pan de papa · Carne smash · Lechuga · Tomate · Cebolla · Pepinos · Cheddar · Mil Islas",
-    img: "/burgers/american.jpg",
+    img: "/burgers/american.svg",
     isAvailable: 1,
   },
   {
@@ -56,7 +56,7 @@ export const burgers = [
     tier: "PREMIUM",
     prices: { simple: 11000, doble: 13500, triple: 16000 },
     desc: "Pan de papa · Carne smash · Bacon · Cheddar",
-    img: "/burgers/bacon.jpg",
+    img: "/burgers/bacon.svg",
     isAvailable: 1,
   },
 
@@ -67,7 +67,7 @@ export const burgers = [
     tier: "DELUXE",
     prices: { simple: 11500, doble: 14000, triple: 16500 },
     desc: "Pan de papa · Carne smash · Bacon · Tomate · Cebolla caramelizada · Cheddar · Barbacoa",
-    img: "/burgers/bbqueen.jpg",
+    img: "/burgers/bbqueen.svg",
     isAvailable: 1,
   },
   {
@@ -95,7 +95,7 @@ export const burgers = [
     tier: "DELUXE",
     prices: { simple: 11500, doble: 14000, triple: 16500 },
     desc: "Pan de papa · Carne smash con cebolla ultrafina · Bacon · Cheddar · Mil Islas",
-    img: "/burgers/smoklahoma.jpg",
+    img: "/burgers/smoklahoma.svg",
     isAvailable: 1,
   },
   {
@@ -124,7 +124,7 @@ export const burgers = [
     tier: "ESPECIAL",
     prices: { doble: 17500, triple: 20000 },
     desc: "Doble pan de papa relleno con cheddar · Carne smash · Bacon abajo y arriba · Cebolla caramelizada · Cheddar · Mil Islas",
-    img: "/burgers/titanica.jpg",
+    img: "/burgers/titanica.svg",
     isAvailable: 1,
   },
   {
