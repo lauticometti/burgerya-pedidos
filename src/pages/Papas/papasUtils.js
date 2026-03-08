@@ -56,11 +56,9 @@ export function buildPapasOptionsBySize(papasById) {
       },
       {
         id: "cheddar_bacon",
-        label: "Con cheddar y bacon",
+        label: "Con cheddar (incluye bacon)",
         price:
-          getPrice(papasById, "porcion_extra") +
-          getPrice(papasById, "cheddar_liq") +
-          getPrice(papasById, "papas_bacon"),
+          getPrice(papasById, "porcion_extra") + getPrice(papasById, "cheddar_liq"),
         ...getAvailability(papasById, "cheddar_liq"),
       },
     ],
@@ -78,8 +76,8 @@ export function buildPapasOptionsBySize(papasById) {
       },
       {
         id: "cheddar_bacon",
-        label: "Con cheddar y bacon",
-        price: getPrice(papasById, "porcion_grande_cheddar_bacon"),
+        label: "Con cheddar (incluye bacon)",
+        price: getPrice(papasById, "porcion_grande_cheddar"),
         ...getAvailability(papasById, "porcion_grande_cheddar_bacon"),
       },
     ],

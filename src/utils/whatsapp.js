@@ -2,6 +2,7 @@
 
 export function buildWhatsAppText({
   name,
+  phone,
   address,
   cross,
   pay,
@@ -9,6 +10,9 @@ export function buildWhatsAppText({
   when,
   items,
   total,
+  couponCode,
+  discountAmount = 0,
+  totalBefore,
 }) {
   const lines = [];
   const isLater = typeof when === "string" && when.startsWith("Para más tarde");
@@ -157,6 +161,14 @@ export function buildWhatsAppText({
       lines.push(cross.trim());
     }
     lines.push("");
+  }
+  if (phone && phone.trim()) {
+    lines.push(`Tel: ${phone.trim()}`);
+  }
+  const subtotal = totalBefore || total;
+  if (discountAmount > 0 && couponCode) {
+    lines.push(`Subtotal: ${formatMoney(subtotal)}`);
+    lines.push(`Código ${couponCode}: -${formatMoney(discountAmount)}`);
   }
   lines.push(`${formatMoney(total)} ${pay}`);
   return encodeURIComponent(lines.join("\n"));

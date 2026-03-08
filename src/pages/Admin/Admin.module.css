@@ -1,0 +1,89 @@
+.page {
+  display: grid;
+  gap: 16px;
+}
+
+.card {
+  display: grid;
+  gap: 12px;
+}
+
+.loginForm {
+  display: grid;
+  gap: 10px;
+}
+
+.label {
+  font-size: 12px;
+  opacity: 0.8;
+  font-weight: 700;
+}
+
+.error {
+  color: #ff8a8a;
+  font-size: 12px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.formGrid {
+  display: grid;
+  gap: 8px;
+  max-width: 520px;
+}
+
+.select {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.table {
+  display: grid;
+  gap: 8px;
+}
+
+.tableHead {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 0.7fr 0.7fr 0.9fr 0.8fr 1fr;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 0.7fr 0.7fr 0.9fr 0.8fr 1fr;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+  gap: 6px;
+  align-items: center;
+}
+
+.code {
+  font-weight: 800;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.state {
+  font-size: 12px;
+  font-weight: 700;
+}

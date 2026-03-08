@@ -73,13 +73,17 @@ export default function useItemExtrasModal({ cart, papasMejoras, extraItems }) {
         return;
       }
 
-      setModalSelectedIds((prev) =>
-        prev.includes(id)
+      setModalSelectedIds((prev) => {
+        if (modalMode === "papas") {
+          // Solo una mejora de papas a la vez.
+          return prev.includes(id) ? [] : [id];
+        }
+        return prev.includes(id)
           ? prev.filter((itemId) => itemId !== id)
-          : [...prev, id],
-      );
+          : [...prev, id];
+      });
     },
-    [modalItems],
+    [modalItems, modalMode],
   );
 
   const applyModalSelection = React.useCallback(() => {

@@ -5,6 +5,7 @@ import { buildWhatsAppText } from "../../utils/whatsapp";
 export default function useCheckoutValidation({
   deliveryMode,
   name,
+  phone,
   address,
   cross,
   pay,
@@ -13,6 +14,9 @@ export default function useCheckoutValidation({
   whenSlot,
   items,
   total,
+  couponCode,
+  discountAmount,
+  totalBefore,
 }) {
   return React.useMemo(() => {
     const when =
@@ -25,6 +29,7 @@ export default function useCheckoutValidation({
     const canSend =
       items.length > 0 &&
       !!name.trim() &&
+      !!phone.trim() &&
       !!pay.trim() &&
       hasTimeOk &&
       hasAddressOk &&
@@ -33,6 +38,7 @@ export default function useCheckoutValidation({
     const missingFields = [
       !hasDeliveryMode ? "entrega" : null,
       hasDeliveryMode && !name.trim() ? "nombre" : null,
+      hasDeliveryMode && !phone.trim() ? "teléfono" : null,
       hasDeliveryMode && isDelivery && !address.trim() ? "dirección" : null,
       hasDeliveryMode && !pay.trim() ? "pago" : null,
       hasDeliveryMode && !hasTimeOk ? "horario" : null,
@@ -40,6 +46,7 @@ export default function useCheckoutValidation({
 
     const waHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${buildWhatsAppText({
       name,
+      phone,
       address,
       cross,
       pay,
@@ -48,6 +55,9 @@ export default function useCheckoutValidation({
       notes,
       items,
       total,
+      couponCode,
+      discountAmount,
+      totalBefore,
     })}`;
 
     return {
@@ -58,6 +68,7 @@ export default function useCheckoutValidation({
   }, [
     deliveryMode,
     name,
+    phone,
     address,
     cross,
     pay,
@@ -66,5 +77,8 @@ export default function useCheckoutValidation({
     whenSlot,
     items,
     total,
+    couponCode,
+    discountAmount,
+    totalBefore,
   ]);
 }

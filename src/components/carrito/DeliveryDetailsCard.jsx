@@ -6,9 +6,11 @@ export default function DeliveryDetailsCard({
   deliveryMode,
   onDeliveryModeChange,
   name,
+  phone,
   address,
   cross,
   onNameChange,
+  onPhoneChange,
   onAddressChange,
   onCrossChange,
 }) {
@@ -47,6 +49,13 @@ export default function DeliveryDetailsCard({
               value={name}
               autoComplete="name"
               onChange={(e) => onNameChange(e.target.value)}
+            />
+            <TextInput
+              placeholder="Teléfono / WhatsApp"
+              value={phone}
+              inputMode="tel"
+              autoComplete="tel"
+              onChange={(e) => onPhoneChange(e.target.value)}
             />
             {isDelivery ? (
               <>

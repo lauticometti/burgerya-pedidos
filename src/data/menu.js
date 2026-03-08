@@ -154,7 +154,7 @@ export const papas = [
   {
     id: "porcion_grande_cheddar_bacon",
     name: "Porción grande con cheddar y bacon",
-    price: 13000,
+    price: 11000,
     isAvailable: 1,
     unavailableReason: "no disponible por hoy",
   },

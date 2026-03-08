@@ -4,6 +4,7 @@ import Burgers from "./pages/Burgers/Burgers";
 import Promos from "./pages/Promos/Promos";
 import Carrito from "./pages/Carrito/Carrito";
 import Papas from "./pages/Papas/Papas";
+import Admin from "./pages/Admin/Admin";
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="/promos" element={<Promos />} />
         <Route path="/carrito" element={<Carrito />} />
         <Route path="/papas" element={<Papas />} />
+        <Route path="/dbadmin" element={<Admin />} />
       </Routes>
     </>
   );

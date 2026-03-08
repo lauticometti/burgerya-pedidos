@@ -12,3 +12,14 @@
   font-size: 20px;
   font-weight: 700;
 }
+
+.couponLine {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.finalTotal {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--y, #ffd23f);
+}

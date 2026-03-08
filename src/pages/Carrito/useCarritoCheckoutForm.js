@@ -5,6 +5,7 @@ const STORAGE_KEY = "burgerya_carrito_form";
 export default function useCarritoCheckoutForm() {
   const [deliveryMode, setDeliveryMode] = React.useState("");
   const [name, setName] = React.useState("");
+  const [phone, setPhone] = React.useState("");
   const [address, setAddress] = React.useState("");
   const [cross, setCross] = React.useState("");
   const [pay, setPay] = React.useState("Efectivo");
@@ -20,6 +21,7 @@ export default function useCarritoCheckoutForm() {
 
       const saved = JSON.parse(raw);
       if (saved?.name) setName(saved.name);
+      if (saved?.phone) setPhone(saved.phone);
       if (saved?.address) setAddress(saved.address);
       if (saved?.cross) setCross(saved.cross);
       if (saved?.pay) setPay(saved.pay);
@@ -37,6 +39,7 @@ export default function useCarritoCheckoutForm() {
 
     const payload = {
       name,
+      phone,
       address,
       cross,
       pay,
@@ -51,13 +54,15 @@ export default function useCarritoCheckoutForm() {
     } catch {
       // ignore storage errors
     }
-  }, [name, address, cross, pay, deliveryMode, notes, whenMode, whenSlot]);
+  }, [name, phone, address, cross, pay, deliveryMode, notes, whenMode, whenSlot]);
 
   return {
     deliveryMode,
     setDeliveryMode,
     name,
     setName,
+    phone,
+    setPhone,
     address,
     setAddress,
     cross,
