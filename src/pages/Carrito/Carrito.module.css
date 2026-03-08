@@ -75,3 +75,61 @@
   gap: 6px;
   margin-bottom: 12px;
 }
+
+/* Upsell card */
+.upsellCard {
+  margin-top: 18px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.03);
+  display: grid;
+  gap: 8px;
+}
+
+.upsellSolo {
+  margin-top: 18px;
+}
+
+.upsellTitle {
+  font-size: 12px;
+  font-weight: 800;
+  opacity: 0.85;
+}
+
+.upsellRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.upsellButton {
+  border: 1px solid rgba(255, 198, 42, 0.4);
+  background: rgba(255, 198, 42, 0.1);
+  color: #fff;
+  font-weight: 800;
+  padding: 10px 14px;
+  border-radius: 14px;
+}
+
+.upsellLink {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-weight: 700;
+  padding: 10px 14px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.upsellLink:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.26);
+}
+
+.upsellLink:focus-visible {
+  outline: 2px solid rgba(255, 198, 42, 0.5);
+  outline-offset: 3px;
+}
