@@ -47,8 +47,6 @@ export function buildWhatsAppText({
     { key: "bebidas", title: "BEBIDAS" },
   ];
 
-  let burgerIndex = 1;
-
   let hasGroup = false;
   for (const group of groupOrder) {
     const groupItems = items.filter((item) => getCategory(item) === group.key);
@@ -74,8 +72,7 @@ export function buildWhatsAppText({
       } else {
         const sizeLabel = getSizeLabel(it);
         const sizeSuffix = sizeLabel ? ` ${sizeLabel}` : "";
-        lines.push(`${burgerIndex}) ${it.qty} ${it.name.toLowerCase()}${sizeSuffix}`);
-        burgerIndex += 1;
+        lines.push(`${it.qty} ${it.name.toLowerCase()}${sizeSuffix}`);
       }
 
       if (it.meta?.picks?.length) {
@@ -112,9 +109,8 @@ export function buildWhatsAppText({
 
         for (const pickGroup of promoQueue.values()) {
           const qtyPrefix = hasRepeats ? `${pickGroup.picks.length} ` : "";
-          const pickLine = `${burgerIndex}) ${qtyPrefix}${pickGroup.name.toUpperCase()}`.trim();
+          const pickLine = `${qtyPrefix}${pickGroup.name.toUpperCase()}`.trim();
           lines.push(pickLine);
-          burgerIndex += 1;
           const joiner = it.meta?.type === "promo" ? " / " : " + ";
 
           const samplePick = pickGroup.picks[0];
