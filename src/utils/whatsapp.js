@@ -2,7 +2,6 @@
 
 export function buildWhatsAppText({
   name,
-  phone,
   address,
   cross,
   pay,
@@ -15,10 +14,8 @@ export function buildWhatsAppText({
   totalBefore,
 }) {
   const lines = [];
-  const isLater = typeof when === "string" && when.startsWith("Para más tarde");
-  const timeLabel = isLater
-    ? when.replace("Para más tarde", "PARA").trim()
-    : "";
+  const isLater = typeof when === "string" && when.startsWith("Para mas tarde");
+  const timeLabel = isLater ? when.replace("Para mas tarde", "PARA").trim() : "";
   const header = isLater ? `${name} - ${timeLabel}` : name;
   if (deliveryMode === "Retiro") {
     lines.push("RETIRO");
@@ -50,6 +47,8 @@ export function buildWhatsAppText({
     { key: "bebidas", title: "BEBIDAS" },
   ];
 
+  let burgerIndex = 1;
+
   let hasGroup = false;
   for (const group of groupOrder) {
     const groupItems = items.filter((item) => getCategory(item) === group.key);
@@ -75,7 +74,8 @@ export function buildWhatsAppText({
       } else {
         const sizeLabel = getSizeLabel(it);
         const sizeSuffix = sizeLabel ? ` ${sizeLabel}` : "";
-        lines.push(`${it.qty} ${it.name.toLowerCase()}${sizeSuffix}`);
+        lines.push(`${burgerIndex}) ${it.qty} ${it.name.toLowerCase()}${sizeSuffix}`);
+        burgerIndex += 1;
       }
 
       if (it.meta?.picks?.length) {
@@ -112,8 +112,9 @@ export function buildWhatsAppText({
 
         for (const pickGroup of promoQueue.values()) {
           const qtyPrefix = hasRepeats ? `${pickGroup.picks.length} ` : "";
-          const pickLine = `· ${qtyPrefix}${pickGroup.name.toUpperCase()}`.trim();
+          const pickLine = `${burgerIndex}) ${qtyPrefix}${pickGroup.name.toUpperCase()}`.trim();
           lines.push(pickLine);
+          burgerIndex += 1;
           const joiner = it.meta?.type === "promo" ? " / " : " + ";
 
           const samplePick = pickGroup.picks[0];
@@ -132,7 +133,7 @@ export function buildWhatsAppText({
             );
           }
           if (samplePick.note?.trim()) {
-            lines.push(`  Aclaración: ${samplePick.note.trim()}`);
+            lines.push(`  Aclaracion: ${samplePick.note.trim()}`);
           }
         }
       } else {
@@ -149,7 +150,7 @@ export function buildWhatsAppText({
         }
       }
       if (it.note?.trim()) {
-        lines.push(`  Aclaración: ${it.note.trim()}`);
+        lines.push(`  Aclaracion: ${it.note.trim()}`);
       }
     }
   }
@@ -162,13 +163,10 @@ export function buildWhatsAppText({
     }
     lines.push("");
   }
-  if (phone && phone.trim()) {
-    lines.push(`Tel: ${phone.trim()}`);
-  }
   const subtotal = totalBefore || total;
   if (discountAmount > 0 && couponCode) {
     lines.push(`Subtotal: ${formatMoney(subtotal)}`);
-    lines.push(`Código ${couponCode}: -${formatMoney(discountAmount)}`);
+    lines.push(`Codigo ${couponCode}: -${formatMoney(discountAmount)}`);
   }
   lines.push(`${formatMoney(total)} ${pay}`);
   return encodeURIComponent(lines.join("\n"));

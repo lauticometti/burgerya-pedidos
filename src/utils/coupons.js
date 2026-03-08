@@ -1,27 +1,7 @@
-const STORAGE_KEY = "burgerya_coupons_v1";
+﻿const STORAGE_KEY = "burgerya_coupons_v1";
 
-// Seed codes provided by the user for el finde
-const SEED_COUPONS = [
-  {
-    code: "bacon-5-usx",
-    scope: ["bacon"],
-    type: "fixed",
-    value: 5000,
-    minOrder: 45000,
-    maxUses: 1,
-    active: true,
-    note: "$5000 en Bacon, mínimo $45.000",
-  },
-  { code: "bacon-10-sas", scope: ["bacon"], type: "percent", value: 10, maxUses: 1, active: true },
-  { code: "bacon-15-ujc", scope: ["bacon"], type: "percent", value: 15, maxUses: 1, active: true },
-  { code: "cheese-5-kio", scope: ["cheese"], type: "fixed", value: 5000, minOrder: 45000, maxUses: 1, active: true },
-  { code: "cheese-10-off", scope: ["cheese"], type: "percent", value: 10, maxUses: 1, active: true },
-  { code: "cheese-20-off", scope: ["cheese"], type: "percent", value: 20, maxUses: 1, active: true },
-  { code: "titanica-20-off", scope: ["titanica"], type: "percent", value: 20, maxUses: 1, active: true },
-  { code: "general-5-poi", scope: "general", type: "percent", value: 5, maxUses: 1, active: true },
-  { code: "general-10-ssa", scope: "general", type: "percent", value: 10, maxUses: 1, active: true },
-  { code: "general-15-ssx", scope: "general", type: "percent", value: 15, maxUses: 1, active: true },
-];
+// Cupones desactivados.
+const SEED_COUPONS = [];
 
 function canUseLocalStorage() {
   return typeof window !== "undefined" && !!window.localStorage;
@@ -51,10 +31,9 @@ function normalizeCode(code) {
 }
 
 export function loadCoupons() {
-  const stored = readStorage();
-  if (Array.isArray(stored) && stored.length) return stored;
-  writeStorage(SEED_COUPONS);
-  return SEED_COUPONS;
+  // Desactivados: devolver lista vacia y limpiar storage si existiera.
+  if (canUseLocalStorage()) writeStorage(SEED_COUPONS);
+  return [];
 }
 
 export function saveCoupons(list) {
@@ -100,60 +79,12 @@ function hasScopeMatch(coupon, items) {
 }
 
 export function validateCoupon({ code, phone, items, total }) {
-  const coupons = loadCoupons();
-  const found = coupons.find((c) => normalizeCode(c.code) === normalizeCode(code));
-  if (!found) return { ok: false, reason: "Código inválido o no existe." };
-  if (!found.active) return { ok: false, reason: "Código pausado." };
-  const usedBy = found.usedBy || [];
-  if (!phone || phone.trim().length < 6) {
-    return { ok: false, reason: "Ingresa un teléfono válido para usar el código." };
-  }
-  const phoneKey = phone.trim();
-  if (usedBy.includes(phoneKey)) {
-    return { ok: false, reason: "Ese teléfono ya usó este código." };
-  }
-  if (found.maxUses && usedBy.length >= found.maxUses) {
-    return { ok: false, reason: "El código ya fue usado." };
-  }
-  if (found.expiresAt && Date.now() > found.expiresAt) {
-    return { ok: false, reason: "El código venció." };
-  }
-  if (!hasScopeMatch(found, items)) {
-    return { ok: false, reason: "El código no aplica a este pedido." };
-  }
-  if (found.minOrder && total < found.minOrder) {
-    return { ok: false, reason: `Mínimo de compra ${found.minOrder.toLocaleString("es-AR")}.` };
-  }
-
-  const discount =
-    found.type === "fixed"
-      ? Math.min(found.value || 0, total)
-      : Math.min(Math.round((total * (found.value || 0)) / 100), total);
-
-  if (discount <= 0) {
-    return { ok: false, reason: "El código no genera descuento en este pedido." };
-  }
-
-  return {
-    ok: true,
-    coupon: found,
-    discount,
-    finalTotal: Math.max(0, total - discount),
-  };
+  return { ok: false, reason: "Los codigos de descuento estan desactivados." };
 }
 
 export function consumeCoupon({ code, phone }) {
-  const coupons = loadCoupons();
-  const phoneKey = (phone || "").trim();
-  const next = coupons.map((c) => {
-    if (normalizeCode(c.code) !== normalizeCode(code)) return c;
-    const usedBy = c.usedBy || [];
-    if (!phoneKey) return { ...c, usedBy };
-    if (usedBy.includes(phoneKey)) return c;
-    return { ...c, usedBy: [...usedBy, phoneKey] };
-  });
-  saveCoupons(next);
-  return next;
+  // No-op porque los cupones estan desactivados.
+  return loadCoupons();
 }
 
 export function getUsageSummary() {

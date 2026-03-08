@@ -1,11 +1,10 @@
-import React from "react";
+﻿import React from "react";
 import { WHATSAPP_NUMBER } from "../../data/menu";
 import { buildWhatsAppText } from "../../utils/whatsapp";
 
 export default function useCheckoutValidation({
   deliveryMode,
   name,
-  phone,
   address,
   cross,
   pay,
@@ -20,7 +19,7 @@ export default function useCheckoutValidation({
 }) {
   return React.useMemo(() => {
     const when =
-      whenMode === "Ahora" ? "Lo antes posible" : `Para más tarde (${whenSlot})`;
+      whenMode === "Ahora" ? "Lo antes posible" : `Para mas tarde (${whenSlot})`;
     const hasTimeOk = whenMode === "Ahora" || !!whenSlot;
     const hasDeliveryMode = !!deliveryMode;
     const isDelivery = deliveryMode === "Delivery";
@@ -29,7 +28,6 @@ export default function useCheckoutValidation({
     const canSend =
       items.length > 0 &&
       !!name.trim() &&
-      !!phone.trim() &&
       !!pay.trim() &&
       hasTimeOk &&
       hasAddressOk &&
@@ -38,15 +36,13 @@ export default function useCheckoutValidation({
     const missingFields = [
       !hasDeliveryMode ? "entrega" : null,
       hasDeliveryMode && !name.trim() ? "nombre" : null,
-      hasDeliveryMode && !phone.trim() ? "teléfono" : null,
-      hasDeliveryMode && isDelivery && !address.trim() ? "dirección" : null,
+      hasDeliveryMode && isDelivery && !address.trim() ? "direccion" : null,
       hasDeliveryMode && !pay.trim() ? "pago" : null,
       hasDeliveryMode && !hasTimeOk ? "horario" : null,
     ].filter(Boolean);
 
     const waHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${buildWhatsAppText({
       name,
-      phone,
       address,
       cross,
       pay,
@@ -68,7 +64,6 @@ export default function useCheckoutValidation({
   }, [
     deliveryMode,
     name,
-    phone,
     address,
     cross,
     pay,

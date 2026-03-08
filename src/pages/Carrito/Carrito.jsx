@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { useCart } from "../../store/useCart";
 import { bebidas, extras, papas } from "../../data/menu";
 import ItemExtrasModal from "../../components/ItemExtrasModal";
@@ -6,12 +6,10 @@ import { toast } from "../../utils/toast";
 import { formatMoney } from "../../utils/formatMoney";
 import { getAvailableSlotsMin30, minutesToHHMM } from "../../utils/timeSlots";
 import { isItemUnavailable } from "../../utils/availability";
-import { validateCoupon, consumeCoupon } from "../../utils/coupons";
 import Page from "../../components/layout/Page";
 import StickyBar from "../../components/layout/StickyBar";
 import CartSummary from "../../components/cart/CartSummary";
 import Button from "../../components/ui/Button";
-import { TextInput } from "../../components/ui/FormFields";
 import CarritoHeader from "../../components/carrito/CarritoHeader";
 import DeliveryDetailsCard from "../../components/carrito/DeliveryDetailsCard";
 import PaymentScheduleCard from "../../components/carrito/PaymentScheduleCard";
@@ -40,8 +38,6 @@ export default function Carrito() {
     setDeliveryMode,
     name,
     setName,
-    phone,
-    setPhone,
     address,
     setAddress,
     cross,
@@ -56,9 +52,6 @@ export default function Carrito() {
     setWhenSlot,
   } = useCarritoCheckoutForm();
   const [upsellCollapsed, setUpsellCollapsed] = React.useState(false);
-  const [couponCode, setCouponCode] = React.useState("");
-  const [appliedCoupon, setAppliedCoupon] = React.useState(null);
-  const [couponError, setCouponError] = React.useState("");
   const { undoItem, handleRemove, handleUndo } = useCartUndo(cart);
 
   React.useEffect(() => {
@@ -83,15 +76,10 @@ export default function Carrito() {
     }
   }, [whenMode, whenSlot, availableSlots, setWhenSlot]);
 
-  const baseTotal = cart.total;
-  const discountAmount = appliedCoupon?.discount || 0;
-  const totalWithDiscount = Math.max(0, baseTotal - discountAmount);
-
   const canContinue = cart.items.length > 0;
   const { canSend, missingFields, waHref } = useCheckoutValidation({
     deliveryMode,
     name,
-    phone,
     address,
     cross,
     pay,
@@ -99,10 +87,7 @@ export default function Carrito() {
     whenMode,
     whenSlot,
     items: cart.items,
-    total: totalWithDiscount,
-    couponCode: appliedCoupon?.code || "",
-    discountAmount,
-    totalBefore: baseTotal,
+    total: cart.total,
   });
   const availableBebidas = React.useMemo(
     () => (bebidas || []).filter((item) => !isItemUnavailable(item)),
@@ -163,24 +148,11 @@ export default function Carrito() {
     toast.success(`+ ${suggestedExtra.name}`);
   }
 
-  const papasMejoras = React.useMemo(() => {
-    const cheddar = papas.find((item) => item.id === "cheddar_liq");
-    const cheddarBacon = cheddar
-      ? {
-          ...cheddar,
-          id: "cheddar_bacon_combo",
-          name: "Con cheddar (incluye bacon)",
-        }
-      : null;
-    const cheddarSolo = cheddar
-      ? {
-          ...cheddar,
-          name: "Con cheddar",
-        }
-      : null;
-
-    return [cheddarSolo, cheddarBacon].filter(Boolean);
-  }, []);
+  const papasMejoras = React.useMemo(
+    () =>
+      papas.filter((item) => ["cheddar_liq", "papas_bacon"].includes(item.id)),
+    [],
+  );
   const bebidaItems = bebidas || [];
   const {
     modalItem,
@@ -222,70 +194,6 @@ export default function Carrito() {
     value: minutesToHHMM(m),
     label: minutesToHHMM(m),
   }));
-
-  function handleApplyCoupon() {
-    const result = validateCoupon({
-      code: couponCode,
-      phone,
-      items: cart.items,
-      total: baseTotal,
-    });
-    if (!result.ok) {
-      setAppliedCoupon(null);
-      setCouponError(result.reason);
-      toast.error(result.reason);
-      return;
-    }
-    setAppliedCoupon({
-      ...result.coupon,
-      discount: result.discount,
-      finalTotal: result.finalTotal,
-      phone,
-    });
-    setCouponError("");
-    toast.success(`CÃ³digo aplicado: -${formatMoney(result.discount)}`);
-  }
-
-  function clearCoupon() {
-    setAppliedCoupon(null);
-    setCouponError("");
-  }
-
-  React.useEffect(() => {
-    if (!appliedCoupon) return;
-    const result = validateCoupon({
-      code: appliedCoupon.code,
-      phone,
-      items: cart.items,
-      total: baseTotal,
-    });
-    if (!result.ok) {
-      setAppliedCoupon(null);
-      setCouponError(result.reason);
-      return;
-    }
-    if (
-      result.discount !== appliedCoupon.discount ||
-      result.finalTotal !== appliedCoupon.finalTotal
-    ) {
-      setAppliedCoupon({
-        ...result.coupon,
-        discount: result.discount,
-        finalTotal: result.finalTotal,
-        phone,
-      });
-    }
-  }, [cart.items, baseTotal, phone, appliedCoupon]);
-
-  function handleSendClick(event) {
-    if (!canSend) {
-      event.preventDefault();
-      return;
-    }
-    if (appliedCoupon?.code) {
-      consumeCoupon({ code: appliedCoupon.code, phone });
-    }
-  }
 
   const groupListClasses = {
     group: styles.group,
@@ -386,11 +294,9 @@ export default function Carrito() {
             deliveryMode={deliveryMode}
             onDeliveryModeChange={setDeliveryMode}
             name={name}
-            phone={phone}
             address={address}
             cross={cross}
             onNameChange={setName}
-            onPhoneChange={setPhone}
             onAddressChange={setAddress}
             onCrossChange={setCross}
           />
@@ -408,51 +314,10 @@ export default function Carrito() {
           />
         </>
       )}
-      <div className={styles.couponCard}>
-        <div className={styles.couponTitle}>Código de descuento</div>
-        <div className={styles.couponGrid}>
-          <TextInput
-            placeholder="Ej: bacon-5-usx"
-            value={couponCode}
-            onChange={(e) => setCouponCode(e.target.value)}
-          />
-          <TextInput
-            placeholder="Teléfono / WhatsApp"
-            value={phone}
-            inputMode="tel"
-            onChange={(e) => setPhone(e.target.value)}
-          />
-          <div className={styles.couponActions}>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleApplyCoupon}
-              disabled={!couponCode.trim() || !phone.trim()}>
-              Aplicar
-            </Button>
-            {appliedCoupon ? (
-              <button
-                type="button"
-                className={styles.clearCoupon}
-                onClick={clearCoupon}>
-                Quitar
-              </button>
-            ) : null}
-          </div>
-        </div>
-        {appliedCoupon ? (
-          <div className={styles.couponApplied}>
-            {appliedCoupon.code}: -{formatMoney(discountAmount)} (total: {formatMoney(totalWithDiscount)})
-          </div>
-        ) : null}
-        {couponError ? (
-          <div className={styles.couponError}>{couponError}</div>
-        ) : null}
-      </div>
       {step === 2 ? (
         <div className={styles.sendInfo}>
           <div className={styles.stickyHint}>
-            Se abrirÃ¡ WhatsApp con tu pedido listo para enviar.
+            Se abrirá WhatsApp con tu pedido listo para enviar.
           </div>
           {missingFields.length > 0 && (
             <div className={styles.missing}>
@@ -463,13 +328,7 @@ export default function Carrito() {
       ) : null}
 
       <StickyBar>
-        <CartSummary
-          total={baseTotal}
-          label="Total"
-          couponCode={appliedCoupon?.code}
-          discount={discountAmount}
-          finalTotal={totalWithDiscount}
-        />
+        <CartSummary total={cart.total} label="Total" />
         {step === 1 ? (
           <div className={styles.stickyRight}>
             <Button
@@ -486,11 +345,7 @@ export default function Carrito() {
           </div>
         ) : (
           <div className={styles.stickyRight}>
-            <a
-              href={canSend ? waHref : "#"}
-              target="_blank"
-              rel="noreferrer"
-              onClick={handleSendClick}>
+            <a href={canSend ? waHref : "#"} target="_blank" rel="noreferrer">
               <Button variant="primary" disabled={!canSend}>
                 Enviar por WhatsApp
               </Button>
@@ -524,8 +379,3 @@ export default function Carrito() {
     </Page>
   );
 }
-
-
-
-
-
