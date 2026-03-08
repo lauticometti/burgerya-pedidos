@@ -277,12 +277,13 @@ export default function Carrito() {
                         : `+ ${suggestedExtra.name} ${formatMoney(suggestedExtra.price)}`}
                     </Button>
                   ) : null}
-                  <button
-                    type="button"
+                  <Button
+                    size="sm"
+                    variant="secondary"
                     className={styles.upsellLink}
                     onClick={openBebidaModal}>
                     Ver todas las bebidas
-                  </button>
+                  </Button>
                 </div>
               </div>
             )
