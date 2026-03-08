@@ -108,8 +108,8 @@ export function buildWhatsAppText({
         }
 
         for (const pickGroup of promoQueue.values()) {
-          const qtyPrefix = hasRepeats ? `${pickGroup.picks.length} ` : "";
-          const pickLine = `${qtyPrefix}${pickGroup.name.toUpperCase()}`.trim();
+          const qtyPrefix = `${pickGroup.picks.length} `;
+          const pickLine = ` ${qtyPrefix}${pickGroup.name.toUpperCase()}`;
           lines.push(pickLine);
           const joiner = it.meta?.type === "promo" ? " / " : " + ";
 
