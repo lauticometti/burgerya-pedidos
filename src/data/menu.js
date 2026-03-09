@@ -59,7 +59,7 @@ export const burgers = [
     prices: { simple: 12000, doble: 15000, triple: 18000 },
     desc: "Pan de papa · Carne smash con cebolla ultrafina · Bacon · Cheddar · Mil Islas",
     img: "/burgers/smoklahoma.svg",
-    isAvailable: 1,
+    isAvailable: 0,
   },
 
   // ESPECIALES (sin simple)
