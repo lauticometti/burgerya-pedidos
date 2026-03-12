@@ -43,7 +43,7 @@ const SHOWCASE_SECTIONS = [
     tone: "rompen",
     layout: "pair",
     items: [
-      { id: "american", emphasis: "mid" },
+      { id: "american", emphasis: "mid", badge: "jueves fresh" },
       { id: "lautiboom", emphasis: "mid" },
     ],
   },
