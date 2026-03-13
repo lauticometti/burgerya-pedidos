@@ -1,27 +1,5 @@
 // Add future burger offers here (example: size/tier/id based discounts).
-export const BURGER_PRICE_OFFERS = [
-  {
-    id: "american-10-simple",
-    label: "Jueves fresh -10%",
-    burgerIds: ["american"],
-    sizes: ["simple"],
-    discountAmount: 1150,
-  },
-  {
-    id: "american-10-doble",
-    label: "Jueves fresh -10%",
-    burgerIds: ["american"],
-    sizes: ["doble"],
-    discountAmount: 1450,
-  },
-  {
-    id: "american-10-triple",
-    label: "Jueves fresh -10%",
-    burgerIds: ["american"],
-    sizes: ["triple"],
-    discountAmount: 1750,
-  },
-];
+export const BURGER_PRICE_OFFERS = [];
 
 function matchesOffer(offer, burger, size) {
   if (Array.isArray(offer?.sizes) && !offer.sizes.includes(size)) return false;
