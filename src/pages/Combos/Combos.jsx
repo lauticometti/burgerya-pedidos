@@ -34,6 +34,14 @@ const COMBOS = [
     img: "/burgers/bacon.svg",
     highlight: "Con papas + Coca\u00a0600ml",
   },
+  {
+    id: "combo-triple",
+    title: "Combo Triple",
+    price: 20000,
+    sizeLabel: "1 burger triple a elección",
+    img: "/burgers/titanica.svg",
+    highlight: "Con papas + Coca\u00a0600ml",
+  },
 ];
 
 export default function Combos() {
