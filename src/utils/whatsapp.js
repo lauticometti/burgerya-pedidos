@@ -32,6 +32,7 @@ export function buildWhatsAppText({
 
   function getCategory(item) {
     if (item.meta?.type === "promo") return "promos";
+    if (item.meta?.type === "combo") return "combos";
     if (item.meta?.type === "papas" && item.key?.startsWith("papas:dip_"))
       return "dips";
     if (item.meta?.type === "papas") return "papas";
@@ -41,6 +42,7 @@ export function buildWhatsAppText({
 
   const groupOrder = [
     { key: "promos", title: "PROMOS" },
+    { key: "combos", title: "COMBOS C/ COCA" },
     { key: "burgers", title: "BURGERS" },
     { key: "papas", title: "PAPAS" },
     { key: "dips", title: "DIPS" },
@@ -55,6 +57,38 @@ export function buildWhatsAppText({
     if (hasGroup) lines.push("");
     lines.push(group.title);
     hasGroup = true;
+
+    if (group.key === "combos") {
+      const bySize = new Map();
+      for (const it of groupItems) {
+        const size = it.meta?.size || "simple";
+        if (!bySize.has(size)) bySize.set(size, { total: 0, burgers: new Map() });
+        const bucket = bySize.get(size);
+        bucket.total += it.qty;
+        const name = (it.meta?.comboTitle || it.name || "").replace(/^combo\s*/i, "").trim();
+        const burgerLabel = (it.meta?.burgerName || it.name?.split("·")[1] || it.name || "").trim();
+        const key = burgerLabel.toLowerCase();
+        bucket.burgers.set(key, {
+          label: burgerLabel || name,
+          qty: (bucket.burgers.get(key)?.qty || 0) + it.qty,
+        });
+      }
+
+      const sizeLabels = {
+        simple: "simples",
+        doble: "dobles",
+        triple: "triples",
+      };
+
+      for (const [size, data] of bySize.entries()) {
+        lines.push(`${data.total} ${sizeLabels[size] || size}:`);
+        for (const burger of data.burgers.values()) {
+          const qtyPrefix = burger.qty > 1 ? `${burger.qty} ` : "1 ";
+          lines.push(` · ${qtyPrefix}${burger.label.toUpperCase()}`);
+        }
+      }
+      continue;
+    }
 
     for (const it of groupItems) {
       if (it.meta?.type === "promo") {

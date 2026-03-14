@@ -63,6 +63,8 @@ export default function Combos() {
         comboId: combo.id,
         burgerId: burger.id,
         size: combo.sizeLabel.includes("doble") ? "doble" : "simple",
+        comboTitle: combo.title,
+        burgerName: burger.name,
         includes: ["papas", "coca_600"],
       },
     });
