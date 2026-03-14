@@ -77,9 +77,10 @@
 }
 
 .cardVisual {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto auto auto;
   align-items: flex-end;
-  gap: 12px;
+  gap: 0;
 }
 
 .cardImage {
@@ -91,12 +92,12 @@
 .cardSides {
   display: flex;
   align-items: flex-end;
-  gap: 4px;
+  gap: 0;
 }
 
 .sideImage {
-  width: 60px;
-  height: 78px;
+  width: 58px;
+  height: 76px;
   object-fit: contain;
 }
 
