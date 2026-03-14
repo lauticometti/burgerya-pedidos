@@ -83,11 +83,6 @@ export default function Combos() {
           <p className={styles.heroLead}>
             Llevá tu burger favorita con papas y Coca&nbsp;600ml en un solo clic.
           </p>
-          <div className={styles.heroActions}>
-            <Link to="/">
-              <Button variant="primary">Elegir burger</Button>
-            </Link>
-          </div>
         </div>
       </header>
 
