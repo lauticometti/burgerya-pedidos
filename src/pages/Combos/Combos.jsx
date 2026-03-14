@@ -1,4 +1,12 @@
 import { Link } from "react-router-dom";
+import { useMemo } from "react";
+import { burgers } from "../../data/menu";
+import { useCart } from "../../store/useCart";
+import { toast } from "../../utils/toast";
+import {
+  getUnavailableReason,
+  isItemUnavailable,
+} from "../../utils/availability";
 import BrandLogo from "../../components/brand/BrandLogo";
 import TopNav from "../../components/TopNav";
 import Page from "../../components/layout/Page";
@@ -27,6 +35,38 @@ const COMBOS = [
 ];
 
 export default function Combos() {
+  const cart = useCart();
+
+  const burgersBySize = useMemo(
+    () => ({
+      simple: burgers.filter((b) => typeof b.prices?.simple === "number"),
+      doble: burgers.filter((b) => typeof b.prices?.doble === "number"),
+    }),
+    [],
+  );
+
+  function addCombo(combo, burger) {
+    if (isItemUnavailable(burger)) {
+      toast.error(getUnavailableReason(burger) || "No disponible");
+      return;
+    }
+
+    cart.add({
+      key: `combo:${combo.id}:${burger.id}`,
+      name: `${combo.title} · ${burger.name}`,
+      qty: 1,
+      unitPrice: combo.price,
+      meta: {
+        type: "combo",
+        comboId: combo.id,
+        burgerId: burger.id,
+        size: combo.sizeLabel.includes("doble") ? "doble" : "simple",
+        includes: ["papas", "coca_600"],
+      },
+    });
+    toast.success(`+ ${combo.title} con ${burger.name}`);
+  }
+
   return (
     <Page>
       <BrandLogo />
@@ -84,11 +124,48 @@ export default function Combos() {
                 <div className={styles.cardPriceLabel}>Precio combo</div>
                 <div className={styles.cardPrice}>${combo.price.toLocaleString("es-AR")}</div>
               </div>
-              <Link to="/">
-                <Button variant="primary" size="sm">
-                  Armar con esta
-                </Button>
-              </Link>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => {
+                  const size = combo.sizeLabel.includes("doble") ? "doble" : "simple";
+                  const firstBurger = burgersBySize[size][0];
+                  if (firstBurger) addCombo(combo, firstBurger);
+                }}>
+                Agregar rápida
+              </Button>
+            </div>
+
+            <div className={styles.picker}>
+              <div className={styles.pickerTitle}>Elegí la burger</div>
+              <div className={styles.pickerList}>
+                {burgersBySize[
+                  combo.sizeLabel.includes("doble") ? "doble" : "simple"
+                ].map((burger) => {
+                  const unavailable = isItemUnavailable(burger);
+                  return (
+                    <Button
+                      key={burger.id}
+                      size="sm"
+                      className={styles.pickerButton}
+                      disabled={unavailable}
+                      subLabel={unavailable ? getUnavailableReason(burger) : undefined}
+                      onClick={() => addCombo(combo, burger)}>
+                      <span className={styles.pickerChoice}>
+                        <img
+                          className={styles.pickerThumb}
+                          src={resolvePublicPath(
+                            burger.img || "/burgers/placeholder.jpg",
+                          )}
+                          alt={burger.name}
+                          loading="lazy"
+                        />
+                        <span className={styles.pickerName}>{burger.name}</span>
+                      </span>
+                    </Button>
+                  );
+                })}
+              </div>
             </div>
           </article>
         ))}

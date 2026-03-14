@@ -91,7 +91,7 @@
 
 .card {
   display: grid;
-  gap: 12px;
+  gap: 14px;
   padding: 14px;
   border-radius: 16px;
   background: #111011;
@@ -168,6 +168,42 @@
 .cardPrice {
   font-size: 20px;
   font-weight: 800;
+}
+
+.picker {
+  display: grid;
+  gap: 8px;
+}
+
+.pickerTitle {
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.pickerList {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.pickerButton {
+  justify-content: flex-start;
+}
+
+.pickerChoice {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pickerThumb {
+  width: 36px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.pickerName {
+  text-align: left;
 }
 
 .faq {
