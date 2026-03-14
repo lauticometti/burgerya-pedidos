@@ -101,9 +101,19 @@ export default function Combos() {
                 alt={combo.title}
                 loading="lazy"
               />
-              <div className={styles.cardBundle}>
-                <span>+ Papas</span>
-                <span>+ Coca&nbsp;600</span>
+              <div className={styles.cardSides}>
+                <img
+                  className={styles.sideImage}
+                  src={resolvePublicPath("/combos/4.png")}
+                  alt="Papas"
+                  loading="lazy"
+                />
+                <img
+                  className={styles.sideImage}
+                  src={resolvePublicPath("/combos/3.png")}
+                  alt="Coca 600ml"
+                  loading="lazy"
+                />
               </div>
             </div>
             <div className={styles.cardFooter}>

@@ -77,27 +77,27 @@
 }
 
 .cardVisual {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 10px;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
 }
 
 .cardImage {
   width: 120px;
   height: 90px;
   object-fit: contain;
-  justify-self: flex-start;
 }
 
-.cardBundle {
-  display: grid;
-  gap: 4px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: rgba(255, 214, 102, 0.08);
-  border: 1px dashed rgba(255, 214, 102, 0.25);
-  font-size: 13px;
+.cardSides {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.sideImage {
+  width: 64px;
+  height: 82px;
+  object-fit: contain;
 }
 
 .cardFooter {
