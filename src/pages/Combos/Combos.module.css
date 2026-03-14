@@ -32,22 +32,6 @@
   line-height: 1.4;
 }
 
-.heroBadges {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-}
-
-.badge {
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(255, 214, 102, 0.12);
-  border: 1px solid rgba(255, 214, 102, 0.35);
-  color: #ffd666;
-  font-size: 12px;
-}
-
 .heroActions {
   display: flex;
   gap: 10px;

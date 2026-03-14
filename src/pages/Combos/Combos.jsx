@@ -79,11 +79,6 @@ export default function Combos() {
           <p className={styles.heroLead}>
             Elegí tu burger favorita y llevate papas + Coca 600ml en un solo clic.
           </p>
-          <div className={styles.heroBadges}>
-            <span className={styles.badge}>Miércoles a domingo</span>
-            <span className={styles.badge}>20:00 a 00:00</span>
-            <span className={styles.badge}>Delivery Hurlingham</span>
-          </div>
           <div className={styles.heroActions}>
             <Link to="/">
               <Button variant="primary">Elegir burger</Button>
