@@ -10,6 +10,8 @@ import {
 import BrandLogo from "../../components/brand/BrandLogo";
 import TopNav from "../../components/TopNav";
 import Page from "../../components/layout/Page";
+import StickyBar from "../../components/layout/StickyBar";
+import CartSummary from "../../components/cart/CartSummary";
 import Button from "../../components/ui/Button";
 import PageTitle from "../../components/ui/PageTitle";
 import { resolvePublicPath } from "../../utils/assetPath";
@@ -82,9 +84,6 @@ export default function Combos() {
           <div className={styles.heroActions}>
             <Link to="/">
               <Button variant="primary">Elegir burger</Button>
-            </Link>
-            <Link to="/carrito">
-              <Button>Ir al carrito</Button>
             </Link>
           </div>
         </div>
@@ -175,6 +174,15 @@ export default function Combos() {
           <li>Los combos no tienen descuento adicional con otras promos.</li>
         </ul>
       </section>
+
+      <StickyBar>
+        <CartSummary total={cart.total} />
+        <Link to="/carrito">
+          <Button variant="primary" disabled={cart.items.length === 0}>
+            Ir al carrito
+          </Button>
+        </Link>
+      </StickyBar>
     </Page>
   );
 }
