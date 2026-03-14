@@ -79,7 +79,7 @@ export default function Combos() {
           <p className={styles.heroKicker}>Nuevo</p>
           <PageTitle>Combos</PageTitle>
           <p className={styles.heroLead}>
-            Elegí tu burger favorita y llevate papas + Coca&nbsp;600ml en un solo clic.
+            Llevá tu burger favorita con papas y Coca&nbsp;600ml en un solo clic.
           </p>
           <div className={styles.heroActions}>
             <Link to="/">
