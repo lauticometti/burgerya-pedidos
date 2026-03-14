@@ -4,6 +4,7 @@ import styles from "./TopNav.module.css";
 const LINKS = [
   { to: "/", label: "Menu", ariaLabel: "Menu" },
   { to: "/promos", label: "Promos" },
+  { to: "/combos", label: "Combos" },
   { to: "/papas", label: "Papas y mas" },
 ];
 

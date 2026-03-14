@@ -1,0 +1,202 @@
+.hero {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 18px;
+  padding: 18px;
+  border-radius: 18px;
+  background: radial-gradient(120% 120% at 20% 0%, #2b1b11 0%, #0d0c0b 60%);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 214, 102, 0.12), transparent 40%);
+  pointer-events: none;
+}
+
+.heroKicker {
+  margin: 0 0 6px;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffc86a;
+}
+
+.heroLead {
+  margin: 8px 0 12px;
+  max-width: 540px;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+.heroBadges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 214, 102, 0.12);
+  border: 1px solid rgba(255, 214, 102, 0.35);
+  color: #ffd666;
+  font-size: 12px;
+}
+
+.heroActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.heroArt {
+  position: relative;
+  min-height: 160px;
+}
+
+.sauceDrop {
+  position: absolute;
+  top: 4px;
+  right: 26px;
+  width: 90px;
+  height: 90px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 40% 20%, #ffc86a 0%, #c7801c 75%);
+  filter: blur(18px);
+  opacity: 0.65;
+}
+
+.sauceTrail {
+  position: absolute;
+  top: 32px;
+  right: 46px;
+  width: 14px;
+  height: 140px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #ffc86a 0%, #c7801c 80%);
+  filter: blur(2px);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+  margin: 18px 0;
+}
+
+.card {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 16px;
+  background: #111011;
+  border: 1px solid rgba(255, 214, 102, 0.08);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.25);
+}
+
+.cardMeta {
+  display: grid;
+  gap: 6px;
+}
+
+.cardTag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: rgba(255, 214, 102, 0.12);
+  color: #ffd666;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+}
+
+.cardHighlight {
+  margin: 0;
+  opacity: 0.8;
+}
+
+.cardVisual {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.cardImage {
+  width: 120px;
+  height: 90px;
+  object-fit: contain;
+  justify-self: flex-start;
+}
+
+.cardBundle {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 214, 102, 0.08);
+  border: 1px dashed rgba(255, 214, 102, 0.25);
+  font-size: 13px;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cardPriceLabel {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.cardPrice {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.faq {
+  margin: 12px 0 32px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #0f0f0f;
+  border: 1px solid rgba(255, 214, 102, 0.08);
+}
+
+.faq h4 {
+  margin: 0 0 8px;
+}
+
+.faq ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+  opacity: 0.9;
+}
+
+@media (max-width: 720px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .cardImage {
+    width: 100px;
+    height: 78px;
+  }
+}
