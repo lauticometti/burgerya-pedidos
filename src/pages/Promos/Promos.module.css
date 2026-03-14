@@ -97,6 +97,34 @@
   gap: 10px;
 }
 
+.pickChoice {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  justify-content: center;
+}
+
+.pickThumb {
+  width: 64px;
+  height: 54px;
+  object-fit: contain;
+  object-position: center;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.pickThumbTrim {
+  object-position: 60% center;
+}
+
+.pickLabel {
+  white-space: normal;
+  text-align: center;
+  line-height: 1.2;
+}
+
 .pickUnavailable {
   border-color: rgba(255, 213, 120, 0.45);
   background: rgba(255, 213, 120, 0.1);
@@ -114,6 +142,24 @@
   align-items: center;
   gap: 6px;
   padding-right: 6px;
+}
+
+.pickPillRich {
+  gap: 8px;
+  padding-right: 8px;
+}
+
+.pickPillBody {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.pickName {
+  white-space: normal;
+  text-align: center;
+  line-height: 1.2;
 }
 
 .pickRemove {

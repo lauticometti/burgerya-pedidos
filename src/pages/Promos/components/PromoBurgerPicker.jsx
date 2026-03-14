@@ -4,6 +4,7 @@ import {
   getUnavailableReason,
   isItemUnavailable,
 } from "../../../utils/availability.js";
+import { resolvePublicPath } from "../../../utils/assetPath.js";
 import styles from "../Promos.module.css";
 import { TIER_LABELS, TIER_ORDER } from "../promosConfig.js";
 
@@ -48,18 +49,30 @@ export default function PromoBurgerPicker({
                     return (
                       <Button
                         key={burger.id}
-                        onClick={() => onPickBurger(burger)}
-                        disabled={!canPickMore}
-                        aria-disabled={isUnavailable}
-                        title={isUnavailable ? unavailableReason : undefined}
-                        subLabel={isUnavailable ? unavailableReason : undefined}
-                        className={isUnavailable ? styles.pickUnavailable : ""}>
-                        {burger.name}
-                      </Button>
-                    );
-                  })}
-                </div>
-              </div>
+                    onClick={() => onPickBurger(burger)}
+                    disabled={!canPickMore}
+                    aria-disabled={isUnavailable}
+                    title={isUnavailable ? unavailableReason : undefined}
+                    subLabel={isUnavailable ? unavailableReason : undefined}
+                    className={isUnavailable ? styles.pickUnavailable : ""}>
+                    <span className={styles.pickChoice}>
+                      <img
+                        className={`${styles.pickThumb} ${
+                          burger.id === "smoklahoma" ? styles.pickThumbTrim : ""
+                        }`}
+                        src={resolvePublicPath(
+                          burger.img || "/burgers/placeholder.jpg",
+                        )}
+                        alt={burger.name}
+                        loading="lazy"
+                      />
+                      <span className={styles.pickLabel}>{burger.name}</span>
+                    </span>
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
             );
           })}
         </div>

@@ -2,6 +2,7 @@ import Button from "../../../components/ui/Button.jsx";
 import Card from "../../../components/ui/Card.jsx";
 import Pill from "../../../components/ui/Pill.jsx";
 import { formatMoney } from "../../../utils/formatMoney.js";
+import { resolvePublicPath } from "../../../utils/assetPath.js";
 import styles from "../Promos.module.css";
 
 export default function PromoPickedSummary({
@@ -28,9 +29,26 @@ export default function PromoPickedSummary({
           ) : (
             picked.map((pick, index) => {
               const name = pick.name || pick.id;
+              const imageSrc = resolvePublicPath(
+                pick.img || "/burgers/placeholder.jpg",
+              );
+              const thumbClass = `${styles.pickThumb} ${
+                pick.id === "smoklahoma" ? styles.pickThumbTrim : ""
+              }`;
               return (
-                <Pill key={`${name}-${index}`} active className={styles.pickPill}>
-                  <span>{name}</span>
+                <Pill
+                  key={`${name}-${index}`}
+                  active
+                  className={`${styles.pickPill} ${styles.pickPillRich}`}>
+                  <span className={styles.pickPillBody}>
+                    <img
+                      className={thumbClass}
+                      src={imageSrc}
+                      alt={name}
+                      loading="lazy"
+                    />
+                    <span className={styles.pickName}>{name}</span>
+                  </span>
                   <button
                     type="button"
                     className={styles.pickRemove}
