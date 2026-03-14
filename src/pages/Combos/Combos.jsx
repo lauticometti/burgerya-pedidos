@@ -103,7 +103,7 @@ export default function Combos() {
               />
               <div className={styles.cardSides}>
                 <img
-                  className={styles.sideImage}
+                  className={`${styles.sideImage} ${styles.sideImageFries}`}
                   src={resolvePublicPath("/combos/4.png")}
                   alt="Papas"
                   loading="lazy"

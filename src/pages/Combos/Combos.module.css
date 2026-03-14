@@ -91,13 +91,18 @@
 .cardSides {
   display: flex;
   align-items: flex-end;
-  gap: 8px;
+  gap: 4px;
 }
 
 .sideImage {
-  width: 64px;
-  height: 82px;
+  width: 60px;
+  height: 78px;
   object-fit: contain;
+}
+
+.sideImageFries {
+  transform: rotate(12deg);
+  transform-origin: 50% 90%;
 }
 
 .cardFooter {
