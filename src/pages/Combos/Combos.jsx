@@ -111,16 +111,6 @@ export default function Combos() {
                 <div className={styles.cardPriceLabel}>Precio combo</div>
                 <div className={styles.cardPrice}>${combo.price.toLocaleString("es-AR")}</div>
               </div>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => {
-                  const size = combo.sizeLabel.includes("doble") ? "doble" : "simple";
-                  const firstBurger = burgersBySize[size][0];
-                  if (firstBurger) addCombo(combo, firstBurger);
-                }}>
-                Agregar rápida
-              </Button>
             </div>
 
             <div className={styles.picker}>
