@@ -87,10 +87,6 @@ export default function Combos() {
             </Link>
           </div>
         </div>
-        <div className={styles.heroArt} aria-hidden="true">
-          <div className={styles.sauceDrop} />
-          <div className={styles.sauceTrail} />
-        </div>
       </header>
 
       <div className={styles.cards}>
