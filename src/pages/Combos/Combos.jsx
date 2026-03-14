@@ -24,7 +24,7 @@ const COMBOS = [
     price: 14000,
     sizeLabel: "1 burger simple a elección",
     img: "/burgers/cheese.svg",
-    highlight: "Con papas + Coca 600ml",
+    highlight: "Con papas + Coca\u00a0600ml",
   },
   {
     id: "combo-doble",
@@ -32,7 +32,7 @@ const COMBOS = [
     price: 17000,
     sizeLabel: "1 burger doble a elección",
     img: "/burgers/bacon.svg",
-    highlight: "Con papas + Coca 600ml",
+    highlight: "Con papas + Coca\u00a0600ml",
   },
 ];
 
@@ -79,7 +79,7 @@ export default function Combos() {
           <p className={styles.heroKicker}>Nuevo</p>
           <PageTitle>Combos</PageTitle>
           <p className={styles.heroLead}>
-            Elegí tu burger favorita y llevate papas + Coca 600ml en un solo clic.
+            Elegí tu burger favorita y llevate papas + Coca&nbsp;600ml en un solo clic.
           </p>
           <div className={styles.heroActions}>
             <Link to="/">
@@ -106,7 +106,7 @@ export default function Combos() {
               />
               <div className={styles.cardBundle}>
                 <span>+ Papas</span>
-                <span>+ Coca 600</span>
+                <span>+ Coca&nbsp;600</span>
               </div>
             </div>
             <div className={styles.cardFooter}>
@@ -165,7 +165,7 @@ export default function Combos() {
         <h4>Cómo funciona</h4>
         <ul>
           <li>Elegís cualquier burger del menú con el tamaño indicado.</li>
-          <li>Sumamos papas + Coca 600ml al combo.</li>
+          <li>Sumamos papas + Coca&nbsp;600ml al combo.</li>
           <li>Disponible de miércoles a domingo, 20:00 a 00:00 (delivery Hurlingham).</li>
           <li>Los combos no tienen descuento adicional con otras promos.</li>
         </ul>
