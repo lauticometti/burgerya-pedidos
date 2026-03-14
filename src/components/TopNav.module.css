@@ -1,9 +1,10 @@
-﻿.nav {
+.nav {
   position: sticky;
   top: 12px;
   z-index: 30;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   gap: 8px;
   align-items: center;
   padding: 10px;
