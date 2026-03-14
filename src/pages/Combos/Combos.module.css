@@ -80,24 +80,24 @@
   display: grid;
   grid-template-columns: auto auto auto;
   align-items: flex-end;
-  gap: 0;
+  gap: 2px;
 }
 
 .cardImage {
-  width: 120px;
-  height: 90px;
+  width: 110px;
+  height: 86px;
   object-fit: contain;
 }
 
 .cardSides {
   display: flex;
   align-items: flex-end;
-  gap: 0;
+  gap: 2px;
 }
 
 .sideImage {
-  width: 58px;
-  height: 76px;
+  width: 60px;
+  height: 78px;
   object-fit: contain;
 }
 
