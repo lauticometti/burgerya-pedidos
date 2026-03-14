@@ -23,7 +23,7 @@ const COMBOS = [
     title: "Combo Simple",
     price: 14000,
     sizeLabel: "1 burger simple a elección",
-    img: "/burgers/cheese.svg",
+    img: "/burgers/american.svg",
     highlight: "Con papas + Coca\u00a0600ml",
   },
   {
