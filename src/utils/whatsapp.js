@@ -75,13 +75,15 @@ export function buildWhatsAppText({
       }
 
       const sizeLabels = {
-        simple: "simples",
-        doble: "dobles",
-        triple: "triples",
+        simple: { singular: "simple", plural: "simples" },
+        doble: { singular: "doble", plural: "dobles" },
+        triple: { singular: "triple", plural: "triples" },
       };
 
       for (const [size, data] of bySize.entries()) {
-        lines.push(`${data.total} ${sizeLabels[size] || size}:`);
+        const labelSet = sizeLabels[size] || { singular: size, plural: `${size}s` };
+        const sizeLabel = data.total === 1 ? labelSet.singular : labelSet.plural;
+        lines.push(`${data.total} ${sizeLabel}:`);
         for (const burger of data.burgers.values()) {
           const qtyPrefix = burger.qty > 1 ? `${burger.qty} ` : "1 ";
           lines.push(` · ${qtyPrefix}${burger.label.toUpperCase()}`);
