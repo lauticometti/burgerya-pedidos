@@ -215,6 +215,10 @@
     grid-template-columns: 1fr;
   }
 
+  .heroArt {
+    display: none;
+  }
+
   .cardImage {
     width: 100px;
     height: 78px;
