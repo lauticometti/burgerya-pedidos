@@ -158,16 +158,6 @@ export default function Combos() {
         ))}
       </div>
 
-      <section className={styles.faq}>
-        <h4>Cómo funciona</h4>
-        <ul>
-          <li>Elegís cualquier burger del menú con el tamaño indicado.</li>
-          <li>Sumamos papas + Coca&nbsp;600ml al combo.</li>
-          <li>Disponible de miércoles a domingo, 20:00 a 00:00 (delivery Hurlingham).</li>
-          <li>Los combos no tienen descuento adicional con otras promos.</li>
-        </ul>
-      </section>
-
       <StickyBar>
         <CartSummary total={cart.total} />
         <Link to="/carrito">
