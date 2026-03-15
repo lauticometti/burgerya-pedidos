@@ -45,17 +45,19 @@ export function buildWhatsAppText({
     { key: "combos", title: "COMBOS C/ COCA" },
     { key: "burgers", title: "BURGERS" },
     { key: "papas", title: "PAPAS" },
-    { key: "dips", title: "DIPS" },
+    { key: "dips", title: "EXTRAS" },
     { key: "bebidas", title: "BEBIDAS" },
   ];
 
   let hasGroup = false;
+  const separator = "--------";
   for (const group of groupOrder) {
     const groupItems = items.filter((item) => getCategory(item) === group.key);
     if (!groupItems.length) continue;
 
     if (hasGroup) lines.push("");
     lines.push(group.title);
+    lines.push(separator);
     hasGroup = true;
 
     if (group.key === "combos") {
