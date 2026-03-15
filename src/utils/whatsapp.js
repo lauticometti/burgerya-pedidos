@@ -56,7 +56,8 @@ export function buildWhatsAppText({
     if (!groupItems.length) continue;
 
     if (hasGroup) lines.push("");
-    lines.push(group.title);
+    const isExtras = group.key === "dips";
+    lines.push(isExtras ? `${group.title} ⚠️` : group.title);
     lines.push(separator);
     hasGroup = true;
 
@@ -95,6 +96,17 @@ export function buildWhatsAppText({
     }
 
     for (const it of groupItems) {
+      if (it.meta?.type === "papas" && it.key?.startsWith("papas:dip_")) {
+        // Extras/dips destacados
+        const sizeLabel = getSizeLabel(it);
+        const sizeSuffix = sizeLabel ? ` ${sizeLabel}` : "";
+        lines.push(` ⚠️ ${it.qty} ${it.name.toUpperCase()}${sizeSuffix}`);
+        if (it.note?.trim()) {
+          lines.push(`  Aclaracion: ${it.note.trim()}`);
+        }
+        continue;
+      }
+
       if (it.meta?.type === "promo") {
         const qtyPrefix = it.qty > 1 ? `${it.qty} ` : "";
         lines.push(`${qtyPrefix}${it.name.toLowerCase()}:`);
