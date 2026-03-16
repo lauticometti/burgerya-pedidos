@@ -165,14 +165,14 @@ export function buildWhatsAppText({
           const samplePick = pickGroup.picks[0];
           if (samplePick.extras?.length) {
             lines.push(
-              `* Agregados: ${samplePick.extras
+              `  Agregados: ${samplePick.extras
                 .map((extra) => extra.name)
                 .join(joiner)}`,
             );
           }
           if (samplePick.papas?.length) {
             lines.push(
-              `* Mejorar papas: ${samplePick.papas
+              `  Mejorar papas: ${samplePick.papas
                 .map((extra) => extra.name)
                 .join(joiner)}`,
             );
@@ -184,10 +184,14 @@ export function buildWhatsAppText({
       } else {
         const joiner = it.meta?.type === "promo" ? " / " : " + ";
         if (it.extras?.length) {
-          lines.push(`* Agregados: ${it.extras.map((extra) => extra.name).join(joiner)}`);
+          lines.push(
+            `  Agregados: ${it.extras.map((extra) => extra.name).join(joiner)}`,
+          );
         }
         if (it.papas?.length) {
-          lines.push(`* Mejorar papas: ${it.papas.map((extra) => extra.name).join(joiner)}`);
+          lines.push(
+            `  Mejorar papas: ${it.papas.map((extra) => extra.name).join(joiner)}`,
+          );
         }
       }
       if (it.note?.trim()) {
