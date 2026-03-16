@@ -47,15 +47,20 @@ const COMBOS = [
   },
 ];
 
+const COMBO_ALLOWED_TIERS = ["BASICA", "PREMIUM", "DELUXE"];
+
 export default function Combos() {
   const cart = useCart();
 
   const burgersBySize = useMemo(
-    () => ({
-      simple: burgers.filter((b) => typeof b.prices?.simple === "number"),
-      doble: burgers.filter((b) => typeof b.prices?.doble === "number"),
-      triple: burgers.filter((b) => typeof b.prices?.triple === "number"),
-    }),
+    () => {
+      const eligible = burgers.filter((b) => COMBO_ALLOWED_TIERS.includes(b.tier));
+      return {
+        simple: eligible.filter((b) => typeof b.prices?.simple === "number"),
+        doble: eligible.filter((b) => typeof b.prices?.doble === "number"),
+        triple: eligible.filter((b) => typeof b.prices?.triple === "number"),
+      };
+    },
     [],
   );
 
