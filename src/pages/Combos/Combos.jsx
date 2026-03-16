@@ -21,6 +21,7 @@ const COMBOS = [
   {
     id: "combo-simple",
     title: "Combo Simple",
+    size: "simple",
     price: 14000,
     sizeLabel: "1 burger simple a elección",
     img: "/burgers/american.svg",
@@ -29,6 +30,7 @@ const COMBOS = [
   {
     id: "combo-doble",
     title: "Combo Doble",
+    size: "doble",
     price: 17000,
     sizeLabel: "1 burger doble a elección",
     img: "/burgers/bacon.svg",
@@ -37,6 +39,7 @@ const COMBOS = [
   {
     id: "combo-triple",
     title: "Combo Triple",
+    size: "triple",
     price: 20000,
     sizeLabel: "1 burger triple a elección",
     img: "/burgers/bbqueen.svg",
@@ -51,6 +54,7 @@ export default function Combos() {
     () => ({
       simple: burgers.filter((b) => typeof b.prices?.simple === "number"),
       doble: burgers.filter((b) => typeof b.prices?.doble === "number"),
+      triple: burgers.filter((b) => typeof b.prices?.triple === "number"),
     }),
     [],
   );
@@ -70,7 +74,7 @@ export default function Combos() {
         type: "combo",
         comboId: combo.id,
         burgerId: burger.id,
-        size: combo.sizeLabel.includes("doble") ? "doble" : "simple",
+        size: combo.size || (combo.sizeLabel.includes("doble") ? "doble" : "simple"),
         comboTitle: combo.title,
         burgerName: burger.name,
         includes: ["papas", "coca_600"],
@@ -135,7 +139,7 @@ export default function Combos() {
               <div className={styles.pickerTitle}>Elegí la burger</div>
               <div className={styles.pickerList}>
                 {burgersBySize[
-                  combo.sizeLabel.includes("doble") ? "doble" : "simple"
+                  combo.size || (combo.sizeLabel.includes("doble") ? "doble" : "simple")
                 ].map((burger) => {
                   const unavailable = isItemUnavailable(burger);
                   return (
