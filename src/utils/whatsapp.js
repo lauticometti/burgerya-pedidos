@@ -55,10 +55,9 @@ export function buildWhatsAppText({
     const groupItems = items.filter((item) => getCategory(item) === group.key);
     if (!groupItems.length) continue;
 
-    if (hasGroup) lines.push("");
+    if (hasGroup) lines.push(separator);
     const isExtras = group.key === "dips";
     lines.push(isExtras ? `${group.title} ⚠️` : group.title);
-    lines.push(separator);
     hasGroup = true;
 
     if (group.key === "combos") {
