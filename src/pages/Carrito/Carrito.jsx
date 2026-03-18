@@ -281,30 +281,29 @@ export default function Carrito() {
                 </Button>
               </div>
               <div className={styles.addRight}>
-              <input
-                className={styles.couponInput}
-                type="text"
-                placeholder="Código de descuento"
-                value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    applyCoupon();
-                  }
-                }}
-              />
-              <Button
-                size="sm"
-                variant="secondary"
-                className={styles.couponApply}
-                onClick={applyCoupon}>
-                Aplicar
-              </Button>
+                <input
+                  className={styles.couponInput}
+                  type="text"
+                  placeholder="Código de descuento"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      applyCoupon();
+                    }
+                  }}
+                />
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className={styles.couponApply}
+                  onClick={applyCoupon}>
+                  Aplicar
+                </Button>
+              </div>
             </div>
-          </div>
-        ) : null}
-
+          ) : null}
         </>
       ) : (
         <>

@@ -20,8 +20,31 @@
   gap: 16px;
 }
 
-.drinkCta {
+.addRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
   margin-top: 12px;
+}
+
+.addLeft {
+  flex: 0 0 auto;
+}
+
+.addRight {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.drinkCta {
+  height: 36px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
   width: fit-content;
 }
 
@@ -157,8 +180,8 @@
 }
 
 .couponInput {
-  height: 44px;
-  padding: 10px 12px;
+  height: 36px;
+  padding: 8px 12px;
   border-radius: 12px;
   border: 1px solid rgba(255, 198, 42, 0.5);
   background: rgba(255, 198, 42, 0.08);
@@ -178,9 +201,13 @@
 }
 
 .couponApply {
-  padding: 6px 6px;
   min-width: 80px;
   max-width: 120px;
+  height: 36px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .couponActions {
