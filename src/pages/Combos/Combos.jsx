@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 import { useMemo } from "react";
 import { burgers } from "../../data/menu";
 import { useCart } from "../../store/useCart";
@@ -25,7 +25,7 @@ const COMBOS = [
     price: 14000,
     sizeLabel: "1 burger simple a elección",
     img: "/burgers/american.svg",
-    highlight: "Con papas + Coca\u00a0600ml",
+    highlight: "Incluye papas + Coca 600ml",
   },
   {
     id: "combo-doble",
@@ -34,31 +34,21 @@ const COMBOS = [
     price: 17000,
     sizeLabel: "1 burger doble a elección",
     img: "/burgers/bacon.svg",
-    highlight: "Con papas + Coca\u00a0600ml",
-  },
-  {
-    id: "combo-triple",
-    title: "Combo Triple",
-    size: "triple",
-    price: 20000,
-    sizeLabel: "1 burger triple a elección",
-    img: "/burgers/bbqueen.svg",
-    highlight: "Con papas + Coca\u00a0600ml",
+    highlight: "Incluye papas + Coca 600ml",
   },
 ];
 
-const COMBO_ALLOWED_TIERS = ["BASICA", "PREMIUM", "DELUXE"];
+const COMBO_ALLOWED_BURGERS = ["lautiboom", "bacon", "american"];
 
 export default function Combos() {
   const cart = useCart();
 
   const burgersBySize = useMemo(
     () => {
-      const eligible = burgers.filter((b) => COMBO_ALLOWED_TIERS.includes(b.tier));
+      const eligible = burgers.filter((b) => COMBO_ALLOWED_BURGERS.includes(b.id));
       return {
         simple: eligible.filter((b) => typeof b.prices?.simple === "number"),
         doble: eligible.filter((b) => typeof b.prices?.doble === "number"),
-        triple: eligible.filter((b) => typeof b.prices?.triple === "number"),
       };
     },
     [],
@@ -98,7 +88,9 @@ export default function Combos() {
           <p className={styles.heroKicker}>Nuevo</p>
           <PageTitle>Combos</PageTitle>
           <p className={styles.heroLead}>
-            Llevá tu burger favorita con papas y Coca&nbsp;600ml en un solo clic.
+            Burger con papas siempre.
+            <br />
+            Pedi el combo con Coca 600ml y listo.
           </p>
         </div>
       </header>
@@ -119,12 +111,6 @@ export default function Combos() {
                 loading="lazy"
               />
               <div className={styles.cardSides}>
-                <img
-                  className={`${styles.sideImage} ${styles.sideImageFries}`}
-                  src={resolvePublicPath("/combos/4.png")}
-                  alt="Papas"
-                  loading="lazy"
-                />
                 <img
                   className={styles.sideImage}
                   src={resolvePublicPath("/combos/3.png")}

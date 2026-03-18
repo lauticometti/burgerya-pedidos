@@ -78,14 +78,15 @@
 
 .cardVisual {
   display: grid;
-  grid-template-columns: auto auto auto;
+  grid-template-columns: repeat(2, max-content);
+  justify-content: flex-start;
   align-items: flex-end;
   gap: 2px;
 }
 
 .cardImage {
-  width: 110px;
-  height: 86px;
+  width: 126px;
+  height: 99px;
   object-fit: contain;
 }
 
@@ -96,14 +97,11 @@
 }
 
 .sideImage {
-  width: 60px;
-  height: 78px;
+  width: 76px;
+  height: 99px;
   object-fit: contain;
-}
-
-.sideImageFries {
-  transform: rotate(12deg);
-  transform-origin: 50% 90%;
+  transform: rotate(-6deg);
+  transform-origin: 50% 85%;
 }
 
 .cardFooter {
@@ -190,7 +188,12 @@
   }
 
   .cardImage {
-    width: 100px;
-    height: 78px;
+    width: 115px;
+    height: 90px;
+  }
+
+  .sideImage {
+    width: 83px;
+    height: 109px;
   }
 }

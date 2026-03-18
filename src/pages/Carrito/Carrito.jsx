@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { useCart } from "../../store/useCart";
 import { bebidas, extras, papas } from "../../data/menu";
 import ItemExtrasModal from "../../components/ItemExtrasModal";
@@ -51,7 +51,6 @@ export default function Carrito() {
     whenSlot,
     setWhenSlot,
   } = useCarritoCheckoutForm();
-  const [upsellCollapsed, setUpsellCollapsed] = React.useState(false);
   const { undoItem, handleRemove, handleUndo } = useCartUndo(cart);
 
   React.useEffect(() => {
@@ -62,6 +61,8 @@ export default function Carrito() {
   const [availableSlots, setAvailableSlots] = React.useState(
     getAvailableSlotsMin30(),
   );
+  const [couponCode, setCouponCode] = React.useState("");
+  const [couponApplied, setCouponApplied] = React.useState(false);
   React.useEffect(() => {
     const id = setInterval(
       () => setAvailableSlots(getAvailableSlotsMin30()),
@@ -76,6 +77,36 @@ export default function Carrito() {
     }
   }, [whenMode, whenSlot, availableSlots, setWhenSlot]);
 
+  function isComboWindowNow() {
+    const now = new Date();
+    const minutesSinceWeekStart =
+      now.getDay() * 24 * 60 + now.getHours() * 60 + now.getMinutes();
+    const comboWindowStart = 2 * 24 * 60; // martes 00:00 (fudge para que siempre esté activo en miércoles locales)
+    const comboWindowEnd = 5 * 24 * 60 + 1; // viernes 00:01
+    return (
+      minutesSinceWeekStart >= comboWindowStart &&
+      minutesSinceWeekStart <= comboWindowEnd
+    );
+  }
+
+  const comboWindowActive = isComboWindowNow();
+
+  const comboTargets = { simple: 12990, doble: 15990 };
+  const combosDiscount = React.useMemo(() => {
+    if (!couponApplied) return 0;
+    if (!comboWindowActive) return 0;
+    return cart.items.reduce((sum, it) => {
+      if (it.meta?.type !== "combo") return sum;
+      const size = it.meta?.size || "simple";
+      const target = comboTargets[size];
+      if (!target) return sum;
+      const diff = Math.max(0, (it.unitPrice || 0) - target);
+      return sum + diff * (it.qty || 0);
+    }, 0);
+  }, [cart.items, couponApplied, comboWindowActive]);
+
+  const totalWithDiscount = Math.max(0, cart.total - combosDiscount);
+
   const canContinue = cart.items.length > 0;
   const { canSend, missingFields, waHref } = useCheckoutValidation({
     deliveryMode,
@@ -87,39 +118,16 @@ export default function Carrito() {
     whenMode,
     whenSlot,
     items: cart.items,
-    total: cart.total,
+    total: totalWithDiscount,
+    couponCode: couponApplied ? couponCode.trim() : "",
+    discountAmount: combosDiscount,
+    totalBefore: cart.total,
   });
-  const availableBebidas = React.useMemo(
-    () => (bebidas || []).filter((item) => !isItemUnavailable(item)),
-    [],
-  );
-  const firstBurgerItem = cart.items.find(
-    (item) => item.meta?.type === "burger",
-  );
-  const suggestedBebida =
-    availableBebidas.find((item) => item.id === "coca_225") ||
-    availableBebidas[0] ||
-    null;
-  const suggestedExtra =
-    extras.find((item) => item.id === "bacon_crocante") || extras[0];
-  const hasSuggestedExtra =
-    !!firstBurgerItem &&
-    !!suggestedExtra &&
-    (firstBurgerItem.extras || []).some(
-      (extra) => extra.id === suggestedExtra.id,
-    );
-
   React.useEffect(() => {
     if (!canContinue && step !== 1) {
       setStep(1);
     }
   }, [canContinue, step]);
-
-  React.useEffect(() => {
-    if (cart.items.length === 0 && upsellCollapsed) {
-      setUpsellCollapsed(false);
-    }
-  }, [cart.items.length, upsellCollapsed]);
 
   React.useEffect(() => {
     if (step !== 2 || typeof window === "undefined") return;
@@ -128,24 +136,21 @@ export default function Carrito() {
     });
   }, [step]);
 
-  function addSuggestedBebida() {
-    if (!suggestedBebida) return;
-    cart.add({
-      key: `bebida:${suggestedBebida.id}`,
-      name: suggestedBebida.name,
-      qty: 1,
-      unitPrice: suggestedBebida.price,
-      meta: { type: "bebida" },
-    });
-    toast.success(`+ ${suggestedBebida.name}`);
-    setUpsellCollapsed(true);
-  }
-
-  function addSuggestedExtra() {
-    if (!firstBurgerItem || !suggestedExtra || hasSuggestedExtra) return;
-    const nextExtras = [...(firstBurgerItem.extras || []), suggestedExtra];
-    cart.setExtras(firstBurgerItem.key, nextExtras);
-    toast.success(`+ ${suggestedExtra.name}`);
+  function applyCoupon() {
+    const code = couponCode.trim().toUpperCase();
+    if (code !== "COMBOYA") {
+      setCouponApplied(false);
+      toast.error("Código inválido");
+      return;
+    }
+    const hasCombos = cart.items.some((it) => it.meta?.type === "combo");
+    if (!hasCombos) {
+      setCouponApplied(false);
+      toast.error("Solo aplica a combos con Coca");
+      return;
+    }
+    setCouponApplied(true);
+    toast.success("COMBOYA aplicado");
   }
 
   const papasMejoras = React.useMemo(() => {
@@ -264,49 +269,42 @@ export default function Carrito() {
               />
             )}
           </div>
-          {cart.items.length > 0 &&
-          (suggestedBebida || (firstBurgerItem && suggestedExtra)) ? (
-            upsellCollapsed ? (
-              <div className={styles.upsellSolo}>
-                <Button variant="primary" size="xs" onClick={openBebidaModal}>
-                  Quiero algo para tomar
+          {cart.items.length > 0 ? (
+            <div className={styles.addRow}>
+              <div className={styles.addLeft}>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className={styles.drinkCta}
+                  onClick={openBebidaModal}>
+                  Agregar bebidas
                 </Button>
               </div>
-            ) : (
-              <div className={styles.upsellCard}>
-                <div className={styles.upsellTitle}>Sumale algo al pedido</div>
-                <div className={styles.upsellRow}>
-                  {suggestedBebida ? (
-                    <Button
-                      size="sm"
-                      className={styles.upsellButton}
-                      onClick={addSuggestedBebida}>
-                      + {suggestedBebida.name}{" "}
-                      {formatMoney(suggestedBebida.price)}
-                    </Button>
-                  ) : null}
-                  {firstBurgerItem && suggestedExtra ? (
-                    <Button
-                      size="sm"
-                      className={styles.upsellButton}
-                      disabled={hasSuggestedExtra}
-                      onClick={addSuggestedExtra}>
-                      {hasSuggestedExtra
-                        ? "Extra ya agregado"
-                        : `+ ${suggestedExtra.name} ${formatMoney(suggestedExtra.price)}`}
-                    </Button>
-                  ) : null}
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    className={styles.upsellLink}
-                    onClick={openBebidaModal}>
-                    Ver todas las bebidas
-                  </Button>
-                </div>
-              </div>
-            )
-          ) : null}
+              <div className={styles.addRight}>
+              <input
+                className={styles.couponInput}
+                type="text"
+                placeholder="Código de descuento"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    applyCoupon();
+                  }
+                }}
+              />
+              <Button
+                size="sm"
+                variant="secondary"
+                className={styles.couponApply}
+                onClick={applyCoupon}>
+                Aplicar
+              </Button>
+            </div>
+          </div>
+        ) : null}
+
         </>
       ) : (
         <>
@@ -348,7 +346,7 @@ export default function Carrito() {
       ) : null}
 
       <StickyBar>
-        <CartSummary total={cart.total} label="Total" />
+        <CartSummary total={totalWithDiscount} label="Total" />
         {step === 1 ? (
           <div className={styles.stickyRight}>
             <Button
