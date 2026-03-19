@@ -30,6 +30,8 @@ import useCarritoCheckoutForm from "./useCarritoCheckoutForm";
 import useCheckoutValidation from "./useCheckoutValidation";
 
 const VALID_COUPON_CODE = "COMBOYA";
+const ONE_TIME_COUPON = "JUANSINLECHUGA";
+const ONE_TIME_STORAGE_KEY = "coupon:juansinlechuga:used";
 const normalizeCouponInput = (value = "") =>
   value
     .normalize("NFD")
@@ -71,12 +73,19 @@ export default function Carrito() {
   );
   const [couponCode, setCouponCode] = React.useState("");
   const [couponApplied, setCouponApplied] = React.useState(false);
+  const [appliedCoupon, setAppliedCoupon] = React.useState("");
+  const [oneTimeUsed, setOneTimeUsed] = React.useState(false);
   React.useEffect(() => {
     const id = setInterval(
       () => setAvailableSlots(getAvailableSlotsMin30()),
       60 * 1000,
     );
     return () => clearInterval(id);
+  }, []);
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    const usedFlag = window.localStorage.getItem(ONE_TIME_STORAGE_KEY);
+    setOneTimeUsed(usedFlag === "1");
   }, []);
 
   React.useEffect(() => {
@@ -101,7 +110,7 @@ export default function Carrito() {
 
   const comboTargets = { simple: 12990, doble: 15990 };
   const combosDiscount = React.useMemo(() => {
-    if (!couponApplied) return 0;
+    if (!couponApplied || appliedCoupon !== VALID_COUPON_CODE) return 0;
     if (!comboWindowActive) return 0;
     return cart.items.reduce((sum, it) => {
       if (it.meta?.type !== "combo") return sum;
@@ -111,9 +120,17 @@ export default function Carrito() {
       const diff = Math.max(0, (it.unitPrice || 0) - target);
       return sum + diff * (it.qty || 0);
     }, 0);
-  }, [cart.items, couponApplied, comboWindowActive]);
+  }, [cart.items, couponApplied, appliedCoupon, comboWindowActive]);
 
-  const totalWithDiscount = Math.max(0, cart.total - combosDiscount);
+  const oneTimeDiscount =
+    couponApplied && appliedCoupon === ONE_TIME_COUPON
+      ? Math.round(cart.total * 0.5)
+      : 0;
+
+  const totalDiscount =
+    appliedCoupon === VALID_COUPON_CODE ? combosDiscount : oneTimeDiscount;
+
+  const totalWithDiscount = Math.max(0, cart.total - totalDiscount);
 
   const canContinue = cart.items.length > 0;
   const normalizedCouponCode = normalizeCouponInput(couponCode);
@@ -128,8 +145,8 @@ export default function Carrito() {
     whenSlot,
     items: cart.items,
     total: totalWithDiscount,
-    couponCode: couponApplied ? normalizedCouponCode : "",
-    discountAmount: combosDiscount,
+    couponCode: couponApplied ? appliedCoupon : "",
+    discountAmount: totalDiscount,
     totalBefore: cart.total,
   });
   React.useEffect(() => {
@@ -147,20 +164,42 @@ export default function Carrito() {
 
   function applyCoupon() {
     const code = normalizeCouponInput(couponCode);
-    if (code !== VALID_COUPON_CODE) {
-      setCouponApplied(false);
-      toast.error("Código inválido");
+    if (code === VALID_COUPON_CODE) {
+      const hasCombos = cart.items.some((it) => it.meta?.type === "combo");
+      if (!hasCombos) {
+        setCouponApplied(false);
+        setAppliedCoupon("");
+        toast.error("Solo aplica a combos con Coca");
+        return;
+      }
+      setCouponApplied(true);
+      setAppliedCoupon(VALID_COUPON_CODE);
+      setCouponCode(VALID_COUPON_CODE);
+      toast.success(`${VALID_COUPON_CODE} aplicado`);
       return;
     }
-    const hasCombos = cart.items.some((it) => it.meta?.type === "combo");
-    if (!hasCombos) {
-      setCouponApplied(false);
-      toast.error("Solo aplica a combos con Coca");
+
+    if (code === ONE_TIME_COUPON) {
+      if (oneTimeUsed) {
+        setCouponApplied(false);
+        setAppliedCoupon("");
+        toast.error("Este código ya fue usado en este dispositivo");
+        return;
+      }
+      setCouponApplied(true);
+      setAppliedCoupon(ONE_TIME_COUPON);
+      setCouponCode(ONE_TIME_COUPON);
+      setOneTimeUsed(true);
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(ONE_TIME_STORAGE_KEY, "1");
+      }
+      toast.success(`${ONE_TIME_COUPON} aplicado: 50% off en todo el pedido`);
       return;
     }
-    setCouponApplied(true);
-    setCouponCode(VALID_COUPON_CODE);
-    toast.success(`${VALID_COUPON_CODE} aplicado`);
+
+    setCouponApplied(false);
+    setAppliedCoupon("");
+    toast.error("Código inválido");
   }
 
   const papasMejoras = React.useMemo(() => {
