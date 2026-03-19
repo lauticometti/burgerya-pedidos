@@ -13,6 +13,7 @@ import Button from "../../components/ui/Button";
 import CarritoHeader from "../../components/carrito/CarritoHeader";
 import DeliveryDetailsCard from "../../components/carrito/DeliveryDetailsCard";
 import PaymentScheduleCard from "../../components/carrito/PaymentScheduleCard";
+import { getPapasUpgradePrice } from "../../utils/papasPricing";
 import BebidasModal from "../../components/carrito/BebidasModal";
 import CartGroupsList from "../../components/carrito/CartGroupsList";
 import PageTitle from "../../components/ui/PageTitle";
@@ -31,7 +32,8 @@ import useCheckoutValidation from "./useCheckoutValidation";
 
 const VALID_COUPON_CODE = "COMBOYA";
 const ONE_TIME_COUPON = "JUANSINLECHUGA";
-const ONE_TIME_STORAGE_KEY = "coupon:juansinlechuga:used";
+const ONE_TIME_STORAGE_KEY = "coupon:juansinlechuga:used:v2";
+const PERCENT_COUPON = "JUAN25";
 const normalizeCouponInput = (value = "") =>
   value
     .normalize("NFD")
@@ -84,6 +86,8 @@ export default function Carrito() {
   }, []);
   React.useEffect(() => {
     if (typeof window === "undefined") return;
+    // reset legacy key so everyone tiene una nueva chance
+    window.localStorage.removeItem("coupon:juansinlechuga:used");
     const usedFlag = window.localStorage.getItem(ONE_TIME_STORAGE_KEY);
     setOneTimeUsed(usedFlag === "1");
   }, []);
@@ -124,11 +128,60 @@ export default function Carrito() {
 
   const oneTimeDiscount =
     couponApplied && appliedCoupon === ONE_TIME_COUPON
-      ? Math.round(cart.total * 0.5)
+      ? (() => {
+          const american = cart.items.find(
+            (it) =>
+              it.meta?.type === "burger" &&
+              (it.meta?.burgerId || "").toLowerCase() === "american" &&
+              it.qty > 0,
+          );
+          if (!american) return 0;
+
+          const papasContext = {
+            size: american.meta?.size,
+            itemType: american.meta?.type,
+          };
+          const extrasTotal = (american.extras || []).reduce(
+            (sum, extra) => sum + extra.price,
+            0,
+          );
+          const papasTotal = (american.papas || []).reduce(
+            (sum, extra) => sum + getPapasUpgradePrice(extra, papasContext),
+            0,
+          );
+          const picksExtrasTotal = (american.meta?.picks || []).reduce(
+            (picksSum, pick) => {
+              const pickExtras = (pick.extras || []).reduce(
+                (pickSum, extra) => pickSum + extra.price,
+                0,
+              );
+              const pickPapas = (pick.papas || []).reduce(
+                (pickSum, extra) => pickSum + getPapasUpgradePrice(extra, papasContext),
+                0,
+              );
+              return picksSum + pickExtras + pickPapas;
+            },
+            0,
+          );
+          const unitTotal =
+            american.unitPrice + extrasTotal + papasTotal + picksExtrasTotal;
+          return Math.round(unitTotal * 0.5);
+        })()
+      : 0;
+
+  const percentCouponDiscount =
+    couponApplied && appliedCoupon === PERCENT_COUPON
+      ? Math.round(cart.total * 0.25)
       : 0;
 
   const totalDiscount =
-    appliedCoupon === VALID_COUPON_CODE ? combosDiscount : oneTimeDiscount;
+    appliedCoupon === VALID_COUPON_CODE
+      ? combosDiscount
+      : appliedCoupon === ONE_TIME_COUPON
+        ? oneTimeDiscount
+        : appliedCoupon === PERCENT_COUPON
+          ? percentCouponDiscount
+          : 0;
 
   const totalWithDiscount = Math.max(0, cart.total - totalDiscount);
 
@@ -180,6 +233,18 @@ export default function Carrito() {
     }
 
     if (code === ONE_TIME_COUPON) {
+      const american = cart.items.find(
+        (it) =>
+          it.meta?.type === "burger" &&
+          (it.meta?.burgerId || "").toLowerCase() === "american" &&
+          it.qty > 0,
+      );
+      if (!american) {
+        setCouponApplied(false);
+        setAppliedCoupon("");
+        toast.error("Solo aplica a una American");
+        return;
+      }
       if (oneTimeUsed) {
         setCouponApplied(false);
         setAppliedCoupon("");
@@ -193,7 +258,15 @@ export default function Carrito() {
       if (typeof window !== "undefined") {
         window.localStorage.setItem(ONE_TIME_STORAGE_KEY, "1");
       }
-      toast.success(`${ONE_TIME_COUPON} aplicado: 50% off en todo el pedido`);
+      toast.success(`${ONE_TIME_COUPON} aplicado: 50% off en 1 American`);
+      return;
+    }
+
+    if (code === PERCENT_COUPON) {
+      setCouponApplied(true);
+      setAppliedCoupon(PERCENT_COUPON);
+      setCouponCode(PERCENT_COUPON);
+      toast.success(`${PERCENT_COUPON} aplicado: 25% off en todo el pedido`);
       return;
     }
 
