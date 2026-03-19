@@ -119,6 +119,18 @@ export default function Burgers() {
       }).filter(Boolean),
     [burgersById],
   );
+  const sectionOffsets = React.useMemo(() => {
+    return sections
+      .reduce(
+        (acc, section) => {
+          acc.offsets.push(acc.total);
+          acc.total += section.items.length;
+          return acc;
+        },
+        { offsets: [], total: 0 },
+      )
+      .offsets;
+  }, [sections]);
 
   function openBurger(burger, evt) {
     if (isItemUnavailable(burger)) {
@@ -151,7 +163,7 @@ export default function Burgers() {
       <BrandLogo />
       <TopNav />
 
-      {sections.map((section) => (
+      {sections.map((section, sectionIndex) => (
         <section
           key={section.id}
           className={`${styles.section} ${SECTION_CLASS[section.tone] || ""}`}>
@@ -162,10 +174,13 @@ export default function Burgers() {
 
           <div
             className={`${styles.cards} ${LAYOUT_CLASS[section.layout] || ""}`}>
-            {section.items.map((entry) => {
+            {section.items.map((entry, itemIndex) => {
               const burger = entry.burger;
               const isUnavailable = isItemUnavailable(burger);
               const unavailableReason = getUnavailableReason(burger);
+              const globalIndex =
+                (sectionOffsets[sectionIndex] || 0) + itemIndex;
+              const isPriorityImage = globalIndex < 2;
 
               return (
                 <article
@@ -183,7 +198,9 @@ export default function Burgers() {
                         burger.img || "/burgers/placeholder.jpg",
                       )}
                       alt={burger.name}
-                      loading="lazy"
+                      loading={isPriorityImage ? "eager" : "lazy"}
+                      fetchpriority={isPriorityImage ? "high" : "auto"}
+                      decoding="async"
                     />
                     {entry.badge ? (
                       <span className={styles.badge}>{entry.badge}</span>
