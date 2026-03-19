@@ -145,7 +145,7 @@ export default function CartItemCard({
       item.meta?.type !== "bebida" ? (
         <div className={styles.noteEditor}>
           <TextareaField
-            placeholder="Aclaraciones"
+            placeholder="Queres sacarle algo? Anotalo aca."
             value={item.note || ""}
             onChange={(event) => onChangeNote?.(event.target.value)}
             rows={1}
@@ -196,7 +196,7 @@ export default function CartItemCard({
 
               <div className={styles.promoPickNote}>
                 <TextareaField
-                  placeholder="Aclaraciones"
+                  placeholder="Queres sacarle algo? Anotalo aca."
                   value={pick.note || ""}
                   onChange={(event) =>
                     onPromoNoteChange?.(index, event.target.value)

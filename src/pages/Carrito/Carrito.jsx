@@ -29,6 +29,14 @@ import useItemExtrasModal from "./useItemExtrasModal";
 import useCarritoCheckoutForm from "./useCarritoCheckoutForm";
 import useCheckoutValidation from "./useCheckoutValidation";
 
+const VALID_COUPON_CODE = "COMBOYA";
+const normalizeCouponInput = (value = "") =>
+  value
+    .normalize("NFD")
+    .replace(/[\s_-]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase();
+
 export default function Carrito() {
   const cart = useCart();
 
@@ -108,6 +116,7 @@ export default function Carrito() {
   const totalWithDiscount = Math.max(0, cart.total - combosDiscount);
 
   const canContinue = cart.items.length > 0;
+  const normalizedCouponCode = normalizeCouponInput(couponCode);
   const { canSend, missingFields, waHref } = useCheckoutValidation({
     deliveryMode,
     name,
@@ -119,7 +128,7 @@ export default function Carrito() {
     whenSlot,
     items: cart.items,
     total: totalWithDiscount,
-    couponCode: couponApplied ? couponCode.trim() : "",
+    couponCode: couponApplied ? normalizedCouponCode : "",
     discountAmount: combosDiscount,
     totalBefore: cart.total,
   });
@@ -137,8 +146,8 @@ export default function Carrito() {
   }, [step]);
 
   function applyCoupon() {
-    const code = couponCode.trim().toUpperCase();
-    if (code !== "COMBOYA") {
+    const code = normalizeCouponInput(couponCode);
+    if (code !== VALID_COUPON_CODE) {
       setCouponApplied(false);
       toast.error("Código inválido");
       return;
@@ -150,7 +159,8 @@ export default function Carrito() {
       return;
     }
     setCouponApplied(true);
-    toast.success("COMBOYA aplicado");
+    setCouponCode(VALID_COUPON_CODE);
+    toast.success(`${VALID_COUPON_CODE} aplicado`);
   }
 
   const papasMejoras = React.useMemo(() => {

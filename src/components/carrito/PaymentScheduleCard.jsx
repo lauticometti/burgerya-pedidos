@@ -87,14 +87,14 @@ export default function PaymentScheduleCard({
                 onClose={() => setSlotOpen(false)}
               />
             </>
-          ) : (
+        ) : (
             <div className={styles.emptySlots}>
               No hay horarios disponibles hoy.
             </div>
           ))}
 
         <TextareaField
-          placeholder="Aclaraciones para la entrega (ej: tocar timbre 2)"
+          placeholder="Queres sacarle algo? Anotalo aca."
           value={notes}
           onChange={(e) => onNotesChange(e.target.value)}
           rows={3}

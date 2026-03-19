@@ -7,6 +7,7 @@ export function buildWhatsAppText({
   pay,
   deliveryMode,
   when,
+  notes,
   items,
   total,
   couponCode,
@@ -22,6 +23,12 @@ export function buildWhatsAppText({
   }
   lines.push(header);
   lines.push("");
+
+  if (notes && notes.trim()) {
+    lines.push("ACLARACIONES");
+    lines.push(notes.trim());
+    lines.push("");
+  }
 
   function getSizeLabel(item) {
     if (item.meta?.size === "doble") return item.qty > 1 ? "dobles" : "doble";
@@ -70,10 +77,20 @@ export function buildWhatsAppText({
         const name = (it.meta?.comboTitle || it.name || "").replace(/^combo\s*/i, "").trim();
         const burgerLabel = (it.meta?.burgerName || it.name?.split("·")[1] || it.name || "").trim();
         const key = burgerLabel.toLowerCase();
-        bucket.burgers.set(key, {
+        const entry = bucket.burgers.get(key) || {
           label: burgerLabel || name,
-          qty: (bucket.burgers.get(key)?.qty || 0) + it.qty,
-        });
+          qty: 0,
+          notes: [],
+        };
+        entry.qty += it.qty;
+        const noteText = (it.note || "").trim();
+        if (noteText) {
+          const noteKey = noteText.toLowerCase();
+          const existing = entry.notes.find((n) => n.key === noteKey);
+          if (existing) existing.qty += it.qty;
+          else entry.notes.push({ key: noteKey, text: noteText, qty: it.qty });
+        }
+        bucket.burgers.set(key, entry);
       }
 
       const sizeLabels = {
@@ -89,6 +106,12 @@ export function buildWhatsAppText({
         for (const burger of data.burgers.values()) {
           const qtyPrefix = burger.qty > 1 ? `${burger.qty} ` : "1 ";
           lines.push(` · ${qtyPrefix}${burger.label.toUpperCase()}`);
+          if (burger.notes?.length) {
+            burger.notes.forEach((note) => {
+              const noteQtyPrefix = note.qty > 1 ? `${note.qty}× ` : "";
+              lines.push(`    Aclaracion: ${noteQtyPrefix}${note.text}`);
+            });
+          }
         }
       }
       continue;
