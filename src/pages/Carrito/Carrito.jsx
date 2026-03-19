@@ -15,6 +15,7 @@ import BebidasModal from "../../components/carrito/BebidasModal";
 import CartGroupsList from "../../components/carrito/CartGroupsList";
 import PageTitle from "../../components/ui/PageTitle";
 import BrandLogo from "../../components/brand/BrandLogo";
+import DeliveryMapLink from "../../components/delivery/DeliveryMapLink";
 import styles from "./Carrito.module.css";
 import {
   CART_GROUP_ORDER,
@@ -315,6 +316,7 @@ export default function Carrito() {
         </>
       ) : (
         <>
+          <DeliveryMapLink variant="compact" className={styles.deliveryLink} />
           <DeliveryDetailsCard
             deliveryMode={deliveryMode}
             onDeliveryModeChange={setDeliveryMode}

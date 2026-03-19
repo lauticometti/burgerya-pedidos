@@ -10,6 +10,7 @@ import StickyBar from "../../components/layout/StickyBar";
 import CartSummary from "../../components/cart/CartSummary";
 import Button from "../../components/ui/Button";
 import BrandLogo from "../../components/brand/BrandLogo";
+import DeliveryMapLink from "../../components/delivery/DeliveryMapLink";
 import styles from "./Burgers.module.css";
 import { getBurgerPriceInfo } from "../../utils/burgerPricing";
 import { resolvePublicPath } from "../../utils/assetPath";
@@ -162,6 +163,7 @@ export default function Burgers() {
     <Page>
       <BrandLogo />
       <TopNav />
+      <DeliveryMapLink />
 
       {sections.map((section, sectionIndex) => (
         <section

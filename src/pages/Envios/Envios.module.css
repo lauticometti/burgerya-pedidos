@@ -1,0 +1,134 @@
+.page {
+  display: grid;
+  gap: 14px;
+}
+
+.lead {
+  margin: -6px 0 4px;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.mapCard {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #111;
+  box-shadow: var(--shadow);
+  padding: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.mapHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mapTitle {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.mapHint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.mapLink {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 7px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mapFrame {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #000;
+}
+
+.mapFrame iframe {
+  width: 100%;
+  height: clamp(320px, 55vw, 520px);
+  border: 0;
+}
+
+.mapFoot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.tag {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 198, 42, 0.16);
+  color: #f7d271;
+  font-weight: 800;
+  font-size: 11px;
+  border: 1px solid rgba(255, 198, 42, 0.45);
+}
+
+.disclaimer {
+  margin: 0;
+}
+
+.tips {
+  display: grid;
+  gap: 10px;
+}
+
+.tip {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.tipBadge {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--y);
+  color: #111;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.tipBody {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+@media (max-width: 540px) {
+  .mapHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

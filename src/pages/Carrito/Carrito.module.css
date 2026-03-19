@@ -6,6 +6,10 @@
   align-items: stretch;
 }
 
+.deliveryLink {
+  margin: 4px 0 6px;
+}
+
 .steps button {
   width: 100%;
 }
