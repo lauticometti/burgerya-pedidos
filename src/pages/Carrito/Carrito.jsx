@@ -34,6 +34,9 @@ const VALID_COUPON_CODE = "COMBOYA";
 const ONE_TIME_COUPON = "JUANSINLECHUGA";
 const ONE_TIME_STORAGE_KEY = "coupon:juansinlechuga:used:v2";
 const PERCENT_COUPON = "JUAN25";
+const WEEKEND_COUPON = "20SABADO";
+// Vigente hasta domingo 22/03/2026 00:01 (hora local)
+const WEEKEND_COUPON_EXPIRY_TS = new Date(2026, 2, 22, 0, 1, 0).getTime();
 const normalizeCouponInput = (value = "") =>
   value
     .normalize("NFD")
@@ -77,6 +80,9 @@ export default function Carrito() {
   const [couponApplied, setCouponApplied] = React.useState(false);
   const [appliedCoupon, setAppliedCoupon] = React.useState("");
   const [oneTimeUsed, setOneTimeUsed] = React.useState(false);
+  const isWeekendCouponActive = React.useCallback(() => {
+    return Date.now() < WEEKEND_COUPON_EXPIRY_TS;
+  }, []);
   React.useEffect(() => {
     const id = setInterval(
       () => setAvailableSlots(getAvailableSlotsMin30()),
@@ -91,6 +97,13 @@ export default function Carrito() {
     const usedFlag = window.localStorage.getItem(ONE_TIME_STORAGE_KEY);
     setOneTimeUsed(usedFlag === "1");
   }, []);
+  React.useEffect(() => {
+    if (!couponApplied || appliedCoupon !== WEEKEND_COUPON) return;
+    if (isWeekendCouponActive()) return;
+    setCouponApplied(false);
+    setAppliedCoupon("");
+    toast.error("20SABADO venció (desactivado desde domingo 22 00:01)");
+  }, [appliedCoupon, couponApplied, isWeekendCouponActive, availableSlots]);
 
   React.useEffect(() => {
     if (whenMode === "Más tarde" && !whenSlot && availableSlots.length) {
@@ -174,6 +187,11 @@ export default function Carrito() {
       ? Math.round(cart.total * 0.25)
       : 0;
 
+  const weekendDiscount =
+    couponApplied && appliedCoupon === WEEKEND_COUPON && isWeekendCouponActive()
+      ? Math.round(cart.total * 0.2)
+      : 0;
+
   const totalDiscount =
     appliedCoupon === VALID_COUPON_CODE
       ? combosDiscount
@@ -181,7 +199,9 @@ export default function Carrito() {
         ? oneTimeDiscount
         : appliedCoupon === PERCENT_COUPON
           ? percentCouponDiscount
-          : 0;
+          : appliedCoupon === WEEKEND_COUPON
+            ? weekendDiscount
+            : 0;
 
   const totalWithDiscount = Math.max(0, cart.total - totalDiscount);
 
@@ -267,6 +287,20 @@ export default function Carrito() {
       setAppliedCoupon(PERCENT_COUPON);
       setCouponCode(PERCENT_COUPON);
       toast.success(`${PERCENT_COUPON} aplicado: 25% off en todo el pedido`);
+      return;
+    }
+
+    if (code === WEEKEND_COUPON) {
+      if (!isWeekendCouponActive()) {
+        setCouponApplied(false);
+        setAppliedCoupon("");
+        toast.error("20SABADO venció: activo hasta sábado 21 23:59 (BA)");
+        return;
+      }
+      setCouponApplied(true);
+      setAppliedCoupon(WEEKEND_COUPON);
+      setCouponCode(WEEKEND_COUPON);
+      toast.success(`${WEEKEND_COUPON} aplicado: 20% off hasta sábado 21 (BA)`);
       return;
     }
 
