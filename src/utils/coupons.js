@@ -7,6 +7,9 @@ export const COUPON_CODES = {
   weekend20: "20SABADO",
 };
 
+// Variantes toleradas para que los clientes puedan escribir "combo ya" con espacios o guiones.
+const COMBO_CODE_VARIANTS = ["COMBOYA", "COMBO YA", "COMBO-YA", "COMBO_YA"];
+
 const ONE_TIME_STORAGE_KEY = "coupon:juansinlechuga:used:v2";
 const WEEKEND_COUPON_EXPIRY_TS = new Date(2026, 2, 22, 0, 1, 0).getTime(); // domingo 22/03/2026 00:01 (BA)
 const COMBO_TARGETS = { simple: 12990, doble: 15990 };
@@ -15,9 +18,14 @@ export function normalizeCouponInput(value = "") {
   return value
     .normalize("NFD")
     .replace(/[\s_-]/g, "")
+    .replace(/[^\w]/g, "") // tolera signos sueltos (.,!,/)
     .replace(/[\u0300-\u036f]/g, "")
     .toUpperCase();
 }
+
+const NORMALIZED_COMBO_CODES = new Set(
+  COMBO_CODE_VARIANTS.map((code) => normalizeCouponInput(code)),
+);
 
 function isComboWindowActive(now = new Date()) {
   const minutesSinceWeekStart =
@@ -117,7 +125,7 @@ export function evaluateCoupon({
 
   const nowTs = now.getTime();
 
-  if (normalized === COUPON_CODES.combo) {
+  if (NORMALIZED_COMBO_CODES.has(normalized)) {
     if (!hasCombos(cartItems)) {
       return { error: "Solo aplica a combos con Coca", discount: 0 };
     }
