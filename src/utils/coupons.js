@@ -1,98 +1,228 @@
-﻿const STORAGE_KEY = "burgerya_coupons_v1";
+import { getPapasUpgradePrice } from "./papasPricing";
 
-// Cupones desactivados.
-const SEED_COUPONS = [];
+export const COUPON_CODES = {
+  combo: "COMBOYA",
+  oneTimeAmerican: "JUANSINLECHUGA",
+  percent25: "JUAN25",
+  weekend20: "20SABADO",
+};
 
-function canUseLocalStorage() {
-  return typeof window !== "undefined" && !!window.localStorage;
+const ONE_TIME_STORAGE_KEY = "coupon:juansinlechuga:used:v2";
+const WEEKEND_COUPON_EXPIRY_TS = new Date(2026, 2, 22, 0, 1, 0).getTime(); // domingo 22/03/2026 00:01 (BA)
+const COMBO_TARGETS = { simple: 12990, doble: 15990 };
+
+export function normalizeCouponInput(value = "") {
+  return value
+    .normalize("NFD")
+    .replace(/[\s_-]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase();
 }
 
-function readStorage() {
-  if (!canUseLocalStorage()) return null;
+function isComboWindowActive(now = new Date()) {
+  const minutesSinceWeekStart =
+    now.getDay() * 24 * 60 + now.getHours() * 60 + now.getMinutes();
+  const comboWindowStart = 2 * 24 * 60; // martes 00:00
+  const comboWindowEnd = 5 * 24 * 60 + 1; // viernes 00:01
+  return (
+    minutesSinceWeekStart >= comboWindowStart &&
+    minutesSinceWeekStart <= comboWindowEnd
+  );
+}
+
+function hasCombos(cartItems = []) {
+  return cartItems.some((it) => it.meta?.type === "combo");
+}
+
+function computeComboDiscount(cartItems = []) {
+  return cartItems.reduce((sum, it) => {
+    if (it.meta?.type !== "combo") return sum;
+    const size = it.meta?.size || "simple";
+    const target = COMBO_TARGETS[size];
+    if (!target) return sum;
+    const diff = Math.max(0, (it.unitPrice || 0) - target);
+    return sum + diff * (it.qty || 0);
+  }, 0);
+}
+
+function findAmerican(cartItems = []) {
+  return cartItems.find(
+    (it) =>
+      it.meta?.type === "burger" &&
+      (it.meta?.burgerId || "").toLowerCase() === "american" &&
+      it.qty > 0,
+  );
+}
+
+function computeAmericanLineDiscount(item) {
+  if (!item) return 0;
+  const papasContext = { size: item.meta?.size, itemType: item.meta?.type };
+  const extrasTotal = (item.extras || []).reduce(
+    (sum, extra) => sum + extra.price,
+    0,
+  );
+  const papasTotal = (item.papas || []).reduce(
+    (sum, extra) => sum + getPapasUpgradePrice(extra, papasContext),
+    0,
+  );
+  const picksExtrasTotal = (item.meta?.picks || []).reduce((picksSum, pick) => {
+    const pickExtras = (pick.extras || []).reduce(
+      (pickSum, extra) => pickSum + extra.price,
+      0,
+    );
+    const pickPapas = (pick.papas || []).reduce(
+      (pickSum, extra) => pickSum + getPapasUpgradePrice(extra, papasContext),
+      0,
+    );
+    return picksSum + pickExtras + pickPapas;
+  }, 0);
+
+  const unitTotal =
+    item.unitPrice + extrasTotal + papasTotal + picksExtrasTotal;
+  return Math.round(unitTotal * 0.5);
+}
+
+function computePercentDiscount(total = 0, percent = 0) {
+  return Math.round(total * percent);
+}
+
+function isWeekendCouponActive(nowTs = Date.now()) {
+  return nowTs < WEEKEND_COUPON_EXPIRY_TS;
+}
+
+/**
+ * Evaluate a coupon against the current cart.
+ * @param {Object} params
+ * @param {string} params.code
+ * @param {Array} params.cartItems
+ * @param {number} params.cartTotal
+ * @param {Date} params.now
+ * @param {Storage|null} params.storage
+ * @param {boolean} params.allowUsed - allow one-time coupons already marked used (for recalculation)
+ * @param {boolean} params.markUsed - persist usage when applicable
+ */
+export function evaluateCoupon({
+  code,
+  cartItems = [],
+  cartTotal = 0,
+  now = new Date(),
+  storage = null,
+  allowUsed = false,
+  markUsed = false,
+}) {
+  const normalized = normalizeCouponInput(code);
+  if (!normalized) {
+    return { error: "Código inválido", discount: 0 };
+  }
+
+  const nowTs = now.getTime();
+
+  if (normalized === COUPON_CODES.combo) {
+    if (!hasCombos(cartItems)) {
+      return { error: "Solo aplica a combos con Coca", discount: 0 };
+    }
+    const discount = isComboWindowActive(now)
+      ? computeComboDiscount(cartItems)
+      : 0;
+    return {
+      appliedCode: COUPON_CODES.combo,
+      discount,
+      message: `${COUPON_CODES.combo} aplicado`,
+    };
+  }
+
+  if (normalized === COUPON_CODES.oneTimeAmerican) {
+    const used = storage?.getItem(ONE_TIME_STORAGE_KEY) === "1";
+    if (used && !allowUsed) {
+      return { error: "Este código ya fue usado en este dispositivo", discount: 0 };
+    }
+    const american = findAmerican(cartItems);
+    if (!american) {
+      return { error: "Solo aplica a una American", discount: 0 };
+    }
+    const discount = computeAmericanLineDiscount(american);
+    const shouldPersist = markUsed && storage ? ONE_TIME_STORAGE_KEY : null;
+    return {
+      appliedCode: COUPON_CODES.oneTimeAmerican,
+      discount,
+      message: `${COUPON_CODES.oneTimeAmerican} aplicado: 50% off en 1 American`,
+      persistUsageKey: shouldPersist,
+    };
+  }
+
+  if (normalized === COUPON_CODES.percent25) {
+    const discount = computePercentDiscount(cartTotal, 0.25);
+    return {
+      appliedCode: COUPON_CODES.percent25,
+      discount,
+      message: `${COUPON_CODES.percent25} aplicado: 25% off en todo el pedido`,
+    };
+  }
+
+  if (normalized === COUPON_CODES.weekend20) {
+    if (!isWeekendCouponActive(nowTs)) {
+      return {
+        error: "20SABADO venció: activo hasta sábado 21 23:59 (BA)",
+        discount: 0,
+      };
+    }
+    const discount = computePercentDiscount(cartTotal, 0.2);
+    return {
+      appliedCode: COUPON_CODES.weekend20,
+      discount,
+      message: `${COUPON_CODES.weekend20} aplicado: 20% off hasta sábado 21 (BA)`,
+    };
+  }
+
+  return { error: "Código inválido", discount: 0 };
+}
+
+export const couponStorage = (() => {
+  if (typeof window === "undefined") return null;
+  return window.localStorage;
+})();
+
+const ADMIN_COUPONS_KEY = "burgerya:coupons";
+
+function readAdminCoupons(storage = couponStorage) {
+  if (!storage) return [];
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
+    const raw = storage.getItem(ADMIN_COUPONS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    console.error("Error leyendo cupones admin", e);
+    return [];
   }
 }
 
-function writeStorage(payload) {
-  if (!canUseLocalStorage()) return;
+function persistAdminCoupons(list, storage = couponStorage) {
+  if (!storage) return list;
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-  } catch {
-    // ignore quota errors
+    storage.setItem(ADMIN_COUPONS_KEY, JSON.stringify(list));
+  } catch (e) {
+    console.error("Error guardando cupones admin", e);
   }
-}
-
-function normalizeCode(code) {
-  return (code || "").trim().toLowerCase();
+  return list;
 }
 
 export function loadCoupons() {
-  // Desactivados: devolver lista vacia y limpiar storage si existiera.
-  if (canUseLocalStorage()) writeStorage(SEED_COUPONS);
-  return [];
-}
-
-export function saveCoupons(list) {
-  writeStorage(list);
+  return readAdminCoupons();
 }
 
 export function upsertCoupon(coupon) {
-  const coupons = loadCoupons();
-  const code = normalizeCode(coupon.code);
-  const clean = { ...coupon, code };
-  const idx = coupons.findIndex((c) => normalizeCode(c.code) === code);
-  const next = [...coupons];
-  if (idx >= 0) next[idx] = { ...next[idx], ...clean };
-  else next.push({ ...clean, usedBy: [], createdAt: Date.now(), active: true });
-  saveCoupons(next);
-  return next;
+  const all = readAdminCoupons().filter((c) => c.code !== coupon.code);
+  all.push(coupon);
+  return persistAdminCoupons(all);
 }
 
 export function deleteCoupon(code) {
-  const coupons = loadCoupons();
-  const next = coupons.filter((c) => normalizeCode(c.code) !== normalizeCode(code));
-  saveCoupons(next);
-  return next;
+  const all = readAdminCoupons().filter((c) => c.code !== code);
+  return persistAdminCoupons(all);
 }
 
 export function toggleCoupon(code, active) {
-  const coupons = loadCoupons();
-  const next = coupons.map((c) =>
-    normalizeCode(c.code) === normalizeCode(code) ? { ...c, active } : c,
+  const all = readAdminCoupons().map((c) =>
+    c.code === code ? { ...c, active } : c,
   );
-  saveCoupons(next);
-  return next;
-}
-
-function hasScopeMatch(coupon, items) {
-  if (coupon.scope === "general") return true;
-  const targetIds = Array.isArray(coupon.scope) ? coupon.scope : [coupon.scope];
-  return items.some((item) => {
-    if (item.meta?.type !== "burger") return false;
-    const burgerId = item.meta?.burgerId || item.meta?.id;
-    return targetIds.includes(burgerId);
-  });
-}
-
-export function validateCoupon({ code, phone, items, total }) {
-  return { ok: false, reason: "Los codigos de descuento estan desactivados." };
-}
-
-export function consumeCoupon({ code, phone }) {
-  // No-op porque los cupones estan desactivados.
-  return loadCoupons();
-}
-
-export function getUsageSummary() {
-  const coupons = loadCoupons();
-  return coupons.map((c) => ({
-    code: c.code,
-    used: (c.usedBy || []).length,
-    remaining: c.maxUses ? Math.max(0, c.maxUses - (c.usedBy || []).length) : null,
-    active: c.active !== false,
-  }));
+  return persistAdminCoupons(all);
 }

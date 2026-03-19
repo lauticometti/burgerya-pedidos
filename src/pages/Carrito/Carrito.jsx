@@ -13,7 +13,6 @@ import Button from "../../components/ui/Button";
 import CarritoHeader from "../../components/carrito/CarritoHeader";
 import DeliveryDetailsCard from "../../components/carrito/DeliveryDetailsCard";
 import PaymentScheduleCard from "../../components/carrito/PaymentScheduleCard";
-import { getPapasUpgradePrice } from "../../utils/papasPricing";
 import BebidasModal from "../../components/carrito/BebidasModal";
 import CartGroupsList from "../../components/carrito/CartGroupsList";
 import PageTitle from "../../components/ui/PageTitle";
@@ -29,20 +28,11 @@ import useBebidaModal from "./useBebidaModal";
 import useItemExtrasModal from "./useItemExtrasModal";
 import useCarritoCheckoutForm from "./useCarritoCheckoutForm";
 import useCheckoutValidation from "./useCheckoutValidation";
-
-const VALID_COUPON_CODE = "COMBOYA";
-const ONE_TIME_COUPON = "JUANSINLECHUGA";
-const ONE_TIME_STORAGE_KEY = "coupon:juansinlechuga:used:v2";
-const PERCENT_COUPON = "JUAN25";
-const WEEKEND_COUPON = "20SABADO";
-// Vigente hasta domingo 22/03/2026 00:01 (hora local)
-const WEEKEND_COUPON_EXPIRY_TS = new Date(2026, 2, 22, 0, 1, 0).getTime();
-const normalizeCouponInput = (value = "") =>
-  value
-    .normalize("NFD")
-    .replace(/[\s_-]/g, "")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toUpperCase();
+import {
+  couponStorage,
+  evaluateCoupon,
+  normalizeCouponInput,
+} from "../../utils/coupons";
 
 export default function Carrito() {
   const cart = useCart();
@@ -77,12 +67,7 @@ export default function Carrito() {
     getAvailableSlotsMin30(),
   );
   const [couponCode, setCouponCode] = React.useState("");
-  const [couponApplied, setCouponApplied] = React.useState(false);
   const [appliedCoupon, setAppliedCoupon] = React.useState("");
-  const [oneTimeUsed, setOneTimeUsed] = React.useState(false);
-  const isWeekendCouponActive = React.useCallback(() => {
-    return Date.now() < WEEKEND_COUPON_EXPIRY_TS;
-  }, []);
   React.useEffect(() => {
     const id = setInterval(
       () => setAvailableSlots(getAvailableSlotsMin30()),
@@ -90,20 +75,6 @@ export default function Carrito() {
     );
     return () => clearInterval(id);
   }, []);
-  React.useEffect(() => {
-    if (typeof window === "undefined") return;
-    // reset legacy key so everyone tiene una nueva chance
-    window.localStorage.removeItem("coupon:juansinlechuga:used");
-    const usedFlag = window.localStorage.getItem(ONE_TIME_STORAGE_KEY);
-    setOneTimeUsed(usedFlag === "1");
-  }, []);
-  React.useEffect(() => {
-    if (!couponApplied || appliedCoupon !== WEEKEND_COUPON) return;
-    if (isWeekendCouponActive()) return;
-    setCouponApplied(false);
-    setAppliedCoupon("");
-    toast.error("20SABADO venció (desactivado desde domingo 22 00:01)");
-  }, [appliedCoupon, couponApplied, isWeekendCouponActive, availableSlots]);
 
   React.useEffect(() => {
     if (whenMode === "Más tarde" && !whenSlot && availableSlots.length) {
@@ -111,102 +82,33 @@ export default function Carrito() {
     }
   }, [whenMode, whenSlot, availableSlots, setWhenSlot]);
 
-  function isComboWindowNow() {
-    const now = new Date();
-    const minutesSinceWeekStart =
-      now.getDay() * 24 * 60 + now.getHours() * 60 + now.getMinutes();
-    const comboWindowStart = 2 * 24 * 60; // martes 00:00 (fudge para que siempre esté activo en miércoles locales)
-    const comboWindowEnd = 5 * 24 * 60 + 1; // viernes 00:01
-    return (
-      minutesSinceWeekStart >= comboWindowStart &&
-      minutesSinceWeekStart <= comboWindowEnd
-    );
-  }
+  const discountResult = React.useMemo(() => {
+    if (!appliedCoupon) return { discount: 0 };
+    return evaluateCoupon({
+      code: appliedCoupon,
+      cartItems: cart.items,
+      cartTotal: cart.total,
+      now: new Date(),
+      storage: couponStorage,
+      allowUsed: true,
+      markUsed: false,
+    });
+  }, [appliedCoupon, cart.items, cart.total]);
 
-  const comboWindowActive = isComboWindowNow();
+  const totalDiscount = discountResult?.discount || 0;
 
-  const comboTargets = { simple: 12990, doble: 15990 };
-  const combosDiscount = React.useMemo(() => {
-    if (!couponApplied || appliedCoupon !== VALID_COUPON_CODE) return 0;
-    if (!comboWindowActive) return 0;
-    return cart.items.reduce((sum, it) => {
-      if (it.meta?.type !== "combo") return sum;
-      const size = it.meta?.size || "simple";
-      const target = comboTargets[size];
-      if (!target) return sum;
-      const diff = Math.max(0, (it.unitPrice || 0) - target);
-      return sum + diff * (it.qty || 0);
-    }, 0);
-  }, [cart.items, couponApplied, appliedCoupon, comboWindowActive]);
-
-  const oneTimeDiscount =
-    couponApplied && appliedCoupon === ONE_TIME_COUPON
-      ? (() => {
-          const american = cart.items.find(
-            (it) =>
-              it.meta?.type === "burger" &&
-              (it.meta?.burgerId || "").toLowerCase() === "american" &&
-              it.qty > 0,
-          );
-          if (!american) return 0;
-
-          const papasContext = {
-            size: american.meta?.size,
-            itemType: american.meta?.type,
-          };
-          const extrasTotal = (american.extras || []).reduce(
-            (sum, extra) => sum + extra.price,
-            0,
-          );
-          const papasTotal = (american.papas || []).reduce(
-            (sum, extra) => sum + getPapasUpgradePrice(extra, papasContext),
-            0,
-          );
-          const picksExtrasTotal = (american.meta?.picks || []).reduce(
-            (picksSum, pick) => {
-              const pickExtras = (pick.extras || []).reduce(
-                (pickSum, extra) => pickSum + extra.price,
-                0,
-              );
-              const pickPapas = (pick.papas || []).reduce(
-                (pickSum, extra) => pickSum + getPapasUpgradePrice(extra, papasContext),
-                0,
-              );
-              return picksSum + pickExtras + pickPapas;
-            },
-            0,
-          );
-          const unitTotal =
-            american.unitPrice + extrasTotal + papasTotal + picksExtrasTotal;
-          return Math.round(unitTotal * 0.5);
-        })()
-      : 0;
-
-  const percentCouponDiscount =
-    couponApplied && appliedCoupon === PERCENT_COUPON
-      ? Math.round(cart.total * 0.25)
-      : 0;
-
-  const weekendDiscount =
-    couponApplied && appliedCoupon === WEEKEND_COUPON && isWeekendCouponActive()
-      ? Math.round(cart.total * 0.2)
-      : 0;
-
-  const totalDiscount =
-    appliedCoupon === VALID_COUPON_CODE
-      ? combosDiscount
-      : appliedCoupon === ONE_TIME_COUPON
-        ? oneTimeDiscount
-        : appliedCoupon === PERCENT_COUPON
-          ? percentCouponDiscount
-          : appliedCoupon === WEEKEND_COUPON
-            ? weekendDiscount
-            : 0;
+  React.useEffect(() => {
+    if (!appliedCoupon) return;
+    if (discountResult?.error) {
+      setAppliedCoupon("");
+      toast.error(discountResult.error);
+    }
+  }, [appliedCoupon, discountResult?.error]);
 
   const totalWithDiscount = Math.max(0, cart.total - totalDiscount);
 
   const canContinue = cart.items.length > 0;
-  const normalizedCouponCode = normalizeCouponInput(couponCode);
+  const couponApplied = Boolean(appliedCoupon);
   const { canSend, missingFields, waHref } = useCheckoutValidation({
     deliveryMode,
     name,
@@ -236,77 +138,29 @@ export default function Carrito() {
   }, [step]);
 
   function applyCoupon() {
-    const code = normalizeCouponInput(couponCode);
-    if (code === VALID_COUPON_CODE) {
-      const hasCombos = cart.items.some((it) => it.meta?.type === "combo");
-      if (!hasCombos) {
-        setCouponApplied(false);
-        setAppliedCoupon("");
-        toast.error("Solo aplica a combos con Coca");
-        return;
-      }
-      setCouponApplied(true);
-      setAppliedCoupon(VALID_COUPON_CODE);
-      setCouponCode(VALID_COUPON_CODE);
-      toast.success(`${VALID_COUPON_CODE} aplicado`);
+    const result = evaluateCoupon({
+      code: couponCode,
+      cartItems: cart.items,
+      cartTotal: cart.total,
+      now: new Date(),
+      storage: couponStorage,
+      allowUsed: false,
+      markUsed: true,
+    });
+
+    if (result.error) {
+      setAppliedCoupon("");
+      toast.error(result.error);
       return;
     }
 
-    if (code === ONE_TIME_COUPON) {
-      const american = cart.items.find(
-        (it) =>
-          it.meta?.type === "burger" &&
-          (it.meta?.burgerId || "").toLowerCase() === "american" &&
-          it.qty > 0,
-      );
-      if (!american) {
-        setCouponApplied(false);
-        setAppliedCoupon("");
-        toast.error("Solo aplica a una American");
-        return;
-      }
-      if (oneTimeUsed) {
-        setCouponApplied(false);
-        setAppliedCoupon("");
-        toast.error("Este código ya fue usado en este dispositivo");
-        return;
-      }
-      setCouponApplied(true);
-      setAppliedCoupon(ONE_TIME_COUPON);
-      setCouponCode(ONE_TIME_COUPON);
-      setOneTimeUsed(true);
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem(ONE_TIME_STORAGE_KEY, "1");
-      }
-      toast.success(`${ONE_TIME_COUPON} aplicado: 50% off en 1 American`);
-      return;
+    if (result.persistUsageKey && couponStorage) {
+      couponStorage.setItem(result.persistUsageKey, "1");
     }
 
-    if (code === PERCENT_COUPON) {
-      setCouponApplied(true);
-      setAppliedCoupon(PERCENT_COUPON);
-      setCouponCode(PERCENT_COUPON);
-      toast.success(`${PERCENT_COUPON} aplicado: 25% off en todo el pedido`);
-      return;
-    }
-
-    if (code === WEEKEND_COUPON) {
-      if (!isWeekendCouponActive()) {
-        setCouponApplied(false);
-        setAppliedCoupon("");
-        toast.error("20SABADO venció: activo hasta sábado 21 23:59 (BA)");
-        return;
-      }
-      setCouponApplied(true);
-      setAppliedCoupon(WEEKEND_COUPON);
-      setCouponCode(WEEKEND_COUPON);
-      toast.success(`${WEEKEND_COUPON} aplicado: 20% off hasta sábado 21 (BA)`);
-      return;
-    }
-
-    setCouponApplied(false);
-    setAppliedCoupon("");
-    toast.error("Código inválido");
+    setAppliedCoupon(result.appliedCode || normalizeCouponInput(couponCode));
+    setCouponCode(result.appliedCode || normalizeCouponInput(couponCode));
+    toast.success(result.message || "Código aplicado");
   }
 
   const papasMejoras = React.useMemo(() => {
