@@ -126,17 +126,7 @@ export function evaluateCoupon({
   const nowTs = now.getTime();
 
   if (NORMALIZED_COMBO_CODES.has(normalized)) {
-    if (!hasCombos(cartItems)) {
-      return { error: "Solo aplica a combos con Coca", discount: 0 };
-    }
-    const discount = isComboWindowActive(now)
-      ? computeComboDiscount(cartItems)
-      : 0;
-    return {
-      appliedCode: COUPON_CODES.combo,
-      discount,
-      message: `${COUPON_CODES.combo} aplicado`,
-    };
+    return { error: "Ese código expiró", discount: 0 };
   }
 
   if (normalized === COUPON_CODES.oneTimeAmerican) {
