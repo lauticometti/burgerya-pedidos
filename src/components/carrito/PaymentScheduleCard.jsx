@@ -94,7 +94,7 @@ export default function PaymentScheduleCard({
           ))}
 
         <TextareaField
-          placeholder="Queres sacarle algo? Anotalo aca."
+          placeholder="Aclaraciones para la entrega"
           value={notes}
           onChange={(e) => onNotesChange(e.target.value)}
           rows={3}
