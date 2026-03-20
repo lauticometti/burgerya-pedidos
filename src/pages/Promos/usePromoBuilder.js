@@ -117,7 +117,10 @@ export default function usePromoBuilder({
       pushUnavailableToast(burger);
       return;
     }
-    setPicked((prev) => [...prev, { id: burger.id, name: burger.name, note: "" }]);
+    setPicked((prev) => [
+      ...prev,
+      { id: burger.id, name: burger.name, img: burger.img, note: "" },
+    ]);
   }
 
   function undoLast() {
