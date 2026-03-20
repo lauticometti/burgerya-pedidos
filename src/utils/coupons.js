@@ -130,34 +130,13 @@ export function evaluateCoupon({
   }
 
   if (normalized === COUPON_CODES.oneTimeAmerican) {
-    const used = storage?.getItem(ONE_TIME_STORAGE_KEY) === "1";
-    if (used && !allowUsed) {
-      return { error: "Este código ya fue usado en este dispositivo", discount: 0 };
-    }
-    const american = findAmerican(cartItems);
-    if (!american) {
-      return { error: "Solo aplica a una American", discount: 0 };
-    }
-    const discount = computeAmericanLineDiscount(american);
-    const shouldPersist = markUsed && storage ? ONE_TIME_STORAGE_KEY : null;
-    return {
-      appliedCode: COUPON_CODES.oneTimeAmerican,
-      discount,
-      message: `${COUPON_CODES.oneTimeAmerican} aplicado: 50% off en 1 American`,
-      persistUsageKey: shouldPersist,
-    };
+    return { error: 'Ese código expiró', discount: 0 };
   }
 
   if (normalized === COUPON_CODES.percent25) {
-    const discount = computePercentDiscount(cartTotal, 0.25);
-    return {
-      appliedCode: COUPON_CODES.percent25,
-      discount,
-      message: `${COUPON_CODES.percent25} aplicado: 25% off en todo el pedido`,
-    };
+    return { error: 'Ese código expiró', discount: 0 };
   }
-
-  if (normalized === COUPON_CODES.weekend20) {
+if (normalized === COUPON_CODES.weekend20) {
     if (!isWeekendCouponActive(nowTs)) {
       return {
         error: "20SABADO venció: activo hasta sábado 21 23:59 (BA)",
