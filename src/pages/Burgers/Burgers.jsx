@@ -163,7 +163,6 @@ export default function Burgers() {
     <Page>
       <BrandLogo />
       <TopNav />
-      <DeliveryMapLink />
 
       {sections.map((section, sectionIndex) => (
         <section
@@ -224,6 +223,8 @@ export default function Burgers() {
           </div>
         </section>
       ))}
+
+      <DeliveryMapLink className={styles.deliveryLinkBottom} />
 
       <BurgerModal
         open={modalOpen}

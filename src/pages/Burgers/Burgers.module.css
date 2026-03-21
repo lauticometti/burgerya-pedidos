@@ -320,6 +320,10 @@
   }
 }
 
+.deliveryLinkBottom {
+  margin: 30px 0 12px;
+}
+
 @media (max-width: 600px) {
   /* Titanica: reduce vertical space so texto queda cerca en pantallas chicas */
   .cardChallenge .mediaWrap {
