@@ -85,13 +85,7 @@ export default function Combos() {
 
       <header className={styles.hero}>
         <div>
-          <p className={styles.heroKicker}>Nuevo</p>
           <PageTitle>Combos</PageTitle>
-          <p className={styles.heroLead}>
-            Burger con papas siempre.
-            <br />
-            Pedi el combo con Coca 600ml y listo.
-          </p>
         </div>
       </header>
 
