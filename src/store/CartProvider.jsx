@@ -1,6 +1,8 @@
 import React, { useMemo, useReducer } from "react";
 import { CartContext } from "./cartContext";
 import { getPapasUpgradePrice } from "../utils/papasPricing";
+import { toast } from "../utils/toast";
+import { getCartPattyCount, MAX_PATTIES_PER_DAY } from "../utils/pattyCount";
 
 function reducer(state, action) {
   switch (action.type) {
@@ -49,18 +51,34 @@ function reducer(state, action) {
       const item = action.item;
       const existing = state.items[item.key];
       const qty = (existing?.qty || 0) + (item.qty || 1);
+      const nextItems = {
+        ...state.items,
+        [item.key]: {
+          ...item,
+          qty,
+          note: item.note || existing?.note || "",
+          extras: item.extras || existing?.extras || [],
+          papas: item.papas || existing?.papas || [],
+        },
+      };
+
+      if (getCartPattyCount(Object.values(nextItems)) > MAX_PATTIES_PER_DAY) {
+        const used = getCartPattyCount(Object.values(state.items));
+        const remaining = Math.max(MAX_PATTIES_PER_DAY - used, 0);
+        toast.error(
+          remaining > 0
+            ? `Solo quedan ${remaining} carnes para hoy`
+            : "Se alcanzo el limite diario de 160 carnes",
+          { key: "patty-limit" },
+        );
+        return state;
+      }
+
       return {
         ...state,
         lastAdded: item.name,
         items: {
-          ...state.items,
-          [item.key]: {
-            ...item,
-            qty,
-            note: item.note || existing?.note || "",
-            extras: item.extras || existing?.extras || [],
-            papas: item.papas || existing?.papas || [],
-          },
+          ...nextItems,
         },
       };
     }
@@ -79,6 +97,20 @@ function reducer(state, action) {
       const items = { ...state.items };
       if (qty <= 0) delete items[key];
       else items[key] = { ...items[key], qty };
+
+      if (getCartPattyCount(Object.values(items)) > MAX_PATTIES_PER_DAY) {
+        const remaining = Math.max(
+          MAX_PATTIES_PER_DAY - getCartPattyCount(Object.values(state.items)),
+          0,
+        );
+        toast.error(
+          remaining > 0
+            ? `Solo quedan ${remaining} carnes para hoy`
+            : "Se alcanzo el limite diario de 160 carnes",
+          { key: "patty-limit" },
+        );
+        return state;
+      }
       return { ...state, items };
     }
     case "SET_NOTE": {
@@ -124,6 +156,8 @@ export function CartProvider({ children }) {
 
   const api = useMemo(() => {
     const items = Object.values(state.items);
+    const pattiesCount = getCartPattyCount(items);
+    const pattiesRemaining = Math.max(MAX_PATTIES_PER_DAY - pattiesCount, 0);
     const total = items.reduce((sum, it) => {
       const papasContext = { size: it.meta?.size, itemType: it.meta?.type };
       const extrasTotal = (it.extras || []).reduce(
@@ -152,6 +186,9 @@ export function CartProvider({ children }) {
       items,
       total,
       lastAdded: state.lastAdded,
+      pattiesCount,
+      pattiesRemaining,
+      pattyLimit: MAX_PATTIES_PER_DAY,
       add: (item) => dispatch({ type: "ADD", item }),
       remove: (key) => dispatch({ type: "REMOVE", key }),
       clear: () => dispatch({ type: "CLEAR" }),
