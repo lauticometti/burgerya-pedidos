@@ -12,11 +12,13 @@ const SIZE_LABEL = { simple: "Simple", doble: "Doble", triple: "Triple" };
 export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
   const [size, setSize] = React.useState(null);
   const [show, setShow] = React.useState(false);
+  const [removedIds, setRemovedIds] = React.useState([]);
 
   React.useEffect(() => {
     if (!open || !burger) return;
     const first = SIZE_ORDER.find((s) => burger.prices?.[s] != null) || null;
     setSize(first);
+    setRemovedIds([]);
   }, [open, burger]);
 
   useEscapeToClose(open, onClose);
@@ -36,6 +38,10 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
   const sizes = SIZE_ORDER.filter((s) => burger.prices?.[s] != null);
   const selectedSize = isTitanica ? "triple" : size;
   const selectedPrice = selectedSize ? getBurgerPriceInfo(burger, selectedSize) : null;
+  const removableIngredients = burger.removableIngredients || [];
+  const selectedRemovals = removableIngredients.filter((ing) =>
+    removedIds.includes(ing.id),
+  );
   const originStyle = origin
     ? { "--origin-x": `${origin.x}px`, "--origin-y": `${origin.y}px` }
     : undefined;
@@ -56,66 +62,101 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
         aria-modal="true">
         <CloseButton className={styles.closeButton} onClick={onClose} />
 
-        <img
-          className={styles.img}
-          src={burgerImg}
-          alt={burger.name}
-          loading="eager"
-          decoding="async"
-          fetchpriority="high"
-        />
-
         <div className={styles.body}>
-          <div className={styles.name}>
-            {burger.name}
-            <span className={styles.nameWithFries}> con papas</span>
+          <div className={styles.content}>
+            <img
+              className={styles.img}
+              src={burgerImg}
+              alt={burger.name}
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
+            />
+
+            <div className={styles.name}>
+              {burger.name}
+              <span className={styles.nameWithFries}> con papas</span>
+            </div>
+
+            {burger.desc ? <div className={styles.desc}>{burger.desc}</div> : null}
+
+            {!isTitanica ? (
+              <div className={styles.sizeRow}>
+                {sizes.map((s) => {
+                  const price = getBurgerPriceInfo(burger, s);
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      className={`${styles.sizeBtn} ${size === s ? styles.sizeBtnOn : ""}`}
+                      onClick={() => setSize(s)}>
+                      <div className={styles.sizeTop}>{SIZE_LABEL[s]}</div>
+                      <div className={styles.sizePriceWrap}>
+                        {price.hasDiscount ? (
+                          <div className={styles.sizePriceBase}>
+                            {formatMoney(price.basePrice)}
+                          </div>
+                        ) : null}
+                        <div className={styles.sizePrice}>
+                          {formatMoney(price.finalPrice)}
+                        </div>
+                        {price.hasDiscount ? (
+                          <div className={styles.sizePriceDiscount}>
+                            -{formatMoney(price.discountAmount)}
+                          </div>
+                        ) : null}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : null}
+
+            {removableIngredients.length ? (
+              <div className={styles.customizer}>
+                <div className={styles.customizerTitle}>Sacale lo que no quieras</div>
+                <div className={styles.customizerSubtitle}>Tocá para quitar:</div>
+                <div className={styles.customizerGrid}>
+                  {removableIngredients.map((ingredient) => {
+                    const checked = removedIds.includes(ingredient.id);
+                    return (
+                      <label
+                        key={ingredient.id}
+                        className={`${styles.customizerOption} ${checked ? styles.customizerOptionOn : ""}`}>
+                        <input
+                          type="checkbox"
+                          className={styles.customizerCheckbox}
+                          checked={checked}
+                          onChange={() =>
+                            setRemovedIds((prev) =>
+                              prev.includes(ingredient.id)
+                                ? prev.filter((id) => id !== ingredient.id)
+                                : [...prev, ingredient.id],
+                            )
+                          }
+                        />
+                        <span className={styles.customizerLabel}>{ingredient.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
           </div>
 
-          {burger.desc ? <div className={styles.desc}>{burger.desc}</div> : null}
-
-          {!isTitanica ? (
-            <div className={styles.sizeRow}>
-              {sizes.map((s) => {
-                const price = getBurgerPriceInfo(burger, s);
-                return (
-                  <button
-                    key={s}
-                    type="button"
-                    className={`${styles.sizeBtn} ${size === s ? styles.sizeBtnOn : ""}`}
-                    onClick={() => setSize(s)}>
-                    <div className={styles.sizeTop}>{SIZE_LABEL[s]}</div>
-                    <div className={styles.sizePriceWrap}>
-                      {price.hasDiscount ? (
-                        <div className={styles.sizePriceBase}>
-                          {formatMoney(price.basePrice)}
-                        </div>
-                      ) : null}
-                      <div className={styles.sizePrice}>
-                        {formatMoney(price.finalPrice)}
-                      </div>
-                      {price.hasDiscount ? (
-                        <div className={styles.sizePriceDiscount}>
-                          -{formatMoney(price.discountAmount)}
-                        </div>
-                      ) : null}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          ) : null}
-
-          <button
-            className={`${styles.addBtn} ${isTitanica ? styles.addBtnChallenge : ""}`}
-            type="button"
-            disabled={!selectedSize}
-            onClick={() => onAdd?.(burger, selectedSize)}>
-            {isTitanica && selectedPrice
-              ? `Yo me animo - ${formatMoney(selectedPrice.finalPrice)}`
-              : selectedPrice
-              ? `Agregar ${formatMoney(selectedPrice.finalPrice)}`
-              : "Agregar"}
-          </button>
+          <div className={styles.footer}>
+            <button
+              className={`${styles.addBtn} ${isTitanica ? styles.addBtnChallenge : ""}`}
+              type="button"
+              disabled={!selectedSize}
+              onClick={() => onAdd?.(burger, selectedSize, selectedRemovals)}>
+              {isTitanica && selectedPrice
+                ? `Yo me animo - ${formatMoney(selectedPrice.finalPrice)}`
+                : selectedPrice
+                ? `Agregar ${formatMoney(selectedPrice.finalPrice)}`
+                : "Agregar"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

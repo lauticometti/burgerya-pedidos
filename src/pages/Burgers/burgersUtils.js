@@ -1,5 +1,6 @@
 import { formatMoney } from "../../utils/formatMoney";
 import { toast } from "../../utils/toast";
+import { buildBurgerLineKey } from "../../utils/cartKeys";
 
 export function notifyUnavailableBurger(burger, reason = "no disponible por hoy") {
   toast.error(`${burger.name}: ${reason}`, {
@@ -21,12 +22,25 @@ export function scrollToBurgerCard(burgerId) {
   });
 }
 
-export function buildBurgerCartItem(burger, size, priceInfo) {
+export function buildBurgerCartItem(
+  burger,
+  size,
+  priceInfo,
+  removedIngredients = [],
+) {
+  const removedIds = (removedIngredients || []).map((ing) => ing.id).filter(Boolean);
+  const key = buildBurgerLineKey({
+    burgerId: burger.id,
+    size,
+    removedIds,
+  });
+
   return {
-    key: `burger:${burger.id}:${size}`,
+    key,
     name: burger.name,
     qty: 1,
     unitPrice: priceInfo.finalPrice,
+    removedIngredients: removedIngredients || [],
     meta: {
       type: "burger",
       burgerId: burger.id,
@@ -36,6 +50,7 @@ export function buildBurgerCartItem(burger, size, priceInfo) {
       discountAmount: priceInfo.discountAmount,
       extrasIds: [],
       friesId: null,
+      removedIngredientIds: removedIds,
     },
   };
 }

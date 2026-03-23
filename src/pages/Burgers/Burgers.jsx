@@ -151,9 +151,9 @@ export default function Burgers() {
     setModalOpen(true);
   }
 
-  function addBurgerToCart(burger, size) {
+  function addBurgerToCart(burger, size, removedIngredients = []) {
     const price = getBurgerPriceInfo(burger, size);
-    cart.add(buildBurgerCartItem(burger, size, price));
+    cart.add(buildBurgerCartItem(burger, size, price, removedIngredients));
     const addedText = buildBurgerAddedToastText(burger.name, size, price);
     toast.success(addedText);
     scrollToBurgerCard(burger.id);
@@ -235,8 +235,8 @@ export default function Burgers() {
           setActiveBurger(null);
           setModalOrigin(null);
         }}
-        onAdd={(burger, size) => {
-          addBurgerToCart(burger, size);
+        onAdd={(burger, size, removed) => {
+          addBurgerToCart(burger, size, removed);
           setModalOpen(false);
           setActiveBurger(null);
           setModalOrigin(null);

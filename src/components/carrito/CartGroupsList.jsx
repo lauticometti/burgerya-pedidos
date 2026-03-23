@@ -15,10 +15,13 @@ export default function CartGroupsList({
   getUndoLabel,
   onUndo,
   onSetItemNote,
+  onSetRemoved,
   onSetQty,
   onRemove,
   onOpenExtrasModal,
+  onOpenRemoveModal,
   onSetPromoPicks,
+  burgersById = {},
   classes,
 }) {
   return groups.map((group) => {
@@ -40,6 +43,7 @@ export default function CartGroupsList({
             const isPromo = item.meta?.type === "promo";
             const canImprovePapas = item.meta?.type === "burger";
             const canAddExtras = item.meta?.type === "burger";
+            const burgerConfig = burgersById[item.meta?.burgerId] || null;
 
             return (
               <React.Fragment key={item.key}>
@@ -53,16 +57,17 @@ export default function CartGroupsList({
                   />
                 ) : null}
 
-                <CartItemCard
-                  item={item}
-                  onChangeNote={(value) => onSetItemNote(item.key, value)}
-                  onDecrease={() => onSetQty(item.key, item.qty - 1)}
-                  onIncrease={() => onSetQty(item.key, item.qty + 1)}
-                  onRemove={() => onRemove(item, group.key, index)}
-                  onOpenExtras={() => onOpenExtrasModal(item, "extras")}
-                  onOpenPapas={() => onOpenExtrasModal(item, "papas")}
+                  <CartItemCard
+                    item={item}
+                    onChangeNote={(value) => onSetItemNote(item.key, value)}
+                    onOpenRemoveModal={() => onOpenRemoveModal?.(item)}
+                    onDecrease={() => onSetQty(item.key, item.qty - 1)}
+                    onIncrease={() => onSetQty(item.key, item.qty + 1)}
+                    onRemove={() => onRemove(item, group.key, index)}
+                    onOpenExtras={() => onOpenExtrasModal(item, "extras")}
+                    onOpenPapas={() => onOpenExtrasModal(item, "papas")}
                   promoPicks={isPromo ? item.meta?.picks || [] : []}
-                  onPromoNoteChange={(pickIndex, value) => {
+                    onPromoNoteChange={(pickIndex, value) => {
                     onSetPromoPicks(item.key, withPromoNote(item, pickIndex, value));
                   }}
                   onPromoPickExtras={(pickIndex) =>
@@ -71,8 +76,13 @@ export default function CartGroupsList({
                   onPromoPickPapas={(pickIndex) =>
                     onOpenExtrasModal(item, "papas", pickIndex)
                   }
+                  onOpenPromoPickRemove={(pickIndex) =>
+                    onOpenRemoveModal?.(item, pickIndex)
+                  }
                   canImprovePapas={canImprovePapas}
                   canAddExtras={canAddExtras}
+                  removableIngredients={burgerConfig?.removableIngredients || []}
+                  burgersById={burgersById}
                 />
               </React.Fragment>
             );

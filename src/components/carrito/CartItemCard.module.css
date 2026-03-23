@@ -48,6 +48,17 @@
   margin-top: 4px;
 }
 
+.removedList {
+  display: grid;
+  gap: 2px;
+  margin-top: 2px;
+}
+
+.removedLine {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
 .rightBlock {
   display: flex;
   align-items: flex-start;
@@ -87,6 +98,119 @@
   margin-top: 10px;
 }
 
+.removalForm {
+  margin-top: 6px;
+  display: grid;
+  gap: 4px;
+}
+
+.removeButton,
+.removeButtonInline {
+  align-self: start;
+}
+
+.removeButtonInline {
+  margin-top: 0;
+  margin-left: 0;
+  align-self: flex-start;
+}
+
+.removeIngredientsBtn {
+  font-size: 12px;
+  margin-top: 0;
+}
+
+.removeButton {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.removalBlock {
+  margin-top: 6px;
+  display: grid;
+  gap: 4px;
+}
+
+.removalTitle {
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.removalSubtitle {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.removalGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.removalOption {
+  flex: 1 1 48%;
+  min-width: 140px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.removalOptionOn {
+  border-color: rgba(255, 198, 42, 0.55);
+  background: rgba(255, 198, 42, 0.08);
+}
+
+.removalCheckbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: #0b0b0b;
+  display: inline-grid;
+  place-content: center;
+  appearance: none;
+  cursor: pointer;
+  transition:
+    transform 0.08s ease,
+    border-color 0.12s ease,
+    background 0.12s ease;
+}
+
+.removalCheckbox::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: transparent;
+  transform: scale(0.2);
+  transition:
+    transform 0.08s ease,
+    background 0.12s ease;
+}
+
+.removalCheckbox:checked {
+  background: var(--y);
+  border-color: transparent;
+}
+
+.removalCheckbox:checked::after {
+  background: #111;
+  transform: scale(1);
+}
+
+.removalCheckbox:focus-visible {
+  outline: 2px solid rgba(255, 220, 60, 0.5);
+  outline-offset: 2px;
+}
+
+.removalLabel {
+  font-size: 13px;
+}
+
 .noteEditor {
   margin-top: 6px;
   display: grid;
@@ -119,8 +243,14 @@
 
 .promoPickActions {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 6px;
+}
+
+.promoPickPrimary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .promoPickNote {
@@ -157,4 +287,10 @@
 
 .papasButton:hover {
   border-color: rgba(255, 255, 255, 0.25);
+}
+
+@media (max-width: 540px) {
+  .removalOption {
+    flex-basis: 100%;
+  }
 }

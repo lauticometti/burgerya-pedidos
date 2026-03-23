@@ -15,6 +15,7 @@ import CartSummary from "../../components/cart/CartSummary";
 import Button from "../../components/ui/Button";
 import PageTitle from "../../components/ui/PageTitle";
 import { resolvePublicPath } from "../../utils/assetPath";
+import { buildBurgerLineKey } from "../../utils/cartKeys";
 import styles from "./Combos.module.css";
 
 const COMBOS = [
@@ -61,7 +62,13 @@ export default function Combos() {
     }
 
     cart.add({
-      key: `combo:${combo.id}:${burger.id}`,
+      key: buildBurgerLineKey({
+        kind: "combo",
+        comboId: combo.id,
+        burgerId: burger.id,
+        size: combo.size,
+        removedIds: [],
+      }),
       name: `${combo.title} · ${burger.name}`,
       qty: 1,
       unitPrice: combo.price,

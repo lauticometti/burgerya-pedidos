@@ -1,6 +1,6 @@
 ﻿import React from "react";
 import { useCart } from "../../store/useCart";
-import { bebidas, extras, papas } from "../../data/menu";
+import { bebidas, burgers, extras, papas } from "../../data/menu";
 import ItemExtrasModal from "../../components/ItemExtrasModal";
 import { toast } from "../../utils/toast";
 import { getAvailableSlotsMin30, minutesToHHMM } from "../../utils/timeSlots";
@@ -13,6 +13,7 @@ import DeliveryDetailsCard from "../../components/carrito/DeliveryDetailsCard";
 import PaymentScheduleCard from "../../components/carrito/PaymentScheduleCard";
 import BebidasModal from "../../components/carrito/BebidasModal";
 import CartGroupsList from "../../components/carrito/CartGroupsList";
+import RemoveIngredientsModal from "../../components/carrito/RemoveIngredientsModal";
 import PageTitle from "../../components/ui/PageTitle";
 import BrandLogo from "../../components/brand/BrandLogo";
 import DeliveryMapLink from "../../components/delivery/DeliveryMapLink";
@@ -25,6 +26,7 @@ import {
 import useCartUndo from "./useCartUndo";
 import useBebidaModal from "./useBebidaModal";
 import useItemExtrasModal from "./useItemExtrasModal";
+import useRemoveIngredientsModal from "./useRemoveIngredientsModal";
 import useCarritoCheckoutForm from "./useCarritoCheckoutForm";
 import useCheckoutValidation from "./useCheckoutValidation";
 import {
@@ -37,6 +39,14 @@ export default function Carrito() {
   const cart = useCart();
 
   const [step, setStep] = React.useState(1); // 1: Chequear pedido, 2: Datos y pago
+  const burgersById = React.useMemo(
+    () =>
+      burgers.reduce((acc, burger) => {
+        acc[burger.id] = burger;
+        return acc;
+      }, {}),
+    [],
+  );
   const {
     deliveryMode,
     setDeliveryMode,
@@ -206,6 +216,16 @@ export default function Carrito() {
     papasMejoras,
     extraItems: extras,
   });
+  const {
+    modalItem: removeModalItem,
+    modalIngredients: removeModalIngredients,
+    modalSelectedIds: removeModalSelectedIds,
+    title: removeModalTitle,
+    openRemoveModal,
+    toggleSelection: toggleRemoveSelection,
+    applySelection: applyRemoveSelection,
+    closeRemoveModal,
+  } = useRemoveIngredientsModal({ cart, burgersById });
 
   const {
     bebidaOpen,
@@ -270,10 +290,13 @@ export default function Carrito() {
                 getUndoLabel={getUndoLabel}
                 onUndo={handleUndo}
                 onSetItemNote={cart.setNote}
+                onSetRemoved={cart.setRemovedIngredients}
                 onSetQty={cart.setQty}
                 onRemove={handleRemove}
                 onOpenExtrasModal={openExtrasModal}
+                onOpenRemoveModal={openRemoveModal}
                 onSetPromoPicks={cart.setPromoPicks}
+                burgersById={burgersById}
                 classes={groupListClasses}
               />
             )}
@@ -402,6 +425,15 @@ export default function Carrito() {
         onChangeQty={adjustBebidaQty}
         onClose={closeBebidaModal}
         onApply={applyBebidaSelection}
+      />
+      <RemoveIngredientsModal
+        open={!!removeModalItem}
+        title={removeModalTitle}
+        ingredients={removeModalIngredients}
+        selectedIds={removeModalSelectedIds}
+        onToggle={toggleRemoveSelection}
+        onApply={applyRemoveSelection}
+        onClose={closeRemoveModal}
       />
     </Page>
   );

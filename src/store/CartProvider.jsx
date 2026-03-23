@@ -49,6 +49,14 @@ function reducer(state, action) {
       const item = action.item;
       const existing = state.items[item.key];
       const qty = (existing?.qty || 0) + (item.qty || 1);
+      const mergedMeta = { ...existing?.meta, ...item.meta };
+      if (!mergedMeta.removedIngredientIds) {
+        mergedMeta.removedIngredientIds =
+          item.meta?.removedIngredientIds ||
+          existing?.meta?.removedIngredientIds ||
+          [];
+      }
+
       return {
         ...state,
         lastAdded: item.name,
@@ -60,6 +68,9 @@ function reducer(state, action) {
             note: item.note || existing?.note || "",
             extras: item.extras || existing?.extras || [],
             papas: item.papas || existing?.papas || [],
+            removedIngredients:
+              item.removedIngredients || existing?.removedIngredients || [],
+            meta: mergedMeta,
           },
         },
       };
@@ -103,6 +114,27 @@ function reducer(state, action) {
       if (items[key]) {
         items[key] = { ...items[key], papas };
       }
+      return { ...state, items };
+    }
+    case "SET_REMOVED": {
+      const { key, removedIngredients } = action;
+      const items = { ...state.items };
+      const current = items[key];
+      if (!current) return state;
+
+      const cleaned = (removedIngredients || []).filter(Boolean);
+      const removedIds = cleaned.map((ing) => ing.id).filter(Boolean);
+
+      const updated = {
+        ...current,
+        removedIngredients: cleaned,
+        meta: {
+          ...current.meta,
+          removedIngredientIds: removedIds,
+        },
+      };
+      items[key] = updated;
+
       return { ...state, items };
     }
     case "SET_PROMO_PICKS": {
@@ -159,6 +191,8 @@ export function CartProvider({ children }) {
       setNote: (key, note) => dispatch({ type: "SET_NOTE", key, note }),
       setExtras: (key, extras) => dispatch({ type: "SET_EXTRAS", key, extras }),
       setPapas: (key, papas) => dispatch({ type: "SET_PAPAS", key, papas }),
+      setRemovedIngredients: (key, removed) =>
+        dispatch({ type: "SET_REMOVED", key, removedIngredients: removed }),
       setPromoPicks: (key, picks) =>
         dispatch({ type: "SET_PROMO_PICKS", key, picks }),
     };

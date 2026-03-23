@@ -76,13 +76,21 @@ export function buildWhatsAppText({
         bucket.total += it.qty;
         const name = (it.meta?.comboTitle || it.name || "").replace(/^combo\s*/i, "").trim();
         const burgerLabel = (it.meta?.burgerName || it.name?.split("·")[1] || it.name || "").trim();
-        const key = burgerLabel.toLowerCase();
+        const removalLabels = (it.removedIngredients || [])
+          .map((rem) => rem.label || rem.name || rem.id || rem)
+          .filter(Boolean);
+        const removalKey = removalLabels.join("|").toLowerCase();
+        const key = removalKey
+          ? `${burgerLabel.toLowerCase()}__rm__${removalKey}`
+          : burgerLabel.toLowerCase();
         const entry = bucket.burgers.get(key) || {
           label: burgerLabel || name,
           qty: 0,
           notes: [],
+          removed: removalLabels,
         };
         entry.qty += it.qty;
+        entry.removed = removalLabels;
         const noteText = (it.note || "").trim();
         if (noteText) {
           const noteKey = noteText.toLowerCase();
@@ -106,6 +114,11 @@ export function buildWhatsAppText({
         for (const burger of data.burgers.values()) {
           const qtyPrefix = burger.qty > 1 ? `${burger.qty} ` : "1 ";
           lines.push(` · ${qtyPrefix}${burger.label.toUpperCase()}`);
+          if (burger.removed?.length) {
+            burger.removed.forEach((removal) => {
+              lines.push(`    - Sin ${removal}`);
+            });
+          }
           if (burger.notes?.length) {
             burger.notes.forEach((note) => {
               const noteQtyPrefix = note.qty > 1 ? `${note.qty}× ` : "";
@@ -147,6 +160,13 @@ export function buildWhatsAppText({
         lines.push(`${it.qty} ${it.name.toLowerCase()}${sizeSuffix}`);
       }
 
+      if (it.removedIngredients?.length) {
+        it.removedIngredients.forEach((removal) => {
+          const label = removal.label || removal.name || removal.id || removal;
+          lines.push(`- Sin ${label}`);
+        });
+      }
+
       if (it.meta?.picks?.length) {
         const countByName = it.meta.picks.reduce((acc, pick) => {
           const key = (pick.name || pick.id || "").toLowerCase();
@@ -156,28 +176,34 @@ export function buildWhatsAppText({
         const hasRepeats = Object.values(countByName).some((count) => count > 1);
         const promoQueue = new Map();
 
-        for (const pick of it.meta.picks) {
+        it.meta.picks.forEach((pick, idx) => {
           const pickName = pick.name || pick.id || "";
           const extrasKey = (pick.extras || [])
             .map((extra) => extra.name)
+            .sort()
             .join("|")
             .toLowerCase();
           const papasKey = (pick.papas || [])
             .map((extra) => extra.name)
+            .sort()
+            .join("|")
+            .toLowerCase();
+          const removedKey = (pick.removedIngredients || [])
+            .map((rem) => rem.label || rem.name || rem.id || rem)
+            .sort()
             .join("|")
             .toLowerCase();
           const noteKey = (pick.note || "").trim().toLowerCase();
           const baseKey = pickName.toLowerCase();
-          const groupKey = hasRepeats
-            ? `${baseKey}__${extrasKey}__${papasKey}__${noteKey}`
-            : `${baseKey}__${promoQueue.size}`;
+          const signature = `${baseKey}__${extrasKey}__${papasKey}__${removedKey}__${noteKey}`;
+          const groupKey = hasRepeats ? signature : `${signature}__${idx}`;
 
           if (!promoQueue.has(groupKey)) {
             promoQueue.set(groupKey, { name: pickName, picks: [pick] });
           } else {
             promoQueue.get(groupKey).picks.push(pick);
           }
-        }
+        });
 
         for (const pickGroup of promoQueue.values()) {
           const qtyPrefix = `${pickGroup.picks.length} `;
@@ -186,6 +212,12 @@ export function buildWhatsAppText({
           const joiner = it.meta?.type === "promo" ? " / " : " + ";
 
           const samplePick = pickGroup.picks[0];
+          if (samplePick.removedIngredients?.length) {
+            samplePick.removedIngredients.forEach((removal) => {
+              const label = removal.label || removal.name || removal.id || removal;
+              lines.push(`  - Sin ${label}`);
+            });
+          }
           if (samplePick.extras?.length) {
             lines.push(
               `  Agregados: ${samplePick.extras

@@ -10,6 +10,7 @@ import { getPapasUpgradePrice } from "../../utils/papasPricing";
 export default function CartItemCard({
   item,
   onChangeNote,
+  onOpenRemoveModal,
   onDecrease,
   onIncrease,
   onRemove,
@@ -22,6 +23,9 @@ export default function CartItemCard({
   onPromoNoteChange,
   onPromoPickExtras,
   onPromoPickPapas,
+  onOpenPromoPickRemove,
+  removableIngredients = [],
+  burgersById = {},
 }) {
   const isPromo = item.meta?.type === "promo";
   const allowPromoQty = item.meta?.allowQty;
@@ -59,6 +63,13 @@ export default function CartItemCard({
           ? "simple"
           : null;
   const description = item.meta?.description;
+  const removedIngredients = item.removedIngredients || [];
+
+  function getPickRemovables(pick) {
+    const burgerId = pick.id || pick.burgerId;
+    if (!burgerId) return [];
+    return burgersById[burgerId]?.removableIngredients || [];
+  }
 
   return (
     <Card className={styles.card}>
@@ -85,6 +96,15 @@ export default function CartItemCard({
             ) : null}
             {description ? (
               <div className={styles.metaSmall}>{description}</div>
+            ) : null}
+            {removedIngredients.length ? (
+              <div className={styles.removedList}>
+                {removedIngredients.map((rem) => (
+                  <div key={rem.id || rem.label} className={styles.removedLine}>
+                    - Sin {rem.label || rem.id}
+                  </div>
+                ))}
+              </div>
             ) : null}
             {item.extras?.length ? (
               <div className={styles.metaSmall}>
@@ -140,12 +160,24 @@ export default function CartItemCard({
         </div>
       ) : null}
 
+      {!isPromo && removableIngredients.length ? (
+        <div className={styles.removalForm}>
+          <Button
+            size="xs"
+            variant="secondary"
+            onClick={onOpenRemoveModal}
+            className={styles.removeButton}>
+            Quitar ingredientes
+          </Button>
+        </div>
+      ) : null}
+
       {!isPromo &&
       item.meta?.type !== "papas" &&
       item.meta?.type !== "bebida" ? (
         <div className={styles.noteEditor}>
           <TextareaField
-            placeholder="Queres sacarle algo? Anotalo aca."
+            placeholder="¿Alguna otra aclaración? (opcional)"
             value={item.note || ""}
             onChange={(event) => onChangeNote?.(event.target.value)}
             rows={1}
@@ -179,24 +211,40 @@ export default function CartItemCard({
                     Aclaración: {pick.note.trim()}
                   </div>
                 ) : null}
+                {pick.removedIngredients?.length ? (
+                  <div className={styles.metaSmall}>
+                    {pick.removedIngredients.map((rem) => `- Sin ${rem.label || rem.id}`).join(" | ")}
+                  </div>
+                ) : null}
               </div>
               <div className={styles.promoPickActions}>
-                {allowPromoPickExtras ? (
-                  <Button size="xs" onClick={() => onPromoPickExtras?.(index)}>
-                    Agregados
+                <div className={styles.promoPickPrimary}>
+                  {allowPromoPickExtras ? (
+                    <Button size="xs" onClick={() => onPromoPickExtras?.(index)}>
+                      Agregados
+                    </Button>
+                  ) : null}
+                  <Button
+                    size="xs"
+                    onClick={() => onPromoPickPapas?.(index)}
+                    className={styles.papasButton}>
+                    Mejorar Papas
+                  </Button>
+                </div>
+                {getPickRemovables(pick).length ? (
+                  <Button
+                    size="xs"
+                    variant="secondary"
+                    onClick={() => onOpenPromoPickRemove?.(index)}
+                    className={`${styles.removeButtonInline} ${styles.removeIngredientsBtn}`}>
+                    Quitar ingredientes
                   </Button>
                 ) : null}
-                <Button
-                  size="xs"
-                  onClick={() => onPromoPickPapas?.(index)}
-                  className={styles.papasButton}>
-                  Mejorar Papas
-                </Button>
               </div>
 
               <div className={styles.promoPickNote}>
                 <TextareaField
-                  placeholder="Queres sacarle algo? Anotalo aca."
+                  placeholder="¿Alguna otra aclaración? (opcional)"
                   value={pick.note || ""}
                   onChange={(event) =>
                     onPromoNoteChange?.(index, event.target.value)
