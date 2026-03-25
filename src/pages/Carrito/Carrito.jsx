@@ -261,33 +261,35 @@ export default function Carrito() {
   };
 
   const upsellMessages = React.useMemo(() => {
-    const msgs = [];
     if (promoState.qualifiesGift) return [];
+
+    const msgs = [];
+
     if (promoState.missingForGift > 0 && cart.items.length > 0) {
       msgs.push({
         id: "gift-progress",
         text: `Te faltan ${formatMoney(promoState.missingForGift)} para llevarte papas gratis`,
       });
     }
+
     if (promoState.insights?.burgers === 1) {
       msgs.push({
         id: "one-burger",
         text: "Sumá otra burger y rinde más",
       });
-    }
-    if (promoState.insights?.doubles > 0) {
+    } else if (promoState.insights?.doubles > 0) {
       msgs.push({
         id: "triple-upgrade",
         text: "Hacela triple hoy +$1500",
       });
-    }
-    if (cart.total < 20000 && promoState.insights?.items >= 1) {
+    } else if (cart.total < 20000 && promoState.insights?.items >= 1) {
       msgs.push({
         id: "low-ticket",
-        text: "Sumá una burger más y aprovechás mejor el pedido",
+        text: "Sumá algo más y cerrá el pedido",
       });
     }
-    return msgs.slice(0, 3);
+
+    return msgs.slice(0, 2);
   }, [cart.items.length, cart.total, promoState]);
 
   return (
