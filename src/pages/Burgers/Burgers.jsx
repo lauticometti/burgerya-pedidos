@@ -104,6 +104,7 @@ function mapBurgersById(list) {
 export default function Burgers() {
   const cart = useCart();
 
+  const SHOW_PROMO_HERO = false;
   const [modalOpen, setModalOpen] = React.useState(false);
   const [activeBurger, setActiveBurger] = React.useState(null);
   const [modalOrigin, setModalOrigin] = React.useState(null);
@@ -196,49 +197,51 @@ export default function Burgers() {
       <BrandLogo />
       <TopNav />
 
-      <section className={styles.promoHero}>
-        <div className={styles.promoHeader}>
-          <div>
-            <p className={styles.promoKicker}>PROMOS DE HOY</p>
-            <h1 className={styles.promoTitle}>Pedí más y aprovechá</h1>
-            <p className={styles.promoSubtitle}>Activas hasta las 00:00</p>
+      {SHOW_PROMO_HERO ? (
+        <section className={styles.promoHero}>
+          <div className={styles.promoHeader}>
+            <div>
+              <p className={styles.promoKicker}>PROMOS DE HOY</p>
+              <h1 className={styles.promoTitle}>Pedí más y aprovechá</h1>
+              <p className={styles.promoSubtitle}>Activas hasta las 00:00</p>
+            </div>
           </div>
-        </div>
 
-        <div className={styles.promoGrid}>
-          <article className={styles.promoCard}>
-            <div className={styles.promoTag}>Upgrade inmediato</div>
-            <div className={styles.promoCardTitle}>Hacela triple hoy +$1500</div>
-            <Button className={styles.promoButtonGhost} onClick={jumpToDoubleBurger}>
-              Pasar a triple
-            </Button>
-          </article>
-
-          <article className={styles.promoCard}>
-            <div className={styles.promoTag}>Regalo por umbral</div>
-            <div className={styles.promoCardTitle}>
-              {hasGift ? "Papas extra incluidas" : "Papas gratis desde $30.000"}
-            </div>
-            <div className={styles.progressWrap}>
-              <div className={styles.progressBar}>
-                <span style={{ width: `${giftProgress}%` }} />
-              </div>
-              <div className={styles.progressText}>
-                {hasGift
-                  ? "Papas extra incluidas"
-                  : `Te faltan ${formatMoney(missingForGift)}`}
-              </div>
-            </div>
-            {!hasGift ? (
-              <Button
-                className={styles.promoButtonGhost}
-                onClick={() => scrollToBurgerCard("bacon")}>
-                Sumar y llevar papas gratis
+          <div className={styles.promoGrid}>
+            <article className={styles.promoCard}>
+              <div className={styles.promoTag}>Upgrade inmediato</div>
+              <div className={styles.promoCardTitle}>Hacela triple hoy +$1500</div>
+              <Button className={styles.promoButtonGhost} onClick={jumpToDoubleBurger}>
+                Pasar a triple
               </Button>
-            ) : null}
-          </article>
-        </div>
-      </section>
+            </article>
+
+            <article className={styles.promoCard}>
+              <div className={styles.promoTag}>Regalo por umbral</div>
+              <div className={styles.promoCardTitle}>
+                {hasGift ? "Papas extra incluidas" : "Papas gratis desde $30.000"}
+              </div>
+              <div className={styles.progressWrap}>
+                <div className={styles.progressBar}>
+                  <span style={{ width: `${giftProgress}%` }} />
+                </div>
+                <div className={styles.progressText}>
+                  {hasGift
+                    ? "Papas extra incluidas"
+                    : `Te faltan ${formatMoney(missingForGift)}`}
+                </div>
+              </div>
+              {!hasGift ? (
+                <Button
+                  className={styles.promoButtonGhost}
+                  onClick={() => scrollToBurgerCard("bacon")}>
+                  Sumar y llevar papas gratis
+                </Button>
+              ) : null}
+            </article>
+          </div>
+        </section>
+      ) : null}
 
       {sections.map((section, sectionIndex) => (
         <section
