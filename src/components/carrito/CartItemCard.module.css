@@ -121,8 +121,9 @@
 
 .removalForm {
   margin-top: 6px;
-  display: grid;
-  gap: 4px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
 }
 
 .removeButton,
@@ -144,6 +145,8 @@
 .removeButton {
   padding: 4px 10px;
   font-size: 12px;
+  width: auto;
+  display: inline-flex;
 }
 
 .removalBlock {

@@ -35,7 +35,6 @@ import {
   evaluateCoupon,
   normalizeCouponInput,
 } from "../../utils/coupons";
-import useCartPromotions from "../../hooks/useCartPromotions";
 
 export default function Carrito() {
   const cart = useCart();
@@ -49,7 +48,14 @@ export default function Carrito() {
       }, {}),
     [],
   );
-  const promoState = useCartPromotions(cart, { papasList: papas, manageGifts: false });
+  const promoState = React.useMemo(
+    () => ({
+      qualifiesGift: false,
+      missingForGift: 0,
+      insights: {},
+    }),
+    [],
+  );
   const {
     deliveryMode,
     setDeliveryMode,
@@ -262,14 +268,6 @@ export default function Carrito() {
 
   const upsellMessages = React.useMemo(() => {
     if (promoState.qualifiesGift || cart.items.length === 0) return [];
-    if (promoState.missingForGift > 0) {
-      return [
-        {
-          id: "gift-progress",
-          text: `Te faltan ${formatMoney(promoState.missingForGift)} para papas extra gratis`,
-        },
-      ];
-    }
     return [];
   }, [cart.items.length, promoState.missingForGift, promoState.qualifiesGift]);
 

@@ -1,22 +1,5 @@
-// Add future burger offers here (example: size/tier/id based discounts).
-// Final price can be derived from base prices when computeFinalPrice returns a number.
-export const BURGER_PRICE_OFFERS = [
-  {
-    id: "triple-upgrade-1500",
-    label: "Hoy triple por +$1500",
-    sizes: ["triple"],
-    tiers: ["BASICA", "PREMIUM", "DELUXE"],
-    computeFinalPrice: (burger) => {
-      const doublePrice = burger?.prices?.doble;
-      const triplePrice = burger?.prices?.triple;
-      if (typeof doublePrice !== "number" || typeof triplePrice !== "number") {
-        return null;
-      }
-      const upgraded = doublePrice + 1500;
-      return upgraded < triplePrice ? upgraded : null;
-    },
-  },
-];
+// No active offers.
+export const BURGER_PRICE_OFFERS = [];
 
 function matchesOffer(offer, burger, size) {
   if (Array.isArray(offer?.sizes) && !offer.sizes.includes(size)) return false;
