@@ -8,7 +8,7 @@ function getTodayKey() {
       timeZone: "America/Argentina/Buenos_Aires",
     }).format(new Date());
   } catch (err) {
-    // Fallback sin timezone explícita
+    // Fallback sin timezone explicita
     return new Date().toISOString().slice(0, 10);
   }
 }
@@ -18,12 +18,22 @@ export default function OpenTodayAlert() {
   const isActive = HOLIDAY_OPEN_DATES.includes(today);
   if (!isActive) return null;
 
+  const firstDay = HOLIDAY_OPEN_DATES[0];
+  const secondDay = HOLIDAY_OPEN_DATES[1];
+
+  const message =
+    today === firstDay
+      ? "Hoy y mañana (lu 23 y ma 24) abrimos de 20:00 a 00:00 por feriado."
+      : today === secondDay
+        ? "Hoy (ma 24) abrimos de 20:00 a 00:00 por feriado."
+        : "";
+
+  if (!message) return null;
+
   return (
     <div className={styles.alert} role="status" aria-live="polite">
       <span className={styles.dot} aria-hidden />
-      <div className={styles.text}>
-        Hoy y mañana (lu 23 y ma 24) abrimos de 20:00 a 00:00 por feriado.
-      </div>
+      <div className={styles.text}>{message}</div>
     </div>
   );
 }
