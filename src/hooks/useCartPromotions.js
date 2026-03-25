@@ -32,7 +32,7 @@ export default function useCartPromotions(
   const giftItem = useMemo(
     () => ({
       key: giftConfig.cartKey,
-      name: "Papas incluidas",
+      name: "Papas extra incluidas",
       qty: 1,
       unitPrice: 0,
       meta: {

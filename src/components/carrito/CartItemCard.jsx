@@ -67,7 +67,7 @@ export default function CartItemCard({
   const description = item.meta?.description;
   const removedIngredients = item.removedIngredients || [];
   const showRemoveButton = !locked;
-  const displayName = isGift ? "Papas incluidas" : item.name;
+  const displayName = isGift ? "Papas extra incluidas" : item.name;
 
   function getPickRemovables(pick) {
     const burgerId = pick.id || pick.burgerId;

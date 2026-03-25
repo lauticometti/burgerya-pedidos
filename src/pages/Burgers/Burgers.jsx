@@ -217,7 +217,7 @@ export default function Burgers() {
           <article className={styles.promoCard}>
             <div className={styles.promoTag}>Regalo por umbral</div>
             <div className={styles.promoCardTitle}>
-              {hasGift ? "Papas gratis incluidas" : "Papas gratis desde $30.000"}
+              {hasGift ? "Papas extra incluidas" : "Papas gratis desde $30.000"}
             </div>
             <div className={styles.progressWrap}>
               <div className={styles.progressBar}>
@@ -225,7 +225,7 @@ export default function Burgers() {
               </div>
               <div className={styles.progressText}>
                 {hasGift
-                  ? "Papas gratis incluidas"
+                  ? "Papas extra incluidas"
                   : `Te faltan ${formatMoney(missingForGift)}`}
               </div>
             </div>
