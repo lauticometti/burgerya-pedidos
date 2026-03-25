@@ -30,6 +30,7 @@ export default function CartItemCard({
   const isPromo = item.meta?.type === "promo";
   const allowPromoQty = item.meta?.allowQty;
   const locked = item.meta?.locked;
+  const isGift = Boolean(item.meta?.promoGiftId);
   const showQtyControls = !locked && (!isPromo || allowPromoQty);
   const showActions = canAddExtras || canImprovePapas;
   const papasContext = { size: item.meta?.size, itemType: item.meta?.type };
@@ -66,6 +67,7 @@ export default function CartItemCard({
   const description = item.meta?.description;
   const removedIngredients = item.removedIngredients || [];
   const showRemoveButton = !locked;
+  const displayName = isGift ? "Papas incluidas" : item.name;
 
   function getPickRemovables(pick) {
     const burgerId = pick.id || pick.burgerId;
@@ -90,9 +92,11 @@ export default function CartItemCard({
           ) : null}
           <div className={styles.nameBlock}>
             <div className={styles.name}>
-              {item.name}
+              {displayName}
               {!isPromo && sizeLabel ? ` ${sizeLabel}` : ""}
-              {locked ? <span className={styles.lockedTag}>Bonificado</span> : null}
+              {locked ? (
+                <span className={styles.lockedTag}>{isGift ? "REGALO" : "BONIFICADO"}</span>
+              ) : null}
             </div>
             {picksText ? (
               <div className={styles.meta}>- {picksText}</div>
@@ -134,7 +138,9 @@ export default function CartItemCard({
                 {formatMoney(baseUnitWithExtras)}
               </div>
             ) : null}
-            <div className={styles.price}>{formatMoney(displayPrice)}</div>
+            <div className={`${styles.price} ${locked ? styles.priceLocked : ""}`}>
+              {formatMoney(displayPrice)}
+            </div>
             {hasDiscount ? (
               <div className={styles.priceDiscount}>
                 -{formatMoney(discountAmount)}

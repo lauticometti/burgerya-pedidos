@@ -91,6 +91,12 @@
   font-weight: 700;
 }
 
+.priceLocked {
+  opacity: 0.7;
+  font-weight: 700;
+  font-size: 13px;
+}
+
 .priceOriginal {
   white-space: nowrap;
   font-size: 12px;

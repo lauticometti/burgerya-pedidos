@@ -262,9 +262,7 @@ export default function Carrito() {
 
   const upsellMessages = React.useMemo(() => {
     const msgs = [];
-    if (promoState.qualifiesGift) {
-      return [{ id: "gift-ready", text: "Papas gratis incluidas" }];
-    }
+    if (promoState.qualifiesGift) return [];
     if (promoState.missingForGift > 0 && cart.items.length > 0) {
       msgs.push({
         id: "gift-progress",

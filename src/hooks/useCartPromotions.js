@@ -32,18 +32,17 @@ export default function useCartPromotions(
   const giftItem = useMemo(
     () => ({
       key: giftConfig.cartKey,
-      name: "Papas gratis",
+      name: "Papas incluidas",
       qty: 1,
       unitPrice: 0,
       meta: {
         type: "papas",
         promoGiftId: giftConfig.id,
-        description: giftConfig.description,
         basePrice: giftBasePrice,
         locked: true,
       },
     }),
-    [giftBasePrice, giftConfig.cartKey, giftConfig.description, giftConfig.id],
+    [giftBasePrice, giftConfig.cartKey, giftConfig.id],
   );
 
   const hasGift = useMemo(
