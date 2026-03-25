@@ -8,6 +8,7 @@ import {
 } from "../../utils/availability.js";
 import { getStepHelp } from "./promosConfig.js";
 import { groupAllowedBurgers, indexBurgersById } from "./promosSelectors.js";
+import { STORE_CLOSED_MODE, STORE_REOPEN_TEXT } from "../../utils/storeClosedMode.js";
 
 function scrollToRef(ref) {
   if (!ref?.current) return;
@@ -152,6 +153,12 @@ export default function usePromoBuilder({
 
   function addPromoToCart() {
     if (!tier || !count || !size || picked.length !== count || price == null) return;
+    if (STORE_CLOSED_MODE) {
+      toast.error(`Cerrado hoy · ${STORE_REOPEN_TEXT}`, {
+        key: "store-closed-promo",
+      });
+      return;
+    }
 
     const unavailablePick = picked.find((pick) =>
       isItemUnavailable(burgersById[pick.id]),

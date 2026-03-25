@@ -23,9 +23,12 @@ import {
   buildPapasOptionsBySize,
   indexPapasById,
 } from "./papasUtils";
+import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
+import { STORE_CLOSED_MODE, STORE_REOPEN_TEXT } from "../../utils/storeClosedMode";
 
 export default function Papas() {
   const cart = useCart();
+  const isClosed = STORE_CLOSED_MODE;
   const [modalOpen, setModalOpen] = useState(false);
   const [activeSize, setActiveSize] = useState(null);
   const [selectedOptionId, setSelectedOptionId] = useState("solas");
@@ -42,6 +45,12 @@ export default function Papas() {
   const bebidaItems = bebidas || [];
 
   function openModal(size) {
+    if (isClosed) {
+      toast.error(`Cerrado hoy · ${STORE_REOPEN_TEXT}`, {
+        key: "store-closed-papas",
+      });
+      return;
+    }
     setActiveSize(size);
     setSelectedOptionId("solas");
     setModalOpen(true);
@@ -53,6 +62,12 @@ export default function Papas() {
   }
 
   function addSelectedPapas() {
+    if (isClosed) {
+      toast.error(`Cerrado hoy · ${STORE_REOPEN_TEXT}`, {
+        key: "store-closed-papas",
+      });
+      return;
+    }
     if (!activeSize) return;
     const options = optionsBySize[activeSize] || [];
     const picked = options.find((opt) => opt.id === selectedOptionId);
@@ -77,13 +92,16 @@ export default function Papas() {
       <BrandLogo />
       <TopNav />
       <PageTitle>Papas y más</PageTitle>
+      <ClosedInlineNotice />
       <div className={styles.list}>
         {papasBase.map((item) => (
           <PapasItem
             key={item.id}
             item={{ name: item.label, price: item.basePrice }}
             onAdd={() => openModal(item.size)}
-            actionLabel="Ver opciones"
+            actionLabel={isClosed ? STORE_REOPEN_TEXT : "Ver opciones"}
+            isUnavailable={isClosed}
+            unavailableReason={STORE_REOPEN_TEXT}
           />
         ))}
       </div>
@@ -95,9 +113,15 @@ export default function Papas() {
               <PapasItem
                 key={item.id}
                 item={item}
-                isUnavailable={isItemUnavailable(item)}
-                unavailableReason={item.unavailableReason}
+                isUnavailable={isClosed || isItemUnavailable(item)}
+                unavailableReason={isClosed ? STORE_REOPEN_TEXT : item.unavailableReason}
                 onAdd={() => {
+                  if (isClosed) {
+                    toast.error(`Cerrado hoy · ${STORE_REOPEN_TEXT}`, {
+                      key: "store-closed-papas-dip",
+                    });
+                    return;
+                  }
                   if (isItemUnavailable(item)) {
                     const reason = getUnavailableReason(item);
                     toast.error(`${item.name}: ${reason}`, {
@@ -129,9 +153,15 @@ export default function Papas() {
               <PapasItem
                 key={item.id}
                 item={item}
-                isUnavailable={isItemUnavailable(item)}
-                unavailableReason={item.unavailableReason}
+                isUnavailable={isClosed || isItemUnavailable(item)}
+                unavailableReason={isClosed ? STORE_REOPEN_TEXT : item.unavailableReason}
                 onAdd={() => {
+                  if (isClosed) {
+                    toast.error(`Cerrado hoy · ${STORE_REOPEN_TEXT}`, {
+                      key: "store-closed-bebida",
+                    });
+                    return;
+                  }
                   if (isItemUnavailable(item)) {
                     const reason = getUnavailableReason(item);
                     toast.error(`${item.name}: ${reason}`, {
@@ -155,14 +185,20 @@ export default function Papas() {
       ) : null}
       <StickyBar>
         <CartSummary total={cart.total} />
-        <Link to="/carrito">
-          <Button
-            variant="primary"
-            type="button"
-            disabled={cart.items.length === 0}>
-            Cerrar pedido
+        {isClosed ? (
+          <Button variant="primary" type="button" disabled subLabel={STORE_REOPEN_TEXT}>
+            Cerrado hoy
           </Button>
-        </Link>
+        ) : (
+          <Link to="/carrito">
+            <Button
+              variant="primary"
+              type="button"
+              disabled={cart.items.length === 0}>
+              Cerrar pedido
+            </Button>
+          </Link>
+        )}
       </StickyBar>
       <PapasOptionModal
         open={modalOpen}
@@ -172,6 +208,8 @@ export default function Papas() {
         onSelect={setSelectedOptionId}
         onClose={closeModal}
         onConfirm={addSelectedPapas}
+        isClosed={isClosed}
+        reopenText={STORE_REOPEN_TEXT}
       />
     </Page>
   );

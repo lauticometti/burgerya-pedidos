@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { useCart } from "../../store/useCart";
 import TopNav from "../../components/TopNav";
 import { STORE_SCHEDULE_TEXT } from "../../utils/isOpenNow";
+import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
+import { STORE_CLOSED_MODE, STORE_REOPEN_TEXT } from "../../utils/storeClosedMode";
 import Page from "../../components/layout/Page";
 import StickyBar from "../../components/layout/StickyBar";
 import CartSummary from "../../components/cart/CartSummary";
@@ -18,6 +20,7 @@ const HOME_CARD_IMAGES = {
 
 export default function Home() {
   const cart = useCart();
+  const isClosed = STORE_CLOSED_MODE;
   const [imageStatus, setImageStatus] = useState({
     burgers: "loading",
     promos: "loading",
@@ -48,6 +51,9 @@ export default function Home() {
     imageStatus.burgers === "loaded" ? HOME_CARD_IMAGES.burgers : null;
   const promosImage =
     imageStatus.promos === "loaded" ? HOME_CARD_IMAGES.promos : null;
+  const scheduleText = STORE_CLOSED_MODE
+    ? `Cerrado hoy · ${STORE_REOPEN_TEXT}`
+    : `Horario: ${STORE_SCHEDULE_TEXT}`;
 
   return (
     <Page>
@@ -55,7 +61,8 @@ export default function Home() {
       <TopNav />
 
       <div className={styles.subtitle}>Elegí cómo querés armar tu pedido</div>
-      <div className={styles.scheduleHint}>Horario: {STORE_SCHEDULE_TEXT}</div>
+      <div className={styles.scheduleHint}>{scheduleText}</div>
+      <ClosedInlineNotice />
 
       <div className={styles.cards}>
         <HomeCard
@@ -83,11 +90,17 @@ export default function Home() {
 
       <StickyBar>
         <CartSummary total={cart.total} />
-        <Link to="/carrito">
-          <Button variant="primary" disabled={cart.items.length === 0}>
-            Cerrar pedido
+        {isClosed ? (
+          <Button variant="primary" disabled subLabel={STORE_REOPEN_TEXT}>
+            Cerrado hoy
           </Button>
-        </Link>
+        ) : (
+          <Link to="/carrito">
+            <Button variant="primary" disabled={cart.items.length === 0}>
+              Cerrar pedido
+            </Button>
+          </Link>
+        )}
       </StickyBar>
     </Page>
   );

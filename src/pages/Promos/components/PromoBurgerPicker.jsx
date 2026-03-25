@@ -18,8 +18,12 @@ export default function PromoBurgerPicker({
   pickRef,
   onPickBurger,
   onUndoLast,
+  isClosed = false,
+  reopenText,
 }) {
   if (!tier || !count || !size) return null;
+
+  const disabledMessage = isClosed ? reopenText : null;
 
   return (
     <div ref={pickRef}>
@@ -44,18 +48,20 @@ export default function PromoBurgerPicker({
                 <div className={styles.pickGroupLabel}>{TIER_LABELS[tierKey]}</div>
                 <div className={`${styles.row} ${styles.rowWrap} ${styles.pickRow}`}>
                   {tierItems.map((burger) => {
-                    const isUnavailable = isItemUnavailable(burger);
-                    const unavailableReason = getUnavailableReason(burger);
+                    const isUnavailable = isClosed || isItemUnavailable(burger);
+                    const unavailableReason = isClosed
+                      ? disabledMessage || "Cerrado hoy"
+                      : getUnavailableReason(burger);
                     return (
                       <Button
                         key={burger.id}
-                    onClick={() => onPickBurger(burger)}
-                    disabled={!canPickMore}
-                    aria-disabled={isUnavailable}
-                    title={isUnavailable ? unavailableReason : undefined}
-                    subLabel={isUnavailable ? unavailableReason : undefined}
-                    className={isUnavailable ? styles.pickUnavailable : ""}>
-                    <span className={styles.pickChoice}>
+                        onClick={() => onPickBurger(burger)}
+                        disabled={!canPickMore || isClosed}
+                        aria-disabled={isUnavailable}
+                        title={isUnavailable ? unavailableReason : undefined}
+                        subLabel={isUnavailable ? unavailableReason : undefined}
+                        className={isUnavailable ? styles.pickUnavailable : ""}>
+                        <span className={styles.pickChoice}>
                       <img
                         className={`${styles.pickThumb} ${
                           burger.id === "smoklahoma" ? styles.pickThumbTrim : ""

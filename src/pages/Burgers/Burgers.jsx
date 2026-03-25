@@ -11,6 +11,7 @@ import CartSummary from "../../components/cart/CartSummary";
 import Button from "../../components/ui/Button";
 import BrandLogo from "../../components/brand/BrandLogo";
 import DeliveryMapLink from "../../components/delivery/DeliveryMapLink";
+import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
 import styles from "./Burgers.module.css";
 import { getBurgerPriceInfo } from "../../utils/burgerPricing";
 import { resolvePublicPath } from "../../utils/assetPath";
@@ -29,6 +30,10 @@ import {
   PROMO_CAMPAIGN,
   calcMissingAmount,
 } from "../../utils/promosCampaign";
+import {
+  STORE_CLOSED_MODE,
+  STORE_REOPEN_TEXT,
+} from "../../utils/storeClosedMode";
 
 const SHOWCASE_SECTIONS = [
   {
@@ -103,6 +108,7 @@ function mapBurgersById(list) {
 
 export default function Burgers() {
   const cart = useCart();
+  const isClosed = STORE_CLOSED_MODE;
 
   const SHOW_PROMO_HERO = false;
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -167,6 +173,10 @@ export default function Burgers() {
   }, [sections]);
 
   function openBurger(burger, evt) {
+    if (isClosed) {
+      notifyUnavailableBurger(burger, STORE_REOPEN_TEXT);
+      return;
+    }
     if (isItemUnavailable(burger)) {
       notifyUnavailableBurger(burger, getUnavailableReason(burger));
       return;
@@ -185,6 +195,12 @@ export default function Burgers() {
   }
 
   function addBurgerToCart(burger, size, removedIngredients = []) {
+    if (STORE_CLOSED_MODE) {
+      toast.error(`Cerrado hoy · ${STORE_REOPEN_TEXT}`, {
+        key: "store-closed-burger",
+      });
+      return;
+    }
     const price = getBurgerPriceInfo(burger, size);
     cart.add(buildBurgerCartItem(burger, size, price, removedIngredients));
     const addedText = buildBurgerAddedToastText(burger.name, size, price);
@@ -196,6 +212,7 @@ export default function Burgers() {
     <Page>
       <BrandLogo />
       <TopNav />
+      <ClosedInlineNotice />
 
       {SHOW_PROMO_HERO ? (
         <section className={styles.promoHero}>
@@ -256,8 +273,10 @@ export default function Burgers() {
             className={`${styles.cards} ${LAYOUT_CLASS[section.layout] || ""}`}>
             {section.items.map((entry, itemIndex) => {
               const burger = entry.burger;
-              const isUnavailable = isItemUnavailable(burger);
-              const unavailableReason = getUnavailableReason(burger);
+              const isUnavailable = isClosed || isItemUnavailable(burger);
+              const unavailableReason = isClosed
+                ? STORE_REOPEN_TEXT
+                : getUnavailableReason(burger);
               const globalIndex =
                 (sectionOffsets[sectionIndex] || 0) + itemIndex;
               const isPriorityImage = globalIndex < 2;
@@ -324,11 +343,17 @@ export default function Burgers() {
 
       <StickyBar>
         <CartSummary total={cart.total} />
-        <Link to="/carrito">
-          <Button variant="primary" disabled={cart.items.length === 0}>
-            Cerrar pedido
+        {isClosed ? (
+          <Button variant="primary" disabled subLabel={STORE_REOPEN_TEXT}>
+            Cerrado hoy
           </Button>
-        </Link>
+        ) : (
+          <Link to="/carrito">
+            <Button variant="primary" disabled={cart.items.length === 0}>
+              Cerrar pedido
+            </Button>
+          </Link>
+        )}
       </StickyBar>
     </Page>
   );

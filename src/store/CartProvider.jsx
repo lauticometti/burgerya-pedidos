@@ -1,6 +1,8 @@
 import React, { useMemo, useReducer } from "react";
 import { CartContext } from "./cartContext";
 import { getPapasUpgradePrice } from "../utils/papasPricing";
+import { toast } from "../utils/toast";
+import { STORE_CLOSED_MODE, STORE_REOPEN_TEXT } from "../utils/storeClosedMode";
 
 function reducer(state, action) {
   switch (action.type) {
@@ -184,7 +186,17 @@ export function CartProvider({ children }) {
       items,
       total,
       lastAdded: state.lastAdded,
-      add: (item) => dispatch({ type: "ADD", item }),
+      add: (item) => {
+        const allowDuringClosed = item?.meta?.allowDuringClosed;
+        if (STORE_CLOSED_MODE && !allowDuringClosed) {
+          toast.error(`Cerrado hoy · ${STORE_REOPEN_TEXT}`, {
+            key: "store-closed-add",
+            duration: 2800,
+          });
+          return;
+        }
+        dispatch({ type: "ADD", item });
+      },
       remove: (key) => dispatch({ type: "REMOVE", key }),
       clear: () => dispatch({ type: "CLEAR" }),
       setQty: (key, qty) => dispatch({ type: "SET_QTY", key, qty }),

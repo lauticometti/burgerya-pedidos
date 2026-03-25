@@ -32,7 +32,11 @@ export default function useCartUndo(cart) {
 
   const handleUndo = React.useCallback(() => {
     if (!undoItem?.item) return;
-    cart.add({ ...undoItem.item, qty: undoItem.item.qty || 1 });
+    cart.add({
+      ...undoItem.item,
+      qty: undoItem.item.qty || 1,
+      meta: { ...undoItem.item.meta, allowDuringClosed: true },
+    });
     setUndoItem(null);
     clearUndoTimer();
   }, [undoItem, cart, clearUndoTimer]);

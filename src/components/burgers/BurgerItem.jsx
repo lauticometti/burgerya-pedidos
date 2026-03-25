@@ -7,14 +7,22 @@ import {
   getUnavailableReason,
   isItemUnavailable,
 } from "../../utils/availability";
+import {
+  STORE_CLOSED_MODE,
+  STORE_REOPEN_TEXT,
+} from "../../utils/storeClosedMode";
 
 export default function BurgerItem({ burger, onOpen, onUnavailable }) {
   const minPrice = getMinPrice(burger.prices);
+  const isClosed = STORE_CLOSED_MODE;
   const isUnavailable = isItemUnavailable(burger);
-  const unavailableReason = getUnavailableReason(burger);
+  const isDisabled = isClosed || isUnavailable;
+  const unavailableReason = isClosed
+    ? STORE_REOPEN_TEXT
+    : getUnavailableReason(burger);
 
   function handleAction() {
-    if (isUnavailable) {
+    if (isDisabled) {
       onUnavailable?.(burger, unavailableReason);
       return;
     }
@@ -23,15 +31,15 @@ export default function BurgerItem({ burger, onOpen, onUnavailable }) {
 
   return (
     <div
-      className={`${styles.item} ${isUnavailable ? styles.itemUnavailable : ""}`}
+      className={`${styles.item} ${isDisabled ? styles.itemUnavailable : ""}`}
       role="button"
       tabIndex={0}
       aria-label={
-        isUnavailable
+        isDisabled
           ? `${burger.name}. ${unavailableReason}`
           : `Ver opciones de ${burger.name}`
       }
-      aria-disabled={isUnavailable}
+      aria-disabled={isDisabled}
       onClick={handleAction}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
@@ -43,7 +51,7 @@ export default function BurgerItem({ burger, onOpen, onUnavailable }) {
         <div className={styles.itemName}>{burger.name}</div>
         {burger.desc ? <div className={styles.itemDesc}>{burger.desc}</div> : null}
         <div className={styles.itemPrices}>Desde {formatMoney(minPrice)}</div>
-        {isUnavailable ? (
+        {isDisabled ? (
           <div className={styles.unavailableLabel}>{unavailableReason}</div>
         ) : null}
       </div>
@@ -60,15 +68,19 @@ export default function BurgerItem({ burger, onOpen, onUnavailable }) {
         <Button
           size="xs"
           className={`${styles.addBtnInline} ${
-            isUnavailable ? styles.addBtnInlineUnavailable : ""
+            isDisabled ? styles.addBtnInlineUnavailable : ""
           }`}
           type="button"
-          aria-disabled={isUnavailable}
+          aria-disabled={isDisabled}
+          disabled={isDisabled}
           onClick={(event) => {
             event.stopPropagation();
             handleAction();
           }}>
-          Agregar
+          {isClosed ? "Cerrado hoy" : "Agregar"}
+          {isClosed ? (
+            <span className={styles.addBtnHint}>{STORE_REOPEN_TEXT}</span>
+          ) : null}
         </Button>
       </div>
     </div>

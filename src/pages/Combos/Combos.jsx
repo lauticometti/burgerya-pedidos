@@ -17,6 +17,8 @@ import PageTitle from "../../components/ui/PageTitle";
 import { resolvePublicPath } from "../../utils/assetPath";
 import { buildBurgerLineKey } from "../../utils/cartKeys";
 import styles from "./Combos.module.css";
+import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
+import { STORE_CLOSED_MODE, STORE_REOPEN_TEXT } from "../../utils/storeClosedMode";
 
 const COMBOS = [
   {
@@ -43,6 +45,7 @@ const COMBO_ALLOWED_BURGERS = ["lautiboom", "bacon", "american"];
 
 export default function Combos() {
   const cart = useCart();
+  const isClosed = STORE_CLOSED_MODE;
 
   const burgersBySize = useMemo(
     () => {
@@ -56,6 +59,12 @@ export default function Combos() {
   );
 
   function addCombo(combo, burger) {
+    if (isClosed) {
+      toast.error(`Cerrado hoy · ${STORE_REOPEN_TEXT}`, {
+        key: "store-closed-combo",
+      });
+      return;
+    }
     if (isItemUnavailable(burger)) {
       toast.error(getUnavailableReason(burger) || "No disponible");
       return;
@@ -95,6 +104,7 @@ export default function Combos() {
           <PageTitle>Combos</PageTitle>
         </div>
       </header>
+      <ClosedInlineNotice />
 
       <div className={styles.cards}>
         {COMBOS.map((combo) => (
@@ -133,14 +143,20 @@ export default function Combos() {
                 {burgersBySize[
                   combo.size || (combo.sizeLabel.includes("doble") ? "doble" : "simple")
                 ].map((burger) => {
-                  const unavailable = isItemUnavailable(burger);
+                  const unavailable = isClosed || isItemUnavailable(burger);
                   return (
                     <Button
                       key={burger.id}
                       size="sm"
                       className={styles.pickerButton}
                       disabled={unavailable}
-                      subLabel={unavailable ? getUnavailableReason(burger) : undefined}
+                      subLabel={
+                        unavailable
+                          ? isClosed
+                            ? STORE_REOPEN_TEXT
+                            : getUnavailableReason(burger)
+                          : undefined
+                      }
                       onClick={() => addCombo(combo, burger)}>
                       <span className={styles.pickerChoice}>
                         <img
@@ -164,11 +180,17 @@ export default function Combos() {
 
       <StickyBar>
         <CartSummary total={cart.total} />
-        <Link to="/carrito">
-          <Button variant="primary" disabled={cart.items.length === 0}>
-            Cerrar pedido
+        {isClosed ? (
+          <Button variant="primary" disabled subLabel={STORE_REOPEN_TEXT}>
+            Cerrado hoy
           </Button>
-        </Link>
+        ) : (
+          <Link to="/carrito">
+            <Button variant="primary" disabled={cart.items.length === 0}>
+              Cerrar pedido
+            </Button>
+          </Link>
+        )}
       </StickyBar>
     </Page>
   );

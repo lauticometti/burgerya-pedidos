@@ -94,6 +94,14 @@
   color: #ffe8b8;
 }
 
+.addBtnHint {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+
 .thumbWrap {
   width: 68px;
   height: 68px;

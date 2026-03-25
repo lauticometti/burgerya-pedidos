@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { PROMO_CAMPAIGN, isGiftItem } from "../utils/promosCampaign";
+import { STORE_CLOSED_MODE } from "../utils/storeClosedMode";
 
 // Mantiene regalos automáticos y expone estado de promos activas.
 export default function useCartPromotions(
@@ -56,6 +57,7 @@ export default function useCartPromotions(
 
   useEffect(() => {
     if (!manageGifts) return;
+    if (STORE_CLOSED_MODE) return;
     if (qualifiesGift && !hasGift) {
       cart.add(giftItem);
     } else if (!qualifiesGift && hasGift) {

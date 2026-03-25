@@ -14,11 +14,20 @@ import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import PageTitle from "../../components/ui/PageTitle";
 import styles from "./Extras.module.css";
+import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
+import { STORE_CLOSED_MODE, STORE_REOPEN_TEXT } from "../../utils/storeClosedMode";
 
 export default function Extras() {
   const cart = useCart();
+  const isClosed = STORE_CLOSED_MODE;
 
   function addExtra(x) {
+    if (isClosed) {
+      toast.error(`Cerrado hoy · ${STORE_REOPEN_TEXT}`, {
+        key: "store-closed-extra",
+      });
+      return;
+    }
     if (isItemUnavailable(x)) {
       const reason = getUnavailableReason(x);
       toast.error(`${x.name}: ${reason}`, {
@@ -54,11 +63,14 @@ export default function Extras() {
       </div>
 
       <PageTitle>Agregados</PageTitle>
+      <ClosedInlineNotice />
 
       <div className={styles.list}>
         {extras.map((x) => {
-          const isUnavailable = isItemUnavailable(x);
-          const unavailableReason = getUnavailableReason(x);
+          const isUnavailable = isClosed || isItemUnavailable(x);
+          const unavailableReason = isClosed
+            ? STORE_REOPEN_TEXT
+            : getUnavailableReason(x);
           return (
             <Card
               key={x.id}
@@ -77,7 +89,7 @@ export default function Extras() {
                   aria-disabled={isUnavailable}
                   title={isUnavailable ? unavailableReason : undefined}
                   className={isUnavailable ? styles.unavailableBtn : ""}>
-                  + {formatMoney(x.price)}
+                  {isClosed ? "Cerrado hoy" : `+ ${formatMoney(x.price)}`}
                 </Button>
               </div>
             </Card>
@@ -87,11 +99,17 @@ export default function Extras() {
 
       <StickyBar>
         <CartSummary total={cart.total} />
-        <Link to="/carrito">
-          <Button variant="primary" disabled={cart.items.length === 0}>
-            Cerrar pedido
+        {isClosed ? (
+          <Button variant="primary" disabled subLabel={STORE_REOPEN_TEXT}>
+            Cerrado hoy
           </Button>
-        </Link>
+        ) : (
+          <Link to="/carrito">
+            <Button variant="primary" disabled={cart.items.length === 0}>
+              Cerrar pedido
+            </Button>
+          </Link>
+        )}
       </StickyBar>
     </Page>
   );

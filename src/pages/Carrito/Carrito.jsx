@@ -35,9 +35,12 @@ import {
   evaluateCoupon,
   normalizeCouponInput,
 } from "../../utils/coupons";
+import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
+import { STORE_CLOSED_MODE, STORE_REOPEN_TEXT } from "../../utils/storeClosedMode";
 
 export default function Carrito() {
   const cart = useCart();
+  const isClosed = STORE_CLOSED_MODE;
 
   const [step, setStep] = React.useState(1); // 1: Chequear pedido, 2: Datos y pago
   const burgersById = React.useMemo(
@@ -125,7 +128,7 @@ export default function Carrito() {
 
   const totalWithDiscount = Math.max(0, cart.total - totalDiscount);
 
-  const canContinue = cart.items.length > 0;
+  const canContinue = !isClosed && cart.items.length > 0;
   const couponApplied = Boolean(appliedCoupon);
   const { canSend, missingFields, waHref } = useCheckoutValidation({
     deliveryMode,
@@ -142,6 +145,7 @@ export default function Carrito() {
     discountAmount: totalDiscount,
     totalBefore: cart.total,
   });
+  const sendEnabled = !isClosed && canSend;
   React.useEffect(() => {
     if (!canContinue && step !== 1) {
       setStep(1);
@@ -277,6 +281,7 @@ export default function Carrito() {
       <CarritoHeader onClear={cart.clear} />
 
       <PageTitle>Carrito</PageTitle>
+      <ClosedInlineNotice />
 
       {upsellMessages.length ? (
         <div className={styles.upsellCard}>
@@ -335,7 +340,16 @@ export default function Carrito() {
                   size="sm"
                   variant="secondary"
                   className={styles.drinkCta}
-                  onClick={openBebidaModal}>
+                  disabled={isClosed}
+                  onClick={() => {
+                    if (isClosed) {
+                      toast.error(`Cerrado hoy · ${STORE_REOPEN_TEXT}`, {
+                        key: "store-closed-bebidas",
+                      });
+                      return;
+                    }
+                    openBebidaModal();
+                  }}>
                   Agregar bebidas
                 </Button>
               </div>
@@ -412,21 +426,24 @@ export default function Carrito() {
               variant="primary"
               disabled={!canContinue}
               onClick={() => setStep(2)}>
-              Continuar
+              {isClosed ? "Cerrado hoy" : "Continuar"}
             </Button>
             {!canContinue ? (
               <div className={styles.stickyHint}>
-                Agrega items para continuar.
+                {isClosed ? STORE_REOPEN_TEXT : "Agrega items para continuar."}
               </div>
             ) : null}
           </div>
         ) : (
           <div className={styles.stickyRight}>
-            <a href={canSend ? waHref : "#"} target="_blank" rel="noreferrer">
-              <Button variant="primary" disabled={!canSend}>
-                Enviar por WhatsApp
+            <a href={sendEnabled ? waHref : "#"} target="_blank" rel="noreferrer">
+              <Button variant="primary" disabled={!sendEnabled}>
+                {isClosed ? "Cerrado hoy" : "Enviar por WhatsApp"}
               </Button>
             </a>
+            {isClosed ? (
+              <div className={styles.stickyHint}>{STORE_REOPEN_TEXT}</div>
+            ) : null}
           </div>
         )}
       </StickyBar>

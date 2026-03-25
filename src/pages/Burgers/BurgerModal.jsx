@@ -5,6 +5,7 @@ import { resolvePublicPath } from "../../utils/assetPath";
 import { getBurgerPriceInfo } from "../../utils/burgerPricing";
 import CloseButton from "../../components/ui/CloseButton";
 import useEscapeToClose from "../../hooks/useEscapeToClose";
+import { STORE_CLOSED_MODE, STORE_REOPEN_TEXT } from "../../utils/storeClosedMode";
 
 const SIZE_ORDER = ["simple", "doble", "triple"];
 const SIZE_LABEL = { simple: "Simple", doble: "Doble", triple: "Triple" };
@@ -48,6 +49,8 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
   const burgerImg =
     origin?.imageSrc ||
     resolvePublicPath(burger.img || "/burgers/placeholder.jpg");
+  const isClosed = STORE_CLOSED_MODE;
+  const addDisabled = !selectedSize || isClosed;
 
   return (
     <div
@@ -151,13 +154,15 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
             <button
               className={`${styles.addBtn} ${isTitanica ? styles.addBtnChallenge : ""}`}
               type="button"
-              disabled={!selectedSize}
+              disabled={addDisabled}
               onClick={() => onAdd?.(burger, selectedSize, selectedRemovals)}>
-              {isTitanica && selectedPrice
-                ? `Yo me animo - ${formatMoney(selectedPrice.finalPrice)}`
-                : selectedPrice
-                  ? `Sumar al pedido · ${formatMoney(selectedPrice.finalPrice)}`
-                  : "Sumar al pedido"}
+              {isClosed
+                ? `Cerrado hoy · ${STORE_REOPEN_TEXT}`
+                : isTitanica && selectedPrice
+                  ? `Yo me animo - ${formatMoney(selectedPrice.finalPrice)}`
+                  : selectedPrice
+                    ? `Sumar al pedido · ${formatMoney(selectedPrice.finalPrice)}`
+                    : "Sumar al pedido"}
             </button>
           </div>
         </div>
