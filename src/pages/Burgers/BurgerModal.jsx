@@ -105,6 +105,9 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
                             -{formatMoney(price.discountAmount)}
                           </div>
                         ) : null}
+                        {price.offerLabel ? (
+                          <div className={styles.sizeOffer}>{price.offerLabel}</div>
+                        ) : null}
                       </div>
                     </button>
                   );
@@ -153,8 +156,8 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
               {isTitanica && selectedPrice
                 ? `Yo me animo - ${formatMoney(selectedPrice.finalPrice)}`
                 : selectedPrice
-                ? `Agregar ${formatMoney(selectedPrice.finalPrice)}`
-                : "Agregar"}
+                  ? `Sumar al pedido · ${formatMoney(selectedPrice.finalPrice)}`
+                  : "Sumar al pedido"}
             </button>
           </div>
         </div>

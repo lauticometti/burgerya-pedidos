@@ -29,7 +29,8 @@ export default function CartItemCard({
 }) {
   const isPromo = item.meta?.type === "promo";
   const allowPromoQty = item.meta?.allowQty;
-  const showQtyControls = !isPromo || allowPromoQty;
+  const locked = item.meta?.locked;
+  const showQtyControls = !locked && (!isPromo || allowPromoQty);
   const showActions = canAddExtras || canImprovePapas;
   const papasContext = { size: item.meta?.size, itemType: item.meta?.type };
   const extrasTotal = (item.extras || []).reduce(
@@ -64,6 +65,7 @@ export default function CartItemCard({
           : null;
   const description = item.meta?.description;
   const removedIngredients = item.removedIngredients || [];
+  const showRemoveButton = !locked;
 
   function getPickRemovables(pick) {
     const burgerId = pick.id || pick.burgerId;
@@ -90,6 +92,7 @@ export default function CartItemCard({
             <div className={styles.name}>
               {item.name}
               {!isPromo && sizeLabel ? ` ${sizeLabel}` : ""}
+              {locked ? <span className={styles.lockedTag}>Bonificado</span> : null}
             </div>
             {picksText ? (
               <div className={styles.meta}>- {picksText}</div>
@@ -138,7 +141,9 @@ export default function CartItemCard({
               </div>
             ) : null}
           </div>
-          <CloseButton onClick={onRemove} aria-label={`Quitar ${item.name}`} />
+          {showRemoveButton ? (
+            <CloseButton onClick={onRemove} aria-label={`Quitar ${item.name}`} />
+          ) : null}
         </div>
       </div>
 

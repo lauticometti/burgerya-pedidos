@@ -3,6 +3,7 @@ import { useCart } from "../../store/useCart";
 import { bebidas, burgers, extras, papas } from "../../data/menu";
 import ItemExtrasModal from "../../components/ItemExtrasModal";
 import { toast } from "../../utils/toast";
+import { formatMoney } from "../../utils/formatMoney";
 import { getAvailableSlotsMin30, minutesToHHMM } from "../../utils/timeSlots";
 import Page from "../../components/layout/Page";
 import StickyBar from "../../components/layout/StickyBar";
@@ -34,6 +35,7 @@ import {
   evaluateCoupon,
   normalizeCouponInput,
 } from "../../utils/coupons";
+import useCartPromotions from "../../hooks/useCartPromotions";
 
 export default function Carrito() {
   const cart = useCart();
@@ -47,6 +49,7 @@ export default function Carrito() {
       }, {}),
     [],
   );
+  const promoState = useCartPromotions(cart, { papasList: papas, manageGifts: false });
   const {
     deliveryMode,
     setDeliveryMode,
@@ -257,12 +260,57 @@ export default function Carrito() {
     undoButton: styles.undoButton,
   };
 
+  const upsellMessages = React.useMemo(() => {
+    const msgs = [];
+    if (promoState.qualifiesGift) {
+      return [{ id: "gift-ready", text: "Papas gratis incluidas" }];
+    }
+    if (promoState.missingForGift > 0 && cart.items.length > 0) {
+      msgs.push({
+        id: "gift-progress",
+        text: `Te faltan ${formatMoney(promoState.missingForGift)} para llevarte papas gratis`,
+      });
+    }
+    if (promoState.insights?.burgers === 1) {
+      msgs.push({
+        id: "one-burger",
+        text: "Sumá otra burger y rinde más",
+      });
+    }
+    if (promoState.insights?.doubles > 0) {
+      msgs.push({
+        id: "triple-upgrade",
+        text: "Hacela triple hoy +$1500",
+      });
+    }
+    if (cart.total < 20000 && promoState.insights?.items >= 1) {
+      msgs.push({
+        id: "low-ticket",
+        text: "Sumá una burger más y aprovechás mejor el pedido",
+      });
+    }
+    return msgs.slice(0, 3);
+  }, [cart.items.length, cart.total, promoState]);
+
   return (
     <Page>
       <BrandLogo />
       <CarritoHeader onClear={cart.clear} />
 
       <PageTitle>Carrito</PageTitle>
+
+      {upsellMessages.length ? (
+        <div className={styles.upsellCard}>
+          <div className={styles.upsellTitle}>Aprovechá hoy</div>
+          <div className={styles.upsellRow}>
+            {upsellMessages.map((msg) => (
+              <div key={msg.id} className={styles.upsellLink}>
+                {msg.text}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       <div className={styles.steps}>
         <Button size="sm" isActive={step === 1} onClick={() => setStep(1)}>

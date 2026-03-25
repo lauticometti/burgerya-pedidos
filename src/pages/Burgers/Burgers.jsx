@@ -14,6 +14,7 @@ import DeliveryMapLink from "../../components/delivery/DeliveryMapLink";
 import styles from "./Burgers.module.css";
 import { getBurgerPriceInfo } from "../../utils/burgerPricing";
 import { resolvePublicPath } from "../../utils/assetPath";
+import { formatMoney } from "../../utils/formatMoney";
 import {
   getUnavailableReason,
   isItemUnavailable,
@@ -24,6 +25,10 @@ import {
   notifyUnavailableBurger,
   scrollToBurgerCard,
 } from "./burgersUtils";
+import {
+  PROMO_CAMPAIGN,
+  calcMissingAmount,
+} from "../../utils/promosCampaign";
 
 const SHOWCASE_SECTIONS = [
   {
@@ -103,6 +108,33 @@ export default function Burgers() {
   const [activeBurger, setActiveBurger] = React.useState(null);
   const [modalOrigin, setModalOrigin] = React.useState(null);
   const burgersById = React.useMemo(() => mapBurgersById(burgers), []);
+  const promoConfig = PROMO_CAMPAIGN;
+  const hasGift = React.useMemo(
+    () =>
+      cart.items.some(
+        (item) =>
+          item.meta?.promoGiftId && item.meta.promoGiftId === promoConfig.thresholdGift.id,
+      ),
+    [cart.items, promoConfig.thresholdGift.id],
+  );
+  const missingForGift = React.useMemo(
+    () => calcMissingAmount(cart.total, promoConfig.thresholdGift.amount),
+    [cart.total, promoConfig.thresholdGift.amount],
+  );
+  const giftProgress = Math.min(
+    Math.max(
+      ((promoConfig.thresholdGift.amount - missingForGift) /
+        promoConfig.thresholdGift.amount) *
+        100,
+      0,
+    ),
+    100,
+  );
+
+  function jumpToDoubleBurger() {
+    const targetId = "bacon";
+    scrollToBurgerCard(targetId);
+  }
 
   const sections = React.useMemo(
     () =>
@@ -163,6 +195,50 @@ export default function Burgers() {
     <Page>
       <BrandLogo />
       <TopNav />
+
+      <section className={styles.promoHero}>
+        <div className={styles.promoHeader}>
+          <div>
+            <p className={styles.promoKicker}>PROMOS DE HOY</p>
+            <h1 className={styles.promoTitle}>Pedí más y aprovechá</h1>
+            <p className={styles.promoSubtitle}>Activas hasta las 00:00</p>
+          </div>
+        </div>
+
+        <div className={styles.promoGrid}>
+          <article className={styles.promoCard}>
+            <div className={styles.promoTag}>Upgrade inmediato</div>
+            <div className={styles.promoCardTitle}>Hacela triple hoy +$1500</div>
+            <Button className={styles.promoButtonGhost} onClick={jumpToDoubleBurger}>
+              Pasar a triple
+            </Button>
+          </article>
+
+          <article className={styles.promoCard}>
+            <div className={styles.promoTag}>Regalo por umbral</div>
+            <div className={styles.promoCardTitle}>
+              {hasGift ? "Papas gratis incluidas" : "Papas gratis desde $30.000"}
+            </div>
+            <div className={styles.progressWrap}>
+              <div className={styles.progressBar}>
+                <span style={{ width: `${giftProgress}%` }} />
+              </div>
+              <div className={styles.progressText}>
+                {hasGift
+                  ? "Papas gratis incluidas"
+                  : `Te faltan ${formatMoney(missingForGift)}`}
+              </div>
+            </div>
+            {!hasGift ? (
+              <Button
+                className={styles.promoButtonGhost}
+                onClick={() => scrollToBurgerCard("bacon")}>
+                Sumar y llevar papas gratis
+              </Button>
+            ) : null}
+          </article>
+        </div>
+      </section>
 
       {sections.map((section, sectionIndex) => (
         <section
@@ -247,7 +323,7 @@ export default function Burgers() {
         <CartSummary total={cart.total} />
         <Link to="/carrito">
           <Button variant="primary" disabled={cart.items.length === 0}>
-            Ir al carrito
+            Cerrar pedido
           </Button>
         </Link>
       </StickyBar>

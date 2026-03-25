@@ -100,7 +100,7 @@ export default function Promos() {
         <CartSummary total={cart.total} />
         <Link to="/carrito">
           <Button variant="primary" disabled={cart.items.length === 0}>
-            Ir al carrito
+            Cerrar pedido
           </Button>
         </Link>
       </StickyBar>
