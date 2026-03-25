@@ -141,26 +141,28 @@
 }
 
 .upsellLink {
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
-  font-weight: 700;
-  padding: 10px 14px;
-  border-radius: 14px;
+  border: 1px solid #ffc62a;
+  background: transparent;
+  color: #ffc62a;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 7px 12px;
+  border-radius: 12px;
   cursor: pointer;
   transition:
-    background 120ms ease,
-    border-color 120ms ease;
+    background 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease;
 }
 
 .upsellLink:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.26);
+  background: rgba(255, 198, 42, 0.12);
+  border-color: #ffc62a;
 }
 
 .upsellLink:focus-visible {
   outline: 2px solid rgba(255, 198, 42, 0.5);
-  outline-offset: 3px;
+  outline-offset: 2px;
 }
 
 .couponBlock {
