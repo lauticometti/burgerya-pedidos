@@ -261,36 +261,17 @@ export default function Carrito() {
   };
 
   const upsellMessages = React.useMemo(() => {
-    if (promoState.qualifiesGift) return [];
-
-    const msgs = [];
-
-    if (promoState.missingForGift > 0 && cart.items.length > 0) {
-      msgs.push({
-        id: "gift-progress",
-        text: `Te faltan ${formatMoney(promoState.missingForGift)} para llevarte papas gratis`,
-      });
+    if (promoState.qualifiesGift || cart.items.length === 0) return [];
+    if (promoState.missingForGift > 0) {
+      return [
+        {
+          id: "gift-progress",
+          text: `Te faltan ${formatMoney(promoState.missingForGift)} para papas extra gratis`,
+        },
+      ];
     }
-
-    if (promoState.insights?.burgers === 1) {
-      msgs.push({
-        id: "one-burger",
-        text: "Sumá otra burger y rinde más",
-      });
-    } else if (promoState.insights?.doubles > 0) {
-      msgs.push({
-        id: "triple-upgrade",
-        text: "Hacela triple hoy +$1500",
-      });
-    } else if (cart.total < 20000 && promoState.insights?.items >= 1) {
-      msgs.push({
-        id: "low-ticket",
-        text: "Sumá algo más y cerrá el pedido",
-      });
-    }
-
-    return msgs.slice(0, 2);
-  }, [cart.items.length, cart.total, promoState]);
+    return [];
+  }, [cart.items.length, promoState.missingForGift, promoState.qualifiesGift]);
 
   return (
     <Page>
