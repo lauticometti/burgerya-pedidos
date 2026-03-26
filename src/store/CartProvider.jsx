@@ -2,7 +2,7 @@ import React, { useMemo, useReducer } from "react";
 import { CartContext } from "./cartContext";
 import { getPapasUpgradePrice } from "../utils/papasPricing";
 import { toast } from "../utils/toast";
-import { STORE_CLOSED_MODE, STORE_REOPEN_TEXT } from "../utils/storeClosedMode";
+import { useStoreStatus } from "../utils/storeClosedMode";
 
 function reducer(state, action) {
   switch (action.type) {
@@ -155,6 +155,7 @@ function reducer(state, action) {
 
 export function CartProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, { items: {}, lastAdded: null });
+  const { closedToastText, isClosed } = useStoreStatus();
 
   const api = useMemo(() => {
     const items = Object.values(state.items);
@@ -188,8 +189,8 @@ export function CartProvider({ children }) {
       lastAdded: state.lastAdded,
       add: (item) => {
         const allowDuringClosed = item?.meta?.allowDuringClosed;
-        if (STORE_CLOSED_MODE && !allowDuringClosed) {
-          toast.error(`Cerrado hoy · ${STORE_REOPEN_TEXT}`, {
+        if (isClosed && !allowDuringClosed) {
+          toast.error(closedToastText, {
             key: "store-closed-add",
             duration: 2800,
           });
@@ -208,7 +209,7 @@ export function CartProvider({ children }) {
       setPromoPicks: (key, picks) =>
         dispatch({ type: "SET_PROMO_PICKS", key, picks }),
     };
-  }, [state.items, state.lastAdded]);
+  }, [closedToastText, isClosed, state.items, state.lastAdded]);
 
   return <CartContext.Provider value={api}>{children}</CartContext.Provider>;
 }

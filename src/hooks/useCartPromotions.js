@@ -1,12 +1,13 @@
 import { useEffect, useMemo } from "react";
 import { PROMO_CAMPAIGN, isGiftItem } from "../utils/promosCampaign";
-import { STORE_CLOSED_MODE } from "../utils/storeClosedMode";
+import { useStoreStatus } from "../utils/storeClosedMode";
 
 // Mantiene regalos automáticos y expone estado de promos activas.
 export default function useCartPromotions(
   cart,
   { papasList = [], manageGifts = true } = {},
 ) {
+  const { isClosed } = useStoreStatus();
   const giftConfig = PROMO_CAMPAIGN.thresholdGift;
 
   const giftBasePrice = useMemo(() => {
@@ -57,13 +58,13 @@ export default function useCartPromotions(
 
   useEffect(() => {
     if (!manageGifts) return;
-    if (STORE_CLOSED_MODE) return;
+    if (isClosed) return;
     if (qualifiesGift && !hasGift) {
       cart.add(giftItem);
     } else if (!qualifiesGift && hasGift) {
       cart.remove(giftItem.key);
     }
-  }, [cart, giftItem, hasGift, qualifiesGift, manageGifts]);
+  }, [cart, giftItem, hasGift, isClosed, qualifiesGift, manageGifts]);
 
   const insights = useMemo(() => {
     const base = {

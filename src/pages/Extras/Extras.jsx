@@ -15,15 +15,16 @@ import Card from "../../components/ui/Card";
 import PageTitle from "../../components/ui/PageTitle";
 import styles from "./Extras.module.css";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
-import { STORE_CLOSED_MODE, STORE_REOPEN_TEXT } from "../../utils/storeClosedMode";
+import { useStoreStatus } from "../../utils/storeClosedMode";
 
 export default function Extras() {
   const cart = useCart();
-  const isClosed = STORE_CLOSED_MODE;
+  const { closedActionLabel, closedToastText, isClosed, reopenText } =
+    useStoreStatus();
 
   function addExtra(x) {
     if (isClosed) {
-      toast.error(`Cerrado hoy · ${STORE_REOPEN_TEXT}`, {
+      toast.error(closedToastText, {
         key: "store-closed-extra",
       });
       return;
@@ -69,7 +70,7 @@ export default function Extras() {
         {extras.map((x) => {
           const isUnavailable = isClosed || isItemUnavailable(x);
           const unavailableReason = isClosed
-            ? STORE_REOPEN_TEXT
+            ? reopenText
             : getUnavailableReason(x);
           return (
             <Card
@@ -89,7 +90,7 @@ export default function Extras() {
                   aria-disabled={isUnavailable}
                   title={isUnavailable ? unavailableReason : undefined}
                   className={isUnavailable ? styles.unavailableBtn : ""}>
-                  {isClosed ? "Cerrado hoy" : `+ ${formatMoney(x.price)}`}
+                  {isClosed ? closedActionLabel : `+ ${formatMoney(x.price)}`}
                 </Button>
               </div>
             </Card>
@@ -100,8 +101,8 @@ export default function Extras() {
       <StickyBar>
         <CartSummary total={cart.total} />
         {isClosed ? (
-          <Button variant="primary" disabled subLabel={STORE_REOPEN_TEXT}>
-            Cerrado hoy
+          <Button variant="primary" disabled subLabel={reopenText}>
+            {closedActionLabel}
           </Button>
         ) : (
           <Link to="/carrito">

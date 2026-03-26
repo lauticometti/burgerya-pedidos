@@ -1,19 +1,29 @@
 import {
-  STORE_CLOSED_BANNER_SUBTITLE,
-  STORE_CLOSED_BANNER_TITLE,
-  STORE_CLOSED_MODE,
+  useStoreStatus,
 } from "../../utils/storeClosedMode";
 import styles from "./ClosedBanner.module.css";
 
 export default function ClosedBanner() {
-  if (!STORE_CLOSED_MODE) return null;
+  const { bannerSubtitle, bannerTitle, showBanner, statusTone } = useStoreStatus();
+
+  if (!showBanner) return null;
+
+  const toneClass =
+    statusTone === "open"
+      ? styles.bannerOpen
+      : statusTone === "soon"
+        ? styles.bannerSoon
+        : "";
 
   return (
-    <div className={styles.banner} role="status" aria-live="polite">
+    <div
+      className={`${styles.banner} ${toneClass}`.trim()}
+      role="status"
+      aria-live="polite">
       <div className={styles.lightBar} aria-hidden />
       <div className={styles.textWrap}>
-        <div className={styles.title}>{STORE_CLOSED_BANNER_TITLE}</div>
-        <div className={styles.subtitle}>{STORE_CLOSED_BANNER_SUBTITLE}</div>
+        <div className={styles.title}>{bannerTitle}</div>
+        <div className={styles.subtitle}>{bannerSubtitle}</div>
       </div>
     </div>
   );

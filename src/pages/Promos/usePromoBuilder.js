@@ -8,7 +8,7 @@ import {
 } from "../../utils/availability.js";
 import { getStepHelp } from "./promosConfig.js";
 import { groupAllowedBurgers, indexBurgersById } from "./promosSelectors.js";
-import { STORE_CLOSED_MODE, STORE_REOPEN_TEXT } from "../../utils/storeClosedMode.js";
+import { useStoreStatus } from "../../utils/storeClosedMode.js";
 
 function scrollToRef(ref) {
   if (!ref?.current) return;
@@ -54,6 +54,7 @@ export default function usePromoBuilder({
   promoRules,
   cart,
 }) {
+  const { closedToastText, isClosed } = useStoreStatus();
   const [tier, setTier] = useState(null); // BASICA | PREMIUM | DELUXE
   const [count, setCount] = useState(null); // 2 | 3 | 4
   const [size, setSize] = useState(null); // doble | triple
@@ -153,8 +154,8 @@ export default function usePromoBuilder({
 
   function addPromoToCart() {
     if (!tier || !count || !size || picked.length !== count || price == null) return;
-    if (STORE_CLOSED_MODE) {
-      toast.error(`Cerrado hoy · ${STORE_REOPEN_TEXT}`, {
+    if (isClosed) {
+      toast.error(closedToastText, {
         key: "store-closed-promo",
       });
       return;

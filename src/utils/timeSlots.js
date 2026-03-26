@@ -1,4 +1,6 @@
-﻿function pad2(n) {
+import { getArgentinaTimeParts } from "./storeClosedMode";
+
+function pad2(n) {
   return String(n).padStart(2, "0");
 }
 
@@ -22,7 +24,7 @@ export function minutesToHHMM(m) {
 
 export function getAvailableSlotsMin30(date = new Date()) {
   const slots = buildTimeSlots();
-  const nowMins = date.getHours() * 60 + date.getMinutes();
+  const { minutes: nowMins } = getArgentinaTimeParts(date);
 
   const opening = 20 * 60 + 30;
   if (nowMins < opening) return slots;
@@ -30,4 +32,3 @@ export function getAvailableSlotsMin30(date = new Date()) {
   const minAllowed = roundUpTo15(nowMins + 30);
   return slots.filter((m) => m >= minAllowed);
 }
-

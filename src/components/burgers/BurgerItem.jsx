@@ -7,18 +7,15 @@ import {
   getUnavailableReason,
   isItemUnavailable,
 } from "../../utils/availability";
-import {
-  STORE_CLOSED_MODE,
-  STORE_REOPEN_TEXT,
-} from "../../utils/storeClosedMode";
+import { useStoreStatus } from "../../utils/storeClosedMode";
 
 export default function BurgerItem({ burger, onOpen, onUnavailable }) {
   const minPrice = getMinPrice(burger.prices);
-  const isClosed = STORE_CLOSED_MODE;
+  const { closedActionLabel, isClosed, reopenText } = useStoreStatus();
   const isUnavailable = isItemUnavailable(burger);
   const isDisabled = isClosed || isUnavailable;
   const unavailableReason = isClosed
-    ? STORE_REOPEN_TEXT
+    ? reopenText
     : getUnavailableReason(burger);
 
   function handleAction() {
@@ -77,9 +74,9 @@ export default function BurgerItem({ burger, onOpen, onUnavailable }) {
             event.stopPropagation();
             handleAction();
           }}>
-          {isClosed ? "Cerrado hoy" : "Agregar"}
+          {isClosed ? closedActionLabel : "Agregar"}
           {isClosed ? (
-            <span className={styles.addBtnHint}>{STORE_REOPEN_TEXT}</span>
+            <span className={styles.addBtnHint}>{reopenText}</span>
           ) : null}
         </Button>
       </div>

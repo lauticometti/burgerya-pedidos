@@ -18,7 +18,7 @@ import { resolvePublicPath } from "../../utils/assetPath";
 import { buildBurgerLineKey } from "../../utils/cartKeys";
 import styles from "./Combos.module.css";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
-import { STORE_CLOSED_MODE, STORE_REOPEN_TEXT } from "../../utils/storeClosedMode";
+import { useStoreStatus } from "../../utils/storeClosedMode";
 
 const COMBOS = [
   {
@@ -45,7 +45,8 @@ const COMBO_ALLOWED_BURGERS = ["lautiboom", "bacon", "american"];
 
 export default function Combos() {
   const cart = useCart();
-  const isClosed = STORE_CLOSED_MODE;
+  const { closedActionLabel, closedToastText, isClosed, reopenText } =
+    useStoreStatus();
 
   const burgersBySize = useMemo(
     () => {
@@ -60,7 +61,7 @@ export default function Combos() {
 
   function addCombo(combo, burger) {
     if (isClosed) {
-      toast.error(`Cerrado hoy · ${STORE_REOPEN_TEXT}`, {
+      toast.error(closedToastText, {
         key: "store-closed-combo",
       });
       return;
@@ -153,7 +154,7 @@ export default function Combos() {
                       subLabel={
                         unavailable
                           ? isClosed
-                            ? STORE_REOPEN_TEXT
+                            ? reopenText
                             : getUnavailableReason(burger)
                           : undefined
                       }
@@ -181,8 +182,8 @@ export default function Combos() {
       <StickyBar>
         <CartSummary total={cart.total} />
         {isClosed ? (
-          <Button variant="primary" disabled subLabel={STORE_REOPEN_TEXT}>
-            Cerrado hoy
+          <Button variant="primary" disabled subLabel={reopenText}>
+            {closedActionLabel}
           </Button>
         ) : (
           <Link to="/carrito">

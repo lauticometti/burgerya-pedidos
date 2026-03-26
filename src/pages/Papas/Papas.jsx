@@ -24,11 +24,12 @@ import {
   indexPapasById,
 } from "./papasUtils";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
-import { STORE_CLOSED_MODE, STORE_REOPEN_TEXT } from "../../utils/storeClosedMode";
+import { useStoreStatus } from "../../utils/storeClosedMode";
 
 export default function Papas() {
   const cart = useCart();
-  const isClosed = STORE_CLOSED_MODE;
+  const { closedActionLabel, closedToastText, isClosed, reopenText } =
+    useStoreStatus();
   const [modalOpen, setModalOpen] = useState(false);
   const [activeSize, setActiveSize] = useState(null);
   const [selectedOptionId, setSelectedOptionId] = useState("solas");
@@ -46,7 +47,7 @@ export default function Papas() {
 
   function openModal(size) {
     if (isClosed) {
-      toast.error(`Cerrado hoy · ${STORE_REOPEN_TEXT}`, {
+      toast.error(closedToastText, {
         key: "store-closed-papas",
       });
       return;
@@ -63,7 +64,7 @@ export default function Papas() {
 
   function addSelectedPapas() {
     if (isClosed) {
-      toast.error(`Cerrado hoy · ${STORE_REOPEN_TEXT}`, {
+      toast.error(closedToastText, {
         key: "store-closed-papas",
       });
       return;
@@ -99,9 +100,9 @@ export default function Papas() {
             key={item.id}
             item={{ name: item.label, price: item.basePrice }}
             onAdd={() => openModal(item.size)}
-            actionLabel={isClosed ? STORE_REOPEN_TEXT : "Ver opciones"}
+            actionLabel={isClosed ? reopenText : "Ver opciones"}
             isUnavailable={isClosed}
-            unavailableReason={STORE_REOPEN_TEXT}
+            unavailableReason={reopenText}
           />
         ))}
       </div>
@@ -114,10 +115,10 @@ export default function Papas() {
                 key={item.id}
                 item={item}
                 isUnavailable={isClosed || isItemUnavailable(item)}
-                unavailableReason={isClosed ? STORE_REOPEN_TEXT : item.unavailableReason}
+                unavailableReason={isClosed ? reopenText : item.unavailableReason}
                 onAdd={() => {
                   if (isClosed) {
-                    toast.error(`Cerrado hoy · ${STORE_REOPEN_TEXT}`, {
+                    toast.error(closedToastText, {
                       key: "store-closed-papas-dip",
                     });
                     return;
@@ -154,10 +155,10 @@ export default function Papas() {
                 key={item.id}
                 item={item}
                 isUnavailable={isClosed || isItemUnavailable(item)}
-                unavailableReason={isClosed ? STORE_REOPEN_TEXT : item.unavailableReason}
+                unavailableReason={isClosed ? reopenText : item.unavailableReason}
                 onAdd={() => {
                   if (isClosed) {
-                    toast.error(`Cerrado hoy · ${STORE_REOPEN_TEXT}`, {
+                    toast.error(closedToastText, {
                       key: "store-closed-bebida",
                     });
                     return;
@@ -186,8 +187,8 @@ export default function Papas() {
       <StickyBar>
         <CartSummary total={cart.total} />
         {isClosed ? (
-          <Button variant="primary" type="button" disabled subLabel={STORE_REOPEN_TEXT}>
-            Cerrado hoy
+          <Button variant="primary" type="button" disabled subLabel={reopenText}>
+            {closedActionLabel}
           </Button>
         ) : (
           <Link to="/carrito">
@@ -209,7 +210,8 @@ export default function Papas() {
         onClose={closeModal}
         onConfirm={addSelectedPapas}
         isClosed={isClosed}
-        reopenText={STORE_REOPEN_TEXT}
+        closedActionLabel={closedActionLabel}
+        reopenText={reopenText}
       />
     </Page>
   );

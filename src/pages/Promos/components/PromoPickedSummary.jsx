@@ -15,13 +15,14 @@ export default function PromoPickedSummary({
   onRemovePick,
   onAddPromoToCart,
   isClosed = false,
+  closedActionLabel,
   reopenText,
 }) {
   if (!tier || !count || !size) return null;
 
   const unitPrice = price && count ? price / count : null;
   const disabled = isClosed || picked.length !== count;
-  const actionLabel = isClosed ? "Cerrado hoy" : "Agregar promo";
+  const actionLabel = isClosed ? closedActionLabel || "Cerrado hoy" : "Agregar promo";
   const actionSubLabel = isClosed ? reopenText : remainingText;
 
   return (

@@ -17,6 +17,7 @@ export default function PapasOptionModal({
   onClose,
   onConfirm,
   isClosed = false,
+  closedActionLabel,
   reopenText,
 }) {
   useEscapeToClose(open, onClose);
@@ -86,7 +87,7 @@ export default function PapasOptionModal({
             type="button"
             onClick={onConfirm}
             disabled={disableConfirm}>
-            {isClosed ? reopenText || "Cerrado hoy" : "Agregar"}
+            {isClosed ? closedActionLabel || reopenText || "Cerrado hoy" : "Agregar"}
           </Button>
         </div>
       </div>

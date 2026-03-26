@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useCart } from "../../store/useCart";
-import TopNav from "../../components/TopNav";
-import { STORE_SCHEDULE_TEXT } from "../../utils/isOpenNow";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
-import { STORE_CLOSED_MODE, STORE_REOPEN_TEXT } from "../../utils/storeClosedMode";
+import BrandLogo from "../../components/brand/BrandLogo";
+import CartSummary from "../../components/cart/CartSummary";
+import HomeCard from "../../components/home/HomeCard";
 import Page from "../../components/layout/Page";
 import StickyBar from "../../components/layout/StickyBar";
-import CartSummary from "../../components/cart/CartSummary";
 import Button from "../../components/ui/Button";
-import HomeCard from "../../components/home/HomeCard";
-import BrandLogo from "../../components/brand/BrandLogo";
+import TopNav from "../../components/TopNav";
+import { useCart } from "../../store/useCart";
+import { useStoreStatus } from "../../utils/storeClosedMode";
 import styles from "./Home.module.css";
 
 const HOME_CARD_IMAGES = {
@@ -20,7 +19,8 @@ const HOME_CARD_IMAGES = {
 
 export default function Home() {
   const cart = useCart();
-  const isClosed = STORE_CLOSED_MODE;
+  const { closedActionLabel, isClosed, reopenText, scheduleText } =
+    useStoreStatus();
   const [imageStatus, setImageStatus] = useState({
     burgers: "loading",
     promos: "loading",
@@ -51,9 +51,7 @@ export default function Home() {
     imageStatus.burgers === "loaded" ? HOME_CARD_IMAGES.burgers : null;
   const promosImage =
     imageStatus.promos === "loaded" ? HOME_CARD_IMAGES.promos : null;
-  const scheduleText = STORE_CLOSED_MODE
-    ? `Cerrado hoy · ${STORE_REOPEN_TEXT}`
-    : `Horario: ${STORE_SCHEDULE_TEXT}`;
+  const scheduleHint = isClosed ? reopenText : `Horario: ${scheduleText}`;
 
   return (
     <Page>
@@ -61,7 +59,7 @@ export default function Home() {
       <TopNav />
 
       <div className={styles.subtitle}>Elegí cómo querés armar tu pedido</div>
-      <div className={styles.scheduleHint}>{scheduleText}</div>
+      <div className={styles.scheduleHint}>{scheduleHint}</div>
       <ClosedInlineNotice />
 
       <div className={styles.cards}>
@@ -91,8 +89,8 @@ export default function Home() {
       <StickyBar>
         <CartSummary total={cart.total} />
         {isClosed ? (
-          <Button variant="primary" disabled subLabel={STORE_REOPEN_TEXT}>
-            Cerrado hoy
+          <Button variant="primary" disabled subLabel={reopenText}>
+            {closedActionLabel}
           </Button>
         ) : (
           <Link to="/carrito">

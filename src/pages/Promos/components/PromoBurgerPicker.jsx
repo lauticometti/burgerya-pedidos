@@ -19,6 +19,7 @@ export default function PromoBurgerPicker({
   onPickBurger,
   onUndoLast,
   isClosed = false,
+  closedActionLabel,
   reopenText,
 }) {
   if (!tier || !count || !size) return null;
@@ -50,7 +51,7 @@ export default function PromoBurgerPicker({
                   {tierItems.map((burger) => {
                     const isUnavailable = isClosed || isItemUnavailable(burger);
                     const unavailableReason = isClosed
-                      ? disabledMessage || "Cerrado hoy"
+                      ? disabledMessage || closedActionLabel || "Cerrado hoy"
                       : getUnavailableReason(burger);
                     return (
                       <Button

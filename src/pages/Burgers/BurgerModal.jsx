@@ -5,7 +5,7 @@ import { resolvePublicPath } from "../../utils/assetPath";
 import { getBurgerPriceInfo } from "../../utils/burgerPricing";
 import CloseButton from "../../components/ui/CloseButton";
 import useEscapeToClose from "../../hooks/useEscapeToClose";
-import { STORE_CLOSED_MODE, STORE_REOPEN_TEXT } from "../../utils/storeClosedMode";
+import { useStoreStatus } from "../../utils/storeClosedMode";
 
 const SIZE_ORDER = ["simple", "doble", "triple"];
 const SIZE_LABEL = { simple: "Simple", doble: "Doble", triple: "Triple" };
@@ -14,6 +14,7 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
   const [size, setSize] = React.useState(null);
   const [show, setShow] = React.useState(false);
   const [removedIds, setRemovedIds] = React.useState([]);
+  const { closedToastText, isClosed } = useStoreStatus();
 
   React.useEffect(() => {
     if (!open || !burger) return;
@@ -49,7 +50,6 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
   const burgerImg =
     origin?.imageSrc ||
     resolvePublicPath(burger.img || "/burgers/placeholder.jpg");
-  const isClosed = STORE_CLOSED_MODE;
   const addDisabled = !selectedSize || isClosed;
 
   return (
@@ -73,7 +73,7 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
               alt={burger.name}
               loading="eager"
               decoding="async"
-              fetchpriority="high"
+              fetchPriority="high"
             />
 
             <div className={styles.name}>
@@ -157,7 +157,7 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
               disabled={addDisabled}
               onClick={() => onAdd?.(burger, selectedSize, selectedRemovals)}>
               {isClosed
-                ? `Cerrado hoy · ${STORE_REOPEN_TEXT}`
+                ? closedToastText
                 : isTitanica && selectedPrice
                   ? `Yo me animo - ${formatMoney(selectedPrice.finalPrice)}`
                   : selectedPrice

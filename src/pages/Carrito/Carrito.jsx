@@ -36,11 +36,12 @@ import {
   normalizeCouponInput,
 } from "../../utils/coupons";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
-import { STORE_CLOSED_MODE, STORE_REOPEN_TEXT } from "../../utils/storeClosedMode";
+import { useStoreStatus } from "../../utils/storeClosedMode";
 
 export default function Carrito() {
   const cart = useCart();
-  const isClosed = STORE_CLOSED_MODE;
+  const { closedActionLabel, closedToastText, isClosed, reopenText } =
+    useStoreStatus();
 
   const [step, setStep] = React.useState(1); // 1: Chequear pedido, 2: Datos y pago
   const burgersById = React.useMemo(
@@ -343,7 +344,7 @@ export default function Carrito() {
                   disabled={isClosed}
                   onClick={() => {
                     if (isClosed) {
-                      toast.error(`Cerrado hoy · ${STORE_REOPEN_TEXT}`, {
+                      toast.error(closedToastText, {
                         key: "store-closed-bebidas",
                       });
                       return;
@@ -426,11 +427,11 @@ export default function Carrito() {
               variant="primary"
               disabled={!canContinue}
               onClick={() => setStep(2)}>
-              {isClosed ? "Cerrado hoy" : "Continuar"}
+              {isClosed ? closedActionLabel : "Continuar"}
             </Button>
             {!canContinue ? (
               <div className={styles.stickyHint}>
-                {isClosed ? STORE_REOPEN_TEXT : "Agrega items para continuar."}
+                {isClosed ? reopenText : "Agrega items para continuar."}
               </div>
             ) : null}
           </div>
@@ -438,11 +439,11 @@ export default function Carrito() {
           <div className={styles.stickyRight}>
             <a href={sendEnabled ? waHref : "#"} target="_blank" rel="noreferrer">
               <Button variant="primary" disabled={!sendEnabled}>
-                {isClosed ? "Cerrado hoy" : "Enviar por WhatsApp"}
+                {isClosed ? closedActionLabel : "Enviar por WhatsApp"}
               </Button>
             </a>
             {isClosed ? (
-              <div className={styles.stickyHint}>{STORE_REOPEN_TEXT}</div>
+              <div className={styles.stickyHint}>{reopenText}</div>
             ) : null}
           </div>
         )}

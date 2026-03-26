@@ -30,10 +30,7 @@ import {
   PROMO_CAMPAIGN,
   calcMissingAmount,
 } from "../../utils/promosCampaign";
-import {
-  STORE_CLOSED_MODE,
-  STORE_REOPEN_TEXT,
-} from "../../utils/storeClosedMode";
+import { useStoreStatus } from "../../utils/storeClosedMode";
 
 const SHOWCASE_SECTIONS = [
   {
@@ -108,7 +105,8 @@ function mapBurgersById(list) {
 
 export default function Burgers() {
   const cart = useCart();
-  const isClosed = STORE_CLOSED_MODE;
+  const { closedActionLabel, closedToastText, isClosed, reopenText } =
+    useStoreStatus();
 
   const SHOW_PROMO_HERO = false;
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -174,7 +172,7 @@ export default function Burgers() {
 
   function openBurger(burger, evt) {
     if (isClosed) {
-      notifyUnavailableBurger(burger, STORE_REOPEN_TEXT);
+      notifyUnavailableBurger(burger, reopenText);
       return;
     }
     if (isItemUnavailable(burger)) {
@@ -195,8 +193,8 @@ export default function Burgers() {
   }
 
   function addBurgerToCart(burger, size, removedIngredients = []) {
-    if (STORE_CLOSED_MODE) {
-      toast.error(`Cerrado hoy · ${STORE_REOPEN_TEXT}`, {
+    if (isClosed) {
+      toast.error(closedToastText, {
         key: "store-closed-burger",
       });
       return;
@@ -275,7 +273,7 @@ export default function Burgers() {
               const burger = entry.burger;
               const isUnavailable = isClosed || isItemUnavailable(burger);
               const unavailableReason = isClosed
-                ? STORE_REOPEN_TEXT
+                ? reopenText
                 : getUnavailableReason(burger);
               const globalIndex =
                 (sectionOffsets[sectionIndex] || 0) + itemIndex;
@@ -298,7 +296,7 @@ export default function Burgers() {
                       )}
                       alt={burger.name}
                       loading={isPriorityImage ? "eager" : "lazy"}
-                      fetchpriority={isPriorityImage ? "high" : "auto"}
+                      fetchPriority={isPriorityImage ? "high" : "auto"}
                       decoding="async"
                     />
                     {entry.badge ? (
@@ -344,8 +342,8 @@ export default function Burgers() {
       <StickyBar>
         <CartSummary total={cart.total} />
         {isClosed ? (
-          <Button variant="primary" disabled subLabel={STORE_REOPEN_TEXT}>
-            Cerrado hoy
+          <Button variant="primary" disabled subLabel={reopenText}>
+            {closedActionLabel}
           </Button>
         ) : (
           <Link to="/carrito">
