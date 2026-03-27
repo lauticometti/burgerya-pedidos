@@ -5,6 +5,8 @@
   --banner-accent-start: #ffc62a;
   --banner-accent-end: #ffde6f;
   --banner-title: #ffc62a;
+  --banner-subtitle: #f8f8f8;
+  --banner-subtitle-weight: 600;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -42,6 +44,26 @@
   --banner-title: #a4f0c2;
 }
 
+.bannerPromoSoon {
+  --banner-bg-start: #171108;
+  --banner-bg-end: #221606;
+  --banner-border: rgba(255, 198, 42, 0.55);
+  --banner-accent-start: #ffc62a;
+  --banner-accent-end: #ffd96e;
+  --banner-title: #ffd96e;
+}
+
+.bannerPromoLive {
+  --banner-bg-start: #261400;
+  --banner-bg-end: #3a1b00;
+  --banner-border: rgba(255, 198, 42, 0.72);
+  --banner-accent-start: #ffc62a;
+  --banner-accent-end: #ff8a24;
+  --banner-title: #ffc62a;
+  --banner-subtitle: #f8f8f8;
+  --banner-subtitle-weight: 400;
+}
+
 .lightBar {
   width: 6px;
   align-self: stretch;
@@ -68,8 +90,8 @@
 }
 
 .subtitle {
-  color: #f8f8f8;
-  font-weight: 600;
+  color: var(--banner-subtitle);
+  font-weight: var(--banner-subtitle-weight);
   font-size: 13px;
   opacity: 0.95;
 }

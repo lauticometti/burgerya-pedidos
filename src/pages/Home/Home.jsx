@@ -19,8 +19,17 @@ const HOME_CARD_IMAGES = {
 
 export default function Home() {
   const cart = useCart();
-  const { closedActionLabel, isClosed, reopenText, scheduleText } =
-    useStoreStatus();
+  const {
+    closedActionLabel,
+    isClosed,
+    isTriplePromoLive,
+    isTriplePromoVisible,
+    promoHeroCtaLabel,
+    promoHeroSubtitle,
+    promoHeroTitle,
+    reopenText,
+    scheduleText,
+  } = useStoreStatus();
   const [imageStatus, setImageStatus] = useState({
     burgers: "loading",
     promos: "loading",
@@ -58,13 +67,28 @@ export default function Home() {
       <BrandLogo />
       <TopNav />
 
-      <div className={styles.subtitle}>Elegí cómo querés armar tu pedido</div>
-      <div className={styles.scheduleHint}>{scheduleHint}</div>
-      <ClosedInlineNotice />
+      <div className={styles.subtitle}>Elegi como queres armar tu pedido</div>
+      {!isTriplePromoLive ? (
+        <div className={styles.scheduleHint}>{scheduleHint}</div>
+      ) : null}
+      {!isTriplePromoVisible ? <ClosedInlineNotice /> : null}
+
+      {isTriplePromoVisible ? (
+        <section className={styles.promoHero}>
+          <h1 className={styles.promoTitle}>{promoHeroTitle}</h1>
+          <div className={styles.promoSubtitle}>{promoHeroSubtitle}</div>
+          <div className={styles.promoText}>Solo en burgers</div>
+          {promoHeroCtaLabel ? (
+            <Link to="/" className={styles.promoLink}>
+              <Button variant="primary">{promoHeroCtaLabel}</Button>
+            </Link>
+          ) : null}
+        </section>
+      ) : null}
 
       <div className={styles.cards}>
         <HomeCard
-          to="/burgers"
+          to="/"
           title="Burgers"
           subtitle="Armar pedido por unidad - incluyen papas"
           imageSrc={burgerImage}
@@ -81,8 +105,8 @@ export default function Home() {
         />
         <HomeCard
           to="/papas"
-          title="Papas, bebidas y más"
-          subtitle="Papas grandes, bebidas y dips para acompañar"
+          title="Papas, bebidas y mas"
+          subtitle="Papas grandes, bebidas y dips para acompanar"
         />
       </div>
 

@@ -298,12 +298,17 @@ export default function Carrito() {
       ) : null}
 
       <div className={styles.steps}>
-        <Button size="sm" isActive={step === 1} onClick={() => setStep(1)}>
+        <Button
+          size="sm"
+          isActive={step === 1}
+          className={styles.stepButton}
+          onClick={() => setStep(1)}>
           1. Chequear pedido
         </Button>
         <Button
           size="sm"
           isActive={step === 2}
+          className={styles.stepButton}
           onClick={() => setStep(2)}
           disabled={!canContinue}>
           2. Datos de entrega y pago

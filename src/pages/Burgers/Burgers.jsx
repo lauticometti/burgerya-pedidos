@@ -1,53 +1,53 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { burgers } from "../../data/menu";
-import { useCart } from "../../store/useCart";
-import BurgerModal from "./BurgerModal";
-import { toast } from "../../utils/toast";
-import TopNav from "../../components/TopNav";
+import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
+import BrandLogo from "../../components/brand/BrandLogo";
+import CartSummary from "../../components/cart/CartSummary";
+import DeliveryMapLink from "../../components/delivery/DeliveryMapLink";
 import Page from "../../components/layout/Page";
 import StickyBar from "../../components/layout/StickyBar";
-import CartSummary from "../../components/cart/CartSummary";
+import TopNav from "../../components/TopNav";
 import Button from "../../components/ui/Button";
-import BrandLogo from "../../components/brand/BrandLogo";
-import DeliveryMapLink from "../../components/delivery/DeliveryMapLink";
-import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
-import styles from "./Burgers.module.css";
-import { getBurgerPriceInfo } from "../../utils/burgerPricing";
+import { useCart } from "../../store/useCart";
 import { resolvePublicPath } from "../../utils/assetPath";
-import { formatMoney } from "../../utils/formatMoney";
 import {
   getUnavailableReason,
   isItemUnavailable,
 } from "../../utils/availability";
+import {
+  getBurgerPriceInfo,
+} from "../../utils/burgerPricing";
+import { formatMoney } from "../../utils/formatMoney";
+import {
+  useStoreStatus,
+} from "../../utils/storeClosedMode";
+import { toast } from "../../utils/toast";
+import BurgerModal from "./BurgerModal";
+import styles from "./Burgers.module.css";
 import {
   buildBurgerAddedToastText,
   buildBurgerCartItem,
   notifyUnavailableBurger,
   scrollToBurgerCard,
 } from "./burgersUtils";
-import {
-  PROMO_CAMPAIGN,
-  calcMissingAmount,
-} from "../../utils/promosCampaign";
-import { useStoreStatus } from "../../utils/storeClosedMode";
 
 const SHOWCASE_SECTIONS = [
   {
     id: "gustan",
     title: "Las que no fallan",
-    subtitle: "Las más vendidas.",
+    subtitle: "Las mas vendidas.",
     tone: "gustan",
     layout: "pairHero",
     items: [
-      { id: "bacon", badge: "TOP #1", emphasis: "top" },
-      { id: "cheese", badge: "TOP #2", emphasis: "top" },
+      { id: "bacon", badge: "TOP", emphasis: "top" },
+      { id: "cheese", badge: "TOP", emphasis: "top" },
     ],
   },
   {
     id: "rompen",
     title: "Las que la rompen",
-    subtitle: "Más premium, más ingredientes.",
+    subtitle: "Mas premium, mas ingredientes.",
     tone: "rompen",
     layout: "pair",
     items: [
@@ -105,41 +105,17 @@ function mapBurgersById(list) {
 
 export default function Burgers() {
   const cart = useCart();
-  const { closedActionLabel, closedToastText, isClosed, reopenText } =
-    useStoreStatus();
-
-  const SHOW_PROMO_HERO = false;
+  const {
+    canPreviewMenu,
+    closedActionLabel,
+    closedToastText,
+    isClosed,
+    reopenText,
+  } = useStoreStatus();
   const [modalOpen, setModalOpen] = React.useState(false);
   const [activeBurger, setActiveBurger] = React.useState(null);
   const [modalOrigin, setModalOrigin] = React.useState(null);
   const burgersById = React.useMemo(() => mapBurgersById(burgers), []);
-  const promoConfig = PROMO_CAMPAIGN;
-  const hasGift = React.useMemo(
-    () =>
-      cart.items.some(
-        (item) =>
-          item.meta?.promoGiftId && item.meta.promoGiftId === promoConfig.thresholdGift.id,
-      ),
-    [cart.items, promoConfig.thresholdGift.id],
-  );
-  const missingForGift = React.useMemo(
-    () => calcMissingAmount(cart.total, promoConfig.thresholdGift.amount),
-    [cart.total, promoConfig.thresholdGift.amount],
-  );
-  const giftProgress = Math.min(
-    Math.max(
-      ((promoConfig.thresholdGift.amount - missingForGift) /
-        promoConfig.thresholdGift.amount) *
-        100,
-      0,
-    ),
-    100,
-  );
-
-  function jumpToDoubleBurger() {
-    const targetId = "bacon";
-    scrollToBurgerCard(targetId);
-  }
 
   const sections = React.useMemo(
     () =>
@@ -157,6 +133,7 @@ export default function Burgers() {
       }).filter(Boolean),
     [burgersById],
   );
+
   const sectionOffsets = React.useMemo(() => {
     return sections
       .reduce(
@@ -171,7 +148,7 @@ export default function Burgers() {
   }, [sections]);
 
   function openBurger(burger, evt) {
-    if (isClosed) {
+    if (isClosed && !canPreviewMenu) {
       notifyUnavailableBurger(burger, reopenText);
       return;
     }
@@ -179,6 +156,7 @@ export default function Burgers() {
       notifyUnavailableBurger(burger, getUnavailableReason(burger));
       return;
     }
+
     const rect = evt?.currentTarget?.getBoundingClientRect();
     const origin = rect
       ? {
@@ -187,6 +165,7 @@ export default function Burgers() {
           imageSrc: resolvePublicPath(burger.img || "/burgers/placeholder.jpg"),
         }
       : null;
+
     setModalOrigin(origin);
     setActiveBurger(burger);
     setModalOpen(true);
@@ -199,10 +178,13 @@ export default function Burgers() {
       });
       return;
     }
+
     const price = getBurgerPriceInfo(burger, size);
     cart.add(buildBurgerCartItem(burger, size, price, removedIngredients));
-    const addedText = buildBurgerAddedToastText(burger.name, size, price);
-    toast.success(addedText);
+    toast.success(buildBurgerAddedToastText(burger.name, size), {
+      key: `burger-added:${burger.id}:${size}`,
+      ms: 1300,
+    });
     scrollToBurgerCard(burger.id);
   }
 
@@ -211,52 +193,6 @@ export default function Burgers() {
       <BrandLogo />
       <TopNav />
       <ClosedInlineNotice />
-
-      {SHOW_PROMO_HERO ? (
-        <section className={styles.promoHero}>
-          <div className={styles.promoHeader}>
-            <div>
-              <p className={styles.promoKicker}>PROMOS DE HOY</p>
-              <h1 className={styles.promoTitle}>Pedí más y aprovechá</h1>
-              <p className={styles.promoSubtitle}>Activas hasta las 00:00</p>
-            </div>
-          </div>
-
-          <div className={styles.promoGrid}>
-            <article className={styles.promoCard}>
-              <div className={styles.promoTag}>Upgrade inmediato</div>
-              <div className={styles.promoCardTitle}>Hacela triple hoy +$1500</div>
-              <Button className={styles.promoButtonGhost} onClick={jumpToDoubleBurger}>
-                Pasar a triple
-              </Button>
-            </article>
-
-            <article className={styles.promoCard}>
-              <div className={styles.promoTag}>Regalo por umbral</div>
-              <div className={styles.promoCardTitle}>
-                {hasGift ? "Papas extra incluidas" : "Papas gratis desde $30.000"}
-              </div>
-              <div className={styles.progressWrap}>
-                <div className={styles.progressBar}>
-                  <span style={{ width: `${giftProgress}%` }} />
-                </div>
-                <div className={styles.progressText}>
-                  {hasGift
-                    ? "Papas extra incluidas"
-                    : `Te faltan ${formatMoney(missingForGift)}`}
-                </div>
-              </div>
-              {!hasGift ? (
-                <Button
-                  className={styles.promoButtonGhost}
-                  onClick={() => scrollToBurgerCard("bacon")}>
-                  Sumar y llevar papas gratis
-                </Button>
-              ) : null}
-            </article>
-          </div>
-        </section>
-      ) : null}
 
       {sections.map((section, sectionIndex) => (
         <section
@@ -267,17 +203,21 @@ export default function Burgers() {
             <p className={styles.sectionSubtitle}>{section.subtitle}</p>
           </div>
 
-          <div
-            className={`${styles.cards} ${LAYOUT_CLASS[section.layout] || ""}`}>
+          <div className={`${styles.cards} ${LAYOUT_CLASS[section.layout] || ""}`}>
             {section.items.map((entry, itemIndex) => {
               const burger = entry.burger;
-              const isUnavailable = isClosed || isItemUnavailable(burger);
-              const unavailableReason = isClosed
+              const isStoreLocked = isClosed && !canPreviewMenu;
+              const isUnavailable = isStoreLocked || isItemUnavailable(burger);
+              const unavailableReason = isStoreLocked
                 ? reopenText
                 : getUnavailableReason(burger);
-              const globalIndex =
-                (sectionOffsets[sectionIndex] || 0) + itemIndex;
+              const globalIndex = (sectionOffsets[sectionIndex] || 0) + itemIndex;
               const isPriorityImage = globalIndex < 2;
+              const simplePrice = getBurgerPriceInfo(burger, "simple");
+              const doublePrice = getBurgerPriceInfo(burger, "doble");
+              const triplePrice = getBurgerPriceInfo(burger, "triple");
+              const cardSignalLabel = entry.badge || null;
+              const cardSignalClass = entry.badge ? styles.signalTop : "";
 
               return (
                 <article
@@ -287,26 +227,56 @@ export default function Burgers() {
                   <button
                     type="button"
                     className={styles.mediaWrap}
-                    onClick={(e) => openBurger(burger, e)}
+                    onClick={(event) => openBurger(burger, event)}
                     aria-label={`Ver opciones de ${burger.name}`}>
                     <img
                       className={styles.media}
-                      src={resolvePublicPath(
-                        burger.img || "/burgers/placeholder.jpg",
-                      )}
+                      src={resolvePublicPath(burger.img || "/burgers/placeholder.jpg")}
                       alt={burger.name}
                       loading={isPriorityImage ? "eager" : "lazy"}
                       fetchPriority={isPriorityImage ? "high" : "auto"}
                       decoding="async"
                     />
-                    {entry.badge ? (
-                      <span className={styles.badge}>{entry.badge}</span>
+                    {cardSignalLabel ? (
+                      <span className={`${styles.signalBadge} ${cardSignalClass}`.trim()}>
+                        {cardSignalLabel}
+                      </span>
                     ) : null}
                   </button>
 
                   <div className={styles.cardBody}>
                     <div className={styles.cardTopRow}>
                       <h3 className={styles.cardTitle}>{burger.name}</h3>
+                    </div>
+
+                    <div className={styles.cardPricePreview}>
+                      {typeof simplePrice.basePrice === "number" &&
+                      simplePrice.basePrice > 0 ? (
+                        <span className={styles.cardPriceItem}>
+                          <span className={styles.cardPriceLabel}>Simple</span>
+                          <span className={styles.cardPriceValue}>
+                            {formatMoney(simplePrice.finalPrice)}
+                          </span>
+                        </span>
+                      ) : null}
+                      {typeof doublePrice.basePrice === "number" &&
+                      doublePrice.basePrice > 0 ? (
+                        <span className={styles.cardPriceItem}>
+                          <span className={styles.cardPriceLabel}>Doble</span>
+                          <span className={styles.cardPriceValue}>
+                            {formatMoney(doublePrice.finalPrice)}
+                          </span>
+                        </span>
+                      ) : null}
+                      {typeof triplePrice.basePrice === "number" &&
+                      triplePrice.basePrice > 0 ? (
+                        <span className={styles.cardPriceItem}>
+                          <span className={styles.cardPriceLabel}>Triple</span>
+                          <span className={styles.cardPriceValue}>
+                            {formatMoney(triplePrice.finalPrice)}
+                          </span>
+                        </span>
+                      ) : null}
                     </div>
 
                     {isUnavailable ? (

@@ -4,6 +4,19 @@ export const ARGENTINA_TIME_ZONE = "America/Argentina/Buenos_Aires";
 export const STORE_OPEN_DAYS_TEXT = "Vie a Dom";
 export const STORE_OPEN_HOURS_TEXT = "20:00 a 00:00";
 export const STORE_SCHEDULE_TEXT = `${STORE_OPEN_HOURS_TEXT} (${STORE_OPEN_DAYS_TEXT})`;
+export const FRIDAY_TRIPLE_PROMO_DATE_KEY = "2026-03-27";
+export const FRIDAY_TRIPLE_PROMO_PREVIEW_START_MINUTES = 23 * 60 + 45;
+export const FRIDAY_TRIPLE_PROMO_OPEN_MINUTES = 20 * 60;
+export const FRIDAY_TRIPLE_PROMO_END_MINUTES = 15;
+export const FRIDAY_TRIPLE_PROMO_OFFER_ID = "friday_triple_same_as_double";
+export const FRIDAY_TRIPLE_PROMO_BADGE_TEXT = "TRIPLE = DOBLE";
+const MANUAL_STORE_STATUS_DATE = null;
+export const STORE_STATUS_IDS = {
+  CLOSED_THURSDAY: "closedThursday",
+  FRIDAY_PREOPEN_PROMO: "fridayPreOpenPromo",
+  FRIDAY_OPEN_PROMO: "fridayOpenPromo",
+  PROMO_INACTIVE: "promoInactive",
+};
 
 const OPEN_DAYS = new Set([0, 5, 6]);
 const OPEN_MINUTES = 20 * 60;
@@ -17,14 +30,21 @@ const WEEKDAY_INDEX = {
   Fri: 5,
   Sat: 6,
 };
+const FRIDAY_TRIPLE_PROMO_PREVIEW_DATE_KEY = shiftDateKey(
+  FRIDAY_TRIPLE_PROMO_DATE_KEY,
+  -1,
+);
+const FRIDAY_TRIPLE_PROMO_END_DATE_KEY = shiftDateKey(
+  FRIDAY_TRIPLE_PROMO_DATE_KEY,
+  1,
+);
 
-const weekdayFormatter = new Intl.DateTimeFormat("en-US", {
+const argentinaDateTimeFormatter = new Intl.DateTimeFormat("en-US", {
   timeZone: ARGENTINA_TIME_ZONE,
   weekday: "short",
-});
-
-const timeFormatter = new Intl.DateTimeFormat("en-US", {
-  timeZone: ARGENTINA_TIME_ZONE,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
   hour: "2-digit",
   minute: "2-digit",
   hourCycle: "h23",
@@ -36,15 +56,27 @@ let hasBrowserListeners = false;
 let currentSnapshot = null;
 let currentSnapshotKey = "";
 
+function getNowDate() {
+  return MANUAL_STORE_STATUS_DATE
+    ? new Date(MANUAL_STORE_STATUS_DATE)
+    : new Date();
+}
+
+function shiftDateKey(dateKey, days) {
+  const anchor = new Date(`${dateKey}T00:00:00Z`);
+  anchor.setUTCDate(anchor.getUTCDate() + days);
+  return anchor.toISOString().slice(0, 10);
+}
+
 function emitChange() {
   subscribers.forEach((listener) => listener());
 }
 
 function getSnapshotKeyFromStatus(status) {
-  return `${status.day}:${status.minutes}`;
+  return `${status.dateKey}:${status.minutes}`;
 }
 
-function refreshSnapshot(date = new Date()) {
+function refreshSnapshot(date = null) {
   const nextSnapshot = getStoreStatus(date);
   const nextKey = getSnapshotKeyFromStatus(nextSnapshot);
 
@@ -57,7 +89,7 @@ function refreshSnapshot(date = new Date()) {
   return true;
 }
 
-function syncSnapshotAndEmit(date = new Date()) {
+function syncSnapshotAndEmit(date = null) {
   if (refreshSnapshot(date)) {
     emitChange();
   }
@@ -132,36 +164,66 @@ function subscribe(listener) {
   };
 }
 
-export function getArgentinaTimeParts(date = new Date()) {
-  const weekdayKey = weekdayFormatter.format(date);
-  const day = WEEKDAY_INDEX[weekdayKey];
-  const [hourPart, minutePart] = timeFormatter.format(date).split(":");
-  const hour = Number(hourPart);
-  const minute = Number(minutePart);
+export function getArgentinaTimeParts(date = null) {
+  const resolvedDate = date instanceof Date ? date : getNowDate();
+  const parts = argentinaDateTimeFormatter
+    .formatToParts(resolvedDate)
+    .reduce((acc, part) => {
+      if (part.type !== "literal") {
+        acc[part.type] = part.value;
+      }
+      return acc;
+    }, {});
+  const day = WEEKDAY_INDEX[parts.weekday];
+  const hour = Number(parts.hour);
+  const minute = Number(parts.minute);
 
   return {
     day,
+    dayOfMonth: Number(parts.day),
+    month: Number(parts.month),
+    year: Number(parts.year),
+    dateKey: `${parts.year}-${parts.month}-${parts.day}`,
     hour,
     minute,
     minutes: hour * 60 + minute,
   };
 }
 
-function buildClosedState({
-  bannerTitle,
-  bannerSubtitle,
-  reopenText,
-  inlineTitle,
-  inlineSubtext,
+function buildStatusState({
+  stateId = STORE_STATUS_IDS.PROMO_INACTIVE,
+  isOpenNow = false,
+  isClosed = true,
+  isBeforeOpening = false,
+  showBanner = true,
+  showInlineNotice = true,
   statusTone = "closed",
+  bannerTitle = "",
+  bannerSubtitle = "",
+  inlineTitle = "",
+  inlineSubtext = "",
+  reopenText = "",
   closedActionLabel = "Cerrado hoy",
-  closedToastPrefix = "Cerrado hoy",
+  closedToastText = "",
+  scheduleText = STORE_SCHEDULE_TEXT,
+  canPreviewMenu = false,
+  isTriplePromoVisible = false,
+  isTriplePromoLive = false,
+  isTriplePromoPricingActive = false,
+  promoHeroKicker = "",
+  promoHeroTitle = "",
+  promoHeroSubtitle = "",
+  promoHeroFootnote = "",
+  promoHeroCtaLabel = "",
+  promoHeroTargetId = "bacon",
 }) {
   return {
-    isOpenNow: false,
-    isClosed: true,
-    showBanner: true,
-    showInlineNotice: true,
+    stateId,
+    isOpenNow,
+    isClosed,
+    isBeforeOpening,
+    showBanner,
+    showInlineNotice,
     statusTone,
     bannerTitle,
     bannerSubtitle,
@@ -169,79 +231,193 @@ function buildClosedState({
     inlineSubtext,
     reopenText,
     closedActionLabel,
-    closedToastText: `${closedToastPrefix} \u00b7 ${reopenText}`,
-    scheduleText: STORE_SCHEDULE_TEXT,
+    closedToastText,
+    scheduleText,
+    canPreviewMenu,
+    isTriplePromoVisible,
+    isTriplePromoLive,
+    isTriplePromoPricingActive,
+    showPromoHero: isTriplePromoVisible,
+    promoHeroKicker,
+    promoHeroTitle,
+    promoHeroSubtitle,
+    promoHeroFootnote,
+    promoHeroCtaLabel,
+    promoHeroTargetId,
   };
 }
 
-function buildOpenState() {
-  return {
+function buildClosedState({
+  stateId = STORE_STATUS_IDS.PROMO_INACTIVE,
+  bannerTitle,
+  bannerSubtitle,
+  reopenText,
+  inlineTitle,
+  inlineSubtext,
+  statusTone = "closed",
+  closedActionLabel = "Cerrado hoy",
+  closedToastText = "",
+  scheduleText = STORE_SCHEDULE_TEXT,
+  canPreviewMenu = false,
+  isBeforeOpening = false,
+  isTriplePromoVisible = false,
+  isTriplePromoLive = false,
+  isTriplePromoPricingActive = false,
+  promoHeroKicker = "",
+  promoHeroTitle = "",
+  promoHeroSubtitle = "",
+  promoHeroFootnote = "",
+  promoHeroCtaLabel = "",
+}) {
+  return buildStatusState({
+    stateId,
+    isOpenNow: false,
+    isClosed: true,
+    isBeforeOpening,
+    showBanner: true,
+    showInlineNotice: !isTriplePromoVisible,
+    statusTone,
+    bannerTitle,
+    bannerSubtitle,
+    inlineTitle,
+    inlineSubtext,
+    reopenText,
+    closedActionLabel,
+    closedToastText: closedToastText || `${closedActionLabel} \u00b7 ${reopenText}`,
+    scheduleText,
+    canPreviewMenu,
+    isTriplePromoVisible,
+    isTriplePromoLive,
+    isTriplePromoPricingActive,
+    promoHeroKicker,
+    promoHeroTitle,
+    promoHeroSubtitle,
+    promoHeroFootnote,
+    promoHeroCtaLabel,
+  });
+}
+
+function buildOpenState({
+  stateId = STORE_STATUS_IDS.PROMO_INACTIVE,
+  bannerTitle = "YA ESTAMOS ABIERTOS",
+  bannerSubtitle = "Tomamos pedidos hasta las 00:00",
+  reopenText = "Abiertos hasta las 00:00",
+  statusTone = "open",
+  scheduleText = STORE_SCHEDULE_TEXT,
+  isTriplePromoVisible = false,
+  isTriplePromoLive = false,
+  isTriplePromoPricingActive = false,
+  promoHeroKicker = "",
+  promoHeroTitle = "",
+  promoHeroSubtitle = "",
+  promoHeroFootnote = "",
+  promoHeroCtaLabel = "",
+}) {
+  return buildStatusState({
+    stateId,
     isOpenNow: true,
     isClosed: false,
+    isBeforeOpening: false,
     showBanner: true,
     showInlineNotice: false,
-    statusTone: "open",
-    bannerTitle: "YA ESTAMOS ABIERTOS",
-    bannerSubtitle: "Tomamos pedidos hasta las 00:00",
+    statusTone,
+    bannerTitle,
+    bannerSubtitle,
     inlineTitle: "",
     inlineSubtext: "",
-    reopenText: "Abiertos hasta las 00:00",
+    reopenText,
     closedActionLabel: "",
     closedToastText: "",
-    scheduleText: STORE_SCHEDULE_TEXT,
-  };
+    scheduleText,
+    canPreviewMenu: true,
+    isTriplePromoVisible,
+    isTriplePromoLive,
+    isTriplePromoPricingActive,
+    promoHeroKicker,
+    promoHeroTitle,
+    promoHeroSubtitle,
+    promoHeroFootnote,
+    promoHeroCtaLabel,
+  });
 }
 
-export function getStoreStatus(date = new Date()) {
-  const { day, minutes } = getArgentinaTimeParts(date);
-  const isOpenDay = OPEN_DAYS.has(day);
-  const isBeforeOpening = isOpenDay && minutes < OPEN_MINUTES;
-  const isOpenNow = isOpenDay && minutes >= OPEN_MINUTES && minutes < CLOSE_MINUTES;
+function getFridayPromoStatus(parts) {
+  if (parts.dateKey === FRIDAY_TRIPLE_PROMO_DATE_KEY) {
+    return buildOpenState({
+      stateId: STORE_STATUS_IDS.FRIDAY_OPEN_PROMO,
+      bannerTitle: "Triples al precio de dobles",
+      bannerSubtitle: "Solo hoy viernes",
+      reopenText: "",
+      statusTone: "promoLive",
+      scheduleText: STORE_SCHEDULE_TEXT,
+      isTriplePromoVisible: true,
+      isTriplePromoLive: true,
+      isTriplePromoPricingActive: true,
+      promoHeroKicker: "",
+      promoHeroTitle: "TRIPLES AL PRECIO DE DOBLES",
+      promoHeroSubtitle: "Solo hoy",
+      promoHeroFootnote: "",
+      promoHeroCtaLabel: "Pedi ahora",
+    });
+  }
+
+  return null;
+}
+
+export function getStoreStatus(date = null) {
+  const resolvedDate = date instanceof Date ? date : getNowDate();
+  const parts = getArgentinaTimeParts(resolvedDate);
+  const promoStatus = getFridayPromoStatus(parts);
+
+  if (promoStatus) {
+    return {
+      ...parts,
+      ...promoStatus,
+    };
+  }
+
+  const isOpenDay = OPEN_DAYS.has(parts.day);
+  const isBeforeOpening = isOpenDay && parts.minutes < OPEN_MINUTES;
+  const isOpenNow =
+    isOpenDay && parts.minutes >= OPEN_MINUTES && parts.minutes < CLOSE_MINUTES;
 
   if (isOpenNow) {
     return {
-      day,
-      minutes,
-      isBeforeOpening: false,
+      ...parts,
       ...buildOpenState(),
     };
   }
 
-  if (day === 3) {
+  if (parts.day === 3) {
     return {
-      day,
-      minutes,
-      isBeforeOpening: false,
+      ...parts,
       ...buildClosedState({
-        bannerTitle: "HOY Y MA\u00d1ANA NO ABRIMOS",
+        bannerTitle: "HOY Y MANANA NO ABRIMOS",
         bannerSubtitle: "Volvemos viernes 20:00",
         reopenText: "Volvemos viernes 20:00",
-        inlineTitle: "Hoy y ma\u00f1ana no abrimos",
+        inlineTitle: "Hoy y manana no abrimos",
         inlineSubtext: "Volvemos viernes 20:00",
       }),
     };
   }
 
-  if (day === 4) {
+  if (parts.day === 4) {
     return {
-      day,
-      minutes,
-      isBeforeOpening: false,
+      ...parts,
       ...buildClosedState({
+        stateId: STORE_STATUS_IDS.CLOSED_THURSDAY,
         bannerTitle: "HOY NO ABRIMOS",
-        bannerSubtitle: "Volvemos ma\u00f1ana 20:00",
-        reopenText: "Volvemos ma\u00f1ana 20:00",
+        bannerSubtitle: "Volvemos manana 20:00",
+        reopenText: "Volvemos manana 20:00",
         inlineTitle: "Hoy no abrimos",
-        inlineSubtext: "Volvemos ma\u00f1ana 20:00",
+        inlineSubtext: "Volvemos manana 20:00",
       }),
     };
   }
 
   if (isBeforeOpening) {
     return {
-      day,
-      minutes,
-      isBeforeOpening: true,
+      ...parts,
       ...buildClosedState({
         bannerTitle: "HOY ABRIMOS DESDE LAS 20:00",
         bannerSubtitle: "Tomamos pedidos desde las 20:00",
@@ -250,15 +426,14 @@ export function getStoreStatus(date = new Date()) {
         inlineSubtext: "Tomamos pedidos desde las 20:00",
         statusTone: "soon",
         closedActionLabel: "Cerrado ahora",
-        closedToastPrefix: "Cerrado ahora",
+        closedToastText: "Cerrado ahora \u00b7 Abrimos hoy 20:00",
+        isBeforeOpening: true,
       }),
     };
   }
 
   return {
-    day,
-    minutes,
-    isBeforeOpening: false,
+    ...parts,
     ...buildClosedState({
       bannerTitle: "HOY NO ABRIMOS",
       bannerSubtitle: "Volvemos viernes 20:00",

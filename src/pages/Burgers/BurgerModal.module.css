@@ -151,82 +151,84 @@
 }
 
 .name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
   font-size: 22px;
   font-weight: 900;
 }
 
-.nameWithFries {
-  font-size: 14px;
-  font-weight: 700;
-  color: #ffda7d;
+.nameSide {
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffc62a;
+  letter-spacing: 0.02em;
 }
 
 .desc {
-  font-size: 14px;
-  opacity: 0.9;
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.62);
 }
 
 .sizeRow {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  align-items: stretch;
   gap: 10px;
 }
 
 .sizeBtn {
+  min-width: 0;
   border-radius: 14px;
   padding: 10px 10px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.04);
   color: white;
   text-align: center;
+  display: grid;
+  align-content: start;
+  gap: 6px;
 }
 
 .sizeBtnOn {
-  border-color: rgba(255, 198, 42, 0.55);
-  background: rgba(255, 198, 42, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 .sizeTop {
   font-size: 12px;
-  opacity: 0.85;
+  opacity: 0.78;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
-.sizePriceWrap {
+.pricePanel {
   display: grid;
   justify-items: center;
-  gap: 2px;
-  margin-top: 2px;
+  gap: 6px;
+  padding: 12px 14px 6px;
+  text-align: center;
 }
 
-.sizePriceBase {
-  font-size: 12px;
+.priceBase {
+  font-size: 13px;
   text-decoration: line-through;
-  opacity: 0.65;
+  color: rgba(255, 255, 255, 0.55);
 }
 
-.sizePrice {
-  font-size: 16px;
+.priceValue {
+  font-size: clamp(26px, 8vw, 34px);
   font-weight: 900;
-}
-
-.sizePriceDiscount {
-  font-size: 11px;
-  font-weight: 800;
-  color: #ffc62a;
-}
-
-.sizeOffer {
-  font-size: 11px;
-  font-weight: 800;
-  color: #0f0f10;
-  background: #ffc62a;
-  padding: 3px 8px;
-  border-radius: 10px;
-  margin-top: 4px;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
 }
 
 .customizer {
-  margin-top: 4px;
+  margin-top: 2px;
   display: grid;
   gap: 6px;
 }
@@ -317,13 +319,88 @@
   }
 }
 
-.footer {
-  position: relative;
-  padding-top: 10px;
-  margin-top: 2px;
+@media (max-width: 420px) {
+  .sizeRow {
+    gap: 8px;
+  }
+
+  .sizeBtn {
+    padding: 10px 8px;
+  }
+
+  .sizeTop {
+    font-size: 11px;
+  }
+
+  .priceBase {
+    font-size: 12px;
+  }
+
+  .priceValue {
+    font-size: 24px;
+  }
+
+  .desc {
+    font-size: 11px;
+  }
+
+  .nameSide {
+    font-size: 12px;
+  }
+}
+
+.details {
+  display: grid;
+  gap: 0;
+  margin-top: 4px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.22));
-  box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.4);
+  padding-top: 12px;
+}
+
+.detailsSummary {
+  cursor: pointer;
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  font-size: 13px;
+  font-weight: 900;
+  color: #ffc62a;
+  letter-spacing: 0.02em;
+}
+
+.detailsSummary::-webkit-details-marker {
+  display: none;
+}
+
+.detailsSummary::after {
+  content: "+";
+  margin-left: 8px;
+  color: rgba(255, 198, 42, 0.78);
+}
+
+.details[open] .detailsSummary::after {
+  content: "-";
+}
+
+.detailsBody {
+  display: grid;
+  gap: 6px;
+  padding-top: 10px;
+}
+
+.footer {
+  display: grid;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(15, 15, 16, 0), #0f0f10 18px);
+}
+
+.footerNote {
+  font-size: 12px;
+  font-weight: 800;
+  color: #ffc62a;
 }
 
 .addBtn {

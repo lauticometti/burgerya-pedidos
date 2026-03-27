@@ -24,10 +24,27 @@
   gap: 12px;
 }
 
+.inner > * {
+  min-width: 0;
+}
+
 @media (min-width: 768px) {
   .inner {
     max-width: var(--page-width-lg);
     padding: 0 var(--page-padding-lg);
+  }
+}
+
+@media (max-width: 420px) {
+  .inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .inner > * {
+    width: auto;
   }
 }
 

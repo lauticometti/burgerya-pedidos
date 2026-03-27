@@ -8,12 +8,12 @@ export default function ClosedBanner() {
 
   if (!showBanner) return null;
 
-  const toneClass =
-    statusTone === "open"
-      ? styles.bannerOpen
-      : statusTone === "soon"
-        ? styles.bannerSoon
-        : "";
+  const toneClass = {
+    open: styles.bannerOpen,
+    soon: styles.bannerSoon,
+    promoSoon: styles.bannerPromoSoon,
+    promoLive: styles.bannerPromoLive,
+  }[statusTone] || "";
 
   return (
     <div
@@ -22,8 +22,10 @@ export default function ClosedBanner() {
       aria-live="polite">
       <div className={styles.lightBar} aria-hidden />
       <div className={styles.textWrap}>
-        <div className={styles.title}>{bannerTitle}</div>
-        <div className={styles.subtitle}>{bannerSubtitle}</div>
+        {bannerTitle ? <div className={styles.title}>{bannerTitle}</div> : null}
+        <div className={bannerTitle ? styles.subtitle : styles.title}>
+          {bannerSubtitle}
+        </div>
       </div>
     </div>
   );

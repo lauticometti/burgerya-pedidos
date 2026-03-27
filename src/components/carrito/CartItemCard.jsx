@@ -6,6 +6,7 @@ import styles from "./CartItemCard.module.css";
 import { formatMoney } from "../../utils/formatMoney";
 import { formatPickNames } from "../../utils/formatPicks";
 import { getPapasUpgradePrice } from "../../utils/papasPricing";
+import { FRIDAY_TRIPLE_PROMO_OFFER_ID } from "../../utils/storeClosedMode";
 
 export default function CartItemCard({
   item,
@@ -42,15 +43,14 @@ export default function CartItemCard({
     (sum, extra) => sum + getPapasUpgradePrice(extra, papasContext),
     0,
   );
-  const baseUnitPrice =
-    typeof item.meta?.basePrice === "number" ? item.meta.basePrice : item.unitPrice;
-  const hasDiscount =
-    item.meta?.type === "burger" &&
-    typeof item.meta?.basePrice === "number" &&
-    item.meta.basePrice > item.unitPrice;
-  const discountAmount = hasDiscount ? item.meta.basePrice - item.unitPrice : 0;
-  const baseUnitWithExtras = baseUnitPrice + extrasTotal + papasTotal;
+  const hasTriplePromo = item.meta?.offerId === FRIDAY_TRIPLE_PROMO_OFFER_ID;
   const unitWithExtras = item.unitPrice + extrasTotal + papasTotal;
+  const priceBeforePromo =
+    hasTriplePromo && typeof item.meta?.basePrice === "number"
+      ? item.meta.basePrice + extrasTotal + papasTotal
+      : null;
+  const showPriceBeforePromo =
+    typeof priceBeforePromo === "number" && priceBeforePromo > unitWithExtras;
   const displayPrice = unitWithExtras;
   const picksText = item.meta?.picks?.length
     ? formatPickNames(item.meta.picks)
@@ -133,19 +133,12 @@ export default function CartItemCard({
         </div>
         <div className={styles.rightBlock}>
           <div className={styles.priceBlock}>
-            {hasDiscount ? (
-              <div className={styles.priceOriginal}>
-                {formatMoney(baseUnitWithExtras)}
-              </div>
+            {showPriceBeforePromo ? (
+              <div className={styles.priceBefore}>{formatMoney(priceBeforePromo)}</div>
             ) : null}
             <div className={`${styles.price} ${locked ? styles.priceLocked : ""}`}>
               {formatMoney(displayPrice)}
             </div>
-            {hasDiscount ? (
-              <div className={styles.priceDiscount}>
-                -{formatMoney(discountAmount)}
-              </div>
-            ) : null}
           </div>
           {showRemoveButton ? (
             <CloseButton onClick={onRemove} aria-label={`Quitar ${item.name}`} />

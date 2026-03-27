@@ -1,5 +1,7 @@
-import React, { useMemo, useReducer } from "react";
+import React, { useEffect, useMemo, useReducer } from "react";
+import { burgers } from "../data/menu";
 import { CartContext } from "./cartContext";
+import { getBurgerPriceInfo } from "../utils/burgerPricing";
 import { getPapasUpgradePrice } from "../utils/papasPricing";
 import { toast } from "../utils/toast";
 import { useStoreStatus } from "../utils/storeClosedMode";
@@ -150,12 +152,79 @@ function reducer(state, action) {
       }
       return { ...state, items };
     }
+    case "REPRICE_ITEMS": {
+      const items = { ...state.items };
+      let hasChanges = false;
+
+      for (const update of action.updates || []) {
+        const current = items[update.key];
+        if (!current) continue;
+
+        items[update.key] = {
+          ...current,
+          unitPrice: update.unitPrice,
+          meta: {
+            ...current.meta,
+            ...update.meta,
+          },
+        };
+        hasChanges = true;
+      }
+
+      return hasChanges ? { ...state, items } : state;
+    }
   }
 }
 
 export function CartProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, { items: {}, lastAdded: null });
-  const { closedToastText, isClosed } = useStoreStatus();
+  const { closedToastText, dateKey, isClosed, minutes } = useStoreStatus();
+  const burgersById = useMemo(
+    () =>
+      burgers.reduce((acc, burger) => {
+        acc[burger.id] = burger;
+        return acc;
+      }, {}),
+    [],
+  );
+
+  useEffect(() => {
+    const updates = Object.values(state.items).reduce((acc, item) => {
+      if (item.meta?.type !== "burger") return acc;
+
+      const burger = burgersById[item.meta?.burgerId];
+      const size = item.meta?.size;
+      if (!burger || !size) return acc;
+
+      const priceInfo = getBurgerPriceInfo(burger, size);
+      const nextMeta = {
+        basePrice: priceInfo.basePrice,
+        discountAmount: priceInfo.discountAmount,
+        offerId: priceInfo.offerId,
+        offerLabel: priceInfo.offerLabel,
+      };
+      const hasChanged =
+        item.unitPrice !== priceInfo.finalPrice ||
+        item.meta?.basePrice !== nextMeta.basePrice ||
+        item.meta?.discountAmount !== nextMeta.discountAmount ||
+        item.meta?.offerId !== nextMeta.offerId ||
+        item.meta?.offerLabel !== nextMeta.offerLabel;
+
+      if (hasChanged) {
+        acc.push({
+          key: item.key,
+          unitPrice: priceInfo.finalPrice,
+          meta: nextMeta,
+        });
+      }
+
+      return acc;
+    }, []);
+
+    if (updates.length > 0) {
+      dispatch({ type: "REPRICE_ITEMS", updates });
+    }
+  }, [burgersById, dateKey, minutes, state.items]);
 
   const api = useMemo(() => {
     const items = Object.values(state.items);

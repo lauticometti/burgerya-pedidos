@@ -1,4 +1,3 @@
-import { formatMoney } from "../../utils/formatMoney";
 import { toast } from "../../utils/toast";
 import { buildBurgerLineKey } from "../../utils/cartKeys";
 
@@ -48,6 +47,8 @@ export function buildBurgerCartItem(
       burgerName: burger.name,
       basePrice: priceInfo.basePrice,
       discountAmount: priceInfo.discountAmount,
+      offerId: priceInfo.offerId,
+      offerLabel: priceInfo.offerLabel,
       extrasIds: [],
       friesId: null,
       removedIngredientIds: removedIds,
@@ -55,12 +56,6 @@ export function buildBurgerCartItem(
   };
 }
 
-export function buildBurgerAddedToastText(burgerName, size, priceInfo) {
-  if (priceInfo.hasDiscount) {
-    return `Agregado: ${burgerName} ${size} - ${formatMoney(
-      priceInfo.finalPrice,
-    )} (antes ${formatMoney(priceInfo.basePrice)})`;
-  }
-
-  return `Agregado: ${burgerName} ${size} - ${formatMoney(priceInfo.finalPrice)}`;
+export function buildBurgerAddedToastText(burgerName, size) {
+  return `\u2714 ${burgerName} ${size} agregado`;
 }
