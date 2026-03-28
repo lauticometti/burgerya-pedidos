@@ -59,7 +59,7 @@ export default function RemoveIngredientsModal({
           </div>
           <div className={styles.footerSecondary}>
             <Button type="button" onClick={onClose}>
-              Cancelar
+              Limpiar
             </Button>
           </div>
         </div>

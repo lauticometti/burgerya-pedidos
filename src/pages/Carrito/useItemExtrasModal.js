@@ -172,7 +172,7 @@ export default function useItemExtrasModal({ cart, papasMejoras, extraItems }) {
 
   const disableApply = modalMode === "papas" && modalSelectedIds.length === 0;
   const applyLabel = modalMode === "papas" ? "Mejorar" : "Aplicar";
-  const clearLabel = modalMode === "papas" ? "Quitar mejoras" : "Limpiar";
+  const clearLabel = modalMode === "papas" ? "Quitar mejoras" : "Quitar agregados";
   const title = modalMode === "papas" ? "Mejorar papas" : "Agregados";
   const description =
     modalMode === "papas" ? "" : "Agrega extras a este producto.";
