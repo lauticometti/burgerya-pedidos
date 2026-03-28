@@ -1,22 +1,13 @@
-﻿import Card from "../ui/Card";
-import { useState } from "react";
+import Card from "../ui/Card";
 import { TextareaField } from "../ui/FormFields";
 import styles from "./PaymentScheduleCard.module.css";
-import TimeSlotModal from "./TimeSlotModal";
 
 export default function PaymentScheduleCard({
   pay,
-  whenMode,
-  whenSlot,
-  availableSlots,
   notes,
   onPayChange,
-  onWhenModeChange,
-  onWhenSlotChange,
   onNotesChange,
 }) {
-  const [slotOpen, setSlotOpen] = useState(false);
-
   return (
     <Card className={styles.card}>
       <div className={styles.fields}>
@@ -42,57 +33,6 @@ export default function PaymentScheduleCard({
           </button>
         </div>
 
-        <div className={styles.question}>Horario</div>
-        <div className={styles.choiceRow}>
-          <button
-            type="button"
-            className={`${styles.choiceButton} ${
-              whenMode === "Ahora" ? styles.choiceButtonActive : ""
-            }`}
-            aria-pressed={whenMode === "Ahora"}
-            onClick={() => {
-              setSlotOpen(false);
-              onWhenModeChange("Ahora");
-            }}>
-            Lo antes posible
-          </button>
-          <button
-            type="button"
-            className={`${styles.choiceButton} ${
-              whenMode === "Más tarde" ? styles.choiceButtonActive : ""
-            }`}
-            aria-pressed={whenMode === "Más tarde"}
-            onClick={() => onWhenModeChange("Más tarde")}>
-            Para más tarde
-          </button>
-        </div>
-
-        {whenMode === "Más tarde" &&
-          (availableSlots.length ? (
-            <>
-              <button
-                type="button"
-                className={styles.slotButton}
-                onClick={() => setSlotOpen(true)}>
-                {whenSlot || "Elegí horario"}
-              </button>
-              <TimeSlotModal
-                open={slotOpen}
-                slots={availableSlots}
-                selectedValue={whenSlot}
-                onSelect={(value) => {
-                  onWhenSlotChange(value);
-                  setSlotOpen(false);
-                }}
-                onClose={() => setSlotOpen(false)}
-              />
-            </>
-        ) : (
-            <div className={styles.emptySlots}>
-              No hay horarios disponibles hoy.
-            </div>
-          ))}
-
         <TextareaField
           placeholder="Aclaraciones para la entrega"
           value={notes}
@@ -103,4 +43,3 @@ export default function PaymentScheduleCard({
     </Card>
   );
 }
-

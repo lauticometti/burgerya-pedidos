@@ -6,7 +6,6 @@ export function buildWhatsAppText({
   cross,
   pay,
   deliveryMode,
-  when,
   notes,
   items,
   total,
@@ -15,13 +14,10 @@ export function buildWhatsAppText({
   totalBefore,
 }) {
   const lines = [];
-  const isLater = typeof when === "string" && when.startsWith("Para mas tarde");
-  const timeLabel = isLater ? when.replace("Para mas tarde", "PARA").trim() : "";
-  const header = isLater ? `${name} - ${timeLabel}` : name;
   if (deliveryMode === "Retiro") {
     lines.push("RETIRO");
   }
-  lines.push(header);
+  lines.push(name);
   lines.push("");
 
   if (notes && notes.trim()) {

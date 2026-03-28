@@ -87,7 +87,7 @@ export default function PapasOptionModal({
             type="button"
             onClick={onConfirm}
             disabled={disableConfirm}>
-            {isClosed ? closedActionLabel || reopenText || "Cerrado hoy" : "Agregar"}
+            {isClosed ? closedActionLabel || reopenText || "No disponible" : "Agregar"}
           </Button>
         </div>
       </div>

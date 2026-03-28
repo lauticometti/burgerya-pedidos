@@ -83,18 +83,22 @@ export default function ItemExtrasModal({
         </div>
 
         <div className={styles.footer}>
-          {onClear ? (
-            <Button type="button" onClick={onClear}>
-              {clearLabel}
+          <div className={styles.footerPrimary}>
+            <Button
+              variant="primary"
+              type="button"
+              onClick={onApply}
+              disabled={disableApply}>
+              {applyLabel}
             </Button>
-          ) : null}
-          <Button
-            variant="primary"
-            type="button"
-            onClick={onApply}
-            disabled={disableApply}>
-            {applyLabel}
-          </Button>
+          </div>
+          <div className={styles.footerSecondary}>
+            {onClear ? (
+              <Button type="button" onClick={onClear}>
+                {clearLabel}
+              </Button>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>

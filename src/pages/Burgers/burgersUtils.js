@@ -26,12 +26,18 @@ export function buildBurgerCartItem(
   size,
   priceInfo,
   removedIngredients = [],
+  extras = [],
+  papas = [],
 ) {
   const removedIds = (removedIngredients || []).map((ing) => ing.id).filter(Boolean);
+  const extrasIds = (extras || []).map((extra) => extra.id).filter(Boolean);
+  const papasIds = (papas || []).map((extra) => extra.id).filter(Boolean);
   const key = buildBurgerLineKey({
     burgerId: burger.id,
     size,
     removedIds,
+    extrasIds,
+    papasIds,
   });
 
   return {
@@ -40,6 +46,8 @@ export function buildBurgerCartItem(
     qty: 1,
     unitPrice: priceInfo.finalPrice,
     removedIngredients: removedIngredients || [],
+    extras: extras || [],
+    papas: papas || [],
     meta: {
       type: "burger",
       burgerId: burger.id,
@@ -49,8 +57,9 @@ export function buildBurgerCartItem(
       discountAmount: priceInfo.discountAmount,
       offerId: priceInfo.offerId,
       offerLabel: priceInfo.offerLabel,
-      extrasIds: [],
-      friesId: null,
+      extrasIds,
+      friesId: papasIds[0] || null,
+      papasIds,
       removedIngredientIds: removedIds,
     },
   };

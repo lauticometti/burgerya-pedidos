@@ -171,7 +171,11 @@ export default function Burgers() {
     setModalOpen(true);
   }
 
-  function addBurgerToCart(burger, size, removedIngredients = []) {
+  function addBurgerToCart(
+    burger,
+    size,
+    { removedIngredients = [], extras = [], papas = [] } = {},
+  ) {
     if (isClosed) {
       toast.error(closedToastText, {
         key: "store-closed-burger",
@@ -180,7 +184,9 @@ export default function Burgers() {
     }
 
     const price = getBurgerPriceInfo(burger, size);
-    cart.add(buildBurgerCartItem(burger, size, price, removedIngredients));
+    cart.add(
+      buildBurgerCartItem(burger, size, price, removedIngredients, extras, papas),
+    );
     toast.success(buildBurgerAddedToastText(burger.name, size), {
       key: `burger-added:${burger.id}:${size}`,
       ms: 1300,
@@ -301,8 +307,8 @@ export default function Burgers() {
           setActiveBurger(null);
           setModalOrigin(null);
         }}
-        onAdd={(burger, size, removed) => {
-          addBurgerToCart(burger, size, removed);
+        onAdd={(burger, size, customization) => {
+          addBurgerToCart(burger, size, customization);
           setModalOpen(false);
           setActiveBurger(null);
           setModalOrigin(null);

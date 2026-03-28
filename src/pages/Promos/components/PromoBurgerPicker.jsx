@@ -51,7 +51,7 @@ export default function PromoBurgerPicker({
                   {tierItems.map((burger) => {
                     const isUnavailable = isClosed || isItemUnavailable(burger);
                     const unavailableReason = isClosed
-                      ? disabledMessage || closedActionLabel || "Cerrado hoy"
+                      ? disabledMessage || closedActionLabel || "No disponible"
                       : getUnavailableReason(burger);
                     return (
                       <Button

@@ -22,7 +22,7 @@ export default function PromoPickedSummary({
 
   const unitPrice = price && count ? price / count : null;
   const disabled = isClosed || picked.length !== count;
-  const actionLabel = isClosed ? closedActionLabel || "Cerrado hoy" : "Agregar promo";
+  const actionLabel = isClosed ? closedActionLabel || "No disponible" : "Agregar promo";
   const actionSubLabel = isClosed ? reopenText : remainingText;
 
   return (

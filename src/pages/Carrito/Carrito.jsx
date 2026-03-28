@@ -4,7 +4,6 @@ import { bebidas, burgers, extras, papas } from "../../data/menu";
 import ItemExtrasModal from "../../components/ItemExtrasModal";
 import { toast } from "../../utils/toast";
 import { formatMoney } from "../../utils/formatMoney";
-import { getAvailableSlotsMin30, minutesToHHMM } from "../../utils/timeSlots";
 import Page from "../../components/layout/Page";
 import StickyBar from "../../components/layout/StickyBar";
 import CartSummary from "../../components/cart/CartSummary";
@@ -35,6 +34,7 @@ import {
   evaluateCoupon,
   normalizeCouponInput,
 } from "../../utils/coupons";
+import { buildPapasMejoras } from "../../utils/papasUpgradeOptions";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
 import { useStoreStatus } from "../../utils/storeClosedMode";
 
@@ -73,10 +73,6 @@ export default function Carrito() {
     setPay,
     notes,
     setNotes,
-    whenMode,
-    setWhenMode,
-    whenSlot,
-    setWhenSlot,
   } = useCarritoCheckoutForm();
   const { undoItem, handleRemove, handleUndo } = useCartUndo(cart);
 
@@ -85,24 +81,8 @@ export default function Carrito() {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, []);
 
-  const [availableSlots, setAvailableSlots] = React.useState(
-    getAvailableSlotsMin30(),
-  );
   const [couponCode, setCouponCode] = React.useState("");
   const [appliedCoupon, setAppliedCoupon] = React.useState("");
-  React.useEffect(() => {
-    const id = setInterval(
-      () => setAvailableSlots(getAvailableSlotsMin30()),
-      60 * 1000,
-    );
-    return () => clearInterval(id);
-  }, []);
-
-  React.useEffect(() => {
-    if (whenMode === "Más tarde" && !whenSlot && availableSlots.length) {
-      setWhenSlot(minutesToHHMM(availableSlots[0]));
-    }
-  }, [whenMode, whenSlot, availableSlots, setWhenSlot]);
 
   const discountResult = React.useMemo(() => {
     if (!appliedCoupon) return { discount: 0 };
@@ -138,8 +118,6 @@ export default function Carrito() {
     cross,
     pay,
     notes,
-    whenMode,
-    whenSlot,
     items: cart.items,
     total: totalWithDiscount,
     couponCode: couponApplied ? appliedCoupon : "",
@@ -186,30 +164,7 @@ export default function Carrito() {
     toast.success(result.message || "Código aplicado");
   }
 
-  const papasMejoras = React.useMemo(() => {
-    const cheddar = papas.find((item) => item.id === "cheddar_liq");
-    const bacon = papas.find((item) => item.id === "papas_bacon");
-    const cheddarSolo = cheddar
-      ? {
-          ...cheddar,
-          id: "papas_cheddar",
-          name: "Cheddar",
-          price: cheddar.price || 1500,
-          isAvailable: 1,
-        }
-      : null;
-    const cheddarBacon =
-      cheddar && bacon
-        ? {
-            ...cheddar,
-            id: "papas_cheddar_bacon",
-            name: "Cheddar y bacon",
-            price: (cheddar.price || 0) + (bacon.price || 0) || 3000,
-            isAvailable: 1,
-          }
-        : null;
-    return [cheddarSolo, cheddarBacon].filter(Boolean);
-  }, []);
+  const papasMejoras = React.useMemo(() => buildPapasMejoras(papas), []);
   const bebidaItems = bebidas || [];
   const {
     modalItem,
@@ -256,11 +211,6 @@ export default function Carrito() {
   const groupedItems = React.useMemo(() => {
     return groupItemsByCategory(cart.items);
   }, [cart.items]);
-
-  const slotOptions = availableSlots.map((m) => ({
-    value: minutesToHHMM(m),
-    label: minutesToHHMM(m),
-  }));
 
   const groupListClasses = {
     group: styles.group,
@@ -400,13 +350,8 @@ export default function Carrito() {
 
           <PaymentScheduleCard
             pay={pay}
-            whenMode={whenMode}
-            whenSlot={whenSlot}
-            availableSlots={slotOptions}
             notes={notes}
             onPayChange={setPay}
-            onWhenModeChange={setWhenMode}
-            onWhenSlotChange={setWhenSlot}
             onNotesChange={setNotes}
           />
         </>

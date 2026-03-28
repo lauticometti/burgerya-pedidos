@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
 import BrandLogo from "../../components/brand/BrandLogo";
 import CartSummary from "../../components/cart/CartSummary";
 import HomeCard from "../../components/home/HomeCard";
@@ -20,15 +19,10 @@ const HOME_CARD_IMAGES = {
 export default function Home() {
   const cart = useCart();
   const {
-    closedActionLabel,
-    isClosed,
-    isTriplePromoLive,
     isTriplePromoVisible,
     promoHeroCtaLabel,
     promoHeroSubtitle,
     promoHeroTitle,
-    reopenText,
-    scheduleText,
   } = useStoreStatus();
   const [imageStatus, setImageStatus] = useState({
     burgers: "loading",
@@ -60,7 +54,6 @@ export default function Home() {
     imageStatus.burgers === "loaded" ? HOME_CARD_IMAGES.burgers : null;
   const promosImage =
     imageStatus.promos === "loaded" ? HOME_CARD_IMAGES.promos : null;
-  const scheduleHint = isClosed ? reopenText : `Horario: ${scheduleText}`;
 
   return (
     <Page>
@@ -68,10 +61,6 @@ export default function Home() {
       <TopNav />
 
       <div className={styles.subtitle}>Elegi como queres armar tu pedido</div>
-      {!isTriplePromoLive ? (
-        <div className={styles.scheduleHint}>{scheduleHint}</div>
-      ) : null}
-      {!isTriplePromoVisible ? <ClosedInlineNotice /> : null}
 
       {isTriplePromoVisible ? (
         <section className={styles.promoHero}>
@@ -112,17 +101,11 @@ export default function Home() {
 
       <StickyBar>
         <CartSummary total={cart.total} />
-        {isClosed ? (
-          <Button variant="primary" disabled subLabel={reopenText}>
-            {closedActionLabel}
+        <Link to="/carrito">
+          <Button variant="primary" disabled={cart.items.length === 0}>
+            Cerrar pedido
           </Button>
-        ) : (
-          <Link to="/carrito">
-            <Button variant="primary" disabled={cart.items.length === 0}>
-              Cerrar pedido
-            </Button>
-          </Link>
-        )}
+        </Link>
       </StickyBar>
     </Page>
   );

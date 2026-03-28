@@ -1,7 +1,6 @@
-# Burgerya – Web de Pedidos
+# Burgerya - Web de Pedidos
 
-Web de pedidos para Burgerya (dark kitchen).
-Pensada mobile-first, flujo rápido y sin fricción.
+Web de pedidos para Burgerya, pensada mobile-first y con flujo rapido.
 
 ## Stack
 
@@ -9,26 +8,19 @@ Pensada mobile-first, flujo rápido y sin fricción.
 - Vite
 - React Router
 - Estado global simple (cart)
-- Sin backend (pedido se envía por WhatsApp)
-
-## Horarios
-
-🕗 Miércoles a Domingo – 20:00 a 00:00  
-Fuera de horario solo se puede navegar el menú.
+- Sin backend (pedido por WhatsApp)
 
 ## Rutas principales
 
-- `/` → Home
-- `/burgers` → Hamburguesas
-- `/promos` → Promos armables
-- `/papas` → Papas y extras
-- `/carrito` → Resumen y envío por WhatsApp
+- `/` -> Home
+- `/burgers` -> Hamburguesas
+- `/promos` -> Promos armables
+- `/papas` -> Papas y extras
+- `/carrito` -> Resumen y envio por WhatsApp
 
-## Instalación
+## Instalacion
 
 ```bash
 npm install
 npm run dev
 ```
-
-

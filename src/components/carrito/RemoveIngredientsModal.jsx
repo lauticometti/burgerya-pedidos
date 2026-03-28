@@ -1,6 +1,7 @@
 import CloseButton from "../ui/CloseButton";
 import Button from "../ui/Button";
 import styles from "./RemoveIngredientsModal.module.css";
+import useEscapeToClose from "../../hooks/useEscapeToClose";
 
 export default function RemoveIngredientsModal({
   open,
@@ -11,6 +12,8 @@ export default function RemoveIngredientsModal({
   onApply,
   onClose,
 }) {
+  useEscapeToClose(open, onClose);
+
   if (!open) return null;
 
   return (
@@ -49,12 +52,16 @@ export default function RemoveIngredientsModal({
         </div>
 
         <div className={styles.footer}>
-          <Button type="button" onClick={onClose}>
-            Cancelar
-          </Button>
-          <Button variant="primary" type="button" onClick={onApply}>
-            Aplicar
-          </Button>
+          <div className={styles.footerPrimary}>
+            <Button variant="primary" type="button" onClick={onApply}>
+              Aplicar
+            </Button>
+          </div>
+          <div className={styles.footerSecondary}>
+            <Button type="button" onClick={onClose}>
+              Cancelar
+            </Button>
+          </div>
         </div>
       </div>
     </div>

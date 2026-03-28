@@ -230,7 +230,7 @@
 .customizer {
   margin-top: 2px;
   display: grid;
-  gap: 6px;
+  gap: 8px;
 }
 
 .customizerTitle {
@@ -243,79 +243,52 @@
   opacity: 0.8;
 }
 
-.customizerGrid {
+.customizerActions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.customizerOption {
-  flex: 1 1 48%;
-  min-width: 140px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
+.papasButton {
+  position: relative;
+  border-color: var(--line);
+  color: var(--text);
+  background: #1a1a1a;
+  padding-left: 18px;
 }
 
-.customizerOptionOn {
-  border-color: rgba(255, 198, 42, 0.5);
-  background: rgba(255, 198, 42, 0.1);
-}
-
-.customizerCheckbox {
-  width: 18px;
-  height: 18px;
-  border-radius: 6px;
-  border: 1px solid var(--line);
-  background: #0b0b0b;
-  display: inline-grid;
-  place-content: center;
-  appearance: none;
-  cursor: pointer;
-  transition:
-    transform 0.08s ease,
-    border-color 0.12s ease,
-    background 0.12s ease;
-}
-
-.customizerCheckbox::after {
+.papasButton::before {
   content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
-  background: transparent;
-  transform: scale(0.2);
-  transition:
-    transform 0.08s ease,
-    background 0.12s ease;
+  position: absolute;
+  left: 8px;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  border-radius: 999px;
+  background: rgba(255, 198, 42, 0.9);
 }
 
-.customizerCheckbox:checked {
-  background: var(--y);
-  border-color: transparent;
+.papasButton:hover {
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
-.customizerCheckbox:checked::after {
-  background: #111;
-  transform: scale(1);
+.removeButton {
+  align-self: start;
 }
 
-.customizerCheckbox:focus-visible {
-  outline: 2px solid rgba(255, 220, 60, 0.5);
-  outline-offset: 2px;
+.customizerSummary {
+  display: grid;
+  gap: 4px;
 }
 
-.customizerLabel {
-  font-size: 14px;
+.customizerMeta {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 @media (max-width: 520px) {
-  .customizerOption {
-    flex-basis: 100%;
+  .customizerActions > * {
+    width: 100%;
   }
 }
 

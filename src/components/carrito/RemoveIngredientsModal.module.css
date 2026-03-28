@@ -127,7 +127,20 @@
 }
 
 .footer {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   gap: 8px;
+}
+
+.footerPrimary {
+  display: flex;
+  align-items: center;
+  justify-self: start;
+}
+
+.footerSecondary {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  justify-self: end;
 }

@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 
 const STORAGE_KEY = "burgerya_carrito_form";
 
@@ -9,8 +9,6 @@ export default function useCarritoCheckoutForm() {
   const [cross, setCross] = React.useState("");
   const [pay, setPay] = React.useState("Efectivo");
   const [notes, setNotes] = React.useState("");
-  const [whenMode, setWhenMode] = React.useState("Ahora");
-  const [whenSlot, setWhenSlot] = React.useState("");
 
   React.useEffect(() => {
     if (typeof window === "undefined" || !window.localStorage) return;
@@ -25,8 +23,6 @@ export default function useCarritoCheckoutForm() {
       if (saved?.pay) setPay(saved.pay);
       if (saved?.deliveryMode) setDeliveryMode(saved.deliveryMode);
       if (saved?.notes) setNotes(saved.notes);
-      if (saved?.whenMode) setWhenMode(saved.whenMode);
-      if (saved?.whenSlot) setWhenSlot(saved.whenSlot);
     } catch {
       // ignore storage errors
     }
@@ -42,8 +38,6 @@ export default function useCarritoCheckoutForm() {
       pay,
       deliveryMode,
       notes,
-      whenMode,
-      whenSlot,
     };
 
     try {
@@ -51,7 +45,7 @@ export default function useCarritoCheckoutForm() {
     } catch {
       // ignore storage errors
     }
-  }, [name, address, cross, pay, deliveryMode, notes, whenMode, whenSlot]);
+  }, [name, address, cross, pay, deliveryMode, notes]);
 
   return {
     deliveryMode,
@@ -66,9 +60,5 @@ export default function useCarritoCheckoutForm() {
     setPay,
     notes,
     setNotes,
-    whenMode,
-    setWhenMode,
-    whenSlot,
-    setWhenSlot,
   };
 }
