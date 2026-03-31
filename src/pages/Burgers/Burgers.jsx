@@ -253,6 +253,9 @@ export default function Burgers() {
                   <div className={styles.cardBody}>
                     <div className={styles.cardTopRow}>
                       <h3 className={styles.cardTitle}>{burger.name}</h3>
+                      {burger.desc && (
+                        <p className={styles.cardDesc}>{burger.desc}</p>
+                      )}
                     </div>
 
                     <div className={styles.cardPricePreview}>

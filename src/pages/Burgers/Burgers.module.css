@@ -204,6 +204,17 @@
   overflow-wrap: normal;
 }
 
+.cardDesc {
+  font-size: 12px;
+  opacity: 0.75;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: 2px;
+}
+
 .unavailable {
   margin: 0;
   font-size: 11px;

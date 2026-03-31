@@ -8,7 +8,7 @@ export const burgers = [
     name: "Cheese",
     tier: "BASICA",
     prices: { simple: 10500, doble: 14000, triple: 17500 },
-    desc: "Pan de papa · Carne smash · Cheddar",
+    desc: "Doble cheddar",
     removableIngredients: [{ id: "cheddar", label: "Cheddar" }],
     img: "/burgers/cheese.svg",
     isAvailable: 1,
@@ -20,7 +20,7 @@ export const burgers = [
     name: "Lautiboom",
     tier: "PREMIUM",
     prices: { simple: 11500, doble: 15000, triple: 18500 },
-    desc: "Pan de papa · Carne smash · Cebolla caramelizada · Cheddar · Mil Islas.",
+    desc: "Cebolla caramelizada · Salsa especial",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
       { id: "mil_islas", label: "Salsa Mil Islas" },
@@ -34,7 +34,7 @@ export const burgers = [
     name: "American",
     tier: "PREMIUM",
     prices: { simple: 11500, doble: 15000, triple: 18500 },
-    desc: "Pan de papa · Carne smash · Lechuga · Tomate · Cebolla · Pepinos · Cheddar · Mil Islas",
+    desc: "Lechuga · Tomate · Cebolla · Pepinos · Salsa especial",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
       { id: "pickles", label: "Pepinos agridulces" },
@@ -51,7 +51,7 @@ export const burgers = [
     name: "Bacon",
     tier: "PREMIUM",
     prices: { simple: 11500, doble: 15000, triple: 18500 },
-    desc: "Pan de papa · Carne smash · Bacon · Cheddar",
+    desc: "Doble cheddar · Bacon crocante",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
       { id: "bacon", label: "Bacon" },
@@ -66,7 +66,7 @@ export const burgers = [
     name: "BBQueen",
     tier: "DELUXE",
     prices: { simple: 12000, doble: 15500, triple: 19000 },
-    desc: "Pan de papa · Carne smash · Bacon · Tomate · Cebolla caramelizada · Cheddar · Barbacoa",
+    desc: "Bacon · Cebolla caramelizada · Tomate · Salsa barbacoa",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
       { id: "bacon", label: "Bacon" },
@@ -82,7 +82,7 @@ export const burgers = [
     name: "Smoklahoma",
     tier: "DELUXE",
     prices: { simple: 12000, doble: 15500, triple: 19000 },
-    desc: "Pan de papa · Carne smash con cebolla ultrafina · Bacon · Cheddar · Mil Islas",
+    desc: "Carne con cebolla ultrafina · Bacon · Salsa especial",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
       { id: "onion", label: "Cebolla" },
@@ -99,7 +99,7 @@ export const burgers = [
     name: "Titanica",
     tier: "ESPECIAL",
     prices: { triple: 28000 },
-    desc: "Doble pan de papa relleno con cheddar · Carne smash · Bacon abajo y arriba · Cebolla caramelizada · Cheddar · Mil Islas",
+    desc: "Doble pan relleno de cheddar · Bacon · Cebolla caramelizada · Salsa especial",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
       { id: "bacon", label: "Bacon" },
@@ -220,5 +220,3 @@ export const bebidas = [
   { id: "coca_600", name: "Coca Cola 600ml", price: 3000, isAvailable: 1 },
   { id: "coca_225", name: "Coca Cola 2.25L", price: 6000, isAvailable: 1 },
 ];
-
-
