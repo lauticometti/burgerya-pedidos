@@ -211,7 +211,7 @@ export const papas = [
   {
     id: "dip_mil_islas",
     name: "Dip de Mil Islas",
-    price: 1500,
+    price: 1000,
     isAvailable: 1,
   },
 ];
