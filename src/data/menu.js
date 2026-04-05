@@ -137,13 +137,13 @@ export const promoRules = {
 export const extras = [
   {
     id: "carne_cheddar",
-    name: "Carne extra c/ cheddar",
+    name: "Carne",
     price: 3500,
     isAvailable: 1,
   },
   {
     id: "cheddar_extra",
-    name: "Cheddar extra (2 fetas)",
+    name: "Cheddar",
     price: 1000,
     isAvailable: 1,
   },
