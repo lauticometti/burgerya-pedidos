@@ -16,36 +16,51 @@ const SIZE_ORDER = ["simple", "doble", "triple"];
 const SIZE_LABEL = { simple: "Simple", doble: "Doble", triple: "Triple" };
 
 export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
-  const [size, setSize] = React.useState(null);
   const [show, setShow] = React.useState(false);
-  const [removedIds, setRemovedIds] = React.useState([]);
-  const [extrasIds, setExtrasIds] = React.useState([]);
-  const [papasIds, setPapasIds] = React.useState([]);
-  const [removeOpen, setRemoveOpen] = React.useState(false);
-  const [extrasOpen, setExtrasOpen] = React.useState(false);
-  const [papasOpen, setPapasOpen] = React.useState(false);
-  const [removeDraftIds, setRemoveDraftIds] = React.useState([]);
-  const [extrasDraftIds, setExtrasDraftIds] = React.useState([]);
-  const [papasDraftIds, setPapasDraftIds] = React.useState([]);
+
+  // Consolidated customization state
+  const [customizations, setCustomizations] = React.useState({
+    size: null,
+    removedIds: [],
+    extrasIds: [],
+    papasIds: [],
+  });
+
+  // Consolidated modal state
+  const [modals, setModals] = React.useState({
+    removeOpen: false,
+    removeDraftIds: [],
+    extrasOpen: false,
+    extrasDraftIds: [],
+    papasOpen: false,
+    papasDraftIds: [],
+  });
+
   const { closedActionLabel, isClosed, reopenText } = useStoreStatus();
 
   const papasMejoras = React.useMemo(() => buildPapasMejoras(papas), []);
-  const hasNestedModalOpen = removeOpen || extrasOpen || papasOpen;
+  const hasNestedModalOpen =
+    modals.removeOpen || modals.extrasOpen || modals.papasOpen;
 
+  // Reset state when modal opens
   React.useEffect(() => {
     if (!open || !burger) return;
     const first =
       SIZE_ORDER.find((candidate) => burger.prices?.[candidate] != null) || null;
-    setSize(first);
-    setRemovedIds([]);
-    setExtrasIds([]);
-    setPapasIds([]);
-    setRemoveDraftIds([]);
-    setExtrasDraftIds([]);
-    setPapasDraftIds([]);
-    setRemoveOpen(false);
-    setExtrasOpen(false);
-    setPapasOpen(false);
+    setCustomizations({
+      size: first,
+      removedIds: [],
+      extrasIds: [],
+      papasIds: [],
+    });
+    setModals({
+      removeOpen: false,
+      removeDraftIds: [],
+      extrasOpen: false,
+      extrasDraftIds: [],
+      papasOpen: false,
+      papasDraftIds: [],
+    });
   }, [open, burger]);
 
   useEscapeToClose(open && !hasNestedModalOpen, onClose);
@@ -53,9 +68,12 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
   React.useEffect(() => {
     if (!open) {
       setShow(false);
-      setRemoveOpen(false);
-      setExtrasOpen(false);
-      setPapasOpen(false);
+      setModals((prev) => ({
+        ...prev,
+        removeOpen: false,
+        extrasOpen: false,
+        papasOpen: false,
+      }));
       return;
     }
 
@@ -63,18 +81,37 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
     return () => cancelAnimationFrame(raf);
   }, [open]);
 
+  // Helper functions for modal state updates
+  const openRemoveModal = () => {
+    setModals((prev) => ({ ...prev, removeOpen: true }));
+  };
+
+  const openExtrasModal = () => {
+    setModals((prev) => ({ ...prev, extrasOpen: true }));
+  };
+
+  const openPapasModal = () => {
+    setModals((prev) => ({ ...prev, papasOpen: true }));
+  };
+
   if (!open || !burger) return null;
 
   const isTitanica = burger.id === "titanica";
   const sizes = SIZE_ORDER.filter((candidate) => burger.prices?.[candidate] != null);
-  const selectedSize = isTitanica ? "triple" : size;
-  const selectedPrice = selectedSize ? getBurgerPriceInfo(burger, selectedSize) : null;
+  const selectedSize = isTitanica ? "triple" : customizations.size;
+  const selectedPrice = selectedSize
+    ? getBurgerPriceInfo(burger, selectedSize)
+    : null;
   const removableIngredients = burger.removableIngredients || [];
   const selectedRemovals = removableIngredients.filter((ingredient) =>
-    removedIds.includes(ingredient.id),
+    customizations.removedIds.includes(ingredient.id),
   );
-  const selectedExtras = extras.filter((item) => extrasIds.includes(item.id));
-  const selectedPapas = papasMejoras.filter((item) => papasIds.includes(item.id));
+  const selectedExtras = extras.filter((item) =>
+    customizations.extrasIds.includes(item.id),
+  );
+  const selectedPapas = papasMejoras.filter((item) =>
+    customizations.papasIds.includes(item.id),
+  );
   const customizationCount =
     selectedRemovals.length + selectedExtras.length + selectedPapas.length;
   const originStyle = origin
@@ -83,21 +120,6 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
   const burgerImg =
     origin?.imageSrc || resolvePublicPath(burger.img || "/burgers/placeholder.jpg");
   const addDisabled = !selectedSize || isClosed;
-
-  function openRemoveModal() {
-    setRemoveDraftIds(removedIds);
-    setRemoveOpen(true);
-  }
-
-  function openExtrasModal() {
-    setExtrasDraftIds(extrasIds);
-    setExtrasOpen(true);
-  }
-
-  function openPapasModal() {
-    setPapasDraftIds(papasIds);
-    setPapasOpen(true);
-  }
 
   function handleBackdropMouseDown(event) {
     if (hasNestedModalOpen) return;
@@ -142,9 +164,14 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
                       key={candidate}
                       type="button"
                       className={`${styles.sizeBtn} ${
-                        size === candidate ? styles.sizeBtnOn : ""
+                        customizations.size === candidate ? styles.sizeBtnOn : ""
                       }`}
-                      onClick={() => setSize(candidate)}>
+                      onClick={() =>
+                        setCustomizations((prev) => ({
+                          ...prev,
+                          size: candidate,
+                        }))
+                      }>
                       <div className={styles.sizeTop}>{SIZE_LABEL[candidate]}</div>
                     </button>
                   );
@@ -224,13 +251,13 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
               className={`${styles.addBtn} ${isTitanica ? styles.addBtnChallenge : ""}`}
               type="button"
               disabled={addDisabled}
-              onClick={() =>
+              onClick={() => {
                 onAdd?.(burger, selectedSize, {
                   removedIngredients: selectedRemovals,
                   extras: selectedExtras,
                   papas: selectedPapas,
-                })
-              }>
+                });
+              }}>
               {isClosed
                 ? closedActionLabel || reopenText
                 : isTitanica
@@ -243,29 +270,41 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
       </div>
 
       <ItemExtrasModal
-        open={extrasOpen}
+        open={modals.extrasOpen}
         title="Agregados"
         description="Suma extras a esta burger."
         items={extras}
-        selectedIds={extrasDraftIds}
+        selectedIds={modals.extrasDraftIds}
         onToggle={(id) =>
-          setExtrasDraftIds((prev) =>
-            prev.includes(id)
-              ? prev.filter((itemId) => itemId !== id)
-              : [...prev, id],
-          )
+          setModals((prev) => ({
+            ...prev,
+            extrasDraftIds: prev.extrasDraftIds.includes(id)
+              ? prev.extrasDraftIds.filter((itemId) => itemId !== id)
+              : [...prev.extrasDraftIds, id],
+          }))
         }
-        onClose={() => setExtrasOpen(false)}
+        onClose={() =>
+          setModals((prev) => ({ ...prev, extrasOpen: false }))
+        }
         onApply={() => {
-          setExtrasIds(extrasDraftIds);
-          setExtrasOpen(false);
+          setCustomizations((prev) => ({
+            ...prev,
+            extrasIds: modals.extrasDraftIds,
+          }));
+          setModals((prev) => ({ ...prev, extrasOpen: false }));
         }}
         onClear={
-          extrasIds.length
+          customizations.extrasIds.length
             ? () => {
-                setExtrasDraftIds([]);
-                setExtrasIds([]);
-                setExtrasOpen(false);
+                setCustomizations((prev) => ({
+                  ...prev,
+                  extrasIds: [],
+                }));
+                setModals((prev) => ({
+                  ...prev,
+                  extrasDraftIds: [],
+                  extrasOpen: false,
+                }));
               }
             : undefined
         }
@@ -273,26 +312,40 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
       />
 
       <ItemExtrasModal
-        open={papasOpen}
+        open={modals.papasOpen}
         title="Mejorar papas"
         items={papasMejoras}
-        selectedIds={papasDraftIds}
+        selectedIds={modals.papasDraftIds}
         onToggle={(id) =>
-          setPapasDraftIds((prev) => (prev.includes(id) ? [] : [id]))
+          setModals((prev) => ({
+            ...prev,
+            papasDraftIds: prev.papasDraftIds.includes(id) ? [] : [id],
+          }))
         }
-        onClose={() => setPapasOpen(false)}
+        onClose={() =>
+          setModals((prev) => ({ ...prev, papasOpen: false }))
+        }
         onApply={() => {
-          setPapasIds(papasDraftIds);
-          setPapasOpen(false);
+          setCustomizations((prev) => ({
+            ...prev,
+            papasIds: modals.papasDraftIds,
+          }));
+          setModals((prev) => ({ ...prev, papasOpen: false }));
         }}
-        disableApply={papasDraftIds.length === 0}
+        disableApply={modals.papasDraftIds.length === 0}
         applyLabel="Mejorar"
         onClear={
-          papasIds.length
+          customizations.papasIds.length
             ? () => {
-                setPapasDraftIds([]);
-                setPapasIds([]);
-                setPapasOpen(false);
+                setCustomizations((prev) => ({
+                  ...prev,
+                  papasIds: [],
+                }));
+                setModals((prev) => ({
+                  ...prev,
+                  papasDraftIds: [],
+                  papasOpen: false,
+                }));
               }
             : undefined
         }
@@ -300,22 +353,28 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
       />
 
       <RemoveIngredientsModal
-        open={removeOpen}
+        open={modals.removeOpen}
         title={`Quitar a ${burger.name}`}
         ingredients={removableIngredients}
-        selectedIds={removeDraftIds}
+        selectedIds={modals.removeDraftIds}
         onToggle={(id) =>
-          setRemoveDraftIds((prev) =>
-            prev.includes(id)
-              ? prev.filter((itemId) => itemId !== id)
-              : [...prev, id],
-          )
+          setModals((prev) => ({
+            ...prev,
+            removeDraftIds: prev.removeDraftIds.includes(id)
+              ? prev.removeDraftIds.filter((itemId) => itemId !== id)
+              : [...prev.removeDraftIds, id],
+          }))
         }
         onApply={() => {
-          setRemovedIds(removeDraftIds);
-          setRemoveOpen(false);
+          setCustomizations((prev) => ({
+            ...prev,
+            removedIds: modals.removeDraftIds,
+          }));
+          setModals((prev) => ({ ...prev, removeOpen: false }));
         }}
-        onClose={() => setRemoveOpen(false)}
+        onClose={() =>
+          setModals((prev) => ({ ...prev, removeOpen: false }))
+        }
       />
     </div>
   );

@@ -43,6 +43,10 @@ export default function useRemoveIngredientsModal({ cart, burgersById }) {
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((pid) => pid !== id) : [...prev, id]));
   }, []);
 
+  const clearSelection = React.useCallback(() => {
+    setSelectedIds([]);
+  }, []);
+
   const reset = React.useCallback(() => {
     setModalItemKey(null);
     setModalPickIndex(null);
@@ -71,6 +75,7 @@ export default function useRemoveIngredientsModal({ cart, burgersById }) {
     title,
     openRemoveModal,
     toggleSelection,
+    clearSelection,
     applySelection,
     closeRemoveModal: reset,
   };

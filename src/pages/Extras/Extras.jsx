@@ -16,6 +16,8 @@ import PageTitle from "../../components/ui/PageTitle";
 import styles from "./Extras.module.css";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
 import { useStoreStatus } from "../../utils/storeClosedMode";
+import { createExtrasItem } from "../../utils/cartItemBuilders";
+import { TOAST_KEYS } from "../../constants/toastKeys";
 
 export default function Extras() {
   const cart = useCart();
@@ -25,25 +27,18 @@ export default function Extras() {
   function addExtra(x) {
     if (isClosed) {
       toast.error(closedToastText, {
-        key: "store-closed-extra",
+        key: TOAST_KEYS.STORE_CLOSED_EXTRAS,
       });
       return;
     }
     if (isItemUnavailable(x)) {
       const reason = getUnavailableReason(x);
       toast.error(`${x.name}: ${reason}`, {
-        key: `extra-unavailable:${x.id}`,
+        key: TOAST_KEYS.ITEM_UNAVAILABLE_EXTRAS(x.id),
       });
       return;
     }
-    const key = `extra:${x.id}`;
-    cart.add({
-      key,
-      name: x.name,
-      qty: 1,
-      unitPrice: x.price,
-      meta: { type: "extra" },
-    });
+    cart.add(createExtrasItem(x));
     toast.success(`+ ${x.name}`);
   }
 

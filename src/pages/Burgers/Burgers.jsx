@@ -23,6 +23,7 @@ import {
   useStoreStatus,
 } from "../../utils/storeClosedMode";
 import { toast } from "../../utils/toast";
+import { indexById } from "../../utils/indexing";
 import BurgerModal from "./BurgerModal";
 import styles from "./Burgers.module.css";
 import {
@@ -96,13 +97,6 @@ const CARD_CLASS = {
   challenge: styles.cardChallenge,
 };
 
-function mapBurgersById(list) {
-  return list.reduce((acc, burger) => {
-    acc[burger.id] = burger;
-    return acc;
-  }, {});
-}
-
 export default function Burgers() {
   const cart = useCart();
   const {
@@ -115,7 +109,7 @@ export default function Burgers() {
   const [modalOpen, setModalOpen] = React.useState(false);
   const [activeBurger, setActiveBurger] = React.useState(null);
   const [modalOrigin, setModalOrigin] = React.useState(null);
-  const burgersById = React.useMemo(() => mapBurgersById(burgers), []);
+  const burgersById = React.useMemo(() => indexById(burgers), []);
 
   const sections = React.useMemo(
     () =>

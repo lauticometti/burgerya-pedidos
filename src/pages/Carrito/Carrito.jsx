@@ -43,6 +43,18 @@ export default function Carrito() {
   const { closedActionLabel, closedToastText, isClosed, reopenText } =
     useStoreStatus();
 
+  React.useEffect(() => {
+    const metaRobots = document.querySelector('meta[name="robots"]');
+    if (metaRobots) {
+      metaRobots.setAttribute("content", "noindex, follow");
+    }
+    return () => {
+      if (metaRobots) {
+        metaRobots.setAttribute("content", "index, follow");
+      }
+    };
+  }, []);
+
   const [step, setStep] = React.useState(1); // 1: Chequear pedido, 2: Datos y pago
   const burgersById = React.useMemo(
     () =>
@@ -237,6 +249,7 @@ export default function Carrito() {
     title: removeModalTitle,
     openRemoveModal,
     toggleSelection: toggleRemoveSelection,
+    clearSelection: clearRemoveSelection,
     applySelection: applyRemoveSelection,
     closeRemoveModal,
   } = useRemoveIngredientsModal({ cart, burgersById });
@@ -370,7 +383,7 @@ export default function Carrito() {
                 />
                 <Button
                   size="sm"
-                  variant=" condary"
+                  variant="secondary"
                   className={styles.couponApply}
                   onClick={applyCoupon}>
                   Aplicar
@@ -481,6 +494,7 @@ export default function Carrito() {
         selectedIds={removeModalSelectedIds}
         onToggle={toggleRemoveSelection}
         onApply={applyRemoveSelection}
+        onClear={clearRemoveSelection}
         onClose={closeRemoveModal}
       />
     </Page>

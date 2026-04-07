@@ -1,4 +1,5 @@
 ﻿import { formatMoney } from "./formatMoney";
+import { getCategory } from "./itemGrouping";
 
 export function buildWhatsAppText({
   name,
@@ -12,6 +13,8 @@ export function buildWhatsAppText({
   couponCode,
   discountAmount = 0,
   totalBefore,
+  whenMode,
+  whenSlot,
 }) {
   const lines = [];
   if (deliveryMode === "Retiro") {
@@ -31,16 +34,6 @@ export function buildWhatsAppText({
     if (item.meta?.size === "triple") return item.qty > 1 ? "triples" : "triple";
     if (item.meta?.size === "simple") return item.qty > 1 ? "simples" : "simple";
     return "";
-  }
-
-  function getCategory(item) {
-    if (item.meta?.type === "promo") return "promos";
-    if (item.meta?.type === "combo") return "combos";
-    if (item.meta?.type === "papas" && item.key?.startsWith("papas:dip_"))
-      return "dips";
-    if (item.meta?.type === "papas") return "papas";
-    if (item.meta?.type === "bebida") return "bebidas";
-    return "burgers";
   }
 
   const groupOrder = [
@@ -257,6 +250,10 @@ export function buildWhatsAppText({
     if (cross && cross.trim()) {
       lines.push(cross.trim());
     }
+    lines.push("");
+  }
+  if (whenMode === "Mas tarde" && whenSlot) {
+    lines.push(`Horario: ${whenSlot}`);
     lines.push("");
   }
   const subtotal = totalBefore || total;

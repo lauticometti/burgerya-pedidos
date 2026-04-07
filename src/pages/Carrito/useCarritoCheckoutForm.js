@@ -3,62 +3,59 @@ import React from "react";
 const STORAGE_KEY = "burgerya_carrito_form";
 
 export default function useCarritoCheckoutForm() {
-  const [deliveryMode, setDeliveryMode] = React.useState("");
-  const [name, setName] = React.useState("");
-  const [address, setAddress] = React.useState("");
-  const [cross, setCross] = React.useState("");
-  const [pay, setPay] = React.useState("Efectivo");
-  const [notes, setNotes] = React.useState("");
+  // Consolidated state
+  const [formData, setFormData] = React.useState({
+    deliveryMode: "",
+    name: "",
+    address: "",
+    cross: "",
+    pay: "Efectivo",
+    notes: "",
+  });
 
+  // Load from localStorage on mount
   React.useEffect(() => {
     if (typeof window === "undefined" || !window.localStorage) return;
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
-
       const saved = JSON.parse(raw);
-      if (saved?.name) setName(saved.name);
-      if (saved?.address) setAddress(saved.address);
-      if (saved?.cross) setCross(saved.cross);
-      if (saved?.pay) setPay(saved.pay);
-      if (saved?.deliveryMode) setDeliveryMode(saved.deliveryMode);
-      if (saved?.notes) setNotes(saved.notes);
+      setFormData((prev) => ({ ...prev, ...saved }));
     } catch {
       // ignore storage errors
     }
   }, []);
 
+  // Persist to localStorage on change
   React.useEffect(() => {
     if (typeof window === "undefined" || !window.localStorage) return;
-
-    const payload = {
-      name,
-      address,
-      cross,
-      pay,
-      deliveryMode,
-      notes,
-    };
-
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
     } catch {
       // ignore storage errors
     }
-  }, [name, address, cross, pay, deliveryMode, notes]);
+  }, [formData]);
+
+  // Helper to update individual fields
+  const updateField = React.useCallback((field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  }, []);
 
   return {
-    deliveryMode,
-    setDeliveryMode,
-    name,
-    setName,
-    address,
-    setAddress,
-    cross,
-    setCross,
-    pay,
-    setPay,
-    notes,
-    setNotes,
+    // Consolidated state
+    ...formData,
+
+    // Update methods (destructurable)
+    updateField,
+    setDeliveryMode: (val) => updateField("deliveryMode", val),
+    setName: (val) => updateField("name", val),
+    setAddress: (val) => updateField("address", val),
+    setCross: (val) => updateField("cross", val),
+    setPay: (val) => updateField("pay", val),
+    setNotes: (val) => updateField("notes", val),
+
+    // Full form data for components that need it
+    formData,
+    setFormData,
   };
 }

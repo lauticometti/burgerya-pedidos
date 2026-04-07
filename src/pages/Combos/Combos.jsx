@@ -19,6 +19,7 @@ import { buildBurgerLineKey } from "../../utils/cartKeys";
 import styles from "./Combos.module.css";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
 import { useStoreStatus } from "../../utils/storeClosedMode";
+import { TOAST_KEYS } from "../../constants/toastKeys";
 
 const COMBOS = [
   {
@@ -62,7 +63,7 @@ export default function Combos() {
   function addCombo(combo, burger) {
     if (isClosed) {
       toast.error(closedToastText, {
-        key: "store-closed-combo",
+        key: TOAST_KEYS.STORE_CLOSED_COMBOS,
       });
       return;
     }

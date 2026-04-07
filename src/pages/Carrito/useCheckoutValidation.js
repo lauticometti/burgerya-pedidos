@@ -14,6 +14,8 @@ export default function useCheckoutValidation({
   couponCode,
   discountAmount,
   totalBefore,
+  whenMode,
+  whenSlot,
 }) {
   return React.useMemo(() => {
     const hasDeliveryMode = !!deliveryMode;
@@ -46,6 +48,8 @@ export default function useCheckoutValidation({
       couponCode,
       discountAmount,
       totalBefore,
+      whenMode,
+      whenSlot,
     })}`;
 
     return {
@@ -65,5 +69,7 @@ export default function useCheckoutValidation({
     couponCode,
     discountAmount,
     totalBefore,
+    whenMode,
+    whenSlot,
   ]);
 }

@@ -3,50 +3,13 @@ import { toast } from "../../utils/toast.js";
 import { getBurgerPrice } from "../../utils/burgerPricing.js";
 import { formatMoney } from "../../utils/formatMoney.js";
 import {
-  getUnavailableReason,
   isItemUnavailable,
 } from "../../utils/availability.js";
+import { scrollToRef, pushUnavailableToast } from "../../utils/promoHelpers.js";
 import { getStepHelp } from "./promosConfig.js";
 import { groupAllowedBurgers, indexBurgersById } from "./promosSelectors.js";
 import { useStoreStatus } from "../../utils/storeClosedMode.js";
-
-function scrollToRef(ref) {
-  if (!ref?.current) return;
-  if (typeof window === "undefined") return;
-  window.setTimeout(() => {
-    const rect = ref.current?.getBoundingClientRect();
-    if (!rect) return;
-    const offset = 96;
-    const target = rect.top + window.scrollY - offset;
-    const start = window.scrollY;
-    const distance = target - start;
-
-    if (Math.abs(distance) < 8) {
-      window.scrollTo(0, target);
-      return;
-    }
-
-    const duration = 500;
-    let startTime = null;
-
-    function stepScroll(timestamp) {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-      const ease = 1 - Math.pow(1 - progress, 3);
-      window.scrollTo(0, start + distance * ease);
-      if (progress < 1) window.requestAnimationFrame(stepScroll);
-    }
-
-    window.requestAnimationFrame(stepScroll);
-  }, 80);
-}
-
-function pushUnavailableToast(item) {
-  const reason = getUnavailableReason(item);
-  toast.error(`${item.name}: ${reason}`, {
-    key: `promo-unavailable:${item.id}`,
-  });
-}
+import { TOAST_KEYS } from "../../constants/toastKeys.js";
 
 export default function usePromoBuilder({
   burgers,
@@ -55,10 +18,17 @@ export default function usePromoBuilder({
   cart,
 }) {
   const { closedToastText, isClosed } = useStoreStatus();
-  const [tier, setTier] = useState(null); // BASICA | PREMIUM | DELUXE
-  const [count, setCount] = useState(null); // 2 | 3 | 4
-  const [size, setSize] = useState(null); // doble | triple
-  const [picked, setPicked] = useState([]); // { id, name, note }
+
+  // Consolidated state
+  const [state, setState] = useState({
+    tier: null, // BASICA | PREMIUM | DELUXE
+    count: null, // 2 | 3 | 4
+    size: null, // doble | triple
+    picked: [], // { id, name, note }
+  });
+
+  // Destructure for convenience
+  const { tier, count, size, picked } = state;
 
   const countRef = useRef(null);
   const sizeRef = useRef(null);
@@ -97,20 +67,28 @@ export default function usePromoBuilder({
       : `Te faltan ${remaining} burger${remaining === 1 ? "" : "s"}`;
 
   function chooseTier(nextTier) {
-    setTier(nextTier);
-    setCount(null);
-    setSize(null);
-    setPicked([]);
+    setState({
+      tier: nextTier,
+      count: null,
+      size: null,
+      picked: [],
+    });
   }
 
   function chooseCount(nextCount) {
-    setCount(nextCount);
-    setPicked([]);
+    setState((prev) => ({
+      ...prev,
+      count: nextCount,
+      picked: [],
+    }));
   }
 
   function chooseSize(nextSize) {
-    setSize(nextSize);
-    setPicked([]);
+    setState((prev) => ({
+      ...prev,
+      size: nextSize,
+      picked: [],
+    }));
   }
 
   function pickBurger(burger) {
@@ -119,25 +97,36 @@ export default function usePromoBuilder({
       pushUnavailableToast(burger);
       return;
     }
-    setPicked((prev) => [
+    setState((prev) => ({
       ...prev,
-      { id: burger.id, name: burger.name, img: burger.img, note: "" },
-    ]);
+      picked: [
+        ...prev.picked,
+        { id: burger.id, name: burger.name, img: burger.img, note: "" },
+      ],
+    }));
   }
 
   function undoLast() {
-    setPicked((prev) => prev.slice(0, -1));
+    setState((prev) => ({
+      ...prev,
+      picked: prev.picked.slice(0, -1),
+    }));
   }
 
   function removePick(index) {
-    setPicked((prev) => prev.filter((_, i) => i !== index));
+    setState((prev) => ({
+      ...prev,
+      picked: prev.picked.filter((_, i) => i !== index),
+    }));
   }
 
   function resetAll() {
-    setTier(null);
-    setCount(null);
-    setSize(null);
-    setPicked([]);
+    setState({
+      tier: null,
+      count: null,
+      size: null,
+      picked: [],
+    });
   }
 
   useEffect(() => {
@@ -156,7 +145,7 @@ export default function usePromoBuilder({
     if (!tier || !count || !size || picked.length !== count || price == null) return;
     if (isClosed) {
       toast.error(closedToastText, {
-        key: "store-closed-promo",
+        key: TOAST_KEYS.STORE_CLOSED_CARRITO,
       });
       return;
     }

@@ -1,10 +1,5 @@
-export const CART_GROUP_ORDER = [
-  { key: "promos", title: "PROMOS" },
-  { key: "burgers", title: "BURGERS" },
-  { key: "papas", title: "PAPAS" },
-  { key: "dips", title: "DIPS" },
-  { key: "bebidas", title: "BEBIDAS" },
-];
+// Consolidated in src/utils/itemGrouping.js
+export { CART_GROUP_ORDER, getCategory, groupItemsByCategory } from "../../utils/itemGrouping";
 
 export function getUndoLabel(item) {
   if (!item) return "producto";
@@ -21,33 +16,6 @@ export function getUndoLabel(item) {
 
   const baseName = item.name || "producto";
   return sizeLabel ? `${baseName} ${sizeLabel}` : baseName;
-}
-
-export function getCategory(item) {
-  if (item.meta?.type === "promo") return "promos";
-  if (item.meta?.type === "bebida") return "bebidas";
-  if (item.meta?.type === "papas" && item.key?.startsWith("papas:dip_")) {
-    return "dips";
-  }
-  if (item.meta?.type === "papas") return "papas";
-  return "burgers";
-}
-
-export function groupItemsByCategory(items = []) {
-  const grouped = {
-    promos: [],
-    burgers: [],
-    papas: [],
-    dips: [],
-    bebidas: [],
-  };
-
-  for (const item of items) {
-    const category = getCategory(item);
-    grouped[category].push(item);
-  }
-
-  return grouped;
 }
 
 export function buildBebidaQuantitiesInitial(items = []) {

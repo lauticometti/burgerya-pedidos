@@ -5,49 +5,30 @@ import { getBurgerPriceInfo } from "../utils/burgerPricing";
 import { getPapasUpgradePrice } from "../utils/papasPricing";
 import { toast } from "../utils/toast";
 import { useStoreStatus } from "../utils/storeClosedMode";
+import {
+  mutateItem,
+  removeItems,
+  removeItemsByPrefix,
+  splitBurgerLine,
+  setPapasUpgrade,
+} from "./cartReducerActions";
 
 function reducer(state, action) {
   switch (action.type) {
-    case "REMOVE_MANY": {
-      const items = { ...state.items };
-      for (const k of action.keys) delete items[k];
-      return { ...state, items };
-    }
+    case "REMOVE_MANY":
+      return { ...state, items: removeItems(state.items, action.keys) };
 
-    // baseKey: burger:<id>:<size>
-    // lineItemKey: burgerline:<lineId>
-    case "SPLIT_ONE": {
-      const { baseKey, lineItem } = action;
-      const base = state.items[baseKey];
-      if (!base || base.qty <= 0) return state;
+    case "SPLIT_ONE":
+      return {
+        ...state,
+        items: splitBurgerLine(state.items, action.baseKey, action.lineItem),
+      };
 
-      const items = { ...state.items };
-
-      // restar 1 al mergeable
-      if (base.qty === 1) delete items[baseKey];
-      else items[baseKey] = { ...base, qty: base.qty - 1 };
-
-      // crear linea custom (qty 1)
-      items[lineItem.key] = { ...lineItem, qty: 1 };
-
-      return { ...state, items };
-    }
-
-    // setea UN solo upgrade de papas por burgerline
-    case "SET_PAPAS_UP": {
-      const { lineId, item } = action;
-      const items = { ...state.items };
-
-      // borrar cualquier upgrade anterior de esa linea
-      for (const k of Object.keys(items)) {
-        if (k.startsWith(`papasup:${lineId}:`)) delete items[k];
-      }
-
-      // si item es null, era solo "limpiar"
-      if (item) items[item.key] = { ...item, qty: 1 };
-
-      return { ...state, items };
-    }
+    case "SET_PAPAS_UP":
+      return {
+        ...state,
+        items: setPapasUpgrade(state.items, action.lineId, action.item),
+      };
 
     case "ADD": {
       const item = action.item;
@@ -79,15 +60,12 @@ function reducer(state, action) {
         },
       };
     }
-    case "REMOVE": {
-      const items = { ...state.items };
-      delete items[action.key];
-      return { ...state, items };
-    }
+
+    case "REMOVE":
+      return { ...state, items: removeItems(state.items, [action.key]) };
+
     case "CLEAR":
       return { ...state, items: {} };
-    default:
-      return state;
 
     case "SET_QTY": {
       const { key, qty } = action;
@@ -96,62 +74,53 @@ function reducer(state, action) {
       else items[key] = { ...items[key], qty };
       return { ...state, items };
     }
-    case "SET_NOTE": {
-      const { key, note } = action;
-      const items = { ...state.items };
-      if (items[key]) {
-        items[key] = { ...items[key], note };
-      }
-      return { ...state, items };
-    }
-    case "SET_EXTRAS": {
-      const { key, extras } = action;
-      const items = { ...state.items };
-      if (items[key]) {
-        items[key] = { ...items[key], extras };
-      }
-      return { ...state, items };
-    }
-    case "SET_PAPAS": {
-      const { key, papas } = action;
-      const items = { ...state.items };
-      if (items[key]) {
-        items[key] = { ...items[key], papas };
-      }
-      return { ...state, items };
-    }
+
+    case "SET_NOTE":
+      return {
+        ...state,
+        items: mutateItem(state.items, action.key, { note: action.note }),
+      };
+
+    case "SET_EXTRAS":
+      return {
+        ...state,
+        items: mutateItem(state.items, action.key, { extras: action.extras }),
+      };
+
+    case "SET_PAPAS":
+      return {
+        ...state,
+        items: mutateItem(state.items, action.key, { papas: action.papas }),
+      };
+
     case "SET_REMOVED": {
       const { key, removedIngredients } = action;
-      const items = { ...state.items };
-      const current = items[key];
+      const current = state.items[key];
       if (!current) return state;
 
       const cleaned = (removedIngredients || []).filter(Boolean);
       const removedIds = cleaned.map((ing) => ing.id).filter(Boolean);
 
-      const updated = {
-        ...current,
-        removedIngredients: cleaned,
-        meta: {
-          ...current.meta,
-          removedIngredientIds: removedIds,
-        },
+      return {
+        ...state,
+        items: mutateItem(state.items, key, {
+          removedIngredients: cleaned,
+          meta: {
+            ...current.meta,
+            removedIngredientIds: removedIds,
+          },
+        }),
       };
-      items[key] = updated;
+    }
 
-      return { ...state, items };
-    }
-    case "SET_PROMO_PICKS": {
-      const { key, picks } = action;
-      const items = { ...state.items };
-      if (items[key]) {
-        items[key] = {
-          ...items[key],
-          meta: { ...items[key].meta, picks },
-        };
-      }
-      return { ...state, items };
-    }
+    case "SET_PROMO_PICKS":
+      return {
+        ...state,
+        items: mutateItem(state.items, action.key, {
+          meta: { ...state.items[action.key]?.meta, picks: action.picks },
+        }),
+      };
+
     case "REPRICE_ITEMS": {
       const items = { ...state.items };
       let hasChanges = false;
@@ -173,6 +142,9 @@ function reducer(state, action) {
 
       return hasChanges ? { ...state, items } : state;
     }
+
+    default:
+      return state;
   }
 }
 
@@ -180,11 +152,13 @@ export function CartProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, { items: {}, lastAdded: null });
   const { closedToastText, dateKey, isClosed, minutes } = useStoreStatus();
   const burgersById = useMemo(
-    () =>
-      burgers.reduce((acc, burger) => {
-        acc[burger.id] = burger;
-        return acc;
-      }, {}),
+    () => {
+      const idx = {};
+      for (const burger of burgers) {
+        idx[burger.id] = burger;
+      }
+      return idx;
+    },
     [],
   );
 

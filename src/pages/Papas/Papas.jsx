@@ -25,6 +25,8 @@ import {
 } from "./papasUtils";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
 import { useStoreStatus } from "../../utils/storeClosedMode";
+import { createPapasItem } from "../../utils/cartItemBuilders";
+import { TOAST_KEYS } from "../../constants/toastKeys";
 
 export default function Papas() {
   const cart = useCart();
@@ -48,7 +50,7 @@ export default function Papas() {
   function openModal(size) {
     if (isClosed) {
       toast.error(closedToastText, {
-        key: "store-closed-papas",
+        key: TOAST_KEYS.STORE_CLOSED_PAPAS,
       });
       return;
     }
@@ -65,7 +67,7 @@ export default function Papas() {
   function addSelectedPapas() {
     if (isClosed) {
       toast.error(closedToastText, {
-        key: "store-closed-papas",
+        key: TOAST_KEYS.STORE_CLOSED_PAPAS,
       });
       return;
     }
@@ -76,7 +78,7 @@ export default function Papas() {
     if (isItemUnavailable(picked)) {
       const reason = getUnavailableReason(picked);
       toast.error(`${picked.label}: ${reason}`, {
-        key: `papas-option-unavailable:${activeSize}:${picked.id}`,
+        key: TOAST_KEYS.PAPAS_OPTION_UNAVAILABLE(activeSize, picked.id),
       });
       return;
     }
@@ -119,24 +121,18 @@ export default function Papas() {
                 onAdd={() => {
                   if (isClosed) {
                     toast.error(closedToastText, {
-                      key: "store-closed-papas-dip",
+                      key: TOAST_KEYS.STORE_CLOSED_PAPAS_DIP,
                     });
                     return;
                   }
                   if (isItemUnavailable(item)) {
                     const reason = getUnavailableReason(item);
                     toast.error(`${item.name}: ${reason}`, {
-                      key: `papas-unavailable:${item.id}`,
+                      key: TOAST_KEYS.ITEM_UNAVAILABLE_PAPAS_DIP(item.id),
                     });
                     return;
                   }
-                  cart.add({
-                    key: `papas:${item.id}`,
-                    name: item.name,
-                    qty: 1,
-                    unitPrice: item.price,
-                    meta: { type: "papas" },
-                  });
+                  cart.add(createPapasItem(item));
                   toast.success(`+ ${item.name}`);
                 }}
               />
