@@ -1,7 +1,7 @@
 # 🔧 CODE CLEANUP TODO - burgerya-pedidos
 
 **Última actualización:** 2026-04-07  
-**Estado:** Planning
+**Estado:** ✅ COMPLETADO
 
 ---
 
@@ -15,7 +15,16 @@
 
 ---
 
-## 🔴 PRIORIDAD CRÍTICA (Hacer primero)
+## ✅ COMPLETADO
+
+### Resumen de cambios
+- **Commits:** 2 (89c8f07, 5db419c)
+- **Archivos modificados:** 38
+- **Nuevos archivos:** 16
+- **Líneas eliminadas:** 640+ (duplicación)
+- **Líneas agregadas:** 978 (refactored cleanly)
+
+## 🔴 PRIORIDAD CRÍTICA (Hecho)
 
 ### 1. Consolidar funciones duplicadas de utilidad
 **Impacto:** Alto | **Esfuerzo:** Bajo | **Líneas ahorradas:** ~200
@@ -190,27 +199,31 @@ export function createExtrasItem(extras) { ... }
 
 ## 🎯 ORDEN RECOMENDADO DE EJECUCIÓN
 
-**Fase 1 (Utilidades - sin riesgos):**
-1. Crear `utils/itemGrouping.js` + consolidar getCategory
-2. Crear `utils/indexing.js` + reemplazar patrones indexById
-3. Crear `utils/cartItemBuilders.js` + reemplazar factory patterns
-4. Crear `constants/toastKeys.js` (refactor mecánico)
+**Fase 1 (Utilidades - sin riesgos):** ✅
+1. ✅ Crear `utils/itemGrouping.js` + consolidar getCategory
+2. ✅ Crear `utils/indexing.js` + reemplazar patrones indexById
+3. ✅ Crear `utils/cartItemBuilders.js` + reemplazar factory patterns
+4. ✅ Crear `constants/toastKeys.js` (refactor mecánico)
 
-**Fase 2 (Hooks - riesgo bajo):**
-5. Crear `hooks/useGuardClosedStore.js` - usar en 5+ páginas
-6. Crear `hooks/useItemAvailability.js` - usar en 15+ lugares
-7. Refactor `usePromoBuilder.js` - consolidar estado
-8. Refactor `useCheckoutValidation.js` + `useCarritoCheckoutForm.js`
+**Fase 2 (Hooks - riesgo bajo):** ✅
+5. ✅ Crear `hooks/useGuardClosedStore.js` - usar en 5+ páginas
+6. ✅ Crear `hooks/useItemAvailability.js` - usar en 15+ lugares
+7. ✅ Refactor `usePromoBuilder.js` - consolidar estado
+8. ✅ Refactor `useCheckoutValidation.js` + `useCarritoCheckoutForm.js`
 
-**Fase 3 (Componentes - riesgo medio):**
-9. Dividir `CartProvider.jsx` en reducers separados
-10. Extraer modales de `BurgerModal.jsx`
-11. Simplificar `Carrito.jsx` (después de fase 2)
-12. Refactor `Papas.jsx`, `Extras.jsx`, `Combos.jsx` con hook genérico
+**Fase 3 (Componentes - riesgo medio):** ✅
+9. ✅ Dividir `CartProvider.jsx` en reducers separados
+10. ✅ Extraer modales de `BurgerModal.jsx`
+11. ⚠️ Simplificar `Carrito.jsx` (490 → 370 líneas, puede mejorarse más)
+12. ✅ Refactor `Papas.jsx`, `Extras.jsx`, `Combos.jsx` con hook genérico
 
-**Fase 4 (Limpieza - bajo riesgo):**
-13. Dividir `whatsapp.js` en formatters
-14. Refactor `CartItemCard.jsx` - extraer subcomponentes
+**Fase 3.5 (Listing pages):** ✅
+- ✅ Crear `hooks/useListingPageActions.js` 
+- ✅ Aplicar a Papas, Extras, Combos
+
+**Fase 4 (Limpieza - bajo riesgo):** ✅
+13. ✅ Dividir `whatsapp.js` en formatters (267 → 120 líneas)
+14. ✅ Refactor `CartItemCard.jsx` - extraer subcomponentes
 
 ---
 
