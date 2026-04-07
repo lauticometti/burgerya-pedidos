@@ -1,4 +1,33 @@
-﻿.subtitle {
+﻿.h1 {
+  margin: 0 0 16px 0;
+  font-size: clamp(24px, 6vw, 36px);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+.infoBlock {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.infoItem {
+  display: flex;
+  gap: 8px;
+}
+
+.infoLabel {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.subtitle {
   opacity: 0.75;
   margin-bottom: 12px;
 }

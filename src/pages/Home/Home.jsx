@@ -60,6 +60,20 @@ export default function Home() {
       <BrandLogo />
       <TopNav />
 
+      <h1 className={styles.h1}>Hamburguesas smash en Hurlingham</h1>
+
+      <div className={styles.infoBlock}>
+        <div className={styles.infoItem}>
+          <span className={styles.infoLabel}>Zona:</span> Hurlingham, Villa Tesei, Morris, Altos de Podesta, Ciudad Jardín
+        </div>
+        <div className={styles.infoItem}>
+          <span className={styles.infoLabel}>Horario:</span> Miércoles a domingos 20:00 a 00:00
+        </div>
+        <div className={styles.infoItem}>
+          <span className={styles.infoLabel}>Cómo pedir:</span> Elegís en la web, pagás por WhatsApp
+        </div>
+      </div>
+
       <div className={styles.subtitle}>Elegi como queres armar tu pedido</div>
 
       {isTriplePromoVisible ? (
@@ -78,18 +92,18 @@ export default function Home() {
       <div className={styles.cards}>
         <HomeCard
           to="/"
-          title="Burgers"
+          title="Hamburguesas smash"
           subtitle="Armar pedido por unidad - incluyen papas"
           imageSrc={burgerImage}
-          imageAlt="Burger Bacon"
+          imageAlt="Hamburguesa smash con costra marcada y papas"
           imagePositionKey="burgers"
         />
         <HomeCard
           to="/promos"
-          title="Promos"
+          title="Combos de hamburguesas"
           subtitle="2x / 3x / 4x (Dobles o Triples) - incluyen papas"
           imageSrc={promosImage}
-          imageAlt="Promos Premium"
+          imageAlt="Combo de hamburguesas smash con papas incluidas"
           imagePositionKey="promos"
         />
         <HomeCard

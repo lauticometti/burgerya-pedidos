@@ -1,6 +1,6 @@
 ﻿import React from "react";
 import { useCart } from "../../store/useCart";
-import { bebidas, burgers, extras, papas } from "../../data/menu";
+import { burgers, papas } from "../../data/menu";
 import ItemExtrasModal from "../../components/ItemExtrasModal";
 import { toast } from "../../utils/toast";
 import { formatMoney } from "../../utils/formatMoney";
@@ -25,9 +25,7 @@ import {
   groupItemsByCategory,
 } from "./carritoUtils";
 import useCartUndo from "./useCartUndo";
-import useBebidaModal from "./useBebidaModal";
-import useItemExtrasModal from "./useItemExtrasModal";
-import useRemoveIngredientsModal from "./useRemoveIngredientsModal";
+import useCarritoModals from "./useCarritoModals";
 import useCarritoCheckoutForm from "./useCarritoCheckoutForm";
 import useCheckoutValidation from "./useCheckoutValidation";
 import {
@@ -222,49 +220,11 @@ export default function Carrito() {
         : null;
     return [cheddarSolo, cheddarBacon].filter(Boolean);
   }, []);
-  const bebidaItems = bebidas || [];
-  const {
-    modalItem,
-    modalItems,
-    modalSelectedIds,
-    openExtrasModal,
-    toggleModalSelection,
-    applyModalSelection,
-    closeExtrasModal,
-    disableApply: disableExtrasApply,
-    applyLabel: extrasApplyLabel,
-    clearLabel: extrasClearLabel,
-    clearHandler: onClearExtrasSelection,
-    title: extrasModalTitle,
-    description: extrasModalDescription,
-  } = useItemExtrasModal({
+  const { extrasModal, removeModal, bebidaModal } = useCarritoModals(
     cart,
+    burgersById,
     papasMejoras,
-    extraItems: extras,
-  });
-  const {
-    modalItem: removeModalItem,
-    modalIngredients: removeModalIngredients,
-    modalSelectedIds: removeModalSelectedIds,
-    title: removeModalTitle,
-    openRemoveModal,
-    toggleSelection: toggleRemoveSelection,
-    clearSelection: clearRemoveSelection,
-    applySelection: applyRemoveSelection,
-    closeRemoveModal,
-  } = useRemoveIngredientsModal({ cart, burgersById });
-
-  const {
-    bebidaOpen,
-    bebidaQuantities,
-    openBebidaModal,
-    closeBebidaModal,
-    adjustBebidaQty,
-    applyBebidaSelection,
-  } = useBebidaModal({
-    cart,
-    bebidaItems,
-  });
+  );
 
   const groupedItems = React.useMemo(() => {
     return groupItemsByCategory(cart.items);
@@ -339,8 +299,8 @@ export default function Carrito() {
                 onSetRemoved={cart.setRemovedIngredients}
                 onSetQty={cart.setQty}
                 onRemove={handleRemove}
-                onOpenExtrasModal={openExtrasModal}
-                onOpenRemoveModal={openRemoveModal}
+                onOpenExtrasModal={extrasModal.openExtrasModal}
+                onOpenRemoveModal={removeModal.openRemoveModal}
                 onSetPromoPicks={cart.setPromoPicks}
                 burgersById={burgersById}
                 classes={groupListClasses}
@@ -362,7 +322,7 @@ export default function Carrito() {
                       });
                       return;
                     }
-                    openBebidaModal();
+                    bebidaModal.openBebidaModal();
                   }}>
                   Agregar bebidas
                 </Button>
@@ -466,36 +426,36 @@ export default function Carrito() {
       </StickyBar>
 
       <ItemExtrasModal
-        open={!!modalItem}
-        title={extrasModalTitle}
-        description={extrasModalDescription}
-        items={modalItems}
-        selectedIds={modalSelectedIds}
-        onToggle={toggleModalSelection}
-        onClose={closeExtrasModal}
-        onApply={applyModalSelection}
-        disableApply={disableExtrasApply}
-        applyLabel={extrasApplyLabel}
-        onClear={onClearExtrasSelection}
-        clearLabel={extrasClearLabel}
+        open={!!extrasModal.modalItem}
+        title={extrasModal.title}
+        description={extrasModal.description}
+        items={extrasModal.modalItems}
+        selectedIds={extrasModal.modalSelectedIds}
+        onToggle={extrasModal.toggleModalSelection}
+        onClose={extrasModal.closeExtrasModal}
+        onApply={extrasModal.applyModalSelection}
+        disableApply={extrasModal.disableApply}
+        applyLabel={extrasModal.applyLabel}
+        onClear={extrasModal.clearHandler}
+        clearLabel={extrasModal.clearLabel}
       />
       <BebidasModal
-        open={bebidaOpen}
-        items={bebidaItems}
-        quantities={bebidaQuantities}
-        onChangeQty={adjustBebidaQty}
-        onClose={closeBebidaModal}
-        onApply={applyBebidaSelection}
+        open={bebidaModal.bebidaOpen}
+        items={bebidaModal.bebidaItems}
+        quantities={bebidaModal.bebidaQuantities}
+        onChangeQty={bebidaModal.adjustBebidaQty}
+        onClose={bebidaModal.closeBebidaModal}
+        onApply={bebidaModal.applyBebidaSelection}
       />
       <RemoveIngredientsModal
-        open={!!removeModalItem}
-        title={removeModalTitle}
-        ingredients={removeModalIngredients}
-        selectedIds={removeModalSelectedIds}
-        onToggle={toggleRemoveSelection}
-        onApply={applyRemoveSelection}
-        onClear={clearRemoveSelection}
-        onClose={closeRemoveModal}
+        open={!!removeModal.modalItem}
+        title={removeModal.title}
+        ingredients={removeModal.modalIngredients}
+        selectedIds={removeModal.modalSelectedIds}
+        onToggle={removeModal.toggleSelection}
+        onApply={removeModal.applySelection}
+        onClear={removeModal.clearSelection}
+        onClose={removeModal.closeRemoveModal}
       />
     </Page>
   );
