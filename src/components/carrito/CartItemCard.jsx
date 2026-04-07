@@ -2,6 +2,7 @@
 import Card from "../ui/Card";
 import { TextareaField } from "../ui/FormFields";
 import CloseButton from "../ui/CloseButton";
+import { ItemModifiersDisplay } from "./ItemModifiersList";
 import styles from "./CartItemCard.module.css";
 import { formatMoney } from "../../utils/formatMoney";
 import { formatPickNames } from "../../utils/formatPicks";
@@ -104,31 +105,13 @@ export default function CartItemCard({
             {description ? (
               <div className={styles.metaSmall}>{description}</div>
             ) : null}
-            {removedIngredients.length ? (
-              <div className={styles.removedList}>
-                {removedIngredients.map((rem) => (
-                  <div key={rem.id || rem.label} className={styles.removedLine}>
-                    - Sin {rem.label || rem.id}
-                  </div>
-                ))}
-              </div>
-            ) : null}
-            {item.extras?.length ? (
-              <div className={styles.metaSmall}>
-                Agregados: {item.extras.map((extra) => extra.name).join(joiner)}
-              </div>
-            ) : null}
-            {item.papas?.length ? (
-              <div className={styles.metaSmall}>
-                Mejorar papas:{" "}
-                {item.papas.map((extra) => extra.name).join(joiner)}
-              </div>
-            ) : null}
-            {item.note?.trim() ? (
-              <div className={styles.metaSmall}>
-                Aclaración: {item.note.trim()}
-              </div>
-            ) : null}
+            <ItemModifiersDisplay
+              removedIngredients={removedIngredients}
+              extras={item.extras}
+              papas={item.papas}
+              note={item.note}
+              joiner={joiner}
+            />
           </div>
         </div>
         <div className={styles.rightBlock}>

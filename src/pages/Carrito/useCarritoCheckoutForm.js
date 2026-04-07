@@ -11,6 +11,8 @@ export default function useCarritoCheckoutForm() {
     cross: "",
     pay: "Efectivo",
     notes: "",
+    whenMode: "Ya",
+    whenSlot: "",
   });
 
   // Load from localStorage on mount
@@ -53,6 +55,8 @@ export default function useCarritoCheckoutForm() {
     setCross: (val) => updateField("cross", val),
     setPay: (val) => updateField("pay", val),
     setNotes: (val) => updateField("notes", val),
+    setWhenMode: (val) => updateField("whenMode", val),
+    setWhenSlot: (val) => updateField("whenSlot", val),
 
     // Full form data for components that need it
     formData,

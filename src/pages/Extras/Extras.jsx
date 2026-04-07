@@ -3,10 +3,7 @@ import { extras } from "../../data/menu";
 import { useCart } from "../../store/useCart";
 import { toast } from "../../utils/toast";
 import { formatMoney } from "../../utils/formatMoney";
-import {
-  getUnavailableReason,
-  isItemUnavailable,
-} from "../../utils/availability";
+import { isItemUnavailable } from "../../utils/availability";
 import Page from "../../components/layout/Page";
 import StickyBar from "../../components/layout/StickyBar";
 import CartSummary from "../../components/cart/CartSummary";
@@ -18,26 +15,21 @@ import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
 import { useStoreStatus } from "../../utils/storeClosedMode";
 import { createExtrasItem } from "../../utils/cartItemBuilders";
 import { TOAST_KEYS } from "../../constants/toastKeys";
+import { useListingPageActions } from "../../hooks/useListingPageActions";
 
 export default function Extras() {
   const cart = useCart();
-  const { closedActionLabel, closedToastText, isClosed, reopenText } =
-    useStoreStatus();
+  const { closedActionLabel, reopenText } = useStoreStatus();
+  const { canAddItem, showUnavailableError } = useListingPageActions({
+    toastKey: TOAST_KEYS.STORE_CLOSED_EXTRAS,
+  });
 
   function addExtra(x) {
-    if (isClosed) {
-      toast.error(closedToastText, {
-        key: TOAST_KEYS.STORE_CLOSED_EXTRAS,
-      });
+    if (!canAddItem()) return;
+    if (
+      showUnavailableError(x, TOAST_KEYS.ITEM_UNAVAILABLE_EXTRAS(x.id))
+    )
       return;
-    }
-    if (isItemUnavailable(x)) {
-      const reason = getUnavailableReason(x);
-      toast.error(`${x.name}: ${reason}`, {
-        key: TOAST_KEYS.ITEM_UNAVAILABLE_EXTRAS(x.id),
-      });
-      return;
-    }
     cart.add(createExtrasItem(x));
     toast.success(`+ ${x.name}`);
   }

@@ -3,10 +3,7 @@ import { useMemo, useState } from "react";
 import { papas, bebidas } from "../../data/menu";
 import { useCart } from "../../store/useCart";
 import { toast } from "../../utils/toast";
-import {
-  getUnavailableReason,
-  isItemUnavailable,
-} from "../../utils/availability";
+import { isItemUnavailable } from "../../utils/availability";
 import TopNav from "../../components/TopNav";
 import Page from "../../components/layout/Page";
 import StickyBar from "../../components/layout/StickyBar";
@@ -27,11 +24,15 @@ import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
 import { useStoreStatus } from "../../utils/storeClosedMode";
 import { createPapasItem } from "../../utils/cartItemBuilders";
 import { TOAST_KEYS } from "../../constants/toastKeys";
+import { useListingPageActions } from "../../hooks/useListingPageActions";
 
 export default function Papas() {
   const cart = useCart();
-  const { closedActionLabel, closedToastText, isClosed, reopenText } =
-    useStoreStatus();
+  const { closedActionLabel, isClosed, reopenText } = useStoreStatus();
+  const { canAddItem, showUnavailableError } = useListingPageActions({
+    toastKey: TOAST_KEYS.STORE_CLOSED_PAPAS,
+  });
+
   const [modalOpen, setModalOpen] = useState(false);
   const [activeSize, setActiveSize] = useState(null);
   const [selectedOptionId, setSelectedOptionId] = useState("solas");
@@ -44,16 +45,10 @@ export default function Papas() {
   );
 
   const dipItems = papas.filter((item) => item.id.startsWith("dip_"));
-
   const bebidaItems = bebidas || [];
 
   function openModal(size) {
-    if (isClosed) {
-      toast.error(closedToastText, {
-        key: TOAST_KEYS.STORE_CLOSED_PAPAS,
-      });
-      return;
-    }
+    if (!canAddItem()) return;
     setActiveSize(size);
     setSelectedOptionId("solas");
     setModalOpen(true);
@@ -65,23 +60,18 @@ export default function Papas() {
   }
 
   function addSelectedPapas() {
-    if (isClosed) {
-      toast.error(closedToastText, {
-        key: TOAST_KEYS.STORE_CLOSED_PAPAS,
-      });
-      return;
-    }
+    if (!canAddItem()) return;
     if (!activeSize) return;
     const options = optionsBySize[activeSize] || [];
     const picked = options.find((opt) => opt.id === selectedOptionId);
     if (!picked) return;
-    if (isItemUnavailable(picked)) {
-      const reason = getUnavailableReason(picked);
-      toast.error(`${picked.label}: ${reason}`, {
-        key: TOAST_KEYS.PAPAS_OPTION_UNAVAILABLE(activeSize, picked.id),
-      });
+    if (
+      showUnavailableError(
+        picked,
+        TOAST_KEYS.PAPAS_OPTION_UNAVAILABLE(activeSize, picked.id),
+      )
+    )
       return;
-    }
 
     const cartItem = buildPapasCartItem(activeSize, picked);
     if (!cartItem) return;
@@ -119,19 +109,14 @@ export default function Papas() {
                 isUnavailable={isClosed || isItemUnavailable(item)}
                 unavailableReason={isClosed ? reopenText : item.unavailableReason}
                 onAdd={() => {
-                  if (isClosed) {
-                    toast.error(closedToastText, {
-                      key: TOAST_KEYS.STORE_CLOSED_PAPAS_DIP,
-                    });
+                  if (!canAddItem()) return;
+                  if (
+                    showUnavailableError(
+                      item,
+                      TOAST_KEYS.ITEM_UNAVAILABLE_PAPAS_DIP(item.id),
+                    )
+                  )
                     return;
-                  }
-                  if (isItemUnavailable(item)) {
-                    const reason = getUnavailableReason(item);
-                    toast.error(`${item.name}: ${reason}`, {
-                      key: TOAST_KEYS.ITEM_UNAVAILABLE_PAPAS_DIP(item.id),
-                    });
-                    return;
-                  }
                   cart.add(createPapasItem(item));
                   toast.success(`+ ${item.name}`);
                 }}
