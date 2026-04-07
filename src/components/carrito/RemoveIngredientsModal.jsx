@@ -10,6 +10,7 @@ export default function RemoveIngredientsModal({
   selectedIds = [],
   onToggle,
   onApply,
+  onClear,
   onClose,
 }) {
   useEscapeToClose(open, onClose);
@@ -58,7 +59,7 @@ export default function RemoveIngredientsModal({
             </Button>
           </div>
           <div className={styles.footerSecondary}>
-            <Button type="button" onClick={onClose}>
+            <Button type="button" onClick={onClear}>
               Limpiar
             </Button>
           </div>
