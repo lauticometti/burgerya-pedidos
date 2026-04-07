@@ -2,9 +2,7 @@
 import { useCart } from "../../store/useCart";
 import { burgers, papas } from "../../data/menu";
 import ItemExtrasModal from "../../components/ItemExtrasModal";
-import { toast } from "../../utils/toast";
 import { formatMoney } from "../../utils/formatMoney";
-import { getAvailableSlotsMin30, minutesToHHMM } from "../../utils/timeSlots";
 import Page from "../../components/layout/Page";
 import StickyBar from "../../components/layout/StickyBar";
 import CartSummary from "../../components/cart/CartSummary";
@@ -28,11 +26,8 @@ import useCartUndo from "./useCartUndo";
 import useCarritoModals from "./useCarritoModals";
 import useCarritoCheckoutForm from "./useCarritoCheckoutForm";
 import useCheckoutValidation from "./useCheckoutValidation";
-import {
-  couponStorage,
-  evaluateCoupon,
-  normalizeCouponInput,
-} from "../../utils/coupons";
+import useCarritoTimeSlots from "./useCarritoTimeSlots";
+import useCouponCode from "./useCouponCode";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
 import { useStoreStatus } from "../../utils/storeClosedMode";
 
@@ -95,47 +90,9 @@ export default function Carrito() {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, []);
 
-  const [availableSlots, setAvailableSlots] = React.useState(
-    getAvailableSlotsMin30(),
-  );
-  const [couponCode, setCouponCode] = React.useState("");
-  const [appliedCoupon, setAppliedCoupon] = React.useState("");
-  React.useEffect(() => {
-    const id = setInterval(
-      () => setAvailableSlots(getAvailableSlotsMin30()),
-      60 * 1000,
-    );
-    return () => clearInterval(id);
-  }, []);
-
-  React.useEffect(() => {
-    if (whenMode === "Más tarde" && !whenSlot && availableSlots.length) {
-      setWhenSlot(minutesToHHMM(availableSlots[0]));
-    }
-  }, [whenMode, whenSlot, availableSlots, setWhenSlot]);
-
-  const discountResult = React.useMemo(() => {
-    if (!appliedCoupon) return { discount: 0 };
-    return evaluateCoupon({
-      code: appliedCoupon,
-      cartItems: cart.items,
-      cartTotal: cart.total,
-      now: new Date(),
-      storage: couponStorage,
-      allowUsed: true,
-      markUsed: false,
-    });
-  }, [appliedCoupon, cart.items, cart.total]);
-
-  const totalDiscount = discountResult?.discount || 0;
-
-  React.useEffect(() => {
-    if (!appliedCoupon) return;
-    if (discountResult?.error) {
-      setAppliedCoupon("");
-      toast.error(discountResult.error);
-    }
-  }, [appliedCoupon, discountResult?.error]);
+  const { slotOptions } = useCarritoTimeSlots(whenMode, whenSlot, setWhenSlot);
+  const { couponCode, setCouponCode, appliedCoupon, totalDiscount, applyCoupon } =
+    useCouponCode(cart.items, cart.total);
 
   const totalWithDiscount = Math.max(0, cart.total - totalDiscount);
 
@@ -170,32 +127,6 @@ export default function Carrito() {
     });
   }, [step]);
 
-  function applyCoupon() {
-    const result = evaluateCoupon({
-      code: couponCode,
-      cartItems: cart.items,
-      cartTotal: cart.total,
-      now: new Date(),
-      storage: couponStorage,
-      allowUsed: false,
-      markUsed: true,
-    });
-
-    if (result.error) {
-      setAppliedCoupon("");
-      toast.error(result.error);
-      return;
-    }
-
-    if (result.persistUsageKey && couponStorage) {
-      couponStorage.setItem(result.persistUsageKey, "1");
-    }
-
-    setAppliedCoupon(result.appliedCode || normalizeCouponInput(couponCode));
-    setCouponCode(result.appliedCode || normalizeCouponInput(couponCode));
-    toast.success(result.message || "Código aplicado");
-  }
-
   const papasMejoras = React.useMemo(() => {
     const cheddar = papas.find((item) => item.id === "cheddar_liq");
     const bacon = papas.find((item) => item.id === "papas_bacon");
@@ -229,11 +160,6 @@ export default function Carrito() {
   const groupedItems = React.useMemo(() => {
     return groupItemsByCategory(cart.items);
   }, [cart.items]);
-
-  const slotOptions = availableSlots.map((m) => ({
-    value: minutesToHHMM(m),
-    label: minutesToHHMM(m),
-  }));
 
   const groupListClasses = {
     group: styles.group,

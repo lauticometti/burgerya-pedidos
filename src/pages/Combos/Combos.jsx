@@ -3,7 +3,10 @@ import { useMemo } from "react";
 import { burgers } from "../../data/menu";
 import { useCart } from "../../store/useCart";
 import { toast } from "../../utils/toast";
-import { isItemUnavailable } from "../../utils/availability";
+import {
+  getUnavailableReason,
+  isItemUnavailable,
+} from "../../utils/availability";
 import BrandLogo from "../../components/brand/BrandLogo";
 import TopNav from "../../components/TopNav";
 import Page from "../../components/layout/Page";
@@ -44,7 +47,7 @@ const COMBO_ALLOWED_BURGERS = ["lautiboom", "bacon", "american"];
 
 export default function Combos() {
   const cart = useCart();
-  const { closedActionLabel, reopenText } = useStoreStatus();
+  const { closedActionLabel, isClosed, reopenText } = useStoreStatus();
   const { canAddItem, showUnavailableError } = useListingPageActions({
     toastKey: TOAST_KEYS.STORE_CLOSED_COMBOS,
   });
