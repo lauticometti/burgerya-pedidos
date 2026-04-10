@@ -88,7 +88,7 @@ export function buildWhatsAppText({
           lines.push(`  Cocina: ${kitchenLine}`);
         }
       } else {
-        const sizeLabel = getSizeLabel(it);
+        const sizeLabel = it.meta?.burgerId === "cheese_promo" ? null : getSizeLabel(it);
         const sizeSuffix = sizeLabel ? ` ${sizeLabel}` : "";
         lines.push(`${it.qty} ${it.name.toLowerCase()}${sizeSuffix}`);
       }
