@@ -65,9 +65,9 @@ export default function PaymentScheduleCard({
               value={whenSlot || ""}
               onChange={(e) => onWhenSlotChange(e.target.value)}>
               <option value="">Selecciona horario</option>
-              {availableSlots.map((slot) => (
-                <option key={slot} value={slot}>
-                  {slot}
+              {availableSlots.map((slot, idx) => (
+                <option key={`${slot.value}-${idx}`} value={slot.value}>
+                  {slot.label}
                 </option>
               ))}
             </select>

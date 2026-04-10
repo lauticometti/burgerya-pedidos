@@ -2,6 +2,19 @@ export const WHATSAPP_NUMBER = "5491134158607";
 
 // Burgers con precios
 export const burgers = [
+  // ESPECIAL DEL DIA
+  {
+    id: "cheese_promo",
+    name: "Cheese simple sin papas",
+    shortName: "Cheese simple",
+    tier: "BASICA",
+    prices: { simple: 7000 },
+    desc: "pan de papa, carne smash, doble cheddar. sin papas.",
+    removableIngredients: [{ id: "cheddar", label: "Cheddar" }],
+    img: "/burgers/cheese-simple-promo.png",
+    isAvailable: 1,
+  },
+
   // BASICAS
   {
     id: "cheese",

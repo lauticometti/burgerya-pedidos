@@ -292,6 +292,80 @@
   }
 }
 
+/* ── Upsell papas promo ── */
+.papasUpsell {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: border-color 0.15s, background 0.15s;
+  text-align: center;
+}
+
+.papasUpsell:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.papasUpsellOn {
+  border-color: #4caf50;
+  background: rgba(76, 175, 80, 0.12);
+  color: #81c784;
+}
+
+.papasImprovementsGroup {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.papasImprovementsLabel {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.papasImprovementsButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.improveBtn {
+  padding: 0.6rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  text-align: left;
+}
+
+.improveBtn:hover:not(.improveBtnOn) {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.improveBtnOn {
+  border-color: #ffb74d !important;
+  background: rgba(255, 183, 77, 0.12) !important;
+  color: #ffb74d !important;
+}
+
+.improveBtnOn:hover {
+  border-color: #ffc966 !important;
+  background: rgba(255, 183, 77, 0.18) !important;
+}
+
 @media (max-width: 420px) {
   .sizeRow {
     gap: 8px;

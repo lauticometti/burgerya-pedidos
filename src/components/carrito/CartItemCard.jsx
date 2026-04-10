@@ -45,9 +45,10 @@ export default function CartItemCard({
     0,
   );
   const hasTriplePromo = item.meta?.offerId === FRIDAY_TRIPLE_PROMO_OFFER_ID;
-  const unitWithExtras = item.unitPrice + extrasTotal + papasTotal;
+  const isPapasItem = item.meta?.type === "papas";
+  const unitWithExtras = isPapasItem ? item.unitPrice : item.unitPrice + extrasTotal + papasTotal;
   const priceBeforePromo =
-    hasTriplePromo && typeof item.meta?.basePrice === "number"
+    hasTriplePromo && typeof item.meta?.basePrice === "number" && !isPapasItem
       ? item.meta.basePrice + extrasTotal + papasTotal
       : null;
   const showPriceBeforePromo =
@@ -57,6 +58,9 @@ export default function CartItemCard({
     ? formatPickNames(item.meta.picks)
     : null;
   const joiner = isPromo ? " / " : " + ";
+  const burgerId = item.meta?.burgerId;
+  const burger = burgerId ? burgersById[burgerId] : null;
+  const burgerSizes = burger ? Object.keys(burger.prices || {}).length : 0;
   const sizeLabel =
     item.meta?.size === "doble"
       ? "doble"
@@ -94,7 +98,7 @@ export default function CartItemCard({
           <div className={styles.nameBlock}>
             <div className={styles.name}>
               {displayName}
-              {!isPromo && sizeLabel ? ` ${sizeLabel}` : ""}
+              {!isPromo && sizeLabel && burgerSizes > 1 ? ` ${sizeLabel}` : ""}
               {locked ? (
                 <span className={styles.lockedTag}>{isGift ? "REGALO" : "BONIFICADO"}</span>
               ) : null}
@@ -136,7 +140,7 @@ export default function CartItemCard({
               Agregados
             </Button>
           ) : null}
-          {canImprovePapas ? (
+          {canImprovePapas && burgerId !== "cheese_promo" ? (
             <Button
               size="sm"
               onClick={onOpenPapas}

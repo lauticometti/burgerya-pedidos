@@ -5,6 +5,15 @@ export function getUndoLabel(item) {
   if (!item) return "producto";
   if (item.meta?.type === "promo") return item.name || "promo";
 
+  if (item.meta?.type === "papas") {
+    const sizeLabel = item.meta?.size === "chica" ? "chicas" : "grandes";
+    return `Papas ${sizeLabel}`;
+  }
+
+  if (item.meta?.burgerId === "cheese_promo") {
+    return item.name;
+  }
+
   const sizeLabel =
     item.meta?.size === "doble"
       ? "doble"

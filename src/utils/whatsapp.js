@@ -26,7 +26,10 @@ export function buildWhatsAppText({
   if (deliveryMode === "Retiro") {
     lines.push("RETIRO");
   }
-  lines.push(name);
+  const nameWithTime = whenMode === "Mas tarde" && whenSlot
+    ? `${name} (PARA ${whenSlot})`
+    : name;
+  lines.push(nameWithTime);
   lines.push("");
 
   if (notes && notes.trim()) {
@@ -114,10 +117,6 @@ export function buildWhatsAppText({
     if (cross && cross.trim()) {
       lines.push(cross.trim());
     }
-    lines.push("");
-  }
-  if (whenMode === "Mas tarde" && whenSlot) {
-    lines.push(`Horario: ${whenSlot}`);
     lines.push("");
   }
   const subtotal = totalBefore || total;

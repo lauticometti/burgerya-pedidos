@@ -180,11 +180,12 @@ export function formatPromoPicks(picks, itemType) {
 export function formatItemModifiers(item) {
   const lines = [];
   const joiner = item.meta?.type === "promo" ? " / " : " + ";
+  const isPapasItem = item.meta?.type === "papas";
 
   if (item.extras?.length) {
     lines.push(`  Agregados: ${item.extras.map((extra) => extra.name).join(joiner)}`);
   }
-  if (item.papas?.length) {
+  if (item.papas?.length && !isPapasItem) {
     lines.push(
       `  Mejorar papas: ${item.papas.map((extra) => extra.name).join(joiner)}`,
     );

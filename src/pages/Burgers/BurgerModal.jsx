@@ -36,6 +36,9 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
     papasDraftIds: [],
   });
 
+  const [wantsPapas, setWantsPapas] = React.useState(false);
+  const [papasImprovements, setPapasImprovements] = React.useState([]);
+
   const { closedActionLabel, isClosed, reopenText } = useStoreStatus();
 
   const papasMejoras = React.useMemo(() => buildPapasMejoras(papas), []);
@@ -47,6 +50,8 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
     if (!open || !burger) return;
     const first =
       SIZE_ORDER.find((candidate) => burger.prices?.[candidate] != null) || null;
+    setWantsPapas(false);
+    setPapasImprovements([]);
     setCustomizations({
       size: first,
       removedIds: [],
@@ -83,15 +88,27 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
 
   // Helper functions for modal state updates
   const openRemoveModal = () => {
-    setModals((prev) => ({ ...prev, removeOpen: true }));
+    setModals((prev) => ({
+      ...prev,
+      removeOpen: true,
+      removeDraftIds: customizations.removedIds,
+    }));
   };
 
   const openExtrasModal = () => {
-    setModals((prev) => ({ ...prev, extrasOpen: true }));
+    setModals((prev) => ({
+      ...prev,
+      extrasOpen: true,
+      extrasDraftIds: customizations.extrasIds,
+    }));
   };
 
   const openPapasModal = () => {
-    setModals((prev) => ({ ...prev, papasOpen: true }));
+    setModals((prev) => ({
+      ...prev,
+      papasOpen: true,
+      papasDraftIds: customizations.papasIds,
+    }));
   };
 
   if (!open || !burger) return null;
@@ -153,10 +170,12 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
 
             <div className={styles.name}>
               <span>{burger.name}</span>
-              <span className={styles.nameSide}>con papas</span>
+              <span className={styles.nameSide}>
+                {burger.id === "cheese_promo" ? "papas opcionales" : "con papas"}
+              </span>
             </div>
 
-            {!isTitanica ? (
+            {!isTitanica && burger.id !== "cheese_promo" ? (
               <div className={styles.sizeRow}>
                 {sizes.map((candidate) => {
                   return (
@@ -192,21 +211,75 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
               </div>
             ) : null}
 
+            {burger.id === "cheese_promo" ? (
+              <div>
+                <button
+                  type="button"
+                  className={`${styles.papasUpsell} ${wantsPapas ? styles.papasUpsellOn : ""}`}
+                  onClick={() => setWantsPapas((prev) => !prev)}>
+                  {wantsPapas ? "✓ Papas sumadas +$3.000" : "Sumar papas +$3.000"}
+                </button>
+                {wantsPapas ? (
+                  <div className={styles.papasImprovementsGroup}>
+                    <div className={styles.papasImprovementsLabel}>Mejorar papas:</div>
+                    <div className={styles.papasImprovementsButtons}>
+                      <button
+                        type="button"
+                        className={`${styles.improveBtn} ${
+                          papasImprovements.includes("cheddar")
+                            ? styles.improveBtnOn
+                            : ""
+                        }`}
+                        onClick={() => {
+                          setPapasImprovements((prev) =>
+                            prev.includes("cheddar")
+                              ? prev.filter((id) => id !== "cheddar")
+                              : [...prev, "cheddar"]
+                          );
+                        }}>
+                        Cheddar +$1.500
+                      </button>
+                      <button
+                        type="button"
+                        className={`${styles.improveBtn} ${
+                          papasImprovements.includes("bacon")
+                            ? styles.improveBtnOn
+                            : ""
+                        }`}
+                        onClick={() => {
+                          setPapasImprovements((prev) =>
+                            prev.includes("bacon")
+                              ? prev.filter((id) => id !== "bacon")
+                              : [...prev, "bacon"]
+                          );
+                        }}>
+                        Bacon +$1.500
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+
             <div className={styles.customizer}>
               <div className={styles.customizerTitle}>Personalizala a tu gusto</div>
               <div className={styles.customizerSubtitle}>
-                Sumale extras, mejora las papas o saca lo que no quieras.
+                {burger.id === "cheese_promo"
+                  ? "Viene sin papas. Podes sumarlas por $3.000, agregar extras o sacar lo que no quieras."
+                  : "Sumale extras, mejora las papas o saca lo que no quieras."}
               </div>
               <div className={styles.customizerActions}>
                 <Button size="sm" onClick={openExtrasModal}>
                   Agregados
                 </Button>
-                <Button
-                  size="sm"
-                  onClick={openPapasModal}
-                  className={styles.papasButton}>
-                  Mejorar papas
-                </Button>
+                {burger.id !== "cheese_promo" ? (
+                  <Button
+                    size="sm"
+                    onClick={openPapasModal}
+                    className={styles.papasButton}>
+                    Mejorar papas
+                  </Button>
+                ) : null}
                 {removableIngredients.length ? (
                   <Button
                     size="sm"
@@ -256,7 +329,7 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
                   removedIngredients: selectedRemovals,
                   extras: selectedExtras,
                   papas: selectedPapas,
-                });
+                }, { wantsPapas, papasImprovements });
               }}>
               {isClosed
                 ? closedActionLabel || reopenText

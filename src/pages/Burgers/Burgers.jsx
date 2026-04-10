@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { burgers } from "../../data/menu";
+import { burgers, papas as papasData } from "../../data/menu";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
 import BrandLogo from "../../components/brand/BrandLogo";
 import CartSummary from "../../components/cart/CartSummary";
@@ -15,15 +15,11 @@ import {
   getUnavailableReason,
   isItemUnavailable,
 } from "../../utils/availability";
-import {
-  getBurgerPriceInfo,
-} from "../../utils/burgerPricing";
+import { getBurgerPriceInfo } from "../../utils/burgerPricing";
 import { formatMoney } from "../../utils/formatMoney";
-import {
-  useStoreStatus,
-} from "../../utils/storeClosedMode";
-import { toast } from "../../utils/toast";
 import { indexById } from "../../utils/indexing";
+import { useStoreStatus } from "../../utils/storeClosedMode";
+import { toast } from "../../utils/toast";
 import BurgerModal from "./BurgerModal";
 import styles from "./Burgers.module.css";
 import {
@@ -34,6 +30,14 @@ import {
 } from "./burgersUtils";
 
 const SHOWCASE_SECTIONS = [
+  {
+    id: "hoy",
+    title: "VIERNES 10/4",
+    subtitle: "Hoy comes por solo $7000",
+    tone: "hoy",
+    layout: "single",
+    items: [{ id: "cheese_promo", emphasis: "promo" }],
+  },
   {
     id: "gustan",
     title: "Las que no fallan",
@@ -78,6 +82,7 @@ const SHOWCASE_SECTIONS = [
 ];
 
 const SECTION_CLASS = {
+  hoy: styles.sectionHoy,
   gustan: styles.sectionGustan,
   rompen: styles.sectionRompen,
   deluxe: styles.sectionDeluxe,
@@ -91,6 +96,7 @@ const LAYOUT_CLASS = {
 };
 
 const CARD_CLASS = {
+  promo: styles.cardPromo,
   top: styles.cardTop,
   mid: styles.cardMid,
   deluxe: styles.cardDeluxe,
@@ -181,7 +187,7 @@ export default function Burgers() {
     cart.add(
       buildBurgerCartItem(burger, size, price, removedIngredients, extras, papas),
     );
-    toast.success(buildBurgerAddedToastText(burger.name, size), {
+    toast.success(buildBurgerAddedToastText(burger.name, size, burger.id), {
       key: `burger-added:${burger.id}:${size}`,
       ms: 1300,
     });
@@ -223,12 +229,18 @@ export default function Burgers() {
                 <article
                   key={burger.id}
                   id={`burger-${burger.id}`}
-                  className={`${styles.card} ${CARD_CLASS[entry.emphasis] || ""}`}>
-                  <button
-                    type="button"
-                    className={styles.mediaWrap}
-                    onClick={(event) => openBurger(burger, event)}
-                    aria-label={`Ver opciones de ${burger.name}`}>
+                  className={`${styles.card} ${CARD_CLASS[entry.emphasis] || ""}`}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Ver opciones de ${burger.name}`}
+                  onClick={(event) => openBurger(burger, event)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      openBurger(burger, event);
+                    }
+                  }}>
+                  <div className={styles.mediaWrap}>
                     <img
                       className={styles.media}
                       src={resolvePublicPath(burger.img || "/burgers/placeholder.jpg")}
@@ -242,26 +254,27 @@ export default function Burgers() {
                         {cardSignalLabel}
                       </span>
                     ) : null}
-                  </button>
+                  </div>
 
                   <div className={styles.cardBody}>
                     <div className={styles.cardTopRow}>
-                      <h3 className={styles.cardTitle}>{burger.name}</h3>
-                      {burger.desc && (
+                      <h3 className={styles.cardTitle}>{burger.shortName || burger.name}</h3>
+                      {burger.desc ? (
                         <p className={styles.cardDesc}>{burger.desc}</p>
-                      )}
+                      ) : null}
                     </div>
 
-                    <div className={styles.cardPricePreview}>
-                      {typeof simplePrice.basePrice === "number" &&
-                      simplePrice.basePrice > 0 ? (
-                        <span className={styles.cardPriceItem}>
-                          <span className={styles.cardPriceLabel}>Simple</span>
-                          <span className={styles.cardPriceValue}>
-                            {formatMoney(simplePrice.finalPrice)}
+                    {burger.id !== "cheese_promo" ? (
+                      <div className={styles.cardPricePreview}>
+                        {typeof simplePrice.basePrice === "number" &&
+                        simplePrice.basePrice > 0 ? (
+                          <span className={styles.cardPriceItem}>
+                            <span className={styles.cardPriceLabel}>Simple</span>
+                            <span className={styles.cardPriceValue}>
+                              {formatMoney(simplePrice.finalPrice)}
+                            </span>
                           </span>
-                        </span>
-                      ) : null}
+                        ) : null}
                       {typeof doublePrice.basePrice === "number" &&
                       doublePrice.basePrice > 0 ? (
                         <span className={styles.cardPriceItem}>
@@ -280,7 +293,8 @@ export default function Burgers() {
                           </span>
                         </span>
                       ) : null}
-                    </div>
+                      </div>
+                    ) : null}
 
                     {isUnavailable ? (
                       <p className={styles.unavailable}>{unavailableReason}</p>
@@ -304,8 +318,40 @@ export default function Burgers() {
           setActiveBurger(null);
           setModalOrigin(null);
         }}
-        onAdd={(burger, size, customization) => {
+        onAdd={(burger, size, customization, opts = {}) => {
           addBurgerToCart(burger, size, customization);
+          if (opts.wantsPapas && burger.id === "cheese_promo") {
+            const porcion = papasData.find((p) => p.id === "porcion_extra");
+            if (porcion) {
+              const mejoras = opts.papasImprovements || [];
+              const papasItems = mejoras
+                .map((id) => {
+                  if (id === "cheddar") return papasData.find((p) => p.id === "cheddar_liq");
+                  if (id === "bacon") return papasData.find((p) => p.id === "papas_bacon");
+                  return null;
+                })
+                .filter(Boolean);
+
+              const papasPrice = papasItems.reduce((sum, p) => sum + p.price, 0);
+
+              const papasOptionId = mejoras.length === 0 ? "solas" : mejoras.sort().join("_");
+              const papasKey = `papas:chica:${papasOptionId}`;
+              const papasLabel = mejoras.length === 0
+                ? "Papas chicas solas"
+                : `Papas chicas con ${mejoras.map(id => id === "cheddar" ? "cheddar" : "bacon").join(" y ")}`;
+
+              cart.add({
+                key: papasKey,
+                name: papasLabel,
+                qty: 1,
+                unitPrice: porcion.price + papasPrice,
+                extras: [],
+                papas: papasItems,
+                removedIngredientes: [],
+                meta: { type: "papas", size: "chica", option: papasOptionId },
+              });
+            }
+          }
           setModalOpen(false);
           setActiveBurger(null);
           setModalOrigin(null);
