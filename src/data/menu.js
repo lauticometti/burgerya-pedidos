@@ -7,7 +7,7 @@ export const burgers = [
     id: "cheese_promo",
     name: "Cheese simple sin papas",
     shortName: "Cheese simple",
-    tier: "BASICA",
+    tier: "ESPECIAL",
     prices: { simple: 7000 },
     desc: "pan de papa, carne smash, doble cheddar. sin papas.",
     removableIngredients: [{ id: "cheddar", label: "Cheddar" }],
