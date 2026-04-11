@@ -30,14 +30,14 @@ import {
 } from "./burgersUtils";
 
 const SHOWCASE_SECTIONS = [
-  {
-    id: "hoy",
-    title: "VIERNES 10/4",
-    subtitle: "Hoy comes por solo $7000",
-    tone: "hoy",
-    layout: "single",
-    items: [{ id: "cheese_promo", emphasis: "promo" }],
-  },
+  // {
+  //   id: "hoy",
+  //   title: "VIERNES 10/4",
+  //   subtitle: "Hoy comes por solo $7000",
+  //   tone: "hoy",
+  //   layout: "single",
+  //   items: [{ id: "cheese_promo", emphasis: "promo" }],
+  // },
   {
     id: "gustan",
     title: "Las que no fallan",
