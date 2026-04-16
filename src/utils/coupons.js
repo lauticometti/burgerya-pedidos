@@ -5,6 +5,7 @@ export const COUPON_CODES = {
   oneTimeAmerican: "JUANSINLECHUGA",
   percent25: "JUAN25",
   weekend20: "20SABADO",
+  hiddenPapas: "JUERNES16",
 };
 
 // Variantes toleradas para que los clientes puedan escribir "combo ya" con espacios o guiones.
@@ -98,6 +99,10 @@ function isWeekendCouponActive(nowTs = Date.now()) {
   return nowTs < WEEKEND_COUPON_EXPIRY_TS;
 }
 
+function hasBurger(cartItems = []) {
+  return cartItems.some((it) => it.meta?.type === "burger");
+}
+
 /**
  * Evaluate a coupon against the current cart.
  * @param {Object} params
@@ -148,6 +153,18 @@ if (normalized === COUPON_CODES.weekend20) {
       appliedCode: COUPON_CODES.weekend20,
       discount,
       message: `${COUPON_CODES.weekend20} aplicado: 20% off hasta sábado 21 (BA)`,
+    };
+  }
+
+  if (normalized === COUPON_CODES.hiddenPapas) {
+    if (!hasBurger(cartItems)) {
+      return { error: "", discount: 0, silent: true };
+    }
+    return {
+      appliedCode: COUPON_CODES.hiddenPapas,
+      discount: 0,
+      message: "",
+      isHiddenBenefit: true,
     };
   }
 

@@ -91,8 +91,8 @@ export default function Carrito() {
   }, []);
 
   const { slotOptions } = useCarritoTimeSlots(whenMode, whenSlot, setWhenSlot);
-  const { couponCode, setCouponCode, appliedCoupon, totalDiscount, applyCoupon } =
-    useCouponCode(cart.items, cart.total);
+  const { couponCode, setCouponCode, appliedCoupon, totalDiscount, applyCoupon, removeCoupon, cheddarBenefitApplied } =
+    useCouponCode(cart.items, cart.total, cart);
 
   const totalWithDiscount = Math.max(0, cart.total - totalDiscount);
 
@@ -259,7 +259,13 @@ export default function Carrito() {
                   type="text"
                   placeholder="Código de descuento"
                   value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCouponCode(val);
+                    if (!val.trim() && cheddarBenefitApplied) {
+                      removeCoupon();
+                    }
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
@@ -277,6 +283,17 @@ export default function Carrito() {
               </div>
             </div>
           ) : null}
+          {cheddarBenefitApplied && (
+            <div className={styles.couponStatusLine}>
+              Código aplicado
+              <button
+                type="button"
+                className={styles.couponStatusRemove}
+                onClick={removeCoupon}>
+                Quitar
+              </button>
+            </div>
+          )}
         </>
       ) : (
         <>
