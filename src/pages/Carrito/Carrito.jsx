@@ -285,7 +285,7 @@ export default function Carrito() {
           ) : null}
           {cheddarBenefitApplied && (
             <div className={styles.couponStatusLine}>
-              Código aplicado
+              Cheddar en papas activado
               <button
                 type="button"
                 className={styles.couponStatusRemove}
