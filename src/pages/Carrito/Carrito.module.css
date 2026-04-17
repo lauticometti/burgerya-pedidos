@@ -68,10 +68,8 @@
   padding: 0 14px;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   width: fit-content;
-  border-color: #ffc62a;
-  font-weight: 800;
-  color: #fff;
 }
 
 .cokeButton {

@@ -55,6 +55,7 @@ export default function useBebidaModal({ cart, bebidaItems }) {
 
   return {
     bebidaOpen,
+    bebidaItems,
     bebidaQuantities,
     openBebidaModal,
     closeBebidaModal,
