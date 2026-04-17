@@ -156,16 +156,9 @@ if (normalized === COUPON_CODES.weekend20) {
     };
   }
 
+  // JUERNES16 desactivado — se deja la rama lista para reactivar o reemplazar.
   if (normalized === COUPON_CODES.hiddenPapas) {
-    if (!hasBurger(cartItems)) {
-      return { error: "", discount: 0, silent: true };
-    }
-    return {
-      appliedCode: COUPON_CODES.hiddenPapas,
-      discount: 0,
-      message: "",
-      isHiddenBenefit: true,
-    };
+    return { error: "Código inválido", discount: 0 };
   }
 
   return { error: "Código inválido", discount: 0 };
