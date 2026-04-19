@@ -464,3 +464,75 @@
   background: transparent;
   box-shadow: none;
 }
+
+.signalDiscount {
+  background: #ffc62a;
+  color: #121212;
+  font-size: 13px;
+  padding: 7px 12px;
+  letter-spacing: 0.04em;
+}
+
+.cardPriceHoy {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.cardPriceHoyBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 8px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 198, 42, 0.28);
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease,
+    background 0.15s ease;
+  font: inherit;
+}
+
+.cardPriceHoyBtn:hover:not(:disabled),
+.cardPriceHoyBtn:focus-visible {
+  border-color: var(--y);
+  background: rgba(255, 198, 42, 0.06);
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 2px rgba(255, 198, 42, 0.18);
+  outline: none;
+}
+
+.cardPriceHoyBtn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.cardPriceHoyBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cardPriceHoyLabel {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(245, 245, 245, 0.72);
+}
+
+.cardPriceOriginal {
+  font-size: 11px;
+  text-decoration: line-through;
+  color: rgba(245, 245, 245, 0.45);
+  line-height: 1;
+}
+
+.cardPriceFinal {
+  font-size: 17px;
+  font-weight: 900;
+  color: var(--y);
+  line-height: 1;
+}

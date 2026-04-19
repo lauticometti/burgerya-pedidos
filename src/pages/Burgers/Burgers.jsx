@@ -30,14 +30,14 @@ import {
 } from "./burgersUtils";
 
 const SHOWCASE_SECTIONS = [
-  // {
-  //   id: "hoy",
-  //   title: "VIERNES 10/4",
-  //   subtitle: "Hoy comes por solo $7000",
-  //   tone: "hoy",
-  //   layout: "single",
-  //   items: [{ id: "cheese_promo", emphasis: "promo" }],
-  // },
+  {
+    id: "hoy",
+    title: "HOY",
+    subtitle: "Lautiboom -20%",
+    tone: "hoy",
+    layout: "single",
+    items: [{ id: "lautiboom", emphasis: "promo" }],
+  },
   {
     id: "gustan",
     title: "Las que no fallan",
@@ -222,8 +222,15 @@ export default function Burgers() {
               const simplePrice = getBurgerPriceInfo(burger, "simple");
               const doublePrice = getBurgerPriceInfo(burger, "doble");
               const triplePrice = getBurgerPriceInfo(burger, "triple");
-              const cardSignalLabel = entry.badge || null;
-              const cardSignalClass = entry.badge ? styles.signalTop : "";
+              const isHoySection = section.tone === "hoy";
+              const cardSignalLabel = isHoySection
+                ? "-20%"
+                : entry.badge || null;
+              const cardSignalClass = isHoySection
+                ? styles.signalDiscount
+                : entry.badge
+                  ? styles.signalTop
+                  : "";
 
               return (
                 <article
@@ -265,35 +272,75 @@ export default function Burgers() {
                     </div>
 
                     {burger.id !== "cheese_promo" ? (
-                      <div className={styles.cardPricePreview}>
-                        {typeof simplePrice.basePrice === "number" &&
-                        simplePrice.basePrice > 0 ? (
-                          <span className={styles.cardPriceItem}>
-                            <span className={styles.cardPriceLabel}>Simple</span>
-                            <span className={styles.cardPriceValue}>
-                              {formatMoney(simplePrice.finalPrice)}
+                      isHoySection ? (
+                        <div className={styles.cardPriceHoy}>
+                          {[
+                            { size: "simple", label: "Simple", info: simplePrice },
+                            { size: "doble", label: "Doble", info: doublePrice },
+                            { size: "triple", label: "Triple", info: triplePrice },
+                          ]
+                            .filter(
+                              ({ info }) =>
+                                typeof info.basePrice === "number" && info.basePrice > 0,
+                            )
+                            .map(({ size, label, info }) => (
+                              <button
+                                key={size}
+                                type="button"
+                                className={styles.cardPriceHoyBtn}
+                                disabled={isUnavailable}
+                                aria-label={`Agregar Lautiboom ${label} por ${formatMoney(info.finalPrice)}`}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  if (isUnavailable) {
+                                    notifyUnavailableBurger(burger, unavailableReason);
+                                    return;
+                                  }
+                                  addBurgerToCart(burger, size);
+                                }}>
+                                <span className={styles.cardPriceHoyLabel}>{label}</span>
+                                {info.hasDiscount ? (
+                                  <span className={styles.cardPriceOriginal}>
+                                    {formatMoney(info.basePrice)}
+                                  </span>
+                                ) : null}
+                                <span className={styles.cardPriceFinal}>
+                                  {formatMoney(info.finalPrice)}
+                                </span>
+                              </button>
+                            ))}
+                        </div>
+                      ) : (
+                        <div className={styles.cardPricePreview}>
+                          {typeof simplePrice.basePrice === "number" &&
+                          simplePrice.basePrice > 0 ? (
+                            <span className={styles.cardPriceItem}>
+                              <span className={styles.cardPriceLabel}>Simple</span>
+                              <span className={styles.cardPriceValue}>
+                                {formatMoney(simplePrice.finalPrice)}
+                              </span>
                             </span>
-                          </span>
-                        ) : null}
-                      {typeof doublePrice.basePrice === "number" &&
-                      doublePrice.basePrice > 0 ? (
-                        <span className={styles.cardPriceItem}>
-                          <span className={styles.cardPriceLabel}>Doble</span>
-                          <span className={styles.cardPriceValue}>
-                            {formatMoney(doublePrice.finalPrice)}
-                          </span>
-                        </span>
-                      ) : null}
-                      {typeof triplePrice.basePrice === "number" &&
-                      triplePrice.basePrice > 0 ? (
-                        <span className={styles.cardPriceItem}>
-                          <span className={styles.cardPriceLabel}>Triple</span>
-                          <span className={styles.cardPriceValue}>
-                            {formatMoney(triplePrice.finalPrice)}
-                          </span>
-                        </span>
-                      ) : null}
-                      </div>
+                          ) : null}
+                          {typeof doublePrice.basePrice === "number" &&
+                          doublePrice.basePrice > 0 ? (
+                            <span className={styles.cardPriceItem}>
+                              <span className={styles.cardPriceLabel}>Doble</span>
+                              <span className={styles.cardPriceValue}>
+                                {formatMoney(doublePrice.finalPrice)}
+                              </span>
+                            </span>
+                          ) : null}
+                          {typeof triplePrice.basePrice === "number" &&
+                          triplePrice.basePrice > 0 ? (
+                            <span className={styles.cardPriceItem}>
+                              <span className={styles.cardPriceLabel}>Triple</span>
+                              <span className={styles.cardPriceValue}>
+                                {formatMoney(triplePrice.finalPrice)}
+                              </span>
+                            </span>
+                          ) : null}
+                        </div>
+                      )
                     ) : null}
 
                     {isUnavailable ? (
