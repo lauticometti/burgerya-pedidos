@@ -33,10 +33,10 @@ const SHOWCASE_SECTIONS = [
   {
     id: "hoy",
     title: "HOY",
-    subtitle: "Lautiboom -20%",
+    subtitle: "Cheese -20% hasta las 00hs",
     tone: "hoy",
     layout: "single",
-    items: [{ id: "lautiboom", emphasis: "promo" }],
+    items: [{ id: "cheese", emphasis: "promo" }],
   },
   {
     id: "gustan",
@@ -289,7 +289,7 @@ export default function Burgers() {
                                 type="button"
                                 className={styles.cardPriceHoyBtn}
                                 disabled={isUnavailable}
-                                aria-label={`Agregar Lautiboom ${label} por ${formatMoney(info.finalPrice)}`}
+                                aria-label={`Agregar ${burger.name} ${label} por ${formatMoney(info.finalPrice)}`}
                                 onClick={(event) => {
                                   event.stopPropagation();
                                   if (isUnavailable) {

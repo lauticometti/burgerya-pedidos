@@ -8,8 +8,8 @@ import {
 // Configurable manual offers remain empty unless explicitly activated.
 export const BURGER_PRICE_OFFERS = [
   {
-    id: "lautiboom_hoy_20",
-    burgerIds: ["lautiboom"],
+    id: "cheese_hoy_20",
+    burgerIds: ["cheese"],
     label: "-20% hoy",
     badgeText: "-20%",
     computeFinalPrice: (burger, size) =>
