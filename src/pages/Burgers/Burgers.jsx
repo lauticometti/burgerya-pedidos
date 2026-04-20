@@ -31,14 +31,6 @@ import {
 
 const SHOWCASE_SECTIONS = [
   {
-    id: "hoy",
-    title: "HOY",
-    subtitle: "Cheese -20% hasta las 00hs",
-    tone: "hoy",
-    layout: "single",
-    items: [{ id: "cheese", emphasis: "promo" }],
-  },
-  {
     id: "gustan",
     title: "Las que no fallan",
     subtitle: "Las mas vendidas.",

@@ -6,16 +6,7 @@ import {
 } from "./storeClosedMode";
 
 // Configurable manual offers remain empty unless explicitly activated.
-export const BURGER_PRICE_OFFERS = [
-  {
-    id: "cheese_hoy_20",
-    burgerIds: ["cheese"],
-    label: "-20% hoy",
-    badgeText: "-20%",
-    computeFinalPrice: (burger, size) =>
-      Math.round((burger?.prices?.[size] || 0) * 0.8),
-  },
-];
+export const BURGER_PRICE_OFFERS = [];
 
 function getAutomaticOffer(burger, size, date = new Date()) {
   const status = getStoreStatus(date);
