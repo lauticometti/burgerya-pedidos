@@ -28,8 +28,10 @@ import useCarritoCheckoutForm from "./useCarritoCheckoutForm";
 import useCheckoutValidation from "./useCheckoutValidation";
 import useCarritoTimeSlots from "./useCarritoTimeSlots";
 import useCouponCode from "./useCouponCode";
+import CartUpsellBanner, { shouldShowBebidaUpsell } from "./CartUpsellBanner";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
 import { useStoreStatus } from "../../utils/storeClosedMode";
+import { toast } from "../../utils/toast";
 
 export default function Carrito() {
   const cart = useCart();
@@ -211,6 +213,17 @@ export default function Carrito() {
 
       {step === 1 ? (
         <>
+          <CartUpsellBanner
+            items={cart.items}
+            disabled={isClosed}
+            onAddBebida={() => {
+              if (isClosed) {
+                toast.error(closedToastText, { key: "store-closed-bebidas" });
+                return;
+              }
+              bebidaModal.openBebidaModal();
+            }}
+          />
           <div className={styles.items}>
             {cart.items.length === 0 ? (
               <div>No hay items.</div>
@@ -236,22 +249,24 @@ export default function Carrito() {
           {cart.items.length > 0 ? (
             <div className={styles.addRow}>
               <div className={styles.addLeft}>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className={styles.drinkCta}
-                  disabled={isClosed}
-                  onClick={() => {
-                    if (isClosed) {
-                      toast.error(closedToastText, {
-                        key: "store-closed-bebidas",
-                      });
-                      return;
-                    }
-                    bebidaModal.openBebidaModal();
-                  }}>
-                  Agregar bebidas
-                </Button>
+                {!shouldShowBebidaUpsell(cart.items) ? (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className={styles.drinkCta}
+                    disabled={isClosed}
+                    onClick={() => {
+                      if (isClosed) {
+                        toast.error(closedToastText, {
+                          key: "store-closed-bebidas",
+                        });
+                        return;
+                      }
+                      bebidaModal.openBebidaModal();
+                    }}>
+                    Agregar bebidas
+                  </Button>
+                ) : null}
               </div>
               <div className={styles.addRight}>
                 <input

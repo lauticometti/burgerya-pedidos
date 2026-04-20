@@ -238,9 +238,40 @@ function reducer(state, action) {
   }
 }
 
+const CART_STORAGE_KEY = "burgerya:cart:v1";
+
+function loadPersistedState(initial) {
+  if (typeof window === "undefined") return initial;
+  try {
+    const raw = window.localStorage.getItem(CART_STORAGE_KEY);
+    if (!raw) return initial;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object" || !parsed.items) return initial;
+    return { ...initial, items: parsed.items };
+  } catch {
+    return initial;
+  }
+}
+
 export function CartProvider({ children }) {
-  const [state, dispatch] = useReducer(reducer, { items: {}, lastAdded: null });
+  const [state, dispatch] = useReducer(
+    reducer,
+    { items: {}, lastAdded: null },
+    loadPersistedState,
+  );
   const { closedToastText, dateKey, isClosed, minutes } = useStoreStatus();
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(
+        CART_STORAGE_KEY,
+        JSON.stringify({ items: state.items }),
+      );
+    } catch {
+      /* quota / privacy mode: no-op */
+    }
+  }, [state.items]);
   const burgersById = useMemo(
     () => {
       const idx = {};
