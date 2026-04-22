@@ -21,6 +21,7 @@ import { indexById } from "../../utils/indexing";
 import { useStoreStatus } from "../../utils/storeClosedMode";
 import { toast } from "../../utils/toast";
 import BurgerModal from "./BurgerModal";
+import PromoCombo from "./PromoCombo";
 import styles from "./Burgers.module.css";
 import {
   buildBurgerAddedToastText,
@@ -191,6 +192,8 @@ export default function Burgers() {
       <BrandLogo />
       <TopNav />
       <ClosedInlineNotice />
+
+      <PromoCombo />
 
       {sections.map((section, sectionIndex) => (
         <section
