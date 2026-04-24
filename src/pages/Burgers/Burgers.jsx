@@ -20,6 +20,7 @@ import { formatMoney } from "../../utils/formatMoney";
 import { indexById } from "../../utils/indexing";
 import { useStoreStatus } from "../../utils/storeClosedMode";
 import { toast } from "../../utils/toast";
+import BurgerDelDia from "./BurgerDelDia";
 import BurgerModal from "./BurgerModal";
 import PromoCombo from "./PromoCombo";
 import styles from "./Burgers.module.css";
@@ -108,7 +109,9 @@ export default function Burgers() {
   const [modalOpen, setModalOpen] = React.useState(false);
   const [activeBurger, setActiveBurger] = React.useState(null);
   const [modalOrigin, setModalOrigin] = React.useState(null);
+  const [modalSkipScroll, setModalSkipScroll] = React.useState(false);
   const burgersById = React.useMemo(() => indexById(burgers), []);
+  const bbqueen = burgersById["bbqueen"];
 
   const sections = React.useMemo(
     () =>
@@ -168,6 +171,7 @@ export default function Burgers() {
     burger,
     size,
     { removedIngredients = [], extras = [], papas = [] } = {},
+    { skipScroll = false } = {},
   ) {
     if (isClosed) {
       toast.error(closedToastText, {
@@ -184,7 +188,7 @@ export default function Burgers() {
       key: `burger-added:${burger.id}:${size}`,
       ms: 1300,
     });
-    scrollToBurgerCard(burger.id);
+    if (!skipScroll) scrollToBurgerCard(burger.id);
   }
 
   return (
@@ -192,6 +196,12 @@ export default function Burgers() {
       <BrandLogo />
       <TopNav />
       <ClosedInlineNotice />
+
+      <BurgerDelDia
+        burger={bbqueen}
+        onOpen={(evt) => { setModalSkipScroll(true); openBurger(bbqueen, evt); }}
+        onAddToCart={(burger, size) => addBurgerToCart(burger, size, {}, { skipScroll: true })}
+      />
 
       {sections.map((section, sectionIndex) => (
         <section
@@ -357,9 +367,10 @@ export default function Burgers() {
           setModalOpen(false);
           setActiveBurger(null);
           setModalOrigin(null);
+          setModalSkipScroll(false);
         }}
         onAdd={(burger, size, customization, opts = {}) => {
-          addBurgerToCart(burger, size, customization);
+          addBurgerToCart(burger, size, customization, { skipScroll: modalSkipScroll });
           if (opts.wantsPapas && burger.id === "cheese_promo") {
             const porcion = papasData.find((p) => p.id === "porcion_extra");
             if (porcion) {
@@ -395,6 +406,7 @@ export default function Burgers() {
           setModalOpen(false);
           setActiveBurger(null);
           setModalOrigin(null);
+          setModalSkipScroll(false);
         }}
       />
 

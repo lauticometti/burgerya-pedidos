@@ -78,7 +78,7 @@ export const burgers = [
     id: "bbqueen",
     name: "BBQueen",
     tier: "DELUXE",
-    prices: { simple: 12000, doble: 15500, triple: 19000 },
+    prices: { simple: 12000, doble: 15000, triple: 19000 },
     desc: "Bacon · Cebolla caramelizada · Tomate · Salsa barbacoa",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
