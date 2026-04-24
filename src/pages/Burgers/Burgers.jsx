@@ -193,8 +193,6 @@ export default function Burgers() {
       <TopNav />
       <ClosedInlineNotice />
 
-      <PromoCombo />
-
       {sections.map((section, sectionIndex) => (
         <section
           key={section.id}
