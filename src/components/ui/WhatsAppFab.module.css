@@ -2,11 +2,11 @@
   position: fixed;
   right: 16px;
   bottom: calc(96px + env(safe-area-inset-bottom, 0px));
-  width: 52px;
-  height: 52px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   background: #25d366;
-  color: #fff;
+  padding: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -31,8 +31,8 @@
 }
 
 .icon {
-  width: 28px;
-  height: 28px;
+  width: 100%;
+  height: 100%;
   display: block;
 }
 
@@ -40,12 +40,7 @@
   .fab {
     right: 24px;
     bottom: calc(110px + env(safe-area-inset-bottom, 0px));
-    width: 56px;
-    height: 56px;
-  }
-
-  .icon {
-    width: 30px;
-    height: 30px;
+    width: 48px;
+    height: 48px;
   }
 }
