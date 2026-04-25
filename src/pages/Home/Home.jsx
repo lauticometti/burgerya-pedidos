@@ -9,6 +9,7 @@ import Button from "../../components/ui/Button";
 import TopNav from "../../components/TopNav";
 import { useCart } from "../../store/useCart";
 import { useStoreStatus } from "../../utils/storeClosedMode";
+import { addCortaSemanaPromo } from "../../utils/cortaSemanaPromo";
 import styles from "./Home.module.css";
 
 const HOME_CARD_IMAGES = {
@@ -88,6 +89,38 @@ export default function Home() {
           ) : null}
         </section>
       ) : null}
+
+      <section className={styles.comboHero}>
+        <div className={styles.comboImageWrap}>
+          <img
+            src="/burgers/bacon.svg"
+            alt="Bacon doble"
+            className={styles.comboImageBack}
+            loading="lazy"
+            decoding="async"
+          />
+          <img
+            src="/burgers/lautiboom.svg"
+            alt="Lautiboom doble"
+            className={styles.comboImageFront}
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div className={styles.comboContent}>
+          <div className={styles.comboKicker}>CORTA LA SEMANA</div>
+          <h2 className={styles.comboTitle}>Bacon doble + Lautiboom doble</h2>
+          <div className={styles.comboSubtitle}>
+            Incluye 2 papas + dip salsa secreta
+          </div>
+          <div className={styles.comboPrice}>$29.000</div>
+          <Button
+            variant="primary"
+            onClick={() => addCortaSemanaPromo(cart)}>
+            Pedir combo
+          </Button>
+        </div>
+      </section>
 
       <div className={styles.cards}>
         <HomeCard

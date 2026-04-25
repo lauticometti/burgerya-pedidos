@@ -2,11 +2,14 @@ import {
   FRIDAY_TRIPLE_PROMO_BADGE_TEXT,
   FRIDAY_TRIPLE_PROMO_DATE_KEY,
   FRIDAY_TRIPLE_PROMO_OFFER_ID,
+  SATURDAY_BACON_PROMO_OFFER_ID,
   getStoreStatus,
 } from "./storeClosedMode";
 
 // Configurable manual offers remain empty unless explicitly activated.
 export const BURGER_PRICE_OFFERS = [];
+
+const SATURDAY_BACON_PRICES = { simple: 11000, doble: 13500, triple: 17000 };
 
 function getAutomaticOffer(burger, size, date = new Date()) {
   const status = getStoreStatus(date);
@@ -31,6 +34,22 @@ function getAutomaticOffer(burger, size, date = new Date()) {
   };
 }
 
+function getSaturdayBaconOffer(burger, size, date = new Date()) {
+  if (burger?.id !== "bacon") return null;
+  const status = getStoreStatus(date);
+  if (!status.isSaturdayBaconPromoActive) return null;
+  const finalPrice = SATURDAY_BACON_PRICES[size];
+  if (typeof finalPrice !== "number") return null;
+  const basePrice = burger?.prices?.[size];
+  if (typeof basePrice !== "number" || finalPrice >= basePrice) return null;
+  return {
+    id: SATURDAY_BACON_PROMO_OFFER_ID,
+    finalPrice,
+    label: "Recomendada del sábado",
+    badgeText: "OFERTA SÁBADO",
+  };
+}
+
 export function isTriplePromoEligibleBurger(burger) {
   return (
     typeof burger?.prices?.doble === "number" &&
@@ -52,9 +71,11 @@ function matchesOffer(offer, burger, size) {
 function getActiveOffer(burger, size, date = new Date()) {
   let best = null;
   const basePrice = burger?.prices?.[size];
-  const offers = [getAutomaticOffer(burger, size, date), ...BURGER_PRICE_OFFERS].filter(
-    Boolean,
-  );
+  const offers = [
+    getAutomaticOffer(burger, size, date),
+    getSaturdayBaconOffer(burger, size, date),
+    ...BURGER_PRICE_OFFERS,
+  ].filter(Boolean);
 
   for (const offer of offers) {
     if (!matchesOffer(offer, burger, size)) continue;

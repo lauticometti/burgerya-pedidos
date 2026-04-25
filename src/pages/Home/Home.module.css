@@ -84,3 +84,82 @@
   width: fit-content;
 }
 
+.comboHero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(120px, 40%) 1fr;
+  gap: 14px;
+  align-items: center;
+  margin: 0 0 16px;
+  padding: 16px;
+  border-radius: 20px;
+  background:
+    radial-gradient(120% 120% at 100% 0%, rgba(255, 198, 42, 0.18), transparent 55%),
+    linear-gradient(135deg, rgba(20, 20, 20, 0.92), rgba(40, 20, 8, 0.92));
+  border: 1px solid rgba(255, 198, 42, 0.35);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.34);
+  overflow: hidden;
+}
+
+.comboImageWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+}
+
+.comboImageBack {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%) rotate(-8deg);
+  width: 75%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.5));
+}
+
+.comboImageFront {
+  position: relative;
+  right: -10%;
+  width: 75%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.5));
+}
+
+.comboContent {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+}
+
+.comboKicker {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+  color: rgba(255, 198, 42, 0.9);
+}
+
+.comboTitle {
+  margin: 0;
+  font-size: clamp(18px, 4.8vw, 22px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+}
+
+.comboSubtitle {
+  font-size: 12px;
+  opacity: 0.82;
+  line-height: 1.35;
+}
+
+.comboPrice {
+  font-size: clamp(24px, 6.5vw, 30px);
+  font-weight: 900;
+  color: #ffc62a;
+  margin-top: 2px;
+}
+

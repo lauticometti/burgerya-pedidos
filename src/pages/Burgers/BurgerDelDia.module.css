@@ -149,6 +149,14 @@
   line-height: 1;
 }
 
+.sizeBtnPriceOriginal {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+  text-decoration: line-through;
+  line-height: 1;
+}
+
 .sizeBtnFeatured {
   border: 2px solid #ffc62a;
   background: rgba(255, 255, 255, 0.05);

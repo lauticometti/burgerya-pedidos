@@ -18,7 +18,7 @@ export default function BurgerDelDia({ burger, onOpen, onAddToCart }) {
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onOpen(e); }}
       aria-label={`Ver ${burger.name}`}>
 
-      <p className={styles.eyebrow}>RECOMENDADA DEL VIERNES</p>
+      <p className={styles.eyebrow}>RECOMENDADA DEL SÁBADO</p>
 
       <div className={styles.body}>
         <div className={styles.imgWrap}>
@@ -31,7 +31,7 @@ export default function BurgerDelDia({ burger, onOpen, onAddToCart }) {
 
         <div className={styles.info}>
           <h2 className={styles.name}>{burger.name}</h2>
-          <p className={styles.desc}>Bacon · tomate · BBQ · ceb caramelizada</p>
+          {burger.desc ? <p className={styles.desc}>{burger.desc}</p> : null}
           <p className={styles.papas}>+ papas incluidas</p>
 
           <div className={styles.sizeButtons}>
@@ -54,6 +54,9 @@ export default function BurgerDelDia({ burger, onOpen, onAddToCart }) {
                     }}
                     aria-label={`Agregar ${burger.name} ${label} por ${formatMoney(info.finalPrice)}`}>
                     <span className={styles.sizeBtnLabel}>{label}</span>
+                    {info.hasDiscount ? (
+                      <span className={styles.sizeBtnPriceOriginal}>{formatMoney(info.basePrice)}</span>
+                    ) : null}
                     <span className={styles.sizeBtnPrice}>{formatMoney(info.finalPrice)}</span>
                   </button>
                 </div>

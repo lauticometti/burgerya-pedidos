@@ -111,7 +111,7 @@ export default function Burgers() {
   const [modalOrigin, setModalOrigin] = React.useState(null);
   const [modalSkipScroll, setModalSkipScroll] = React.useState(false);
   const burgersById = React.useMemo(() => indexById(burgers), []);
-  const bbqueen = burgersById["bbqueen"];
+  const bacon = burgersById["bacon"];
 
   const sections = React.useMemo(
     () =>
@@ -198,8 +198,8 @@ export default function Burgers() {
       <ClosedInlineNotice />
 
       <BurgerDelDia
-        burger={bbqueen}
-        onOpen={(evt) => { setModalSkipScroll(true); openBurger(bbqueen, evt); }}
+        burger={bacon}
+        onOpen={(evt) => { setModalSkipScroll(true); openBurger(bacon, evt); }}
         onAddToCart={(burger, size) => addBurgerToCart(burger, size, {}, { skipScroll: true })}
       />
 
@@ -319,6 +319,11 @@ export default function Burgers() {
                           simplePrice.basePrice > 0 ? (
                             <span className={styles.cardPriceItem}>
                               <span className={styles.cardPriceLabel}>Simple</span>
+                              {simplePrice.hasDiscount ? (
+                                <span className={styles.cardPriceValueOriginal}>
+                                  {formatMoney(simplePrice.basePrice)}
+                                </span>
+                              ) : null}
                               <span className={styles.cardPriceValue}>
                                 {formatMoney(simplePrice.finalPrice)}
                               </span>
@@ -328,6 +333,11 @@ export default function Burgers() {
                           doublePrice.basePrice > 0 ? (
                             <span className={styles.cardPriceItem}>
                               <span className={styles.cardPriceLabel}>Doble</span>
+                              {doublePrice.hasDiscount ? (
+                                <span className={styles.cardPriceValueOriginal}>
+                                  {formatMoney(doublePrice.basePrice)}
+                                </span>
+                              ) : null}
                               <span className={styles.cardPriceValue}>
                                 {formatMoney(doublePrice.finalPrice)}
                               </span>
@@ -337,6 +347,11 @@ export default function Burgers() {
                           triplePrice.basePrice > 0 ? (
                             <span className={styles.cardPriceItem}>
                               <span className={styles.cardPriceLabel}>Triple</span>
+                              {triplePrice.hasDiscount ? (
+                                <span className={styles.cardPriceValueOriginal}>
+                                  {formatMoney(triplePrice.basePrice)}
+                                </span>
+                              ) : null}
                               <span className={styles.cardPriceValue}>
                                 {formatMoney(triplePrice.finalPrice)}
                               </span>
