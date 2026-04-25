@@ -78,7 +78,7 @@
 
 .name {
   margin: 0;
-  font-size: clamp(52px, 14vw, 72px);
+  font-size: clamp(40px, 11vw, 56px);
   font-weight: 900;
   line-height: 1;
   letter-spacing: -0.02em;
