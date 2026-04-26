@@ -21,6 +21,7 @@ import {
   indexPapasById,
 } from "./papasUtils";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
+import { applyCheddarBlackout } from "../../utils/cheddarBlackout";
 import { useStoreStatus } from "../../utils/storeClosedMode";
 import { createPapasItem } from "../../utils/cartItemBuilders";
 import { TOAST_KEYS } from "../../constants/toastKeys";
@@ -28,7 +29,7 @@ import { useListingPageActions } from "../../hooks/useListingPageActions";
 
 export default function Papas() {
   const cart = useCart();
-  const { closedActionLabel, isClosed, reopenText } = useStoreStatus();
+  const { closedActionLabel, isClosed, reopenText, dateKey } = useStoreStatus();
   const { canAddItem, showUnavailableError } = useListingPageActions({
     toastKey: TOAST_KEYS.STORE_CLOSED_PAPAS,
   });
@@ -37,14 +38,15 @@ export default function Papas() {
   const [activeSize, setActiveSize] = useState(null);
   const [selectedOptionId, setSelectedOptionId] = useState("solas");
 
-  const papasById = useMemo(() => indexPapasById(papas), []);
+  const adjustedPapas = useMemo(() => applyCheddarBlackout(papas), [dateKey]);
+  const papasById = useMemo(() => indexPapasById(adjustedPapas), [adjustedPapas]);
   const papasBase = useMemo(() => buildPapasBase(papasById), [papasById]);
   const optionsBySize = useMemo(
     () => buildPapasOptionsBySize(papasById),
     [papasById],
   );
 
-  const dipItems = papas.filter((item) => item.id.startsWith("dip_"));
+  const dipItems = adjustedPapas.filter((item) => item.id.startsWith("dip_"));
   const bebidaItems = bebidas || [];
 
   function openModal(size) {

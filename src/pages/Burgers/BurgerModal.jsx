@@ -9,6 +9,7 @@ import { resolvePublicPath } from "../../utils/assetPath";
 import { getBurgerPriceInfo } from "../../utils/burgerPricing";
 import { formatMoney } from "../../utils/formatMoney";
 import { buildPapasMejoras } from "../../utils/papasUpgradeOptions";
+import { applyCheddarBlackout } from "../../utils/cheddarBlackout";
 import { useStoreStatus } from "../../utils/storeClosedMode";
 import styles from "./BurgerModal.module.css";
 
@@ -39,9 +40,12 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
   const [wantsPapas, setWantsPapas] = React.useState(false);
   const [papasImprovements, setPapasImprovements] = React.useState([]);
 
-  const { closedActionLabel, isClosed, reopenText } = useStoreStatus();
+  const { closedActionLabel, isClosed, reopenText, dateKey } = useStoreStatus();
 
-  const papasMejoras = React.useMemo(() => buildPapasMejoras(papas), []);
+  const papasMejoras = React.useMemo(
+    () => buildPapasMejoras(applyCheddarBlackout(papas)),
+    [dateKey],
+  );
   const hasNestedModalOpen =
     modals.removeOpen || modals.extrasOpen || modals.papasOpen;
 
