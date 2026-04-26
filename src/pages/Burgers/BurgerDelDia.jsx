@@ -18,7 +18,7 @@ export default function BurgerDelDia({ burger, onOpen, onAddToCart }) {
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onOpen(e); }}
       aria-label={`Ver ${burger.name}`}>
 
-      <p className={styles.eyebrow}>RECOMENDADA DEL SÁBADO</p>
+      <p className={styles.eyebrow}>RECOMENDADA DEL DOMINGO</p>
 
       <div className={styles.body}>
         <div className={styles.imgWrap}>

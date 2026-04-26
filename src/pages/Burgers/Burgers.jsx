@@ -111,7 +111,7 @@ export default function Burgers() {
   const [modalOrigin, setModalOrigin] = React.useState(null);
   const [modalSkipScroll, setModalSkipScroll] = React.useState(false);
   const burgersById = React.useMemo(() => indexById(burgers), []);
-  const bacon = burgersById["bacon"];
+  const lautiboom = burgersById["lautiboom"];
 
   const sections = React.useMemo(
     () =>
@@ -198,8 +198,8 @@ export default function Burgers() {
       <ClosedInlineNotice />
 
       <BurgerDelDia
-        burger={bacon}
-        onOpen={(evt) => { setModalSkipScroll(true); openBurger(bacon, evt); }}
+        burger={lautiboom}
+        onOpen={(evt) => { setModalSkipScroll(true); openBurger(lautiboom, evt); }}
         onAddToCart={(burger, size) => addBurgerToCart(burger, size, {}, { skipScroll: true })}
       />
 

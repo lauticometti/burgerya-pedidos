@@ -4,7 +4,7 @@ export const ARGENTINA_TIME_ZONE = "America/Argentina/Buenos_Aires";
 export const FRIDAY_TRIPLE_PROMO_DATE_KEY = "2026-03-27";
 export const FRIDAY_TRIPLE_PROMO_OFFER_ID = "friday_triple_same_as_double";
 export const FRIDAY_TRIPLE_PROMO_BADGE_TEXT = "TRIPLE = DOBLE";
-export const SATURDAY_BACON_PROMO_OFFER_ID = "saturday_bacon_feature";
+export const SUNDAY_FEATURE_PROMO_OFFER_ID = "sunday_lautiboom_feature";
 
 const MANUAL_STORE_STATUS_DATE = null;
 const WEEKDAY_INDEX = {
@@ -182,7 +182,7 @@ function buildStatusState(overrides = {}) {
     isTriplePromoVisible: false,
     isTriplePromoLive: false,
     isTriplePromoPricingActive: false,
-    isSaturdayBaconPromoActive: false,
+    isSundayFeaturePromoActive: false,
     showPromoHero: false,
     promoHeroKicker: "",
     promoHeroTitle: "",
@@ -219,12 +219,12 @@ export function getStoreStatus(date = null) {
   const resolvedDate = date instanceof Date ? date : getNowDate();
   const parts = getArgentinaTimeParts(resolvedDate);
   const promoStatus = getFridayPromoStatus(parts);
-  const isSaturdayBaconPromoActive = parts.day === WEEKDAY_INDEX.Sat;
+  const isSundayFeaturePromoActive = parts.day === WEEKDAY_INDEX.Sun;
 
   return {
     ...parts,
     ...(promoStatus || buildStatusState()),
-    isSaturdayBaconPromoActive,
+    isSundayFeaturePromoActive,
   };
 }
 
