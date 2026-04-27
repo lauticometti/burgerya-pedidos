@@ -103,7 +103,8 @@ export const burgers = [
       { id: "bacon", label: "Bacon" },
     ],
     img: "/burgers/smoklahoma.svg",
-    isAvailable: 1,
+    isAvailable: 0,
+    unavailableReason: "No disponible hoy",
   },
 
   // ESPECIALES (sin simple)
