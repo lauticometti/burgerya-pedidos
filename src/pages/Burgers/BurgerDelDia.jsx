@@ -10,15 +10,19 @@ const SIZES = [
   { size: "triple", label: "Triple" },
 ];
 
-export default function BurgerDelDia({ burger, onOpen, onAddToCart }) {
+export default function BurgerDelDia({ burger, weekdayLabel, onOpen, onAddToCart }) {
   if (!burger) return null;
+
+  const eyebrowText = weekdayLabel
+    ? `RECOMENDADA DEL ${weekdayLabel}`
+    : "RECOMENDADA DE HOY";
 
   return (
     <div className={styles.wrapper} onClick={onOpen} role="button" tabIndex={0}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onOpen(e); }}
       aria-label={`Ver ${burger.name}`}>
 
-      <p className={styles.eyebrow}>RECOMENDADA DEL DOMINGO</p>
+      <p className={styles.eyebrow}>{eyebrowText}</p>
 
       <div className={styles.body}>
         <div className={styles.imgWrap}>

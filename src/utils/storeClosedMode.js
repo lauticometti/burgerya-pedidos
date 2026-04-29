@@ -1,10 +1,11 @@
 import { useSyncExternalStore } from "react";
+import { getDailyFeature } from "./dailyFeaturePromo";
 
 export const ARGENTINA_TIME_ZONE = "America/Argentina/Buenos_Aires";
 export const FRIDAY_TRIPLE_PROMO_DATE_KEY = "2026-03-27";
 export const FRIDAY_TRIPLE_PROMO_OFFER_ID = "friday_triple_same_as_double";
 export const FRIDAY_TRIPLE_PROMO_BADGE_TEXT = "TRIPLE = DOBLE";
-export const SUNDAY_FEATURE_PROMO_OFFER_ID = "sunday_lautiboom_feature";
+export const DAILY_FEATURE_PROMO_OFFER_ID = "daily_feature";
 
 const MANUAL_STORE_STATUS_DATE = null;
 const WEEKDAY_INDEX = {
@@ -182,7 +183,9 @@ function buildStatusState(overrides = {}) {
     isTriplePromoVisible: false,
     isTriplePromoLive: false,
     isTriplePromoPricingActive: false,
-    isSundayFeaturePromoActive: false,
+    isDailyFeaturePromoActive: false,
+    dailyFeatureBurgerId: null,
+    dailyFeatureWeekdayLabel: "",
     showPromoHero: false,
     promoHeroKicker: "",
     promoHeroTitle: "",
@@ -219,12 +222,14 @@ export function getStoreStatus(date = null) {
   const resolvedDate = date instanceof Date ? date : getNowDate();
   const parts = getArgentinaTimeParts(resolvedDate);
   const promoStatus = getFridayPromoStatus(parts);
-  const isSundayFeaturePromoActive = parts.day === WEEKDAY_INDEX.Sun;
+  const dailyFeature = getDailyFeature(resolvedDate);
 
   return {
     ...parts,
     ...(promoStatus || buildStatusState()),
-    isSundayFeaturePromoActive,
+    isDailyFeaturePromoActive: dailyFeature !== null && dailyFeature.prices !== null,
+    dailyFeatureBurgerId: dailyFeature?.burgerId || null,
+    dailyFeatureWeekdayLabel: dailyFeature?.weekdayLabel || "",
   };
 }
 

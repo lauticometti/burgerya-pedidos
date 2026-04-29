@@ -105,13 +105,17 @@ export default function Burgers() {
     closedToastText,
     isClosed,
     reopenText,
+    dailyFeatureBurgerId,
+    dailyFeatureWeekdayLabel,
   } = useStoreStatus();
   const [modalOpen, setModalOpen] = React.useState(false);
   const [activeBurger, setActiveBurger] = React.useState(null);
   const [modalOrigin, setModalOrigin] = React.useState(null);
   const [modalSkipScroll, setModalSkipScroll] = React.useState(false);
   const burgersById = React.useMemo(() => indexById(burgers), []);
-  const lautiboom = burgersById["lautiboom"];
+  const featuredBurger = dailyFeatureBurgerId
+    ? burgersById[dailyFeatureBurgerId]
+    : null;
 
   const sections = React.useMemo(
     () =>
@@ -198,8 +202,9 @@ export default function Burgers() {
       <ClosedInlineNotice />
 
       <BurgerDelDia
-        burger={lautiboom}
-        onOpen={(evt) => { setModalSkipScroll(true); openBurger(lautiboom, evt); }}
+        burger={featuredBurger}
+        weekdayLabel={dailyFeatureWeekdayLabel}
+        onOpen={(evt) => { setModalSkipScroll(true); openBurger(featuredBurger, evt); }}
         onAddToCart={(burger, size) => addBurgerToCart(burger, size, {}, { skipScroll: true })}
       />
 

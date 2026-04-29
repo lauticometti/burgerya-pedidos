@@ -1,4 +1,3 @@
-import React from "react";
 import { bebidas, extras } from "../../data/menu";
 import useItemExtrasModal from "./useItemExtrasModal";
 import useRemoveIngredientsModal from "./useRemoveIngredientsModal";

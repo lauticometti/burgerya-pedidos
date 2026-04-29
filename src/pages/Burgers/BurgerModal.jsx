@@ -46,6 +46,7 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
     () => buildPapasMejoras(applyCheddarBlackout(papas)),
     [dateKey],
   );
+  const extrasItems = extras;
   const hasNestedModalOpen =
     modals.removeOpen || modals.extrasOpen || modals.papasOpen;
 
@@ -127,7 +128,7 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
   const selectedRemovals = removableIngredients.filter((ingredient) =>
     customizations.removedIds.includes(ingredient.id),
   );
-  const selectedExtras = extras.filter((item) =>
+  const selectedExtras = extrasItems.filter((item) =>
     customizations.extrasIds.includes(item.id),
   );
   const selectedPapas = papasMejoras.filter((item) =>
@@ -350,7 +351,7 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
         open={modals.extrasOpen}
         title="Agregados"
         description="Suma extras a esta burger."
-        items={extras}
+        items={extrasItems}
         selectedIds={modals.extrasDraftIds}
         onToggle={(id) =>
           setModals((prev) => ({

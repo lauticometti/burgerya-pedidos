@@ -1,7 +1,7 @@
 import { getArgentinaTimeParts } from "./storeClosedMode";
 
-export const CHEDDAR_BLACKOUT_END_DATE_KEY = "2026-05-01";
-export const CHEDDAR_BLACKOUT_REASON = "Vuelve el sábado";
+export const CHEDDAR_BLACKOUT_END_DATE_KEY = "2026-04-30";
+export const CHEDDAR_BLACKOUT_REASON = "Vuelve el viernes";
 
 const BLOCKED_IDS = new Set([
   "cheddar_liq",

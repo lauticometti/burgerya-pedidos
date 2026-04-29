@@ -3,7 +3,7 @@ import { extras } from "../../data/menu";
 import { useCart } from "../../store/useCart";
 import { toast } from "../../utils/toast";
 import { formatMoney } from "../../utils/formatMoney";
-import { isItemUnavailable } from "../../utils/availability";
+import { isItemUnavailable, getUnavailableReason } from "../../utils/availability";
 import Page from "../../components/layout/Page";
 import StickyBar from "../../components/layout/StickyBar";
 import CartSummary from "../../components/cart/CartSummary";
@@ -19,7 +19,7 @@ import { useListingPageActions } from "../../hooks/useListingPageActions";
 
 export default function Extras() {
   const cart = useCart();
-  const { closedActionLabel, reopenText } = useStoreStatus();
+  const { closedActionLabel, isClosed, reopenText } = useStoreStatus();
   const { canAddItem, showUnavailableError } = useListingPageActions({
     toastKey: TOAST_KEYS.STORE_CLOSED_EXTRAS,
   });
