@@ -57,7 +57,7 @@ export const burgers = [
       { id: "mil_islas", label: "Salsa Mil Islas" },
     ],
     img: "/burgers/american.svg",
-    isAvailable: 0,
+    isAvailable: 1,
   },
   {
     id: "bacon",
@@ -78,7 +78,7 @@ export const burgers = [
     id: "bbqueen",
     name: "BBQueen",
     tier: "DELUXE",
-    prices: { simple: 12000, doble: 15000, triple: 19000 },
+    prices: { simple: 12000, doble: 15500, triple: 19000 },
     desc: "Bacon · Cebolla caramelizada · Tomate · Salsa barbacoa",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
@@ -103,7 +103,7 @@ export const burgers = [
       { id: "bacon", label: "Bacon" },
     ],
     img: "/burgers/smoklahoma.svg",
-    isAvailable: 0,
+    isAvailable: 1,
   },
 
   // ESPECIALES (sin simple)
@@ -184,7 +184,7 @@ export const papas = [
     id: "cheddar_liq",
     name: "Cheddar",
     price: 1500,
-    isAvailable: 1,
+    isAvailable: 0,
     unavailableReason: undefined,
   },
   { id: "papas_bacon", name: "Bacon", price: 1500, isAvailable: 1 },
@@ -204,21 +204,21 @@ export const papas = [
     id: "porcion_grande_cheddar",
     name: "Porción grande con cheddar",
     price: 11000,
-    isAvailable: 1,
+    isAvailable: 0,
     unavailableReason: undefined,
   },
   {
     id: "porcion_grande_cheddar_bacon",
     name: "Porción grande con cheddar y bacon",
     price: 13000,
-    isAvailable: 1,
+    isAvailable: 0,
     unavailableReason: undefined,
   },
   {
     id: "dip_cheddar",
     name: "Dip de cheddar",
     price: 2000,
-    isAvailable: 1,
+    isAvailable: 0,
     unavailableReason: undefined,
   },
   {
@@ -230,6 +230,12 @@ export const papas = [
 ];
 
 export const bebidas = [
-  { id: "coca_600", name: "Coca Cola 600ml", price: 3000, isAvailable: 0, unavailableReason: "Temporalmente no disponible" },
+  {
+    id: "coca_600",
+    name: "Coca Cola 600ml",
+    price: 3000,
+    isAvailable: 0,
+    unavailableReason: "Temporalmente no disponible",
+  },
   { id: "coca_225", name: "Coca Cola 2.25L", price: 6000, isAvailable: 1 },
 ];
