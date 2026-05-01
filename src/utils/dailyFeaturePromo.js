@@ -7,6 +7,7 @@ export const DAILY_FEATURE_OVERRIDE_ID = null;
 // Sets de precios promo. Reutilizables entre burgers que comparten precio normal.
 const PRICES_PREMIUM = { simple: 10500, doble: 14000, triple: 17500 };
 const PRICES_DELUXE = { simple: 11000, doble: 14500, triple: 18000 };
+const PRICES_CHEESE_PROMO = { simple: 9500, doble: 13000, triple: 16500 };
 
 // día (0=Dom..6=Sáb) → burger destacada + precios promo del día.
 const DAILY_FEATURE_BY_WEEKDAY = {
@@ -14,7 +15,7 @@ const DAILY_FEATURE_BY_WEEKDAY = {
   1: { burgerId: "lautiboom", prices: PRICES_PREMIUM },   // Lunes (placeholder)
   2: { burgerId: "lautiboom", prices: PRICES_PREMIUM },   // Martes (placeholder)
   3: { burgerId: "american", prices: PRICES_PREMIUM },    // Miércoles
-  4: { burgerId: "smoklahoma", prices: PRICES_DELUXE },   // Jueves
+  4: { burgerId: "cheese", prices: PRICES_CHEESE_PROMO },   // Jueves
   5: { burgerId: "bbqueen", prices: PRICES_DELUXE },      // Viernes
   6: { burgerId: "bacon", prices: PRICES_PREMIUM },       // Sábado
 };
