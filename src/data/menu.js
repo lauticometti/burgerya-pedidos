@@ -40,7 +40,7 @@ export const burgers = [
       { id: "caramelized_onion", label: "Cebolla caramelizada" },
     ],
     img: "/burgers/lautiboom.svg",
-    isAvailable: 0,
+    isAvailable: 1,
   },
   {
     id: "american",
@@ -88,7 +88,7 @@ export const burgers = [
       { id: "caramelized_onion", label: "Cebolla caramelizada" },
     ],
     img: "/burgers/bbqueen.svg",
-    isAvailable: 0,
+    isAvailable: 1,
   },
   {
     id: "smoklahoma",
@@ -234,7 +234,7 @@ export const bebidas = [
     id: "coca_600",
     name: "Coca Cola 600ml",
     price: 3000,
-    isAvailable: 0,
+    isAvailable: 1,
     unavailableReason: "Temporalmente no disponible",
   },
   { id: "coca_225", name: "Coca Cola 2.25L", price: 6000, isAvailable: 1 },
