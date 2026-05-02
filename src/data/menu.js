@@ -168,7 +168,7 @@ export const extras = [
     isAvailable: 1,
   },
   { id: "pepinos", name: "Pepinos", price: 800, isAvailable: 1 },
-  { id: "huevo", name: "Huevo frito", price: 800, isAvailable: 1 },
+  { id: "huevo", name: "Huevo frito", price: 800, isAvailable: 0 },
   { id: "papas_burger", name: "Papas", price: 800, isAvailable: 1 },
   { id: "lechuga", name: "Lechuga", price: 500, isAvailable: 1 },
   { id: "tomate", name: "Tomate", price: 500, isAvailable: 1 },
