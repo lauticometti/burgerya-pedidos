@@ -120,25 +120,14 @@
   -webkit-overflow-scrolling: touch;
   padding-bottom: 8px;
   scrollbar-width: none;
-  /* overflow peek: rompe solo el borde derecho del Page */
-  margin-right: calc(var(--page-padding) * -1);
-  padding-right: var(--page-padding);
 }
 .hscroll::-webkit-scrollbar {
   display: none;
 }
 
-@media (min-width: 768px) {
-  .hscroll {
-    margin-right: calc(var(--page-padding-lg) * -1);
-    padding-right: var(--page-padding-lg);
-  }
-}
-
 /* ── Burger cards — protagonistas ── */
 .burgerCard {
-  flex: 0 0 75%;
-  max-width: 340px;
+  flex: 0 0 78%;
   scroll-snap-align: start;
   border-radius: 20px;
   overflow: hidden;
@@ -456,7 +445,7 @@
 /* ── Desktop: más ancho para burgers ── */
 @media (min-width: 600px) {
   .burgerCard {
-    flex: 0 0 360px;
+    flex: 0 0 58%;
   }
 
   .hscrollCompact .papasCard,
@@ -475,6 +464,6 @@
   }
 
   .burgerCard {
-    flex: 0 0 300px;
+    flex: 0 0 260px;
   }
 }
