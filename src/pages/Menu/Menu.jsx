@@ -356,7 +356,7 @@ export default function Menu() {
                 ) : null}
                 <div className={styles.burgerImgWrap}>
                   <img
-                    className={styles.burgerImg}
+                    className={`${styles.burgerImg}${burger.id === "smoklahoma" ? ` ${styles.burgerImgSmoklahoma}` : ""}`}
                     src={resolvePublicPath(burger.img || "/burgers/placeholder.jpg")}
                     alt={burger.name}
                     loading={i < 2 ? "eager" : "lazy"}

@@ -205,6 +205,14 @@
   transform: scale(1.02);
 }
 
+.burgerImgSmoklahoma {
+  transform: scale(1.22) translateY(4px);
+}
+
+.burgerCard:hover:not(.cardUnavailable) .burgerImgSmoklahoma {
+  transform: scale(1.24) translateY(4px);
+}
+
 .burgerBody {
   padding: 12px 14px 14px;
   display: flex;
