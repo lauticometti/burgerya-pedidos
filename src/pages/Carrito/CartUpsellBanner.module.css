@@ -5,11 +5,11 @@
   gap: 12px;
   padding: 12px 14px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 198, 42, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.11);
   background: linear-gradient(
     135deg,
-    rgba(255, 198, 42, 0.12),
-    rgba(255, 198, 42, 0.04)
+    rgba(255, 255, 255, 0.055),
+    rgba(255, 255, 255, 0.025)
   );
   margin: 10px 0 6px;
 }

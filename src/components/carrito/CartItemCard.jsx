@@ -12,11 +12,10 @@ import { FRIDAY_TRIPLE_PROMO_OFFER_ID } from "../../utils/storeClosedMode";
 export default function CartItemCard({
   item,
   onChangeNote,
-  onOpenRemoveModal,
+  onOpenModify,
   onDecrease,
   onIncrease,
   onRemove,
-  onOpenExtras,
   onOpenPapas,
   canImprovePapas,
   canAddExtras,
@@ -133,32 +132,10 @@ export default function CartItemCard({
         </div>
       </div>
 
-      {showActions ? (
+      {(canAddExtras || (!isPromo && removableIngredients.length > 0)) ? (
         <div className={styles.actions}>
-          {canAddExtras ? (
-            <Button size="sm" onClick={onOpenExtras}>
-              Agregados
-            </Button>
-          ) : null}
-          {false && canImprovePapas && burgerId !== "cheese_promo" ? (
-            <Button
-              size="sm"
-              onClick={onOpenPapas}
-              className={styles.papasButton}>
-              Mejorar papas
-            </Button>
-          ) : null}
-        </div>
-      ) : null}
-
-      {!isPromo && removableIngredients.length ? (
-        <div className={styles.removalForm}>
-          <Button
-            size="xs"
-            variant="secondary"
-            onClick={onOpenRemoveModal}
-            className={styles.removeButton}>
-            Quitar ingredientes
+          <Button size="sm" onClick={onOpenModify}>
+            Modificar ingredientes
           </Button>
         </div>
       ) : null}

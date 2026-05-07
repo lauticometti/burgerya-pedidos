@@ -291,6 +291,22 @@
   max-width: 200px;
 }
 
+.bebidaImgWrap {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 110px;
+  margin-bottom: 4px;
+}
+
+.bebidaImg {
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+
 .bebidaCard {
   scroll-snap-align: start;
   flex: 0 0 52%;

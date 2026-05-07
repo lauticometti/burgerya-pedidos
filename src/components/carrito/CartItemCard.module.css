@@ -112,34 +112,12 @@
   margin-top: 10px;
 }
 
-.removalForm {
-  margin-top: 6px;
-  display: flex;
-  gap: 8px;
-  justify-content: flex-start;
-}
-
-.removeButton,
-.removeButtonInline {
-  align-self: start;
-}
-
-.removeButtonInline {
-  margin-top: 0;
-  margin-left: 0;
-  align-self: flex-start;
-}
-
-.removeIngredientsBtn {
-  font-size: 12px;
-  margin-top: 0;
-}
-
-.removeButton {
-  padding: 4px 10px;
-  font-size: 12px;
-  width: auto;
-  display: inline-flex;
+.actions button {
+  padding: 6px 9px !important;
+  font-size: 12px !important;
+  color: rgba(255, 255, 255, 0.72) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  background: rgba(255, 255, 255, 0.035) !important;
 }
 
 .removalBlock {
@@ -281,13 +259,19 @@
   font-size: 12px;
   min-height: 34px;
   line-height: 1.3;
+  background: rgba(255, 255, 255, 0.025) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.noteInput::placeholder {
+  color: rgba(255, 255, 255, 0.40) !important;
 }
 
 .papasButton {
   position: relative;
-  border-color: var(--line);
-  color: var(--text);
-  background: #1a1a1a;
+  border-color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.035);
   padding-left: 18px;
 }
 
@@ -299,11 +283,11 @@
   bottom: 6px;
   width: 3px;
   border-radius: 999px;
-  background: rgba(255, 198, 42, 0.9);
+  background: rgba(255, 198, 42, 0.25);
 }
 
 .papasButton:hover {
-  border-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 @media (max-width: 540px) {

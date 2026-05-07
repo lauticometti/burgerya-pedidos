@@ -456,6 +456,11 @@ export default function Menu() {
                   });
                   toast.success(`+ ${item.name}`);
                 }}>
+                {item.img && (
+                  <div className={styles.bebidaImgWrap}>
+                    <img src={item.img} alt={item.name} className={styles.bebidaImg} />
+                  </div>
+                )}
                 <span className={styles.bebidaName}>{item.name}</span>
                 <span className={styles.bebidaPrice}>
                   {unavailable

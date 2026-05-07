@@ -18,8 +18,7 @@ export default function CartGroupsList({
   onSetRemoved,
   onSetQty,
   onRemove,
-  onOpenExtrasModal,
-  onOpenRemoveModal,
+  onOpenModifyModal,
   onSetPromoPicks,
   burgersById = {},
   classes,
@@ -60,24 +59,22 @@ export default function CartGroupsList({
                   <CartItemCard
                     item={item}
                     onChangeNote={(value) => onSetItemNote(item.key, value)}
-                    onOpenRemoveModal={() => onOpenRemoveModal?.(item)}
+                    onOpenModify={() => onOpenModifyModal?.(item)}
                     onDecrease={() => onSetQty(item.key, item.qty - 1)}
                     onIncrease={() => onSetQty(item.key, item.qty + 1)}
                     onRemove={() => onRemove(item, group.key, index)}
-                    onOpenExtras={() => onOpenExtrasModal(item, "extras")}
-                    onOpenPapas={() => onOpenExtrasModal(item, "papas")}
                   promoPicks={isPromo ? item.meta?.picks || [] : []}
                     onPromoNoteChange={(pickIndex, value) => {
                     onSetPromoPicks(item.key, withPromoNote(item, pickIndex, value));
                   }}
                   onPromoPickExtras={(pickIndex) =>
-                    onOpenExtrasModal(item, "extras", pickIndex)
+                    onOpenModifyModal?.(item, "extras", pickIndex)
                   }
                   onPromoPickPapas={(pickIndex) =>
-                    onOpenExtrasModal(item, "papas", pickIndex)
+                    onOpenModifyModal?.(item, "papas", pickIndex)
                   }
                   onOpenPromoPickRemove={(pickIndex) =>
-                    onOpenRemoveModal?.(item, pickIndex)
+                    onOpenModifyModal?.(item, null, pickIndex)
                   }
                   canImprovePapas={canImprovePapas}
                   canAddExtras={canAddExtras}

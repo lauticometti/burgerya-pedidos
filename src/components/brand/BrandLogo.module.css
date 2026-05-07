@@ -13,7 +13,7 @@
 .wrap {
   display: flex;
   justify-content: center;
-  margin: 6px 0 14px;
+  margin: 4px 0 10px;
 }
 
 .link {
@@ -24,7 +24,7 @@
 
 .text {
   font-family: "Archivo Black", system-ui, sans-serif;
-  font-size: clamp(54px, 10.5vw, 96px);
+  font-size: clamp(38px, 7vw, 68px);
   letter-spacing: -1px;
   text-transform: none;
   color: #ffc62a;
