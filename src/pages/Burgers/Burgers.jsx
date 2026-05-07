@@ -185,12 +185,15 @@ export default function Burgers() {
     }
 
     const price = getBurgerPriceInfo(burger, size);
-    cart.add(
-      buildBurgerCartItem(burger, size, price, removedIngredients, extras, papas),
-    );
-    toast.success(buildBurgerAddedToastText(burger.name, size, burger.id), {
-      key: `burger-added:${burger.id}:${size}`,
-      ms: 1300,
+    const cartItem = buildBurgerCartItem(burger, size, price, removedIngredients, extras, papas);
+    cart.add(cartItem);
+    const hasCustomizations = removedIngredients.length > 0 || extras.length > 0 || papas.length > 0;
+    toast.success("Agregado al pedido", {
+      replaceGroup: "burger-added",
+      ms: hasCustomizations ? 1300 : 3500,
+      subtitle: buildBurgerAddedToastText(burger.name, size, burger.id),
+      actionLabel: hasCustomizations ? null : "Agregar otro igual",
+      onAction: hasCustomizations ? null : () => cart.add(cartItem),
     });
     if (!skipScroll) scrollToBurgerCard(burger.id);
   }
@@ -320,48 +323,41 @@ export default function Burgers() {
                         </div>
                       ) : (
                         <div className={styles.cardPricePreview}>
-                          {typeof simplePrice.basePrice === "number" &&
-                          simplePrice.basePrice > 0 ? (
-                            <span className={styles.cardPriceItem}>
-                              <span className={styles.cardPriceLabel}>Simple</span>
-                              {simplePrice.hasDiscount ? (
-                                <span className={styles.cardPriceValueOriginal}>
-                                  {formatMoney(simplePrice.basePrice)}
+                          {[
+                            { size: "simple", label: "Simple", info: simplePrice },
+                            { size: "doble", label: "Doble", info: doublePrice },
+                            { size: "triple", label: "Triple", info: triplePrice },
+                          ]
+                            .filter(
+                              ({ info }) =>
+                                typeof info.basePrice === "number" && info.basePrice > 0,
+                            )
+                            .map(({ size, label, info }) => (
+                              <button
+                                key={size}
+                                type="button"
+                                className={styles.cardPriceItem}
+                                disabled={isUnavailable}
+                                aria-label={`Agregar ${burger.name} ${label} por ${formatMoney(info.finalPrice)}`}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  if (isUnavailable) {
+                                    notifyUnavailableBurger(burger, unavailableReason);
+                                    return;
+                                  }
+                                  addBurgerToCart(burger, size);
+                                }}>
+                                <span className={styles.cardPriceLabel}>{label}</span>
+                                {info.hasDiscount ? (
+                                  <span className={styles.cardPriceValueOriginal}>
+                                    {formatMoney(info.basePrice)}
+                                  </span>
+                                ) : null}
+                                <span className={styles.cardPriceValue}>
+                                  {formatMoney(info.finalPrice)}
                                 </span>
-                              ) : null}
-                              <span className={styles.cardPriceValue}>
-                                {formatMoney(simplePrice.finalPrice)}
-                              </span>
-                            </span>
-                          ) : null}
-                          {typeof doublePrice.basePrice === "number" &&
-                          doublePrice.basePrice > 0 ? (
-                            <span className={styles.cardPriceItem}>
-                              <span className={styles.cardPriceLabel}>Doble</span>
-                              {doublePrice.hasDiscount ? (
-                                <span className={styles.cardPriceValueOriginal}>
-                                  {formatMoney(doublePrice.basePrice)}
-                                </span>
-                              ) : null}
-                              <span className={styles.cardPriceValue}>
-                                {formatMoney(doublePrice.finalPrice)}
-                              </span>
-                            </span>
-                          ) : null}
-                          {typeof triplePrice.basePrice === "number" &&
-                          triplePrice.basePrice > 0 ? (
-                            <span className={styles.cardPriceItem}>
-                              <span className={styles.cardPriceLabel}>Triple</span>
-                              {triplePrice.hasDiscount ? (
-                                <span className={styles.cardPriceValueOriginal}>
-                                  {formatMoney(triplePrice.basePrice)}
-                                </span>
-                              ) : null}
-                              <span className={styles.cardPriceValue}>
-                                {formatMoney(triplePrice.finalPrice)}
-                              </span>
-                            </span>
-                          ) : null}
+                              </button>
+                            ))}
                         </div>
                       )
                     ) : null}

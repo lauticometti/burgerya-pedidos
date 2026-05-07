@@ -106,22 +106,6 @@ export const burgers = [
     isAvailable: 1,
   },
 
-  // ESPECIALES (sin simple)
-  {
-    id: "titanica",
-    name: "Titanica",
-    tier: "ESPECIAL",
-    prices: { triple: 28000 },
-    desc: "Doble pan relleno de cheddar · Bacon · Cebolla caramelizada · Salsa especial",
-    removableIngredients: [
-      { id: "cheddar", label: "Cheddar" },
-      { id: "bacon", label: "Bacon" },
-      { id: "caramelized_onion", label: "Cebolla caramelizada" },
-      { id: "mil_islas", label: "Salsa Mil Islas" },
-    ],
-    img: "/burgers/titanica.svg",
-    isAvailable: 1,
-  },
 ];
 
 // Precios de promos (flyers)
