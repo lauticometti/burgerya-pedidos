@@ -5,7 +5,6 @@ export const COUPON_CODES = {
   oneTimeAmerican: "JUANSINLECHUGA",
   percent25: "JUAN25",
   weekend20: "20SABADO",
-  hiddenPapas: "JUERNES16",
 };
 
 // Variantes toleradas para que los clientes puedan escribir "combo ya" con espacios o guiones.
@@ -154,11 +153,6 @@ if (normalized === COUPON_CODES.weekend20) {
       discount,
       message: `${COUPON_CODES.weekend20} aplicado: 20% off hasta sábado 21 (BA)`,
     };
-  }
-
-  // JUERNES16 desactivado — se deja la rama lista para reactivar o reemplazar.
-  if (normalized === COUPON_CODES.hiddenPapas) {
-    return { error: "Código inválido", discount: 0 };
   }
 
   return { error: "Código inválido", discount: 0 };

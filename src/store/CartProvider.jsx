@@ -143,102 +143,43 @@ function reducer(state, action) {
       return hasChanges ? { ...state, items } : state;
     }
 
-    case "APPLY_CHEDDAR_BENEFIT": {
-      const items = { ...state.items };
-      // Buscar la primera burger del carrito
-      const burgerEntry = Object.entries(items).find(
-        ([, it]) => it.meta?.type === "burger",
-      );
-      if (!burgerEntry) return state;
-
-      const [burgerKey, burger] = burgerEntry;
-      const currentPapas = burger.papas || [];
-
-      // Si ya tiene cheddar (manual o free), marcarlo como beneficio gratis
-      const hasCheddar = currentPapas.some(
-        (p) => p.id === "papas_cheddar" || p.id === "papas_cheddar_bacon",
-      );
-
-      let newPapas;
-      if (hasCheddar) {
-        // Convertir el cheddar existente en gratis (price = 0)
-        newPapas = currentPapas.map((p) => {
-          if (p.id === "papas_cheddar") {
-            return { ...p, price: 0, originalPrice: p.price, benefitJuernes16: true };
-          }
-          if (p.id === "papas_cheddar_bacon") {
-            // Descontar $1500 (valor del cheddar)
-            return {
-              ...p,
-              price: Math.max(0, p.price - 1500),
-              originalPrice: p.price,
-              benefitJuernes16: true,
-            };
-          }
-          return p;
-        });
-      } else {
-        // Agregar cheddar con price = 0
-        newPapas = [
-          ...currentPapas,
-          {
-            id: "papas_cheddar",
-            name: "Cheddar",
-            price: 0,
-            originalPrice: 1500,
-            benefitJuernes16: true,
-            isAvailable: 1,
-          },
-        ];
-      }
-
-      return {
-        ...state,
-        items: {
-          ...items,
-          [burgerKey]: { ...burger, papas: newPapas },
-        },
-      };
-    }
-
-    case "REMOVE_CHEDDAR_BENEFIT": {
-      const items = { ...state.items };
-      const burgerEntry = Object.entries(items).find(([, it]) =>
-        (it.papas || []).some((p) => p.benefitJuernes16),
-      );
-      if (!burgerEntry) return state;
-
-      const [burgerKey, burger] = burgerEntry;
-      // Si el cheddar fue agregado por el código (no estaba antes), quitarlo.
-      // Si ya estaba, restaurar precio original.
-      const newPapas = (burger.papas || [])
-        .map((p) => {
-          if (!p.benefitJuernes16) return p;
-          // Si tenía originalPrice 1500 y fue agregado (price era 0), eliminarlo
-          if (p.id === "papas_cheddar" && p.originalPrice === 1500) {
-            return null;
-          }
-          // Restaurar precio original
-          const { benefitJuernes16, originalPrice, ...rest } = p;
-          return { ...rest, price: originalPrice ?? p.price };
-        })
-        .filter(Boolean);
-
-      return {
-        ...state,
-        items: {
-          ...items,
-          [burgerKey]: { ...burger, papas: newPapas },
-        },
-      };
-    }
-
     default:
       return state;
   }
 }
 
 const CART_STORAGE_KEY = "burgerya:cart:v1";
+
+const REMOVED_ITEM_IDS = new Set([
+  "cheddar_liq",
+  "porcion_grande_cheddar",
+  "porcion_grande_cheddar_bacon",
+  "dip_cheddar",
+]);
+
+const REMOVED_CART_KEY_PREFIXES = [
+  "papas:chica:cheddar",
+  "papas:grande:cheddar",
+  "papas:chica:cheddar_bacon",
+  "papas:grande:cheddar_bacon",
+  "papas:chica:bacon",
+  "papas:grande:bacon",
+];
+
+function sanitizePersistedItems(items) {
+  const cleaned = {};
+  let hadRemoved = false;
+  for (const [key, item] of Object.entries(items)) {
+    const isRemovedKey = REMOVED_CART_KEY_PREFIXES.some((prefix) => key.startsWith(prefix));
+    const isRemovedId = item.meta?.itemId && REMOVED_ITEM_IDS.has(item.meta.itemId);
+    if (isRemovedKey || isRemovedId) {
+      hadRemoved = true;
+      continue;
+    }
+    cleaned[key] = item;
+  }
+  return { cleaned, hadRemoved };
+}
 
 function loadPersistedState(initial) {
   if (typeof window === "undefined") return initial;
@@ -247,7 +188,11 @@ function loadPersistedState(initial) {
     if (!raw) return initial;
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== "object" || !parsed.items) return initial;
-    return { ...initial, items: parsed.items };
+    const { cleaned, hadRemoved } = sanitizePersistedItems(parsed.items);
+    if (hadRemoved) {
+      window.__cartHadRemovedItems = true;
+    }
+    return { ...initial, items: cleaned };
   } catch {
     return initial;
   }
@@ -260,6 +205,17 @@ export function CartProvider({ children }) {
     loadPersistedState,
   );
   const { closedToastText, dateKey, isClosed, minutes } = useStoreStatus();
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.__cartHadRemovedItems) {
+      window.__cartHadRemovedItems = false;
+      toast.show("Actualizamos el menú. Algunos productos ya no están disponibles.", {
+        key: "menu-update-removed",
+        kind: "promo",
+        ms: 4500,
+      });
+    }
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -372,8 +328,6 @@ export function CartProvider({ children }) {
         dispatch({ type: "SET_REMOVED", key, removedIngredients: removed }),
       setPromoPicks: (key, picks) =>
         dispatch({ type: "SET_PROMO_PICKS", key, picks }),
-      applyCheddarBenefit: () => dispatch({ type: "APPLY_CHEDDAR_BENEFIT" }),
-      removeCheddarBenefit: () => dispatch({ type: "REMOVE_CHEDDAR_BENEFIT" }),
     };
   }, [closedToastText, isClosed, state.items, state.lastAdded]);
 

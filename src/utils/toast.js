@@ -12,6 +12,10 @@ export const toast = {
       ms = 2200,
       key, // para dedupe
       sound = false,
+      actionLabel = null,   // texto del botón de acción
+      onAction = null,      // callback al presionar el botón
+      subtitle = null,      // texto secundario debajo del título
+      replaceGroup = null,  // si se define, reemplaza cualquier toast anterior del mismo grupo
     } = opts;
 
     const now = Date.now();
@@ -23,7 +27,7 @@ export const toast = {
     lastByKey.set(dedupeKey, now);
 
     const id = `${now}-${Math.random().toString(16).slice(2)}`;
-    emit({ id, message, kind, ms, sound });
+    emit({ id, message, kind, ms, sound, actionLabel, onAction, subtitle, replaceGroup });
   },
 
   success(message, opts = {}) {

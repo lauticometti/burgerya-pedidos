@@ -1,7 +1,7 @@
 ﻿import React from "react";
 import { useCart } from "../../store/useCart";
 import { burgers, papas } from "../../data/menu";
-import ItemExtrasModal from "../../components/ItemExtrasModal";
+import ModifyIngredientsModal from "../../components/carrito/ModifyIngredientsModal";
 import { formatMoney } from "../../utils/formatMoney";
 import Page from "../../components/layout/Page";
 import StickyBar from "../../components/layout/StickyBar";
@@ -12,7 +12,6 @@ import DeliveryDetailsCard from "../../components/carrito/DeliveryDetailsCard";
 import PaymentScheduleCard from "../../components/carrito/PaymentScheduleCard";
 import BebidasModal from "../../components/carrito/BebidasModal";
 import CartGroupsList from "../../components/carrito/CartGroupsList";
-import RemoveIngredientsModal from "../../components/carrito/RemoveIngredientsModal";
 import PageTitle from "../../components/ui/PageTitle";
 import BrandLogo from "../../components/brand/BrandLogo";
 import DeliveryMapLink from "../../components/delivery/DeliveryMapLink";
@@ -30,14 +29,13 @@ import useCarritoTimeSlots from "./useCarritoTimeSlots";
 import useCouponCode from "./useCouponCode";
 import CartUpsellBanner, { shouldShowBebidaUpsell } from "./CartUpsellBanner";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
-import { applyCheddarBlackout } from "../../utils/cheddarBlackout";
 import { buildPapasMejoras } from "../../utils/papasUpgradeOptions";
 import { useStoreStatus } from "../../utils/storeClosedMode";
 import { toast } from "../../utils/toast";
 
 export default function Carrito() {
   const cart = useCart();
-  const { closedActionLabel, closedToastText, isClosed, reopenText, dateKey } =
+  const { closedActionLabel, closedToastText, isClosed, reopenText, dateKey, showClosedBanner } =
     useStoreStatus();
 
   React.useEffect(() => {
@@ -95,7 +93,7 @@ export default function Carrito() {
   }, []);
 
   const { slotOptions } = useCarritoTimeSlots(whenMode, whenSlot, setWhenSlot);
-  const { couponCode, setCouponCode, appliedCoupon, totalDiscount, applyCoupon, removeCoupon, cheddarBenefitApplied } =
+  const { couponCode, setCouponCode, appliedCoupon, totalDiscount, applyCoupon, removeCoupon } =
     useCouponCode(cart.items, cart.total, cart);
 
   const totalWithDiscount = Math.max(0, cart.total - totalDiscount);
@@ -132,14 +130,26 @@ export default function Carrito() {
   }, [step]);
 
   const papasMejoras = React.useMemo(
-    () => buildPapasMejoras(applyCheddarBlackout(papas)),
-    [dateKey],
+    () => buildPapasMejoras(papas),
+    [],
   );
   const { extrasModal, removeModal, bebidaModal } = useCarritoModals(
     cart,
     burgersById,
     papasMejoras,
   );
+
+  const [modifyOpen, setModifyOpen] = React.useState(false);
+  const openModifyModal = React.useCallback((item, mode, pickIndex = null) => {
+    extrasModal.openExtrasModal(item, mode ?? "extras", pickIndex);
+    removeModal.openRemoveModal(item, pickIndex);
+    setModifyOpen(true);
+  }, [extrasModal, removeModal]);
+  const closeModifyModal = React.useCallback(() => {
+    setModifyOpen(false);
+    extrasModal.closeExtrasModal();
+    removeModal.closeRemoveModal();
+  }, [extrasModal, removeModal]);
 
   const groupedItems = React.useMemo(() => {
     return groupItemsByCategory(cart.items);
@@ -181,14 +191,19 @@ export default function Carrito() {
       ) : null}
 
       <div className={styles.steps}>
-        <Button size="sm" isActive={step === 1} onClick={() => setStep(1)}>
+        <Button
+          size="sm"
+          isActive={step === 1}
+          onClick={() => setStep(1)}
+          className={`${styles.stepButton}${step === 1 ? ` ${styles.stepButtonActive}` : ""}`}>
           1. Chequear pedido
         </Button>
         <Button
           size="sm"
           isActive={step === 2}
           onClick={() => setStep(2)}
-          disabled={!canContinue}>
+          disabled={!canContinue}
+          className={`${styles.stepButton}${step === 2 ? ` ${styles.stepButtonActive}` : ""}`}>
           2. Datos de entrega y pago
         </Button>
       </div>
@@ -220,8 +235,7 @@ export default function Carrito() {
                 onSetRemoved={cart.setRemovedIngredients}
                 onSetQty={cart.setQty}
                 onRemove={handleRemove}
-                onOpenExtrasModal={extrasModal.openExtrasModal}
-                onOpenRemoveModal={removeModal.openRemoveModal}
+                onOpenModifyModal={openModifyModal}
                 onSetPromoPicks={cart.setPromoPicks}
                 burgersById={burgersById}
                 classes={groupListClasses}
@@ -257,11 +271,7 @@ export default function Carrito() {
                   placeholder="Código de descuento"
                   value={couponCode}
                   onChange={(e) => {
-                    const val = e.target.value;
-                    setCouponCode(val);
-                    if (!val.trim() && cheddarBenefitApplied) {
-                      removeCoupon();
-                    }
+                    setCouponCode(e.target.value);
                   }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
@@ -280,17 +290,6 @@ export default function Carrito() {
               </div>
             </div>
           ) : null}
-          {cheddarBenefitApplied && (
-            <div className={styles.couponStatusLine}>
-              Cheddar en papas activado
-              <button
-                type="button"
-                className={styles.couponStatusRemove}
-                onClick={removeCoupon}>
-                Quitar
-              </button>
-            </div>
-          )}
         </>
       ) : (
         <>
@@ -350,6 +349,9 @@ export default function Carrito() {
           </div>
         ) : (
           <div className={styles.stickyRight}>
+            {showClosedBanner ? (
+              <div className={styles.stickyHint}>Cerrado</div>
+            ) : null}
             <a
               href={sendEnabled ? waHref : "#"}
               target="_blank"
@@ -358,26 +360,28 @@ export default function Carrito() {
                 {isClosed ? closedActionLabel : "Enviar por WhatsApp"}
               </Button>
             </a>
-            {isClosed ? (
+            {isClosed && !showClosedBanner ? (
               <div className={styles.stickyHint}>{reopenText}</div>
             ) : null}
           </div>
         )}
       </StickyBar>
 
-      <ItemExtrasModal
-        open={!!extrasModal.modalItem}
-        title={extrasModal.title}
-        description={extrasModal.description}
-        items={extrasModal.modalItems}
-        selectedIds={extrasModal.modalSelectedIds}
-        onToggle={extrasModal.toggleModalSelection}
-        onClose={extrasModal.closeExtrasModal}
-        onApply={extrasModal.applyModalSelection}
-        disableApply={extrasModal.disableApply}
-        applyLabel={extrasModal.applyLabel}
-        onClear={extrasModal.clearHandler}
-        clearLabel={extrasModal.clearLabel}
+      <ModifyIngredientsModal
+        open={modifyOpen}
+        title="Modificar ingredientes"
+        extras={extrasModal.modalItems || []}
+        selectedExtraIds={extrasModal.modalSelectedIds}
+        onToggleExtra={extrasModal.toggleModalSelection}
+        onApplyExtras={() => { extrasModal.applyModalSelection(); closeModifyModal(); }}
+        onClearExtras={extrasModal.clearHandler}
+        disableApplyExtras={extrasModal.disableApply}
+        removableIngredients={removeModal.modalIngredients}
+        removedIds={removeModal.modalSelectedIds}
+        onToggleRemove={removeModal.toggleSelection}
+        onApplyRemove={() => { removeModal.applySelection(); closeModifyModal(); }}
+        onClearRemove={removeModal.clearSelection}
+        onClose={closeModifyModal}
       />
       <BebidasModal
         open={bebidaModal.bebidaOpen}
@@ -386,16 +390,6 @@ export default function Carrito() {
         onChangeQty={bebidaModal.adjustBebidaQty}
         onClose={bebidaModal.closeBebidaModal}
         onApply={bebidaModal.applyBebidaSelection}
-      />
-      <RemoveIngredientsModal
-        open={!!removeModal.modalItem}
-        title={removeModal.title}
-        ingredients={removeModal.modalIngredients}
-        selectedIds={removeModal.modalSelectedIds}
-        onToggle={removeModal.toggleSelection}
-        onApply={removeModal.applySelection}
-        onClear={removeModal.clearSelection}
-        onClose={removeModal.closeRemoveModal}
       />
     </Page>
   );

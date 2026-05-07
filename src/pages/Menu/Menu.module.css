@@ -1,0 +1,379 @@
+/* ── Sections ── */
+.section {
+  margin-bottom: 56px;
+  scroll-margin-top: 80px;
+}
+
+.section:last-of-type {
+  margin-bottom: 0;
+}
+
+.sectionHead {
+  margin-bottom: 14px;
+  padding: 0 2px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: clamp(28px, 7vw, 44px);
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+.sectionSub {
+  margin: 4px 0 0;
+  font-size: 13px;
+  opacity: 0.6;
+  letter-spacing: 0.01em;
+}
+
+/* ── Featured burger del día ── */
+.featuredWrap {
+  margin-bottom: 20px;
+}
+
+/* ── Horizontal scroll row ── */
+.hscroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+  /* overflow peek: rompe solo el borde derecho del Page */
+  margin-right: calc(var(--page-padding) * -1);
+  padding-right: var(--page-padding);
+}
+.hscroll::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .hscroll {
+    margin-right: calc(var(--page-padding-lg) * -1);
+    padding-right: var(--page-padding-lg);
+  }
+}
+
+/* ── Burger cards — protagonistas ── */
+.burgerCard {
+  flex: 0 0 75%;
+  max-width: 340px;
+  scroll-snap-align: start;
+  border-radius: 20px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease;
+  position: relative;
+}
+
+.burgerCard:focus-visible {
+  outline: 2px solid rgba(232, 200, 74, 0.8);
+  outline-offset: 3px;
+}
+
+.burgerCard:hover:not(.cardUnavailable) {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.cardUnavailable {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: #ffcb3e;
+  color: #121212;
+  padding: 5px 10px;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.burgerImgWrap {
+  width: 100%;
+  height: clamp(160px, 48vw, 260px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  padding: 12px 12px 0;
+}
+
+.burgerImg {
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: center;
+  transition: transform 0.2s ease;
+}
+
+.burgerCard:hover:not(.cardUnavailable) .burgerImg {
+  transform: scale(1.02);
+}
+
+.burgerBody {
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.burgerName {
+  margin: 0;
+  font-size: clamp(20px, 5.5vw, 28px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-family: "Archivo Black", "Segoe UI", "Trebuchet MS", Arial, sans-serif;
+}
+
+.burgerDesc {
+  margin: 0;
+  font-size: 12px;
+  opacity: 0.65;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.burgerPrices {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+
+.priceBtn {
+  flex: 1;
+  min-width: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 6px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  text-align: center;
+}
+
+.priceBtn:hover:not(:disabled),
+.priceBtn:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.28);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.priceBtn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.priceBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.priceBtnLabel {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.priceBtnOriginal {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.38);
+  text-decoration: line-through;
+  line-height: 1;
+}
+
+.priceBtnValue {
+  font-size: 13px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+}
+
+.unavailableMsg {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffd786;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ── Papas row — compacto ── */
+.hscrollCompact .papasCard,
+.hscrollCompact .papasCardDip {
+  flex: 0 0 64%;
+  max-width: 240px;
+}
+
+.papasCard {
+  scroll-snap-align: start;
+  flex: 0 0 64%;
+  max-width: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.papasCard:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.papasCard:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.papasCardDip {
+  flex: 0 0 52%;
+  max-width: 200px;
+  background: rgba(255, 255, 255, 0.025);
+  border-color: rgba(255, 255, 255, 0.07);
+}
+
+.papasName {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.papasPrice {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* ── Bebidas row — pequeño ── */
+.hscrollSmall .bebidaCard {
+  flex: 0 0 52%;
+  max-width: 200px;
+}
+
+.bebidaImgWrap {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 110px;
+  margin-bottom: 4px;
+}
+
+.bebidaImg {
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.bebidaCard {
+  scroll-snap-align: start;
+  flex: 0 0 52%;
+  max-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.bebidaCard:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.bebidaCard:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bebidaName {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.bebidaPrice {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ── Delivery link ── */
+.deliveryLink {
+  margin: 32px 0 12px;
+}
+
+/* ── Desktop: más ancho para burgers ── */
+@media (min-width: 600px) {
+  .burgerCard {
+    flex: 0 0 360px;
+  }
+
+  .hscrollCompact .papasCard,
+  .hscrollCompact .papasCardDip {
+    flex: 0 0 260px;
+  }
+
+  .hscrollSmall .bebidaCard {
+    flex: 0 0 220px;
+  }
+}
+
+@media (min-width: 900px) {
+  .hscroll {
+    gap: 16px;
+  }
+
+  .burgerCard {
+    flex: 0 0 300px;
+  }
+}

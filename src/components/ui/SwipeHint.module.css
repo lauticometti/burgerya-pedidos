@@ -1,0 +1,33 @@
+.wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  color: rgba(255, 255, 255, 0.38);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hidden {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+.icon {
+  flex-shrink: 0;
+  animation: nudgeArrow 2s ease-in-out infinite;
+}
+
+@keyframes nudgeArrow {
+  0%, 100% { transform: translateX(0); }
+  50%       { transform: translateX(3px); }
+}

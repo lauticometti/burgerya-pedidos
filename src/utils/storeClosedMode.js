@@ -218,11 +218,46 @@ function getFridayPromoStatus(parts) {
   });
 }
 
+// Días de apertura (0=Dom, 1=Lun, ..., 6=Sab) y horario de apertura
+const OPEN_DAYS = new Set([0, 3, 4, 5, 6]); // Dom, Mié, Jue, Vie, Sáb
+const OPEN_HOUR = 20;
+const OPEN_MINUTE = 0;
+
+// El banner se muestra entre estas horas (en minutos desde medianoche)
+const BANNER_START_MINUTES = 30;  // 00:30
+const BANNER_END_MINUTES   = 19 * 60 + 30; // 19:30
+
+const DAY_NAMES = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+
+function getNextOpenText(parts) {
+  const { day, minutes } = parts;
+  const openMinutes = OPEN_HOUR * 60 + OPEN_MINUTE;
+
+  if (OPEN_DAYS.has(day) && minutes < openMinutes) {
+    return `Abrimos hoy a las ${OPEN_HOUR}:${String(OPEN_MINUTE).padStart(2, "0")}`;
+  }
+
+  for (let offset = 1; offset <= 7; offset++) {
+    const nextDay = (day + offset) % 7;
+    if (OPEN_DAYS.has(nextDay)) {
+      return `Abrimos el ${DAY_NAMES[nextDay]} a las ${OPEN_HOUR}:${String(OPEN_MINUTE).padStart(2, "0")}`;
+    }
+  }
+
+  return "Volvemos pronto";
+}
+
+function shouldShowClosedBanner(parts) {
+  const { minutes } = parts;
+  return minutes >= BANNER_START_MINUTES && minutes < BANNER_END_MINUTES;
+}
+
 export function getStoreStatus(date = null) {
   const resolvedDate = date instanceof Date ? date : getNowDate();
   const parts = getArgentinaTimeParts(resolvedDate);
   const promoStatus = getFridayPromoStatus(parts);
   const dailyFeature = getDailyFeature(resolvedDate);
+  const nextOpenText = getNextOpenText(parts);
 
   return {
     ...parts,
@@ -230,6 +265,8 @@ export function getStoreStatus(date = null) {
     isDailyFeaturePromoActive: dailyFeature !== null && dailyFeature.prices !== null,
     dailyFeatureBurgerId: dailyFeature?.burgerId || null,
     dailyFeatureWeekdayLabel: dailyFeature?.weekdayLabel || "",
+    nextOpenText,
+    showClosedBanner: shouldShowClosedBanner(parts),
   };
 }
 
