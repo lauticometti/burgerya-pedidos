@@ -1,0 +1,41 @@
+.nav {
+  position: sticky;
+  top: 10px;
+  z-index: 30;
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  margin-bottom: 20px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(17, 17, 17, 0.92);
+  backdrop-filter: blur(10px);
+  width: fit-content;
+}
+
+.chip {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.55);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+}
+
+.chip:hover:not(.chipActive) {
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.chipActive {
+  background: var(--y);
+  color: #111;
+  border-color: transparent;
+  font-weight: 800;
+}
