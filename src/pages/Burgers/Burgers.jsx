@@ -393,7 +393,6 @@ export default function Burgers() {
               const mejoras = opts.papasImprovements || [];
               const papasItems = mejoras
                 .map((id) => {
-                  if (id === "cheddar") return papasData.find((p) => p.id === "cheddar_liq");
                   if (id === "bacon") return papasData.find((p) => p.id === "papas_bacon");
                   return null;
                 })
@@ -405,7 +404,7 @@ export default function Burgers() {
               const papasKey = `papas:chica:${papasOptionId}`;
               const papasLabel = mejoras.length === 0
                 ? "Papas chicas solas"
-                : `Papas chicas con ${mejoras.map(id => id === "cheddar" ? "cheddar" : "bacon").join(" y ")}`;
+                : `Papas chicas con ${mejoras.map(() => "bacon").join(" y ")}`;
 
               cart.add({
                 key: papasKey,

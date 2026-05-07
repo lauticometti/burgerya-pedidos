@@ -30,14 +30,13 @@ import useCarritoTimeSlots from "./useCarritoTimeSlots";
 import useCouponCode from "./useCouponCode";
 import CartUpsellBanner, { shouldShowBebidaUpsell } from "./CartUpsellBanner";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
-import { applyCheddarBlackout } from "../../utils/cheddarBlackout";
 import { buildPapasMejoras } from "../../utils/papasUpgradeOptions";
 import { useStoreStatus } from "../../utils/storeClosedMode";
 import { toast } from "../../utils/toast";
 
 export default function Carrito() {
   const cart = useCart();
-  const { closedActionLabel, closedToastText, isClosed, reopenText, dateKey } =
+  const { closedActionLabel, closedToastText, isClosed, reopenText, dateKey, showClosedBanner } =
     useStoreStatus();
 
   React.useEffect(() => {
@@ -95,7 +94,7 @@ export default function Carrito() {
   }, []);
 
   const { slotOptions } = useCarritoTimeSlots(whenMode, whenSlot, setWhenSlot);
-  const { couponCode, setCouponCode, appliedCoupon, totalDiscount, applyCoupon, removeCoupon, cheddarBenefitApplied } =
+  const { couponCode, setCouponCode, appliedCoupon, totalDiscount, applyCoupon, removeCoupon } =
     useCouponCode(cart.items, cart.total, cart);
 
   const totalWithDiscount = Math.max(0, cart.total - totalDiscount);
@@ -132,8 +131,8 @@ export default function Carrito() {
   }, [step]);
 
   const papasMejoras = React.useMemo(
-    () => buildPapasMejoras(applyCheddarBlackout(papas)),
-    [dateKey],
+    () => buildPapasMejoras(papas),
+    [],
   );
   const { extrasModal, removeModal, bebidaModal } = useCarritoModals(
     cart,
@@ -257,11 +256,7 @@ export default function Carrito() {
                   placeholder="Código de descuento"
                   value={couponCode}
                   onChange={(e) => {
-                    const val = e.target.value;
-                    setCouponCode(val);
-                    if (!val.trim() && cheddarBenefitApplied) {
-                      removeCoupon();
-                    }
+                    setCouponCode(e.target.value);
                   }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
@@ -280,17 +275,6 @@ export default function Carrito() {
               </div>
             </div>
           ) : null}
-          {cheddarBenefitApplied && (
-            <div className={styles.couponStatusLine}>
-              Cheddar en papas activado
-              <button
-                type="button"
-                className={styles.couponStatusRemove}
-                onClick={removeCoupon}>
-                Quitar
-              </button>
-            </div>
-          )}
         </>
       ) : (
         <>
@@ -350,6 +334,9 @@ export default function Carrito() {
           </div>
         ) : (
           <div className={styles.stickyRight}>
+            {showClosedBanner ? (
+              <div className={styles.stickyHint}>Cerrado</div>
+            ) : null}
             <a
               href={sendEnabled ? waHref : "#"}
               target="_blank"
@@ -358,7 +345,7 @@ export default function Carrito() {
                 {isClosed ? closedActionLabel : "Enviar por WhatsApp"}
               </Button>
             </a>
-            {isClosed ? (
+            {isClosed && !showClosedBanner ? (
               <div className={styles.stickyHint}>{reopenText}</div>
             ) : null}
           </div>

@@ -42,31 +42,8 @@ export function buildPapasBase(papasById) {
 export function buildPapasOptionsBySize(papasById) {
   const baseChica = getPrice(papasById, "porcion_extra");
   const baseGrande = getPrice(papasById, "porcion_grande_solas");
-  const cheddarPrice = getPrice(papasById, "cheddar_liq");
   const baconPrice = getPrice(papasById, "papas_bacon");
-
-  const cheddarAvailability = getAvailability(papasById, "cheddar_liq");
   const baconAvailability = getAvailability(papasById, "papas_bacon");
-  const grandeCheddarAvailability = getAvailability(papasById, "porcion_grande_cheddar");
-  const grandeCheddarBaconAvailability = getAvailability(
-    papasById,
-    "porcion_grande_cheddar_bacon",
-  );
-
-  const grandeCheddarPrice =
-    getPrice(papasById, "porcion_grande_cheddar") || baseGrande + cheddarPrice;
-  const grandeCheddarBaconPrice =
-    getPrice(papasById, "porcion_grande_cheddar_bacon") ||
-    baseGrande + cheddarPrice + baconPrice;
-
-  const cheddarBaconAvailability = {
-    isAvailable: cheddarAvailability.isAvailable && baconAvailability.isAvailable,
-    unavailableReason: !cheddarAvailability.isAvailable
-      ? cheddarAvailability.unavailableReason
-      : !baconAvailability.isAvailable
-      ? baconAvailability.unavailableReason
-      : undefined,
-  };
 
   return {
     chica: [
@@ -77,16 +54,10 @@ export function buildPapasOptionsBySize(papasById) {
         ...getAvailability(papasById, "porcion_extra"),
       },
       {
-        id: "cheddar",
-        label: "Con cheddar",
-        price: baseChica + cheddarPrice,
-        ...cheddarAvailability,
-      },
-      {
-        id: "cheddar_bacon",
-        label: "Con cheddar (incluye bacon)",
-        price: baseChica + cheddarPrice + baconPrice,
-        ...cheddarBaconAvailability,
+        id: "bacon",
+        label: "Con bacon",
+        price: baseChica + baconPrice,
+        ...baconAvailability,
       },
     ],
     grande: [
@@ -97,16 +68,10 @@ export function buildPapasOptionsBySize(papasById) {
         ...getAvailability(papasById, "porcion_grande_solas"),
       },
       {
-        id: "cheddar",
-        label: "Con cheddar",
-        price: grandeCheddarPrice,
-        ...grandeCheddarAvailability,
-      },
-      {
-        id: "cheddar_bacon",
-        label: "Con cheddar (incluye bacon)",
-        price: grandeCheddarBaconPrice,
-        ...grandeCheddarBaconAvailability,
+        id: "bacon",
+        label: "Con bacon",
+        price: baseGrande + baconPrice,
+        ...baconAvailability,
       },
     ],
   };

@@ -9,7 +9,6 @@ import { resolvePublicPath } from "../../utils/assetPath";
 import { getBurgerPriceInfo } from "../../utils/burgerPricing";
 import { formatMoney } from "../../utils/formatMoney";
 import { buildPapasMejoras } from "../../utils/papasUpgradeOptions";
-import { applyCheddarBlackout } from "../../utils/cheddarBlackout";
 import { useStoreStatus } from "../../utils/storeClosedMode";
 import styles from "./BurgerModal.module.css";
 
@@ -40,11 +39,11 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
   const [wantsPapas, setWantsPapas] = React.useState(false);
   const [papasImprovements, setPapasImprovements] = React.useState([]);
 
-  const { closedActionLabel, isClosed, reopenText, dateKey } = useStoreStatus();
+  const { closedActionLabel, isClosed, reopenText } = useStoreStatus();
 
   const papasMejoras = React.useMemo(
-    () => buildPapasMejoras(applyCheddarBlackout(papas)),
-    [dateKey],
+    () => buildPapasMejoras(papas),
+    [],
   );
   const extrasItems = extras;
   const hasNestedModalOpen =
@@ -222,28 +221,17 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
                   type="button"
                   className={`${styles.papasUpsell} ${wantsPapas ? styles.papasUpsellOn : ""}`}
                   onClick={() => setWantsPapas((prev) => !prev)}>
-                  {wantsPapas ? "✓ Papas sumadas +$3.000" : "Sumar papas +$3.000"}
+                  {wantsPapas ? (
+                    <>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+                      {" "}Papas sumadas +$3.000
+                    </>
+                  ) : "Sumar papas +$3.000"}
                 </button>
-                {wantsPapas ? (
+                {false && wantsPapas ? (
                   <div className={styles.papasImprovementsGroup}>
                     <div className={styles.papasImprovementsLabel}>Mejorar papas:</div>
                     <div className={styles.papasImprovementsButtons}>
-                      <button
-                        type="button"
-                        className={`${styles.improveBtn} ${
-                          papasImprovements.includes("cheddar")
-                            ? styles.improveBtnOn
-                            : ""
-                        }`}
-                        onClick={() => {
-                          setPapasImprovements((prev) =>
-                            prev.includes("cheddar")
-                              ? prev.filter((id) => id !== "cheddar")
-                              : [...prev, "cheddar"]
-                          );
-                        }}>
-                        Cheddar +$1.500
-                      </button>
                       <button
                         type="button"
                         className={`${styles.improveBtn} ${
@@ -277,7 +265,7 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
                 <Button size="sm" onClick={openExtrasModal}>
                   Agregados
                 </Button>
-                {burger.id !== "cheese_promo" ? (
+                {false && burger.id !== "cheese_promo" ? (
                   <Button
                     size="sm"
                     onClick={openPapasModal}

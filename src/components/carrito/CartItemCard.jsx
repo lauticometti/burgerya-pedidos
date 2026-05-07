@@ -140,7 +140,7 @@ export default function CartItemCard({
               Agregados
             </Button>
           ) : null}
-          {canImprovePapas && burgerId !== "cheese_promo" ? (
+          {false && canImprovePapas && burgerId !== "cheese_promo" ? (
             <Button
               size="sm"
               onClick={onOpenPapas}

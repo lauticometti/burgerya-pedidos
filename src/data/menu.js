@@ -105,7 +105,6 @@ export const burgers = [
     img: "/burgers/smoklahoma.svg",
     isAvailable: 1,
   },
-
 ];
 
 // Precios de promos (flyers)
@@ -138,12 +137,6 @@ export const extras = [
     price: 3500,
     isAvailable: 1,
   },
-  {
-    id: "cheddar_extra",
-    name: "Cheddar",
-    price: 1000,
-    isAvailable: 1,
-  },
   { id: "bacon_crocante", name: "Bacon", price: 1500, isAvailable: 1 },
   {
     id: "cebolla_caram",
@@ -152,26 +145,14 @@ export const extras = [
     isAvailable: 1,
   },
   { id: "pepinos", name: "Pepinos", price: 800, isAvailable: 1 },
-  { id: "huevo", name: "Huevo frito", price: 800, isAvailable: 0 },
-  { id: "papas_burger", name: "Papas", price: 800, isAvailable: 1 },
   { id: "lechuga", name: "Lechuga", price: 500, isAvailable: 1 },
   { id: "tomate", name: "Tomate", price: 500, isAvailable: 1 },
   { id: "cebolla", name: "Cebolla", price: 500, isAvailable: 1 },
   { id: "salsa_mil_islas", name: "Mil Islas", price: 500, isAvailable: 1 },
   { id: "salsa_bbq", name: "Barbacoa", price: 500, isAvailable: 1 },
-  { id: "salsa_ketchup", name: "Ketchup", price: 500, isAvailable: 1 },
-  { id: "salsa_mostaza", name: "Mostaza", price: 500, isAvailable: 1 },
 ];
 
 export const papas = [
-  {
-    id: "cheddar_liq",
-    name: "Cheddar",
-    price: 1500,
-    isAvailable: 0,
-    unavailableReason: undefined,
-  },
-  { id: "papas_bacon", name: "Bacon", price: 1500, isAvailable: 1 },
   {
     id: "porcion_extra",
     name: "Porción de papas extras",
@@ -183,27 +164,6 @@ export const papas = [
     name: "Porción grande sola",
     price: 9000,
     isAvailable: 1,
-  },
-  {
-    id: "porcion_grande_cheddar",
-    name: "Porción grande con cheddar",
-    price: 11000,
-    isAvailable: 0,
-    unavailableReason: undefined,
-  },
-  {
-    id: "porcion_grande_cheddar_bacon",
-    name: "Porción grande con cheddar y bacon",
-    price: 13000,
-    isAvailable: 0,
-    unavailableReason: undefined,
-  },
-  {
-    id: "dip_cheddar",
-    name: "Dip de cheddar",
-    price: 2000,
-    isAvailable: 0,
-    unavailableReason: undefined,
   },
   {
     id: "dip_mil_islas",
