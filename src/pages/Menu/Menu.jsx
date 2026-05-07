@@ -528,7 +528,7 @@ export default function Menu() {
                       ? isClosed
                         ? reopenText
                         : item.unavailableReason || "no disponible"
-                      : `+ ${formatMoney(item.price)}`}
+                      : formatMoney(item.price)}
                   </span>
                 </div>
                 {item.img && (
