@@ -50,8 +50,18 @@ export default function Papas() {
 
   function openModal(size) {
     if (!canAddItem()) return;
+    const options = optionsBySize[size] || [];
+    if (options.length === 1) {
+      const [only] = options;
+      if (showUnavailableError(only, TOAST_KEYS.PAPAS_OPTION_UNAVAILABLE(size, only.id))) return;
+      const cartItem = buildPapasCartItem(size, only);
+      if (!cartItem) return;
+      cart.add(cartItem);
+      toast.added(cartItem.name);
+      return;
+    }
     setActiveSize(size);
-    setSelectedOptionId("solas");
+    setSelectedOptionId("sola");
     setModalOpen(true);
   }
 
@@ -77,7 +87,7 @@ export default function Papas() {
     const cartItem = buildPapasCartItem(activeSize, picked);
     if (!cartItem) return;
     cart.add(cartItem);
-    toast.success(`+ ${cartItem.name}`);
+    toast.added(cartItem.name);
     closeModal();
   }
 
@@ -119,7 +129,7 @@ export default function Papas() {
                   )
                     return;
                   cart.add(createPapasItem(item));
-                  toast.success(`+ ${item.name}`);
+                  toast.added(item.name);
                 }}
               />
             ))}
@@ -159,7 +169,7 @@ export default function Papas() {
                     unitPrice: item.price,
                     meta: { type: "bebida" },
                   });
-                  toast.success(`+ ${item.name}`);
+                  toast.added(item.name);
                 }}
               />
             ))}
@@ -185,7 +195,7 @@ export default function Papas() {
       </StickyBar>
       <PapasOptionModal
         open={modalOpen}
-        title={activeSize === "chica" ? "Papas chicas" : "Papas grandes"}
+        title={activeSize === "chica" ? "Papas extra chicas" : "Papas extra grandes"}
         options={activeSize ? optionsBySize[activeSize] : []}
         selectedId={selectedOptionId}
         onSelect={setSelectedOptionId}

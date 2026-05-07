@@ -23,35 +23,14 @@ function IconX() {
   );
 }
 
-function IconCheck() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-}
 
 function ToastItem({ t, onDismiss }) {
   const timerRef = React.useRef(null);
-  const [confirmed, setConfirmed] = React.useState(false);
-
-  function scheduleClose(ms) {
-    clearTimeout(timerRef.current);
-    timerRef.current = window.setTimeout(onDismiss, ms);
-  }
 
   React.useEffect(() => {
-    scheduleClose(t.ms);
+    timerRef.current = window.setTimeout(onDismiss, t.ms);
     return () => clearTimeout(timerRef.current);
   }, []);
-
-  function handleAction() {
-    t.onAction();
-    setConfirmed(true);
-    scheduleClose(2000);
-    setTimeout(() => setConfirmed(false), 800);
-  }
 
   const kindClass = t.kind === "error" ? styles.error
     : t.kind === "promo" ? styles.promo
@@ -76,16 +55,6 @@ function ToastItem({ t, onDismiss }) {
         </button>
       </div>
 
-      {t.actionLabel && t.onAction ? (
-        <button
-          type="button"
-          className={`${styles.actionBtn} ${confirmed ? styles.actionConfirmed : ""}`}
-          onClick={handleAction}>
-          {confirmed
-            ? <><IconCheck /> Otro sumado</>
-            : t.actionLabel}
-        </button>
-      ) : null}
     </div>
   );
 }

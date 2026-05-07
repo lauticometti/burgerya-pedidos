@@ -48,6 +48,16 @@ export const toast = {
       subs = subs.filter((x) => x !== fn);
     };
   },
+
+  added(productName, opts = {}) {
+    this.show("Agregado al pedido", {
+      replaceGroup: "cart-added",
+      ms: 2200,
+      subtitle: `✔ ${productName}`,
+      ...opts,
+      kind: "success",
+    });
+  },
 };
 
 // sonido simple (sin archivos)

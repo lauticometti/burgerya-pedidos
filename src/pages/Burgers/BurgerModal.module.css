@@ -54,8 +54,9 @@
 
 .closeButton {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 12px;
+  right: 14px;
+  z-index: 10;
 }
 
 .img {
@@ -124,10 +125,11 @@
   display: grid;
   gap: 10px;
   overflow-y: auto;
-  padding-right: 6px;
+  padding-right: 8px;
   padding-bottom: 10px;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 198, 42, 0.6) rgba(255, 255, 255, 0.08);
+  scrollbar-gutter: stable;
   scroll-behavior: smooth;
 }
 

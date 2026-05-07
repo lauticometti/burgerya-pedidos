@@ -26,13 +26,13 @@ export function buildPapasBase(papasById) {
   return [
     {
       id: "papas_chicas",
-      label: "Papas chicas",
+      label: "Papas extra chicas",
       size: "chica",
       basePrice: getPrice(papasById, "porcion_extra"),
     },
     {
       id: "papas_grandes",
-      label: "Papas grandes",
+      label: "Papas extra grandes",
       size: "grande",
       basePrice: getPrice(papasById, "porcion_grande_solas"),
     },
@@ -42,36 +42,22 @@ export function buildPapasBase(papasById) {
 export function buildPapasOptionsBySize(papasById) {
   const baseChica = getPrice(papasById, "porcion_extra");
   const baseGrande = getPrice(papasById, "porcion_grande_solas");
-  const baconPrice = getPrice(papasById, "papas_bacon");
-  const baconAvailability = getAvailability(papasById, "papas_bacon");
 
   return {
     chica: [
       {
-        id: "solas",
-        label: "Solas",
+        id: "sola",
+        label: "Papas extra chicas",
         price: baseChica,
         ...getAvailability(papasById, "porcion_extra"),
-      },
-      {
-        id: "bacon",
-        label: "Con bacon",
-        price: baseChica + baconPrice,
-        ...baconAvailability,
       },
     ],
     grande: [
       {
-        id: "solas",
-        label: "Solas",
+        id: "sola",
+        label: "Papas extra grandes",
         price: baseGrande,
         ...getAvailability(papasById, "porcion_grande_solas"),
-      },
-      {
-        id: "bacon",
-        label: "Con bacon",
-        price: baseGrande + baconPrice,
-        ...baconAvailability,
       },
     ],
   };
@@ -80,12 +66,10 @@ export function buildPapasOptionsBySize(papasById) {
 export function buildPapasCartItem(size, option) {
   if (!size || !option) return null;
 
-  const sizeLabel = size === "chica" ? "Papas chicas" : "Papas grandes";
-  const optionLabel = option.label.charAt(0).toLowerCase() + option.label.slice(1);
-  const name = `${sizeLabel} ${optionLabel}`;
+  const name = size === "chica" ? "Papas extra chicas" : "Papas extra grandes";
 
   return {
-    key: `papas:${size}:${option.id}`,
+    key: `papas:${size}`,
     name,
     qty: 1,
     unitPrice: option.price,

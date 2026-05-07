@@ -19,6 +19,7 @@ import { toast } from "../../utils/toast";
 import { createPapasItem } from "../../utils/cartItemBuilders";
 import { useListingPageActions } from "../../hooks/useListingPageActions";
 import { useScrollProgress } from "../../hooks/useScrollProgress";
+import { useCarouselControls } from "../../hooks/useCarouselControls";
 import { TOAST_KEYS } from "../../constants/toastKeys";
 import ScrollBar from "../../components/ui/ScrollBar";
 import BurgerDelDia from "../Burgers/BurgerDelDia";
@@ -39,9 +40,26 @@ import {
   indexPapasById,
 } from "../Papas/papasUtils";
 
+function ChevronBtn({ dir, disabled, onClick }) {
+  return (
+    <button
+      type="button"
+      className={`${styles.arrowBtn} ${dir === "left" ? styles.arrowLeft : styles.arrowRight}`}
+      disabled={disabled}
+      onClick={onClick}
+      aria-label={dir === "left" ? "Anterior" : "Siguiente"}>
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+        {dir === "left"
+          ? <polyline points="8,1 3,6 8,11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          : <polyline points="4,1 9,6 4,11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />}
+      </svg>
+    </button>
+  );
+}
+
 const BURGER_ROWS = [
-  { id: "bacon", emphasis: "top", badge: "TOP" },
   { id: "cheese", emphasis: "top", badge: "TOP" },
+  { id: "bacon", emphasis: "top", badge: "TOP" },
   { id: "lautiboom", emphasis: "mid" },
   { id: "american", emphasis: "mid" },
   { id: "bbqueen", emphasis: "deluxe" },
@@ -115,6 +133,11 @@ export default function Menu() {
   const burgerProgress = useScrollProgress(burgersScrollRef);
   const papasProgress = useScrollProgress(papasScrollRef);
   const bebidasProgress = useScrollProgress(bebidasScrollRef);
+
+  // Desktop carousel controls (arrows, wheel, drag)
+  const burgersControls = useCarouselControls(burgersScrollRef, 320);
+  const papasControls = useCarouselControls(papasScrollRef, 260);
+  const bebidasControls = useCarouselControls(bebidasScrollRef, 220);
 
   // IntersectionObserver para marcar sección activa
   React.useEffect(() => {
@@ -212,12 +235,8 @@ export default function Menu() {
     const cartItem = buildBurgerCartItem(burger, size, price, removedIngredients, extras, papas);
     cart.add(cartItem);
     const hasCustomizations = removedIngredients.length > 0 || extras.length > 0 || papas.length > 0;
-    toast.success("Agregado al pedido", {
-      replaceGroup: "burger-added",
-      ms: hasCustomizations ? 1300 : 3500,
-      subtitle: buildBurgerAddedToastText(burger.name, size, burger.id),
-      actionLabel: hasCustomizations ? null : "Agregar otro igual",
-      onAction: hasCustomizations ? null : () => cart.add(cartItem),
+    toast.added(buildBurgerAddedToastText(burger.name, size, burger.id), {
+      ms: hasCustomizations ? 1300 : 2200,
     });
     if (!skipScroll) scrollToBurgerCard(burger.id);
   }
@@ -225,8 +244,18 @@ export default function Menu() {
   // Papas actions
   function openPapasModal(size) {
     if (!canAddItem()) return;
+    const options = optionsBySize[size] || [];
+    if (options.length === 1) {
+      const [only] = options;
+      if (showUnavailableError(only, TOAST_KEYS.PAPAS_OPTION_UNAVAILABLE?.(size, only.id))) return;
+      const cartItem = buildPapasCartItem(size, only);
+      if (!cartItem) return;
+      cart.add(cartItem);
+      toast.added(cartItem.name);
+      return;
+    }
     setActiveSize(size);
-    setSelectedOptionId("solas");
+    setSelectedOptionId("sola");
     setPapasModalOpen(true);
   }
 
@@ -245,7 +274,7 @@ export default function Menu() {
     const cartItem = buildPapasCartItem(activeSize, picked);
     if (!cartItem) return;
     cart.add(cartItem);
-    toast.success(`+ ${cartItem.name}`);
+    toast.added(cartItem.name);
     closePapasModal();
   }
 
@@ -260,10 +289,6 @@ export default function Menu() {
         ref={burgersRef}
         id="section-burgers"
         className={styles.section}>
-        <div className={styles.sectionHead}>
-          <h2 className={styles.sectionTitle}>Burgers</h2>
-          <p className={styles.sectionSub}>Smash. Cheddar. Punto.</p>
-        </div>
         {featuredBurger ? (
           <div className={styles.featuredWrap}>
             <BurgerDelDia
@@ -280,7 +305,25 @@ export default function Menu() {
           </div>
         ) : null}
 
-        <div className={styles.hscroll} ref={burgersScrollRef} data-section="burgers">
+        <div className={styles.sectionHead}>
+          <h2 className={styles.sectionTitle}>
+            Burgers
+            <span className={styles.sectionTitleSide}>con papas</span>
+          </h2>
+          <p className={styles.sectionSub}>Smash. Cheddar. Punto.</p>
+        </div>
+
+        <div className={styles.carouselWrap}>
+          <ChevronBtn dir="left" disabled={!burgersControls.canScrollLeft} onClick={burgersControls.scrollPrev} />
+          <ChevronBtn dir="right" disabled={!burgersControls.canScrollRight} onClick={burgersControls.scrollNext} />
+        <div
+          className={styles.hscroll}
+          ref={burgersScrollRef}
+          data-section="burgers"
+          onMouseDown={burgersControls.onMouseDown}
+          onMouseMove={burgersControls.onMouseMove}
+          onMouseUp={burgersControls.onMouseUp}
+          onMouseLeave={burgersControls.onMouseLeave}>
           {burgerItems.map((entry, i) => {
             const burger = entry.burger;
             const isStoreLocked = isClosed && !canPreviewMenu;
@@ -346,7 +389,7 @@ export default function Menu() {
                               notifyUnavailableBurger(burger, unavailableReason);
                               return;
                             }
-                            addBurgerToCart(burger, size);
+                            addBurgerToCart(burger, size, {}, { skipScroll: true });
                           }}>
                           <span className={styles.priceBtnLabel}>{label}</span>
                           {info.hasDiscount ? (
@@ -368,6 +411,7 @@ export default function Menu() {
             );
           })}
         </div>
+        </div>
         <ScrollBar progress={burgerProgress} />
       </section>
 
@@ -377,10 +421,20 @@ export default function Menu() {
         id="section-papas"
         className={styles.section}>
         <div className={styles.sectionHead}>
-          <h2 className={styles.sectionTitle}>Papas</h2>
-          <p className={styles.sectionSub}>Chicas o grandes. Con bacon o solas.</p>
+          <h2 className={styles.sectionTitle}>Papas extra</h2>
+          <p className={styles.sectionSub}>Las burgers del menú ya incluyen papas. Estas son porciones extra.</p>
         </div>
-        <div className={`${styles.hscroll} ${styles.hscrollCompact}`} ref={papasScrollRef} data-section="papas">
+        <div className={styles.carouselWrap}>
+          <ChevronBtn dir="left" disabled={!papasControls.canScrollLeft} onClick={papasControls.scrollPrev} />
+          <ChevronBtn dir="right" disabled={!papasControls.canScrollRight} onClick={papasControls.scrollNext} />
+        <div
+          className={`${styles.hscroll} ${styles.hscrollCompact}`}
+          ref={papasScrollRef}
+          data-section="papas"
+          onMouseDown={papasControls.onMouseDown}
+          onMouseMove={papasControls.onMouseMove}
+          onMouseUp={papasControls.onMouseUp}
+          onMouseLeave={papasControls.onMouseLeave}>
           {papasBase.map((item) => (
             <button
               key={item.id}
@@ -390,7 +444,7 @@ export default function Menu() {
               onClick={() => openPapasModal(item.size)}>
               <span className={styles.papasName}>{item.label}</span>
               <span className={styles.papasPrice}>
-                {isClosed ? reopenText : `desde ${formatMoney(item.basePrice)}`}
+                {isClosed ? reopenText : formatMoney(item.basePrice)}
               </span>
             </button>
           ))}
@@ -406,7 +460,7 @@ export default function Menu() {
                   if (!canAddItem()) return;
                   if (showUnavailableError(item, `papas-dip-unavailable:${item.id}`)) return;
                   cart.add(createPapasItem(item));
-                  toast.success(`+ ${item.name}`);
+                  toast.added(item.name);
                 }}>
                 <span className={styles.papasName}>{item.name}</span>
                 <span className={styles.papasPrice}>
@@ -415,6 +469,7 @@ export default function Menu() {
               </button>
             );
           })}
+        </div>
         </div>
         <ScrollBar progress={papasProgress} />
       </section>
@@ -427,7 +482,17 @@ export default function Menu() {
         <div className={styles.sectionHead}>
           <h2 className={styles.sectionTitle}>Bebidas</h2>
         </div>
-        <div className={`${styles.hscroll} ${styles.hscrollSmall}`} ref={bebidasScrollRef} data-section="bebidas">
+        <div className={styles.carouselWrap}>
+          <ChevronBtn dir="left" disabled={!bebidasControls.canScrollLeft} onClick={bebidasControls.scrollPrev} />
+          <ChevronBtn dir="right" disabled={!bebidasControls.canScrollRight} onClick={bebidasControls.scrollNext} />
+        <div
+          className={`${styles.hscroll} ${styles.hscrollSmall}`}
+          ref={bebidasScrollRef}
+          data-section="bebidas"
+          onMouseDown={bebidasControls.onMouseDown}
+          onMouseMove={bebidasControls.onMouseMove}
+          onMouseUp={bebidasControls.onMouseUp}
+          onMouseLeave={bebidasControls.onMouseLeave}>
           {bebidas.map((item) => {
             const unavailable = isClosed || isItemUnavailable(item);
             return (
@@ -454,24 +519,31 @@ export default function Menu() {
                     unitPrice: item.price,
                     meta: { type: "bebida" },
                   });
-                  toast.success(`+ ${item.name}`);
+                  toast.added(item.name);
                 }}>
+                <div className={styles.bebidaInfo}>
+                  <span className={styles.bebidaName}>{item.name}</span>
+                  <span className={styles.bebidaPrice}>
+                    {unavailable
+                      ? isClosed
+                        ? reopenText
+                        : item.unavailableReason || "no disponible"
+                      : `+ ${formatMoney(item.price)}`}
+                  </span>
+                </div>
                 {item.img && (
                   <div className={styles.bebidaImgWrap}>
-                    <img src={item.img} alt={item.name} className={styles.bebidaImg} />
+                    <img
+                      src={item.img}
+                      alt={item.name}
+                      className={`${styles.bebidaImg}${item.id === "coca_225" ? ` ${styles.bebidaLarge}` : ""}`}
+                    />
                   </div>
                 )}
-                <span className={styles.bebidaName}>{item.name}</span>
-                <span className={styles.bebidaPrice}>
-                  {unavailable
-                    ? isClosed
-                      ? reopenText
-                      : item.unavailableReason || "no disponible"
-                    : `+ ${formatMoney(item.price)}`}
-                </span>
               </button>
             );
           })}
+        </div>
         </div>
         <ScrollBar progress={bebidasProgress} />
       </section>
@@ -527,7 +599,7 @@ export default function Menu() {
 
       <PapasOptionModal
         open={papasModalOpen}
-        title={activeSize === "chica" ? "Papas chicas" : "Papas grandes"}
+        title={activeSize === "chica" ? "Papas extra chicas" : "Papas extra grandes"}
         options={activeSize ? optionsBySize[activeSize] : []}
         selectedId={selectedOptionId}
         onSelect={setSelectedOptionId}

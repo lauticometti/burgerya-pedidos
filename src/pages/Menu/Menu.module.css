@@ -20,6 +20,17 @@
   line-height: 0.92;
   letter-spacing: -0.03em;
   text-transform: uppercase;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.sectionTitleSide {
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffc62a;
+  letter-spacing: 0.02em;
+  text-transform: none;
 }
 
 .sectionSub {
@@ -32,6 +43,72 @@
 /* ── Featured burger del día ── */
 .featuredWrap {
   margin-bottom: 20px;
+}
+
+/* ── Carousel wrapper ── */
+.carouselWrap {
+  position: relative;
+}
+
+/* Flechas: visibles en todos los breakpoints */
+.arrowBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(10, 10, 10, 0.68);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  color: #fff;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+  padding: 0;
+}
+
+.arrowBtn:disabled {
+  display: none;
+}
+
+.arrowLeft { left: 6px; }
+.arrowRight { right: 6px; }
+
+/* Mobile: tap sube opacidad brevemente */
+.arrowBtn:active {
+  opacity: 0.85;
+}
+
+/* Tablet y desktop */
+@media (min-width: 768px) {
+  .arrowBtn {
+    width: 32px;
+    height: 32px;
+    opacity: 0.72;
+  }
+
+  .arrowLeft { left: 8px; }
+  .arrowRight { right: 8px; }
+
+  .hscroll {
+    cursor: grab;
+  }
+
+  .hscroll:active {
+    cursor: grabbing;
+  }
+}
+
+/* Hover solo en dispositivos que lo soporten */
+@media (hover: hover) {
+  .carouselWrap:hover .arrowBtn:not(:disabled) {
+    opacity: 1;
+  }
 }
 
 /* ── Horizontal scroll row ── */
@@ -285,36 +362,17 @@
   color: rgba(255, 255, 255, 0.55);
 }
 
-/* ── Bebidas row — pequeño ── */
-.hscrollSmall .bebidaCard {
-  flex: 0 0 52%;
-  max-width: 200px;
-}
-
-.bebidaImgWrap {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 110px;
-  margin-bottom: 4px;
-}
-
-.bebidaImg {
-  height: 100%;
-  width: auto;
-  max-width: 100%;
-  object-fit: contain;
-}
-
+/* ── Bebidas — layout horizontal compacto ── */
 .bebidaCard {
   scroll-snap-align: start;
-  flex: 0 0 52%;
-  max-width: 200px;
+  flex: 0 0 64%;
+  max-width: 260px;
+  min-height: 116px;
+  max-height: 134px;
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 14px 12px;
+  flex-direction: row;
+  align-items: stretch;
+  padding: 12px 0 12px 14px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -323,6 +381,8 @@
   cursor: pointer;
   text-align: left;
   transition: background 0.15s ease, border-color 0.15s ease;
+  overflow: hidden;
+  position: relative;
 }
 
 .bebidaCard:hover:not(:disabled) {
@@ -335,16 +395,49 @@
   cursor: not-allowed;
 }
 
+.bebidaInfo {
+  flex: 1 1 58%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  z-index: 1;
+}
+
 .bebidaName {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   line-height: 1.2;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 .bebidaPrice {
   font-size: 12px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.5);
+  opacity: 0.6;
+}
+
+.bebidaImgWrap {
+  flex: 0 0 38%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 6px 10px 6px 0;
+}
+
+.bebidaImg {
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: center right;
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,0.45));
+}
+
+.bebidaLarge {
+  height: 110%;
 }
 
 /* ── Delivery link ── */

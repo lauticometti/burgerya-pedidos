@@ -192,12 +192,6 @@ export default function CartItemCard({
                       Agregados
                     </Button>
                   ) : null}
-                  <Button
-                    size="xs"
-                    onClick={() => onPromoPickPapas?.(index)}
-                    className={styles.papasButton}>
-                    Mejorar Papas
-                  </Button>
                 </div>
                 {getPickRemovables(pick).length ? (
                   <Button

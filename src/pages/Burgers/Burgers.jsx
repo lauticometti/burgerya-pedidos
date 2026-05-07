@@ -188,12 +188,8 @@ export default function Burgers() {
     const cartItem = buildBurgerCartItem(burger, size, price, removedIngredients, extras, papas);
     cart.add(cartItem);
     const hasCustomizations = removedIngredients.length > 0 || extras.length > 0 || papas.length > 0;
-    toast.success("Agregado al pedido", {
-      replaceGroup: "burger-added",
-      ms: hasCustomizations ? 1300 : 3500,
-      subtitle: buildBurgerAddedToastText(burger.name, size, burger.id),
-      actionLabel: hasCustomizations ? null : "Agregar otro igual",
-      onAction: hasCustomizations ? null : () => cart.add(cartItem),
+    toast.added(buildBurgerAddedToastText(burger.name, size, burger.id), {
+      ms: hasCustomizations ? 1300 : 2200,
     });
     if (!skipScroll) scrollToBurgerCard(burger.id);
   }
@@ -307,7 +303,7 @@ export default function Burgers() {
                                     notifyUnavailableBurger(burger, unavailableReason);
                                     return;
                                   }
-                                  addBurgerToCart(burger, size);
+                                  addBurgerToCart(burger, size, {}, { skipScroll: true });
                                 }}>
                                 <span className={styles.cardPriceHoyLabel}>{label}</span>
                                 {info.hasDiscount ? (
@@ -345,7 +341,7 @@ export default function Burgers() {
                                     notifyUnavailableBurger(burger, unavailableReason);
                                     return;
                                   }
-                                  addBurgerToCart(burger, size);
+                                  addBurgerToCart(burger, size, {}, { skipScroll: true });
                                 }}>
                                 <span className={styles.cardPriceLabel}>{label}</span>
                                 {info.hasDiscount ? (

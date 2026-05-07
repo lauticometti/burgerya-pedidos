@@ -21,7 +21,7 @@ export const burgers = [
     name: "Cheese",
     tier: "BASICA",
     prices: { simple: 10500, doble: 14000, triple: 17500 },
-    desc: "Doble cheddar",
+    desc: "Pan de papa, carne smash, cheddar",
     removableIngredients: [{ id: "cheddar", label: "Cheddar" }],
     img: "/burgers/cheese.svg",
     isAvailable: 1,
@@ -182,5 +182,11 @@ export const bebidas = [
     unavailableReason: "Temporalmente no disponible",
     img: "/bebidas/coca-cola-600ml.svg",
   },
-  { id: "coca_225", name: "Coca Cola 2.25L", price: 6000, isAvailable: 1, img: "/bebidas/coca-cola-225l.svg" },
+  {
+    id: "coca_225",
+    name: "Coca Cola 2.25L",
+    price: 6000,
+    isAvailable: 1,
+    img: "/bebidas/coca-cola-225l.svg",
+  },
 ];

@@ -1,24 +1,25 @@
 .wrap {
   position: fixed;
+  top: calc(var(--sticky-top, 72px) + 8px);
   left: 50%;
-  bottom: calc(92px + 12px);
+  bottom: auto;
   transform: translateX(-50%);
   z-index: 9999;
   display: grid;
   gap: 8px;
-  width: calc(100% - 24px);
-  max-width: 360px;
+  width: min(360px, calc(100vw - 32px));
   pointer-events: none;
 }
 
 /* ── Contenedor del toast ── */
 .toast {
   pointer-events: auto;
-  border-radius: 14px;
-  padding: 14px 14px 12px;
-  display: grid;
-  gap: 10px;
-  transform: translateY(10px);
+  border-radius: 16px;
+  padding: 11px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transform: translateY(-10px);
   opacity: 0;
   animation: toastIn 200ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
@@ -47,15 +48,15 @@
 /* ── Fila principal: ícono + texto + cerrar ── */
 .row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
 }
 
 .iconWrap {
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
   background: rgba(255, 198, 42, 0.1);
   border: 1px solid rgba(255, 198, 42, 0.2);
   display: flex;
@@ -69,8 +70,7 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding-top: 2px;
+  gap: 1px;
 }
 
 .title {

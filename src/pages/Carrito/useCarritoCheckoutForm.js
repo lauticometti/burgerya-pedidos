@@ -1,6 +1,7 @@
 import React from "react";
 
 const STORAGE_KEY = "burgerya_carrito_form";
+const VALID_WHEN_OPTIONS = ["Ahora", "Mas tarde"];
 
 export default function useCarritoCheckoutForm() {
   // Consolidated state
@@ -11,7 +12,7 @@ export default function useCarritoCheckoutForm() {
     cross: "",
     pay: "Efectivo",
     notes: "",
-    whenMode: "Ya",
+    whenMode: "Ahora",
     whenSlot: "",
   });
 
@@ -22,6 +23,9 @@ export default function useCarritoCheckoutForm() {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
       const saved = JSON.parse(raw);
+      if (!VALID_WHEN_OPTIONS.includes(saved.whenMode)) {
+        saved.whenMode = "Ahora";
+      }
       setFormData((prev) => ({ ...prev, ...saved }));
     } catch {
       // ignore storage errors

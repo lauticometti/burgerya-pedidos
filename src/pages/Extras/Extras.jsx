@@ -31,7 +31,7 @@ export default function Extras() {
     )
       return;
     cart.add(createExtrasItem(x));
-    toast.success(`+ ${x.name}`);
+    toast.added(x.name);
   }
 
   return (

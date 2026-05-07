@@ -89,7 +89,7 @@ export default function Combos() {
         includes: ["papas", "coca_600"],
       },
     });
-    toast.success(`+ ${combo.title} con ${burger.name}`);
+    toast.added(`${combo.title} con ${burger.name}`);
   }
 
   return (

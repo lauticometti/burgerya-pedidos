@@ -67,7 +67,7 @@ export function buildBurgerCartItem(
 
 export function buildBurgerAddedToastText(burgerName, size, burgerId) {
   if (burgerId === "cheese_promo") {
-    return `\u2714 ${burgerName} agregado`;
+    return `${burgerName} agregado`;
   }
-  return `\u2714 ${burgerName} ${size} agregado`;
+  return `${burgerName} ${size} agregado`;
 }

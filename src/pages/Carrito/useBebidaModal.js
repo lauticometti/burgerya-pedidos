@@ -46,8 +46,8 @@ export default function useBebidaModal({ cart, bebidaItems }) {
       cart.add(createBebidaItem(item, qty));
     });
 
-    toast.success(
-      selected.length === 1 ? `+ ${selected[0].name}` : "Bebidas agregadas.",
+    toast.added(
+      selected.length === 1 ? selected[0].name : "Bebidas",
     );
 
     closeBebidaModal();
