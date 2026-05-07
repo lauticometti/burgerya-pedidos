@@ -613,7 +613,7 @@ export default function Menu() {
       <FloatingCartPill
         total={cart.total}
         itemCount={cart.items.reduce((sum, i) => sum + (i.qty ?? 1), 0)}
-        visible={cart.items.length > 0}
+        visible={cart.items.length > 0 && !modalOpen}
       />
     </Page>
   );

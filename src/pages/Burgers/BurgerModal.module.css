@@ -442,6 +442,7 @@
   display: grid;
   gap: 6px;
   padding-top: 10px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   background: linear-gradient(180deg, rgba(15, 15, 16, 0), #0f0f10 18px);
 }
