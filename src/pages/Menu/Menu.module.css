@@ -184,12 +184,12 @@
 
 .burgerImgWrap {
   width: 100%;
-  height: clamp(160px, 48vw, 260px);
+  height: clamp(200px, 58vw, 320px);
   display: flex;
   align-items: center;
   justify-content: center;
   background: transparent;
-  padding: 12px 12px 0;
+  padding: 0 8px;
 }
 
 .burgerImg {
