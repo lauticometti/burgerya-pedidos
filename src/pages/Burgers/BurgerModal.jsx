@@ -75,6 +75,15 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
   useEscapeToClose(open && !hasNestedModalOpen, onClose);
 
   React.useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
+  React.useEffect(() => {
     if (!open) {
       setShow(false);
       setModals((prev) => ({
