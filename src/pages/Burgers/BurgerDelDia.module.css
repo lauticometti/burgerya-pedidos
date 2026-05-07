@@ -64,7 +64,7 @@
   height: 100%;
   max-width: 100%;
   object-fit: contain;
-  transform: scale(1.02) translateY(18px);
+  transform: scale(1.02);
   filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.6));
   pointer-events: none;
   user-select: none;
