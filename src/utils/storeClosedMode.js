@@ -218,38 +218,53 @@ function getFridayPromoStatus(parts) {
   });
 }
 
-// Días de apertura (0=Dom, 1=Lun, ..., 6=Sab) y horario de apertura
-const OPEN_DAYS = new Set([0, 3, 4, 5, 6]); // Dom, Mié, Jue, Vie, Sáb
-const OPEN_HOUR = 20;
-const OPEN_MINUTE = 0;
-
-// El banner se muestra entre estas horas (en minutos desde medianoche)
-const BANNER_START_MINUTES = 30;  // 00:30
-const BANNER_END_MINUTES   = 19 * 60 + 30; // 19:30
-
 const DAY_NAMES = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+
+// Turnos de apertura: cada entrada define días habilitados y rango horario (en minutos desde medianoche)
+// day indices: 0=Dom, 1=Lun, 2=Mar, 3=Mié, 4=Jue, 5=Vie, 6=Sáb
+const SHIFTS = [
+  { days: new Set([1, 2, 3, 4, 5, 6]), open: 12 * 60, close: 15 * 60, label: "12:00" }, // Lun–Sáb mediodía
+  { days: new Set([0, 3, 4, 5, 6]),    open: 20 * 60, close: 24 * 60, label: "20:00" }, // Mié–Dom noche
+];
+
+function getActiveShift(day, minutes) {
+  return SHIFTS.find((s) => s.days.has(day) && minutes >= s.open && minutes < s.close) ?? null;
+}
+
+function getNextShift(day, minutes) {
+  // Busca el próximo turno dentro de los próximos 7 días (incluyendo hoy)
+  for (let offset = 0; offset <= 7; offset++) {
+    const checkDay = (day + offset) % 7;
+    const shiftsToday = SHIFTS.filter((s) => s.days.has(checkDay)).sort((a, b) => a.open - b.open);
+    for (const shift of shiftsToday) {
+      if (offset > 0 || minutes < shift.open) {
+        return { shift, dayOffset: offset };
+      }
+    }
+  }
+  return null;
+}
 
 function getNextOpenText(parts) {
   const { day, minutes } = parts;
-  const openMinutes = OPEN_HOUR * 60 + OPEN_MINUTE;
+  const next = getNextShift(day, minutes);
+  if (!next) return "Volvemos pronto";
 
-  if (OPEN_DAYS.has(day) && minutes < openMinutes) {
-    return `Abrimos hoy a las ${OPEN_HOUR}:${String(OPEN_MINUTE).padStart(2, "0")}`;
-  }
-
-  for (let offset = 1; offset <= 7; offset++) {
-    const nextDay = (day + offset) % 7;
-    if (OPEN_DAYS.has(nextDay)) {
-      return `Abrimos el ${DAY_NAMES[nextDay]} a las ${OPEN_HOUR}:${String(OPEN_MINUTE).padStart(2, "0")}`;
-    }
-  }
-
-  return "Volvemos pronto";
+  const { shift, dayOffset } = next;
+  if (dayOffset === 0) return `Abrimos hoy a las ${shift.label}`;
+  if (dayOffset === 1) return `Abrimos mañana a las ${shift.label}`;
+  return `Abrimos el ${DAY_NAMES[(day + dayOffset) % 7]} a las ${shift.label}`;
 }
 
+// El banner de cerrado se muestra fuera del horario de apertura (excepto madrugada temprana)
+const BANNER_START_MINUTES = 30;   // 00:30
+const BANNER_END_MINUTES   = 11 * 60 + 30; // 11:30 (antes del turno mediodía)
+
 function shouldShowClosedBanner(parts) {
-  const { minutes } = parts;
-  return minutes >= BANNER_START_MINUTES && minutes < BANNER_END_MINUTES;
+  const { day, minutes } = parts;
+  if (getActiveShift(day, minutes)) return false;
+  return minutes >= BANNER_START_MINUTES && minutes < BANNER_END_MINUTES ||
+    (minutes >= 15 * 60 && minutes < 19 * 60 + 30); // entre turnos (15:00–19:30)
 }
 
 export function getStoreStatus(date = null) {
@@ -258,10 +273,24 @@ export function getStoreStatus(date = null) {
   const promoStatus = getFridayPromoStatus(parts);
   const dailyFeature = getDailyFeature(resolvedDate);
   const nextOpenText = getNextOpenText(parts);
+  const isOpenNow = getActiveShift(parts.day, parts.minutes) !== null;
+
+  const baseStatus = promoStatus || buildStatusState();
+  const closedOverrides = isOpenNow
+    ? {}
+    : {
+        isOpenNow: false,
+        isClosed: true,
+        canPreviewMenu: true,
+        statusTone: "closed",
+        closedToastText: "El local está cerrado ahora",
+        reopenText: nextOpenText,
+      };
 
   return {
     ...parts,
-    ...(promoStatus || buildStatusState()),
+    ...baseStatus,
+    ...closedOverrides,
     isDailyFeaturePromoActive: dailyFeature !== null && dailyFeature.prices !== null,
     dailyFeatureBurgerId: dailyFeature?.burgerId || null,
     dailyFeatureWeekdayLabel: dailyFeature?.weekdayLabel || "",
