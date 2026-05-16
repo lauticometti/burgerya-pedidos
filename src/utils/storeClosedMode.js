@@ -224,7 +224,7 @@ const DAY_NAMES = ["domingo", "lunes", "martes", "miércoles", "jueves", "vierne
 // day indices: 0=Dom, 1=Lun, 2=Mar, 3=Mié, 4=Jue, 5=Vie, 6=Sáb
 const SHIFTS = [
   { days: new Set([1, 2, 3, 4, 5, 6]), open: 12 * 60, close: 15 * 60, label: "12:00" }, // Lun–Sáb mediodía
-  { days: new Set([0, 3, 4, 5, 6]),    open: 20 * 60, close: 24 * 60, label: "20:00" }, // Mié–Dom noche
+  { days: new Set([0, 3, 4, 5, 6]),    open: 19 * 60, close: 24 * 60, label: "19:00" }, // Mié–Dom noche
 ];
 
 function getActiveShift(day, minutes) {
@@ -264,7 +264,7 @@ function shouldShowClosedBanner(parts) {
   const { day, minutes } = parts;
   if (getActiveShift(day, minutes)) return false;
   return minutes >= BANNER_START_MINUTES && minutes < BANNER_END_MINUTES ||
-    (minutes >= 15 * 60 && minutes < 19 * 60 + 30); // entre turnos (15:00–19:30)
+    (minutes >= 15 * 60 && minutes < 19 * 60); // entre turnos (15:00–19:00)
 }
 
 export function getStoreStatus(date = null) {
