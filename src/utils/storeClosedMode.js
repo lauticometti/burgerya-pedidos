@@ -8,6 +8,7 @@ export const FRIDAY_TRIPLE_PROMO_BADGE_TEXT = "TRIPLE = DOBLE";
 export const DAILY_FEATURE_PROMO_OFFER_ID = "daily_feature";
 
 const MANUAL_STORE_STATUS_DATE = null;
+const FORCE_OPEN = true; // override manual: forzar apertura fuera de horario
 const WEEKDAY_INDEX = {
   Sun: 0,
   Mon: 1,
@@ -273,7 +274,7 @@ export function getStoreStatus(date = null) {
   const promoStatus = getFridayPromoStatus(parts);
   const dailyFeature = getDailyFeature(resolvedDate);
   const nextOpenText = getNextOpenText(parts);
-  const isOpenNow = getActiveShift(parts.day, parts.minutes) !== null;
+  const isOpenNow = FORCE_OPEN || getActiveShift(parts.day, parts.minutes) !== null;
 
   const baseStatus = promoStatus || buildStatusState();
   const closedOverrides = isOpenNow
