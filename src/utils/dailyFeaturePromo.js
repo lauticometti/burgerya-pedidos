@@ -11,7 +11,7 @@ export const STOCK_FALLBACK_ID = null;
 // Sets de precios promo del día.
 const PRICES_PREMIUM = { simple: 11000, doble: 13500, triple: 17500 }; // original: 11500/15000/18500
 const PRICES_DELUXE  = { simple: 11500, doble: 14000, triple: 18000 }; // original: 12000/15500/19000
-const PRICES_CHEESE  = { simple:  9000, doble: 12500, triple: 16000 }; // original: 10500/14000/17500
+const PRICES_CHEESE  = { simple: 10000, doble: 13000, triple: 17000 }; // original: 10500/14000/17500
 
 // día (0=Dom..6=Sáb) → burger destacada + precios promo del día.
 const DAILY_FEATURE_BY_WEEKDAY = {

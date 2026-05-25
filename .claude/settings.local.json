@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(npm run:*)",
-      "Bash(git pull *)"
+      "Bash(git pull *)",
+      "Bash(start http://localhost:5173)"
     ]
   }
 }
