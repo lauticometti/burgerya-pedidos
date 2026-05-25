@@ -8,7 +8,27 @@ export const FRIDAY_TRIPLE_PROMO_BADGE_TEXT = "TRIPLE = DOBLE";
 export const DAILY_FEATURE_PROMO_OFFER_ID = "daily_feature";
 
 const MANUAL_STORE_STATUS_DATE = null;
-const FORCE_OPEN = true; // override manual: forzar apertura fuera de horario
+const FORCE_OPEN = false; // override manual: forzar apertura fuera de horario
+
+// Feriados nacionales Argentina 2026 (formato YYYY-MM-DD, hora Argentina)
+const FERIADOS_2026 = new Set([
+  "2026-01-01", // Año Nuevo
+  "2026-02-16", // Carnaval
+  "2026-02-17", // Carnaval
+  "2026-03-24", // Día de la Memoria
+  "2026-04-02", // Malvinas
+  "2026-04-03", // Viernes Santo
+  "2026-05-01", // Día del Trabajador
+  "2026-05-25", // Revolución de Mayo
+  "2026-06-15", // Paso a la Inmortalidad de Güemes
+  "2026-06-20", // Paso a la Inmortalidad de Belgrano
+  "2026-07-09", // Independencia
+  "2026-08-17", // Paso a la Inmortalidad de San Martín
+  "2026-10-12", // Día del Respeto a la Diversidad Cultural
+  "2026-11-23", // Día de la Soberanía Nacional
+  "2026-12-08", // Inmaculada Concepción de María
+  "2026-12-25", // Navidad
+]);
 const WEEKDAY_INDEX = {
   Sun: 0,
   Mon: 1,
@@ -228,15 +248,32 @@ const SHIFTS = [
   { days: new Set([0, 3, 4, 5, 6]),    open: 19 * 60 + 30, close: 24 * 60, label: "19:30" }, // Mié–Dom noche
 ];
 
-function getActiveShift(day, minutes) {
+function isFeriado(dateKey) {
+  return FERIADOS_2026.has(dateKey);
+}
+
+const FERIADO_SHIFTS = [
+  { open: 11 * 60 + 30, close: 15 * 60,     label: "11:30" },
+  { open: 19 * 60 + 30, close: 24 * 60,     label: "19:30" },
+];
+
+function getActiveShift(day, minutes, dateKey = "") {
+  if (isFeriado(dateKey)) {
+    return FERIADO_SHIFTS.find((s) => minutes >= s.open && minutes < s.close) ?? null;
+  }
   return SHIFTS.find((s) => s.days.has(day) && minutes >= s.open && minutes < s.close) ?? null;
 }
 
-function getNextShift(day, minutes) {
+function getNextShift(day, minutes, dateKey = "") {
   // Busca el próximo turno dentro de los próximos 7 días (incluyendo hoy)
   for (let offset = 0; offset <= 7; offset++) {
     const checkDay = (day + offset) % 7;
-    const shiftsToday = SHIFTS.filter((s) => s.days.has(checkDay)).sort((a, b) => a.open - b.open);
+    let shiftsToday;
+    if (offset === 0 && isFeriado(dateKey)) {
+      shiftsToday = [...FERIADO_SHIFTS].sort((a, b) => a.open - b.open);
+    } else {
+      shiftsToday = SHIFTS.filter((s) => s.days.has(checkDay)).sort((a, b) => a.open - b.open);
+    }
     for (const shift of shiftsToday) {
       if (offset > 0 || minutes < shift.open) {
         return { shift, dayOffset: offset };
@@ -247,8 +284,8 @@ function getNextShift(day, minutes) {
 }
 
 function getNextOpenText(parts) {
-  const { day, minutes } = parts;
-  const next = getNextShift(day, minutes);
+  const { day, minutes, dateKey } = parts;
+  const next = getNextShift(day, minutes, dateKey);
   if (!next) return "Volvemos pronto";
 
   const { shift, dayOffset } = next;
@@ -262,8 +299,8 @@ const BANNER_START_MINUTES = 30;   // 00:30
 const BANNER_END_MINUTES   = 11 * 60; // 11:00 (antes del turno mediodía 11:30)
 
 function shouldShowClosedBanner(parts) {
-  const { day, minutes } = parts;
-  if (getActiveShift(day, minutes)) return false;
+  const { day, minutes, dateKey } = parts;
+  if (getActiveShift(day, minutes, dateKey)) return false;
   return minutes >= BANNER_START_MINUTES && minutes < BANNER_END_MINUTES ||
     (minutes >= 15 * 60 && minutes < 19 * 60 + 30); // entre turnos (15:00–19:30)
 }
@@ -274,7 +311,7 @@ export function getStoreStatus(date = null) {
   const promoStatus = getFridayPromoStatus(parts);
   const dailyFeature = getDailyFeature(resolvedDate);
   const nextOpenText = getNextOpenText(parts);
-  const isOpenNow = FORCE_OPEN || getActiveShift(parts.day, parts.minutes) !== null;
+  const isOpenNow = FORCE_OPEN || getActiveShift(parts.day, parts.minutes, parts.dateKey) !== null;
 
   const baseStatus = promoStatus || buildStatusState();
   const closedOverrides = isOpenNow
