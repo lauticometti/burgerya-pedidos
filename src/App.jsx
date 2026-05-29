@@ -12,7 +12,7 @@ import Envios from "./pages/Envios/Envios";
 const MAINTENANCE_MODE = false;
 
 // Dia de la Hamburguesa — para desactivar: cambiar EVENT_MODE_ACTIVE a false
-const EVENT_MODE_ACTIVE = true;
+const EVENT_MODE_ACTIVE = false;
 
 function EventPage() {
   const block = {
