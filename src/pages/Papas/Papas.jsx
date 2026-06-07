@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { papas, bebidas } from "../../data/menu";
 import { useCart } from "../../store/useCart";
 import { toast } from "../../utils/toast";
-import { isItemUnavailable } from "../../utils/availability";
+import { getUnavailableReason, isItemUnavailable } from "../../utils/availability";
 import TopNav from "../../components/TopNav";
 import Page from "../../components/layout/Page";
 import StickyBar from "../../components/layout/StickyBar";
@@ -22,13 +22,13 @@ import {
 } from "./papasUtils";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
 import { useStoreStatus } from "../../utils/storeClosedMode";
-import { createPapasItem } from "../../utils/cartItemBuilders";
 import { TOAST_KEYS } from "../../constants/toastKeys";
 import { useListingPageActions } from "../../hooks/useListingPageActions";
 
 export default function Papas() {
   const cart = useCart();
-  const { closedActionLabel, isClosed, reopenText } = useStoreStatus();
+  const { closedActionLabel, closedToastText, isClosed, reopenText } =
+    useStoreStatus();
   const { canAddItem, showUnavailableError } = useListingPageActions({
     toastKey: TOAST_KEYS.STORE_CLOSED_PAPAS,
   });
@@ -45,7 +45,6 @@ export default function Papas() {
     [papasById],
   );
 
-  const dipItems = adjustedPapas.filter((item) => item.id.startsWith("dip_"));
   const bebidaItems = bebidas || [];
 
   function openModal(size) {
@@ -95,7 +94,7 @@ export default function Papas() {
     <Page>
       <BrandLogo />
       <TopNav />
-      <PageTitle>Papas y más</PageTitle>
+      <PageTitle>Papas y bebidas</PageTitle>
       <ClosedInlineNotice />
       <div className={styles.list}>
         {papasBase.map((item) => (
@@ -109,33 +108,6 @@ export default function Papas() {
           />
         ))}
       </div>
-      {dipItems.length ? (
-        <>
-          <div className={styles.sectionLabel}>Dips</div>
-          <div className={styles.list}>
-            {dipItems.map((item) => (
-              <PapasItem
-                key={item.id}
-                item={item}
-                isUnavailable={isClosed || isItemUnavailable(item)}
-                unavailableReason={isClosed ? reopenText : item.unavailableReason}
-                onAdd={() => {
-                  if (!canAddItem()) return;
-                  if (
-                    showUnavailableError(
-                      item,
-                      TOAST_KEYS.ITEM_UNAVAILABLE_PAPAS_DIP(item.id),
-                    )
-                  )
-                    return;
-                  cart.add(createPapasItem(item));
-                  toast.added(item.name);
-                }}
-              />
-            ))}
-          </div>
-        </>
-      ) : null}
       {bebidaItems.length ? (
         <>
           <div className={styles.sectionLabel} id="bebidas">

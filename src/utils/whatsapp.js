@@ -64,7 +64,10 @@ export function buildWhatsAppText({
     }
 
     for (const it of groupItems) {
-      if (it.meta?.type === "papas" && it.key?.startsWith("papas:dip_")) {
+      if (
+        it.meta?.type === "dip" ||
+        (it.meta?.type === "papas" && it.key?.startsWith("papas:dip_"))
+      ) {
         // Extras/dips destacados
         const sizeLabel = getSizeLabel(it);
         const sizeSuffix = sizeLabel ? ` ${sizeLabel}` : "";

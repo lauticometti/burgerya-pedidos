@@ -10,6 +10,7 @@ export const TOAST_KEYS = {
   STORE_CLOSED_PAPAS_DIP: "store-closed-papas-dip",
   STORE_CLOSED_EXTRAS: "store-closed-extras",
   STORE_CLOSED_COMBOS: "store-closed-combos",
+  STORE_CLOSED_DIPS: "store-closed-dips",
   STORE_CLOSED_BEBIDAS: "store-closed-bebidas",
   STORE_CLOSED_BEBIDAS_MODAL: "store-closed-bebidas-modal",
   STORE_CLOSED_CARRITO: "store-closed-carrito",
@@ -21,6 +22,7 @@ export const TOAST_KEYS = {
   ITEM_UNAVAILABLE_EXTRAS: (id) => `extras-unavailable:${id}`,
   ITEM_UNAVAILABLE_COMBOS: (id) => `combo-unavailable:${id}`,
   ITEM_UNAVAILABLE_BEBIDAS: (id) => `bebida-unavailable:${id}`,
+  ITEM_UNAVAILABLE_DIPS: (id) => `dip-unavailable:${id}`,
 
   // Papas options
   PAPAS_OPTION_UNAVAILABLE: (size, id) => `papas-option-unavailable:${size}:${id}`,

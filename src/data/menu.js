@@ -165,10 +165,15 @@ export const papas = [
     price: 9000,
     isAvailable: 1,
   },
+];
+
+export const dips = [
   {
     id: "dip_mil_islas",
     name: "Dip de salsa secreta",
+    ingredients: "Mayonesa, ketchup, mostaza y algo más.",
     price: 1000,
+    img: "/dips/dip-salsa-secreta.svg",
     isAvailable: 1,
   },
 ];

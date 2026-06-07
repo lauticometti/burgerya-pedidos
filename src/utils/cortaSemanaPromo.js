@@ -1,4 +1,4 @@
-import { burgers, papas } from "../data/menu";
+import { burgers, dips } from "../data/menu";
 import { toast } from "./toast";
 
 export const CORTA_SEMANA_PROMO_ID = "corta_semana_bacon_lautiboom";
@@ -14,8 +14,8 @@ function findBurger(id) {
   return burgers.find((b) => b.id === id);
 }
 
-function findPapas(id) {
-  return papas.find((p) => p.id === id);
+function findDip(id) {
+  return dips.find((d) => d.id === id);
 }
 
 function buildLockedBurgerItem(burgerId, size, unitPrice) {
@@ -45,15 +45,15 @@ function buildLockedBurgerItem(burgerId, size, unitPrice) {
 }
 
 function buildLockedDipItem(dipId, unitPrice) {
-  const dip = findPapas(dipId);
+  const dip = findDip(dipId);
   if (!dip) return null;
   return {
-    key: `papas:${dip.id}`,
+    key: `dip:${dip.id}`,
     name: dip.name,
     qty: 1,
     unitPrice,
     meta: {
-      type: "papas",
+      type: "dip",
       locked: true,
       comboId: CORTA_SEMANA_PROMO_ID,
       offerLabel: "Combo Corta la semana",

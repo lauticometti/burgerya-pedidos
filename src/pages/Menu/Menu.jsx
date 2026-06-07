@@ -1,5 +1,5 @@
 import React from "react";
-import { burgers, papas as papasData, bebidas } from "../../data/menu";
+import { burgers, papas as papasData, bebidas, dips } from "../../data/menu";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
 import BrandLogo from "../../components/brand/BrandLogo";
 import DeliveryMapLink from "../../components/delivery/DeliveryMapLink";
@@ -16,7 +16,7 @@ import { formatMoney } from "../../utils/formatMoney";
 import { indexById } from "../../utils/indexing";
 import { useStoreStatus } from "../../utils/storeClosedMode";
 import { toast } from "../../utils/toast";
-import { createPapasItem } from "../../utils/cartItemBuilders";
+import { createDipItem } from "../../utils/cartItemBuilders";
 import { useListingPageActions } from "../../hooks/useListingPageActions";
 import { useScrollProgress } from "../../hooks/useScrollProgress";
 import { useCarouselControls } from "../../hooks/useCarouselControls";
@@ -24,6 +24,7 @@ import { TOAST_KEYS } from "../../constants/toastKeys";
 import ScrollBar from "../../components/ui/ScrollBar";
 import BurgerDelDia from "../Burgers/BurgerDelDia";
 import BurgerModal from "../Burgers/BurgerModal";
+import BurgerNotice from "../../components/burgers/BurgerNotice";
 import PapasOptionModal from "../../components/papas/PapasOptionModal";
 import SectionNav from "./SectionNav";
 import styles from "./Menu.module.css";
@@ -96,11 +97,13 @@ export default function Menu() {
   const [activeSection, setActiveSection] = React.useState("burgers");
   const burgersRef = React.useRef(null);
   const papasRef = React.useRef(null);
+  const dipsRef = React.useRef(null);
   const bebidasRef = React.useRef(null);
 
   // Scroll row refs (progress bar + nudge)
   const burgersScrollRef = React.useRef(null);
   const papasScrollRef = React.useRef(null);
+  const dipsScrollRef = React.useRef(null);
   const bebidasScrollRef = React.useRef(null);
 
   const burgersById = React.useMemo(() => indexById(burgers), []);
@@ -124,42 +127,49 @@ export default function Menu() {
     () => buildPapasOptionsBySize(papasById),
     [papasById],
   );
-  const dipItems = React.useMemo(
-    () => papasData.filter((item) => item.id.startsWith("dip_")),
-    [],
-  );
+  const dipItems = dips;
 
   // Scroll progress (0..1) per row
   const burgerProgress = useScrollProgress(burgersScrollRef);
   const papasProgress = useScrollProgress(papasScrollRef);
+  const dipsProgress = useScrollProgress(dipsScrollRef);
   const bebidasProgress = useScrollProgress(bebidasScrollRef);
 
   // Desktop carousel controls (arrows, wheel, drag)
   const burgersControls = useCarouselControls(burgersScrollRef, 320);
   const papasControls = useCarouselControls(papasScrollRef, 260);
+  const dipsControls = useCarouselControls(dipsScrollRef, 220);
   const bebidasControls = useCarouselControls(bebidasScrollRef, 220);
 
-  // IntersectionObserver para marcar sección activa
+  // Marcar sección activa: elegir la sección cuyo tope cruzó la línea
+  // de activación (40% del viewport). Robusto para secciones cortas como Dips.
   React.useEffect(() => {
     const refs = [
       { id: "burgers", ref: burgersRef },
       { id: "papas", ref: papasRef },
+      { id: "dips", ref: dipsRef },
       { id: "bebidas", ref: bebidasRef },
     ];
 
-    const observers = refs.map(({ id, ref }) => {
-      if (!ref.current) return null;
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) setActiveSection(id);
-        },
-        { rootMargin: "-40% 0px -50% 0px", threshold: 0 },
-      );
-      observer.observe(ref.current);
-      return observer;
-    });
+    function updateActive() {
+      const line = window.innerHeight * 0.4;
+      let current = refs[0].id;
+      for (const { id, ref } of refs) {
+        const el = ref.current;
+        if (!el) continue;
+        if (el.getBoundingClientRect().top <= line) current = id;
+      }
+      setActiveSection(current);
+    }
 
-    return () => observers.forEach((obs) => obs?.disconnect());
+    updateActive();
+    window.addEventListener("scroll", updateActive, { passive: true });
+    window.addEventListener("resize", updateActive);
+
+    return () => {
+      window.removeEventListener("scroll", updateActive);
+      window.removeEventListener("resize", updateActive);
+    };
   }, []);
 
   // Nudge animation on burger row at mount (once, after 600ms)
@@ -194,7 +204,7 @@ export default function Menu() {
   }, []);
 
   function scrollToSection(id) {
-    const map = { burgers: burgersRef, papas: papasRef, bebidas: bebidasRef };
+    const map = { burgers: burgersRef, papas: papasRef, dips: dipsRef, bebidas: bebidasRef };
     map[id]?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
@@ -366,6 +376,9 @@ export default function Menu() {
                 </div>
                 <div className={styles.burgerBody}>
                   <h3 className={styles.burgerName}>{burger.shortName || burger.name}</h3>
+                  {burger.notice ? (
+                    <BurgerNotice notice={burger.notice} className={styles.burgerNotice} />
+                  ) : null}
                   {burger.desc ? (
                     <p className={styles.burgerDesc}>{burger.desc}</p>
                   ) : null}
@@ -448,30 +461,75 @@ export default function Menu() {
               </span>
             </button>
           ))}
+        </div>
+        </div>
+        <ScrollBar progress={papasProgress} />
+      </section>
+
+      {/* ── DIPS ── */}
+      <section
+        ref={dipsRef}
+        id="section-dips"
+        className={styles.section}>
+        <div className={styles.sectionHead}>
+          <h2 className={styles.sectionTitle}>Dips</h2>
+        </div>
+        <div className={styles.carouselWrap}>
+          <ChevronBtn dir="left" disabled={!dipsControls.canScrollLeft} onClick={dipsControls.scrollPrev} />
+          <ChevronBtn dir="right" disabled={!dipsControls.canScrollRight} onClick={dipsControls.scrollNext} />
+        <div
+          className={`${styles.hscroll} ${styles.hscrollSmall}`}
+          ref={dipsScrollRef}
+          data-section="dips"
+          onMouseDown={dipsControls.onMouseDown}
+          onMouseMove={dipsControls.onMouseMove}
+          onMouseUp={dipsControls.onMouseUp}
+          onMouseLeave={dipsControls.onMouseLeave}>
           {dipItems.map((item) => {
             const unavailable = isClosed || isItemUnavailable(item);
             return (
               <button
                 key={item.id}
                 type="button"
-                className={`${styles.papasCard} ${styles.papasCardDip}`}
+                className={styles.bebidaCard}
                 disabled={unavailable}
                 onClick={() => {
                   if (!canAddItem()) return;
-                  if (showUnavailableError(item, `papas-dip-unavailable:${item.id}`)) return;
-                  cart.add(createPapasItem(item));
+                  if (showUnavailableError(item, `dip-unavailable:${item.id}`)) return;
+                  cart.add(createDipItem(item));
                   toast.added(item.name);
                 }}>
-                <span className={styles.papasName}>{item.name}</span>
-                <span className={styles.papasPrice}>
-                  {unavailable ? (isClosed ? reopenText : item.unavailableReason || "no disponible") : `+ ${formatMoney(item.price)}`}
-                </span>
+                <div className={styles.bebidaInfo}>
+                  <span className={styles.bebidaName}>{item.name}</span>
+                  {item.desc ? (
+                    <span className={styles.dipDesc}>{item.desc}</span>
+                  ) : null}
+                  {item.ingredients ? (
+                    <span className={styles.dipIngredients}>{item.ingredients}</span>
+                  ) : null}
+                  <span className={styles.bebidaPrice}>
+                    {unavailable
+                      ? isClosed
+                        ? reopenText
+                        : item.unavailableReason || "no disponible"
+                      : formatMoney(item.price)}
+                  </span>
+                </div>
+                {item.img && (
+                  <div className={styles.bebidaImgWrap}>
+                    <img
+                      src={resolvePublicPath(item.img)}
+                      alt={item.name}
+                      className={styles.bebidaImg}
+                    />
+                  </div>
+                )}
               </button>
             );
           })}
         </div>
         </div>
-        <ScrollBar progress={papasProgress} />
+        <ScrollBar progress={dipsProgress} />
       </section>
 
       {/* ── BEBIDAS ── */}

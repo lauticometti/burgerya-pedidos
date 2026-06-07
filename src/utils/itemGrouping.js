@@ -19,6 +19,7 @@ export const CART_GROUP_ORDER = [
 export function getCategory(item) {
   if (item.meta?.type === "promo") return "promos";
   if (item.meta?.type === "bebida") return "bebidas";
+  if (item.meta?.type === "dip") return "dips";
   if (item.meta?.type === "papas" && item.key?.startsWith("papas:dip_")) {
     return "dips";
   }

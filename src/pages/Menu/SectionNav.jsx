@@ -3,6 +3,7 @@ import styles from "./SectionNav.module.css";
 const SECTIONS = [
   { id: "burgers", label: "Burgers" },
   { id: "papas", label: "Papas" },
+  { id: "dips", label: "Dips" },
   { id: "bebidas", label: "Bebidas" },
 ];
 

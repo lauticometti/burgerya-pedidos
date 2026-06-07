@@ -36,6 +36,22 @@ export function createPapasItem(papas, qty = 1) {
 }
 
 /**
+ * Create a dip cart item
+ * @param {Object} dip - Dip data with id, name, price
+ * @param {number} qty - Quantity
+ * @returns {Object} - Cart item
+ */
+export function createDipItem(dip, qty = 1) {
+  return {
+    key: `dip:${dip.id}`,
+    name: dip.name,
+    qty,
+    unitPrice: dip.price,
+    meta: { type: "dip" },
+  };
+}
+
+/**
  * Create an extras (sides) cart item
  * @param {Object} extras - Extras data with id, name, price
  * @param {number} qty - Quantity

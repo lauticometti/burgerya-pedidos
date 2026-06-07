@@ -219,6 +219,10 @@
   font-family: "Archivo Black", "Segoe UI", "Trebuchet MS", Arial, sans-serif;
 }
 
+.burgerNotice {
+  margin-top: -2px;
+}
+
 .burgerDesc {
   margin: 0;
   font-size: 12px;
@@ -414,6 +418,20 @@
   font-size: 12px;
   font-weight: 600;
   opacity: 0.6;
+}
+
+.dipDesc {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.8;
+  line-height: 1.25;
+}
+
+.dipIngredients {
+  font-size: 10px;
+  font-weight: 400;
+  opacity: 0.5;
+  line-height: 1.25;
 }
 
 .bebidaImgWrap {
