@@ -1,0 +1,24 @@
+.notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  padding: 5px 9px;
+  border-radius: 999px;
+  color: #d98a00;
+  background: rgba(255, 203, 62, 0.14);
+  border: 1px solid rgba(255, 203, 62, 0.45);
+  white-space: nowrap;
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #d98a00;
+  flex: 0 0 auto;
+}

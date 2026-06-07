@@ -3,6 +3,7 @@ import CloseButton from "../../components/ui/CloseButton";
 import Button from "../../components/ui/Button";
 import ItemExtrasModal from "../../components/ItemExtrasModal";
 import RemoveIngredientsModal from "../../components/carrito/RemoveIngredientsModal";
+import BurgerNotice from "../../components/burgers/BurgerNotice";
 import useEscapeToClose from "../../hooks/useEscapeToClose";
 import { extras, papas } from "../../data/menu";
 import { resolvePublicPath } from "../../utils/assetPath";
@@ -187,6 +188,10 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
                 {burger.id === "cheese_promo" ? "papas opcionales" : "con papas"}
               </span>
             </div>
+
+            {burger.notice ? (
+              <BurgerNotice notice={burger.notice} className={styles.notice} />
+            ) : null}
 
             {!isTitanica && burger.id !== "cheese_promo" ? (
               <div className={styles.sizeRow}>

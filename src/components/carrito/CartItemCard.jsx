@@ -3,6 +3,7 @@ import Card from "../ui/Card";
 import { TextareaField } from "../ui/FormFields";
 import CloseButton from "../ui/CloseButton";
 import { ItemModifiersDisplay } from "./ItemModifiersList";
+import BurgerNotice from "../burgers/BurgerNotice";
 import styles from "./CartItemCard.module.css";
 import { formatMoney } from "../../utils/formatMoney";
 import { formatPickNames } from "../../utils/formatPicks";
@@ -102,6 +103,9 @@ export default function CartItemCard({
                 <span className={styles.lockedTag}>{isGift ? "REGALO" : "BONIFICADO"}</span>
               ) : null}
             </div>
+            {burger?.notice ? (
+              <BurgerNotice notice={burger.notice} className={styles.itemNotice} />
+            ) : null}
             {picksText ? (
               <div className={styles.meta}>- {picksText}</div>
             ) : null}

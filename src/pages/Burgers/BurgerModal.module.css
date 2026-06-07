@@ -161,6 +161,11 @@
   font-weight: 900;
 }
 
+.notice {
+  justify-self: start;
+  margin-top: -2px;
+}
+
 .nameSide {
   font-size: 13px;
   font-weight: 800;
