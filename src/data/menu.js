@@ -48,7 +48,6 @@ export const burgers = [
     tier: "PREMIUM",
     prices: { simple: 11500, doble: 15000, triple: 18500 },
     desc: "Lechuga · Tomate · Cebolla · Pepinos · Salsa especial",
-    notice: "Hoy sin pepinos",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
       { id: "pickles", label: "Pepinos agridulces" },
@@ -58,7 +57,7 @@ export const burgers = [
       { id: "mil_islas", label: "Salsa Mil Islas" },
     ],
     img: "/burgers/american.svg",
-    isAvailable: 1,
+    isAvailable: 0,
   },
   {
     id: "bacon",
