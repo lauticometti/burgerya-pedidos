@@ -58,6 +58,7 @@ export const burgers = [
     ],
     img: "/burgers/american.svg",
     isAvailable: 0,
+    unavailableReason: "no disponible este mediodia",
   },
   {
     id: "bacon",
