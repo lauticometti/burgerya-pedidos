@@ -2,7 +2,7 @@ import { getArgentinaTimeParts } from "./storeClosedMode";
 
 // Override manual: si querés forzar otra burger un día puntual,
 // poné el id acá (ej: "bacon"). null = usar el mapping automático por día.
-export const DAILY_FEATURE_OVERRIDE_ID = "cheese";
+export const DAILY_FEATURE_OVERRIDE_ID = null;
 
 // Fallback de stock: cuando se agota la burger del día, poné el id acá (ej: "cheese").
 // null = sin fallback, se muestra la burger del día normal.
