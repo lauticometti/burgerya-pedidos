@@ -1,4 +1,4 @@
-export const UNAVAILABLE_REASON_DEFAULT = "no disponible por hoy";
+export const UNAVAILABLE_REASON_DEFAULT = "no disponible este mediodia";
 
 export function isItemUnavailable(item) {
   const flag = item?.isAvailable;
