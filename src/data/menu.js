@@ -184,7 +184,7 @@ export const bebidas = [
     id: "coca_600",
     name: "Coca Cola 600ml",
     price: 3000,
-    isAvailable: 1,
+    isAvailable: 0,
     unavailableReason: "Temporalmente no disponible",
     img: "/bebidas/coca-cola-600ml.svg",
   },
