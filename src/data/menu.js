@@ -32,7 +32,7 @@ export const burgers = [
     id: "lautiboom",
     name: "Lautiboom",
     tier: "PREMIUM",
-    prices: { simple: 11500, doble: 15000, triple: 18500 },
+    prices: { simple: 12500, doble: 15000, triple: 18500 },
     desc: "Cebolla caramelizada · Salsa especial",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
@@ -186,7 +186,7 @@ export const bebidas = [
     id: "coca_600",
     name: "Coca Cola 600ml",
     price: 3000,
-    isAvailable: 1, // cambiar a 0 cuando se agote
+    isAvailable: 0, // cambiar a 0 cuando se agote
     unavailableReason: "Sin stock por hoy",
     img: "/bebidas/coca-cola-600ml.svg",
   },
