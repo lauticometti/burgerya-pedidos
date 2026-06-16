@@ -1,7 +1,7 @@
 import React from "react";
 import { toast } from "../../utils/toast";
 import { isItemUnavailable } from "../../utils/availability";
-import { createBebidaItem } from "../../utils/cartItemBuilders";
+import { createBebidaItem, createCervezaItem } from "../../utils/cartItemBuilders";
 import { buildBebidaQuantitiesInitial } from "./carritoUtils";
 import { useStoreStatus } from "../../utils/storeClosedMode";
 import { TOAST_KEYS } from "../../constants/toastKeys";
@@ -43,11 +43,15 @@ export default function useBebidaModal({ cart, bebidaItems }) {
 
     selected.forEach((item) => {
       const qty = bebidaQuantities[item.id] || 0;
-      cart.add(createBebidaItem(item, qty));
+      cart.add(
+        item._itemType === "cerveza"
+          ? createCervezaItem(item, qty)
+          : createBebidaItem(item, qty),
+      );
     });
 
     toast.added(
-      selected.length === 1 ? selected[0].name : "Bebidas",
+      selected.length === 1 ? selected[0].name : "Bebidas y Cervezas",
     );
 
     closeBebidaModal();

@@ -44,7 +44,7 @@ export function buildWhatsAppText({
     { key: "burgers", title: "BURGERS" },
     { key: "papas", title: "PAPAS" },
     { key: "dips", title: "EXTRAS" },
-    { key: "bebidas", title: "BEBIDAS" },
+    { key: "bebidas", title: "GASEOSAS" },
     { key: "cervezas", title: "CERVEZAS" },
   ];
 
@@ -55,8 +55,7 @@ export function buildWhatsAppText({
     if (!groupItems.length) continue;
 
     if (hasGroup) lines.push(separator);
-    const isExtras = group.key === "dips";
-    lines.push(isExtras ? `${group.title} ⚠️` : group.title);
+    lines.push(group.title);
     hasGroup = true;
 
     if (group.key === "combos") {
@@ -72,7 +71,7 @@ export function buildWhatsAppText({
         // Extras/dips destacados
         const sizeLabel = getSizeLabel(it);
         const sizeSuffix = sizeLabel ? ` ${sizeLabel}` : "";
-        lines.push(` ⚠️ ${it.qty} ${it.name.toUpperCase()}${sizeSuffix}`);
+        lines.push(` ${it.qty} ${it.name.toUpperCase()}${sizeSuffix}`);
         if (it.note?.trim()) {
           lines.push(`  Aclaracion: ${it.note.trim()}`);
         }

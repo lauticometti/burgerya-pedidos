@@ -19,6 +19,16 @@ export function createBebidaItem(bebida, qty = 1) {
   };
 }
 
+export function createCervezaItem(cerveza, qty = 1) {
+  return {
+    key: `cerveza:${cerveza.id}`,
+    name: cerveza.name,
+    qty,
+    unitPrice: cerveza.price,
+    meta: { type: "cerveza" },
+  };
+}
+
 /**
  * Create a papas (potatoes) cart item
  * @param {Object} papas - Papas data with id, name, price

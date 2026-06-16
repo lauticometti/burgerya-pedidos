@@ -34,9 +34,9 @@ export default function BebidasModal({
         aria-modal="true">
         <div className={baseStyles.header}>
           <div>
-            <div className={baseStyles.title}>Bebidas</div>
+            <div className={baseStyles.title}>Bebidas y Cervezas</div>
             <div className={baseStyles.desc}>
-              Sumá una bebida para acompañar tu pedido.
+              Sumá una bebida o cerveza para acompañar tu pedido.
             </div>
           </div>
           <CloseButton onClick={onClose} aria-label="Cerrar" />
@@ -101,7 +101,7 @@ export default function BebidasModal({
             type="button"
             onClick={onApply}
             disabled={totalQty === 0}>
-            Agregar bebidas
+            Agregar
           </Button>
         </div>
       </div>

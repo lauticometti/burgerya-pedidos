@@ -8,7 +8,7 @@ export const CART_GROUP_ORDER = [
   { key: "burgers", title: "BURGERS" },
   { key: "papas", title: "PAPAS" },
   { key: "dips", title: "DIPS" },
-  { key: "bebidas", title: "BEBIDAS" },
+  { key: "bebidas", title: "GASEOSAS" },
   { key: "cervezas", title: "CERVEZAS" },
 ];
 
