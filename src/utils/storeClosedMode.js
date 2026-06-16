@@ -8,7 +8,7 @@ export const FRIDAY_TRIPLE_PROMO_BADGE_TEXT = "TRIPLE = DOBLE";
 export const DAILY_FEATURE_PROMO_OFFER_ID = "daily_feature";
 
 const MANUAL_STORE_STATUS_DATE = null;
-const FORCE_OPEN = false; // override manual: forzar apertura fuera de horario
+const FORCE_OPEN = true; // override manual: forzar apertura fuera de horario
 
 // Feriados nacionales Argentina 2026 (formato YYYY-MM-DD, hora Argentina)
 const FERIADOS_2026 = new Set([
