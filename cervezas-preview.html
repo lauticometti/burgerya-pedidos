@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Preview — Cervezas · Burgerya</title>
+  <style>
+    :root {
+      --bg: #0b0b0b;
+      --panel: #111;
+      --text: #f5f5f5;
+      --muted: rgba(245, 245, 245, 0.75);
+      --line: rgba(255, 255, 255, 0.12);
+      --y: #ffc62a;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── Phone frame ── */
+    .phone {
+      width: 100%;
+      max-width: 390px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      position: relative;
+    }
+
+    /* ── Top nav ── */
+    .topnav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+    .logo {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      color: var(--y);
+    }
+    .cart-pill {
+      background: var(--y);
+      color: #000;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ── Section nav (tabs) ── */
+    .section-nav {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 10;
+    }
+    .section-nav::-webkit-scrollbar { display: none; }
+
+    .chip {
+      flex-shrink: 0;
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .chip.active {
+      background: var(--y);
+      border-color: var(--y);
+      color: #000;
+    }
+    .chip.new {
+      position: relative;
+    }
+    .chip.new::after {
+      content: "NUEVO";
+      position: absolute;
+      top: -6px;
+      right: -4px;
+      background: var(--y);
+      color: #000;
+      font-size: 8px;
+      font-weight: 900;
+      padding: 2px 5px;
+      border-radius: 999px;
+      letter-spacing: 0.05em;
+    }
+    .chip.new.active::after {
+      background: #fff;
+    }
+
+    /* ── Content ── */
+    .content {
+      flex: 1;
+      padding: 20px 16px 100px;
+      overflow-y: auto;
+    }
+
+    /* ── Section ── */
+    .section { margin-bottom: 32px; }
+
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .section-sub {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      font-weight: 500;
+    }
+
+    /* ── Carousel ── */
+    .carousel {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+    }
+    .carousel::-webkit-scrollbar { display: none; }
+
+    /* ── Beer card ── */
+    .beer-card {
+      scroll-snap-align: start;
+      flex: 0 0 64%;
+      max-width: 260px;
+      min-height: 116px;
+      max-height: 134px;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      padding: 12px 0 12px 14px;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s ease, border-color 0.15s ease;
+      overflow: hidden;
+      position: relative;
+      text-decoration: none;
+      color: inherit;
+    }
+    .beer-card:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    /* Brand accent bar on left */
+    .beer-card::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      border-radius: 3px 0 0 3px;
+    }
+    .beer-card.stella::before { background: #c8102e; }
+    .beer-card.corona::before { background: #d4a017; }
+    .beer-card.heineken::before { background: #006b3f; }
+
+    .beer-info {
+      flex: 1 1 58%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+      min-width: 0;
+      z-index: 1;
+    }
+    .beer-name {
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .beer-sub {
+      font-size: 10px;
+      color: rgba(255,255,255,0.4);
+      font-weight: 500;
+    }
+    .beer-price {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.55);
+      margin-top: 4px;
+    }
+
+    .beer-img-wrap {
+      flex: 0 0 38%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 6px 12px 6px 0;
+      font-size: 52px;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+    }
+
+    /* ── Scroll indicator ── */
+    .scroll-bar {
+      height: 2px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+    .scroll-bar-inner {
+      height: 100%;
+      width: 55%;
+      background: var(--y);
+      border-radius: 2px;
+    }
+
+    /* ── Label de preview ── */
+    .preview-badge {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,198,42,0.15);
+      border: 1px solid rgba(255,198,42,0.3);
+      color: var(--y);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 16px;
+      border-radius: 999px;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+
+    /* ── Nota sin foto ── */
+    .photo-note {
+      margin-top: 20px;
+      padding: 12px 14px;
+      background: rgba(255,198,42,0.06);
+      border: 1px solid rgba(255,198,42,0.15);
+      border-radius: var(--radius);
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.5;
+    }
+    .photo-note strong { color: var(--y); }
+
+    @media (min-width: 600px) {
+      .beer-card { flex: 0 0 220px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- Top nav -->
+  <div class="topnav">
+    <div class="logo">🍔 burgerya</div>
+    <div class="cart-pill">🛒 $0</div>
+  </div>
+
+  <!-- Section nav -->
+  <nav class="section-nav">
+    <button class="chip">Burgers</button>
+    <button class="chip">Papas</button>
+    <button class="chip">Dips</button>
+    <button class="chip">Bebidas</button>
+    <button class="chip active new">Cervezas</button>
+  </nav>
+
+  <!-- Content -->
+  <div class="content">
+
+    <section class="section">
+      <div class="section-head">
+        <h2 class="section-title">Cervezas</h2>
+        <span class="section-sub">Porrones 330ml</span>
+      </div>
+
+      <div class="carousel">
+
+        <!-- Stella Artois -->
+        <button class="beer-card stella">
+          <div class="beer-info">
+            <span class="beer-name">Stella Artois</span>
+            <span class="beer-sub">Porrón 330ml</span>
+            <span class="beer-price">$3.500</span>
+          </div>
+          <div class="beer-img-wrap">🍺</div>
+        </button>
+
+        <!-- Corona -->
+        <button class="beer-card corona">
+          <div class="beer-info">
+            <span class="beer-name">Corona</span>
+            <span class="beer-sub">Porrón 330ml</span>
+            <span class="beer-price">$4.000</span>
+          </div>
+          <div class="beer-img-wrap">🍺</div>
+        </button>
+
+        <!-- Heineken -->
+        <button class="beer-card heineken">
+          <div class="beer-info">
+            <span class="beer-name">Heineken</span>
+            <span class="beer-sub">Porrón 330ml</span>
+            <span class="beer-price">$4.000</span>
+          </div>
+          <div class="beer-img-wrap">🍺</div>
+        </button>
+
+      </div>
+
+      <div class="scroll-bar"><div class="scroll-bar-inner"></div></div>
+
+      <div class="photo-note">
+        🍺 <strong>Placeholder visual</strong> — las fotos reales de cada cerveza reemplazarán el emoji cuando estén disponibles. Se pueden usar imágenes PNG/SVG de cada marca.
+      </div>
+    </section>
+
+  </div>
+
+</div>
+
+<div class="preview-badge">PREVIEW · No funcional · Solo visual</div>
+
+</body>
+</html>
