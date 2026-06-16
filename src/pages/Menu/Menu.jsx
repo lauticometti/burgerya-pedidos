@@ -1,5 +1,5 @@
 import React from "react";
-import { burgers, papas as papasData, bebidas, dips } from "../../data/menu";
+import { burgers, papas as papasData, bebidas, dips, cervezas } from "../../data/menu";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
 import BrandLogo from "../../components/brand/BrandLogo";
 import DeliveryMapLink from "../../components/delivery/DeliveryMapLink";
@@ -99,12 +99,14 @@ export default function Menu() {
   const papasRef = React.useRef(null);
   const dipsRef = React.useRef(null);
   const bebidasRef = React.useRef(null);
+  const cervezasRef = React.useRef(null);
 
   // Scroll row refs (progress bar + nudge)
   const burgersScrollRef = React.useRef(null);
   const papasScrollRef = React.useRef(null);
   const dipsScrollRef = React.useRef(null);
   const bebidasScrollRef = React.useRef(null);
+  const cervezasScrollRef = React.useRef(null);
 
   const burgersById = React.useMemo(() => indexById(burgers), []);
   const featuredBurger = dailyFeatureBurgerId
@@ -134,12 +136,14 @@ export default function Menu() {
   const papasProgress = useScrollProgress(papasScrollRef);
   const dipsProgress = useScrollProgress(dipsScrollRef);
   const bebidasProgress = useScrollProgress(bebidasScrollRef);
+  const cervezasProgress = useScrollProgress(cervezasScrollRef);
 
   // Desktop carousel controls (arrows, wheel, drag)
   const burgersControls = useCarouselControls(burgersScrollRef, 320);
   const papasControls = useCarouselControls(papasScrollRef, 260);
   const dipsControls = useCarouselControls(dipsScrollRef, 220);
   const bebidasControls = useCarouselControls(bebidasScrollRef, 220);
+  const cervezasControls = useCarouselControls(cervezasScrollRef, 220);
 
   // Marcar sección activa: elegir la sección cuyo tope cruzó la línea
   // de activación (40% del viewport). Robusto para secciones cortas como Dips.
@@ -149,6 +153,7 @@ export default function Menu() {
       { id: "papas", ref: papasRef },
       { id: "dips", ref: dipsRef },
       { id: "bebidas", ref: bebidasRef },
+      { id: "cervezas", ref: cervezasRef },
     ];
 
     function updateActive() {
@@ -204,7 +209,7 @@ export default function Menu() {
   }, []);
 
   function scrollToSection(id) {
-    const map = { burgers: burgersRef, papas: papasRef, dips: dipsRef, bebidas: bebidasRef };
+    const map = { burgers: burgersRef, papas: papasRef, dips: dipsRef, bebidas: bebidasRef, cervezas: cervezasRef };
     map[id]?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
@@ -604,6 +609,83 @@ export default function Menu() {
         </div>
         </div>
         <ScrollBar progress={bebidasProgress} />
+      </section>
+
+      {/* ── CERVEZAS ── */}
+      <section
+        ref={cervezasRef}
+        id="section-cervezas"
+        className={styles.section}>
+        <div className={styles.sectionHead}>
+          <h2 className={styles.sectionTitle}>Cervezas</h2>
+        </div>
+        <div className={styles.carouselWrap}>
+          <ChevronBtn dir="left" disabled={!cervezasControls.canScrollLeft} onClick={cervezasControls.scrollPrev} />
+          <ChevronBtn dir="right" disabled={!cervezasControls.canScrollRight} onClick={cervezasControls.scrollNext} />
+          <div
+            className={`${styles.hscroll} ${styles.hscrollSmall}`}
+            ref={cervezasScrollRef}
+            data-section="cervezas"
+            onMouseDown={cervezasControls.onMouseDown}
+            onMouseMove={cervezasControls.onMouseMove}
+            onMouseUp={cervezasControls.onMouseUp}
+            onMouseLeave={cervezasControls.onMouseLeave}>
+            {cervezas.map((item) => {
+              const unavailable = isClosed || isItemUnavailable(item);
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={styles.bebidaCard}
+                  disabled={unavailable}
+                  onClick={() => {
+                    if (isClosed) {
+                      toast.error(closedToastText, { key: "store-closed-cerveza" });
+                      return;
+                    }
+                    if (isItemUnavailable(item)) {
+                      toast.error(`${item.name}: ${getUnavailableReason(item)}`, {
+                        key: `cerveza-unavailable:${item.id}`,
+                      });
+                      return;
+                    }
+                    cart.add({
+                      key: `cerveza:${item.id}`,
+                      name: item.name,
+                      qty: 1,
+                      unitPrice: item.price,
+                      meta: { type: "cerveza" },
+                    });
+                    toast.added(item.name);
+                  }}>
+                  <div className={styles.bebidaInfo}>
+                    <span className={styles.bebidaName}>{item.name}</span>
+                    {item.subtitle ? (
+                      <span className={styles.bebidaPrice} style={{ opacity: 0.4, fontSize: "11px" }}>{item.subtitle}</span>
+                    ) : null}
+                    <span className={styles.bebidaPrice}>
+                      {unavailable
+                        ? isClosed
+                          ? reopenText
+                          : item.unavailableReason || "no disponible"
+                        : formatMoney(item.price)}
+                    </span>
+                  </div>
+                  {item.img && (
+                    <div className={styles.bebidaImgWrap}>
+                      <img
+                        src={resolvePublicPath(item.img)}
+                        alt={item.name}
+                        className={styles.bebidaImg}
+                      />
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        <ScrollBar progress={cervezasProgress} />
       </section>
 
       <DeliveryMapLink className={styles.deliveryLink} />

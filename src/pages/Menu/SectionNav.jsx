@@ -5,6 +5,7 @@ const SECTIONS = [
   { id: "papas", label: "Papas" },
   { id: "dips", label: "Dips" },
   { id: "bebidas", label: "Bebidas" },
+  { id: "cervezas", label: "Cervezas" },
 ];
 
 export default function SectionNav({ active, onSelect }) {
