@@ -44,8 +44,7 @@ export function buildWhatsAppText({
     { key: "burgers", title: "BURGERS" },
     { key: "papas", title: "PAPAS" },
     { key: "dips", title: "EXTRAS" },
-    { key: "bebidas", title: "GASEOSAS" },
-    { key: "cervezas", title: "CERVEZAS" },
+    { key: "bebidas", title: "BEBIDAS" },
   ];
 
   let hasGroup = false;
