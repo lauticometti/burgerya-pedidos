@@ -573,7 +573,7 @@ export default function Menu() {
                   }
                   cart.add({
                     key: `${isCerveza ? "cerveza" : "bebida"}:${item.id}`,
-                    name: item.name,
+                    name: item.orderName || item.name,
                     qty: 1,
                     unitPrice: item.price,
                     meta: { type: isCerveza ? "cerveza" : "bebida" },

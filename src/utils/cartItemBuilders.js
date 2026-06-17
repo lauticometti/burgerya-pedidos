@@ -12,7 +12,7 @@
 export function createBebidaItem(bebida, qty = 1) {
   return {
     key: `bebida:${bebida.id}`,
-    name: bebida.name,
+    name: bebida.orderName || bebida.name,
     qty,
     unitPrice: bebida.price,
     meta: { type: "bebida" },
@@ -22,7 +22,7 @@ export function createBebidaItem(bebida, qty = 1) {
 export function createCervezaItem(cerveza, qty = 1) {
   return {
     key: `cerveza:${cerveza.id}`,
-    name: cerveza.name,
+    name: cerveza.orderName || cerveza.name,
     qty,
     unitPrice: cerveza.price,
     meta: { type: "cerveza" },

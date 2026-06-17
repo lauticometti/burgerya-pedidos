@@ -191,6 +191,7 @@ export const bebidas = [
   {
     id: "coca_225",
     name: "Coca Cola 2.25L",
+    orderName: "coca 2.25",
     price: 6000,
     isAvailable: 1,
     img: "/bebidas/coca-cola-225l.svg",
@@ -200,5 +201,5 @@ export const bebidas = [
 export const cervezas = [
   { id: "corona",   name: "Corona",        subtitle: "Porrón 330ml", price: 4000, isAvailable: 1, img: "/cervezas/corona.png" },
   { id: "heineken", name: "Heineken",      subtitle: "Porrón 330ml", price: 4000, isAvailable: 1, img: "/cervezas/heineken.png" },
-  { id: "stella",   name: "Stella Artois", subtitle: "Porrón 330ml", price: 3500, isAvailable: 1, img: "/cervezas/stella.png" },
+  { id: "stella",   name: "Stella Artois", orderName: "stella", subtitle: "Porrón 330ml", price: 3500, isAvailable: 1, img: "/cervezas/stella.png" },
 ];
