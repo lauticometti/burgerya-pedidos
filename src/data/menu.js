@@ -198,7 +198,7 @@ export const bebidas = [
 ];
 
 export const cervezas = [
-  { id: "corona",   name: "Corona",        subtitle: "Porrón 330ml", price: 4000, isAvailable: 0, img: "/cervezas/corona.png" },
-  { id: "heineken", name: "Heineken",      subtitle: "Porrón 330ml", price: 4000, isAvailable: 0, img: "/cervezas/heineken.png" },
+  { id: "corona",   name: "Corona",        subtitle: "Porrón 330ml", price: 4000, isAvailable: 1, img: "/cervezas/corona.png" },
+  { id: "heineken", name: "Heineken",      subtitle: "Porrón 330ml", price: 4000, isAvailable: 1, img: "/cervezas/heineken.png" },
   { id: "stella",   name: "Stella Artois", subtitle: "Porrón 330ml", price: 3500, isAvailable: 1, img: "/cervezas/stella.png" },
 ];
