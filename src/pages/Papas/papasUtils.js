@@ -35,6 +35,7 @@ export function buildPapasBase(papasById) {
       label: "Papas extra grandes",
       size: "grande",
       basePrice: getPrice(papasById, "porcion_grande_solas"),
+      img: papasById["porcion_grande_solas"]?.img || null,
     },
   ];
 }

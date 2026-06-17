@@ -165,6 +165,7 @@ export const papas = [
     name: "Porción grande sola",
     price: 9000,
     isAvailable: 1,
+    img: "/papas/papas-grandes.png",
   },
 ];
 

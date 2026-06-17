@@ -452,13 +452,33 @@ export default function Menu() {
             <button
               key={item.id}
               type="button"
-              className={styles.papasCard}
+              className={item.img ? styles.bebidaCard : styles.papasCard}
               disabled={isClosed}
               onClick={() => openPapasModal(item.size)}>
-              <span className={styles.papasName}>{item.label}</span>
-              <span className={styles.papasPrice}>
-                {isClosed ? reopenText : formatMoney(item.basePrice)}
-              </span>
+              {item.img ? (
+                <>
+                  <div className={styles.bebidaInfo}>
+                    <span className={styles.bebidaName}>{item.label}</span>
+                    <span className={styles.bebidaPrice}>
+                      {isClosed ? reopenText : formatMoney(item.basePrice)}
+                    </span>
+                  </div>
+                  <div className={styles.bebidaImgWrap}>
+                    <img
+                      src={resolvePublicPath(item.img)}
+                      alt={item.label}
+                      className={styles.bebidaImg}
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <span className={styles.papasName}>{item.label}</span>
+                  <span className={styles.papasPrice}>
+                    {isClosed ? reopenText : formatMoney(item.basePrice)}
+                  </span>
+                </>
+              )}
             </button>
           ))}
         </div>
