@@ -41,7 +41,6 @@ export const burgers = [
     ],
     img: "/burgers/lautiboom.svg",
     isAvailable: 1,
-    notice: "Sin ceb. caramelizada",
   },
   {
     id: "american",
@@ -90,7 +89,6 @@ export const burgers = [
     ],
     img: "/burgers/bbqueen.svg",
     isAvailable: 1,
-    notice: "Sin ceb. caramelizada",
   },
   {
     id: "smoklahoma",
