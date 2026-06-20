@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { burgers, promoPrices, promoRules } from "../../data/menu.js";
+import { burgers as allBurgers, promoPrices, promoRules } from "../../data/menu.js";
 import { useCart } from "../../store/useCart.js";
 import TopNav from "../../components/TopNav.jsx";
 import Page from "../../components/layout/Page.jsx";
@@ -15,6 +15,10 @@ import PromoBurgerPicker from "./components/PromoBurgerPicker.jsx";
 import PromoPickedSummary from "./components/PromoPickedSummary.jsx";
 import usePromoBuilder from "./usePromoBuilder.js";
 import { useStoreStatus } from "../../utils/storeClosedMode.js";
+
+// EVENTO 2 AÑOS — menú reducido para delivery
+const EVENTO_IDS = new Set(["cheese", "lautiboom", "smoklahoma"]);
+const burgers = allBurgers.filter((b) => EVENTO_IDS.has(b.id));
 
 export default function Promos() {
   const cart = useCart();

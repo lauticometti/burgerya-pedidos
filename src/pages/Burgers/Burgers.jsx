@@ -31,6 +31,7 @@ import {
   scrollToBurgerCard,
 } from "./burgersUtils";
 
+// EVENTO 2 AÑOS — menú reducido para delivery
 const SHOWCASE_SECTIONS = [
   {
     id: "gustan",
@@ -39,7 +40,6 @@ const SHOWCASE_SECTIONS = [
     tone: "gustan",
     layout: "pairHero",
     items: [
-      { id: "bacon", badge: "TOP", emphasis: "top" },
       { id: "cheese", badge: "TOP", emphasis: "top" },
     ],
   },
@@ -50,7 +50,6 @@ const SHOWCASE_SECTIONS = [
     tone: "rompen",
     layout: "pair",
     items: [
-      { id: "american", emphasis: "mid" },
       { id: "lautiboom", emphasis: "mid" },
     ],
   },
@@ -61,17 +60,8 @@ const SHOWCASE_SECTIONS = [
     tone: "deluxe",
     layout: "pair",
     items: [
-      { id: "bbqueen", emphasis: "deluxe" },
       { id: "smoklahoma", emphasis: "deluxe" },
     ],
-  },
-  {
-    id: "desafio",
-    title: "El desafio",
-    subtitle: "Titanica. Gigante, intensa y siempre triple.",
-    tone: "desafio",
-    layout: "single",
-    items: [{ id: "titanica", emphasis: "challenge" }],
   },
 ];
 
@@ -113,9 +103,11 @@ export default function Burgers() {
   const [modalOrigin, setModalOrigin] = React.useState(null);
   const [modalSkipScroll, setModalSkipScroll] = React.useState(false);
   const burgersById = React.useMemo(() => indexById(burgers), []);
-  const featuredBurger = dailyFeatureBurgerId
-    ? burgersById[dailyFeatureBurgerId]
-    : null;
+  const EVENTO_IDS = new Set(["cheese", "lautiboom", "smoklahoma"]);
+  const featuredBurger =
+    dailyFeatureBurgerId && EVENTO_IDS.has(dailyFeatureBurgerId)
+      ? burgersById[dailyFeatureBurgerId]
+      : null;
 
   const sections = React.useMemo(
     () =>
