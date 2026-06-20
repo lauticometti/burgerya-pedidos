@@ -2,6 +2,7 @@ import React from "react";
 import { getBurgerPriceInfo } from "../../utils/burgerPricing";
 import { formatMoney } from "../../utils/formatMoney";
 import { resolvePublicPath } from "../../utils/assetPath";
+import BurgerNotice from "../../components/burgers/BurgerNotice";
 import styles from "./BurgerDelDia.module.css";
 
 const SIZES = [
@@ -35,6 +36,7 @@ export default function BurgerDelDia({ burger, weekdayLabel, onOpen, onAddToCart
 
         <div className={styles.info}>
           <h2 className={styles.name}>{burger.name}</h2>
+          {burger.notice ? <BurgerNotice notice={burger.notice} /> : null}
           {burger.desc ? <p className={styles.desc}>{burger.desc}</p> : null}
           <p className={styles.papas}>+ papas incluidas</p>
 
