@@ -294,7 +294,7 @@ export default function Menu() {
         {/* EVENTO 2 AÑOS — burger del día oculta, cartel fijo */}
         <div style={{
           textAlign: "center",
-          padding: "1.25rem 1rem 0.5rem",
+          padding: "1.5rem 1rem 0.75rem",
         }}>
           <p style={{
             fontSize: "0.7rem",
@@ -302,19 +302,42 @@ export default function Menu() {
             letterSpacing: "0.14em",
             textTransform: "uppercase",
             color: "#FFC62A",
-            margin: "0 0 0.35rem",
+            margin: "0 0 0.4rem",
           }}>
             Hoy celebramos
           </p>
           <p style={{
-            fontSize: "1.4rem",
+            fontSize: "2rem",
             fontWeight: 900,
             letterSpacing: "-0.02em",
             color: "#fff",
-            margin: 0,
-            lineHeight: 1.15,
+            margin: "0 0 0.6rem",
+            lineHeight: 1.1,
           }}>
-            2 años de Burger Ya 🎉
+            2 años de Burger Ya
+          </p>
+          <p style={{
+            fontSize: "0.95rem",
+            color: "#ccc",
+            margin: "0 0 0.5rem",
+            lineHeight: 1.4,
+          }}>
+            Te esperamos en Malaspina 1602 con burger y tragos
+          </p>
+        </div>
+        <div style={{
+          textAlign: "center",
+          padding: "0.25rem 1rem 0.5rem",
+        }}>
+          <p style={{
+            fontSize: "0.75rem",
+            fontWeight: 700,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+            color: "#888",
+            margin: 0,
+          }}>
+            O pedi por delivery:
           </p>
         </div>
 
