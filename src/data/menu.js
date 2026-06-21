@@ -118,7 +118,7 @@ export const burgers = [
       { id: "bacon", label: "Bacon" },
       { id: "salsa_bbq", label: "Barbacoa" },
     ],
-    img: "/burgers/doritos.jpg",
+    img: "/burgers/doritos.svg",
     isAvailable: 1,
   },
 ];
