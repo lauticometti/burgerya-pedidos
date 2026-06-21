@@ -160,7 +160,7 @@ export default function Combos() {
                         <img
                           className={styles.pickerThumb}
                           src={resolvePublicPath(
-                            burger.img || "/burgers/placeholder.jpg",
+                            burger.img || "/burgers/placeholder.svg",
                           )}
                           alt={burger.name}
                           loading="lazy"

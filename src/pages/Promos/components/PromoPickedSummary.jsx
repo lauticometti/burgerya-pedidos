@@ -36,7 +36,7 @@ export default function PromoPickedSummary({
             picked.map((pick, index) => {
               const name = pick.name || pick.id;
               const imageSrc = resolvePublicPath(
-                pick.img || "/burgers/placeholder.jpg",
+                pick.img || "/burgers/placeholder.svg",
               );
               const thumbClass = `${styles.pickThumb} ${
                 pick.id === "smoklahoma" ? styles.pickThumbTrim : ""

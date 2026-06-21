@@ -107,6 +107,20 @@ export const burgers = [
     img: "/burgers/smoklahoma.svg",
     isAvailable: 1,
   },
+  {
+    id: "doritos",
+    name: "Doritos",
+    tier: "DELUXE",
+    prices: { simple: 12500, doble: 16000, triple: 19500 },
+    desc: "Bacon · Doritos · Cheddar · Barbacoa",
+    removableIngredients: [
+      { id: "cheddar", label: "Cheddar" },
+      { id: "bacon", label: "Bacon" },
+      { id: "salsa_bbq", label: "Barbacoa" },
+    ],
+    img: "/burgers/doritos.jpg",
+    isAvailable: 1,
+  },
 ];
 
 // Precios de promos (flyers)

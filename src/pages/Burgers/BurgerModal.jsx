@@ -149,7 +149,7 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
     ? { "--origin-x": `${origin.x}px`, "--origin-y": `${origin.y}px` }
     : undefined;
   const burgerImg =
-    origin?.imageSrc || resolvePublicPath(burger.img || "/burgers/placeholder.jpg");
+    origin?.imageSrc || resolvePublicPath(burger.img || "/burgers/placeholder.svg");
   const addDisabled = !selectedSize || isClosed;
 
   function handleBackdropMouseDown(event) {

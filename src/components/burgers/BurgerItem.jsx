@@ -57,7 +57,7 @@ export default function BurgerItem({ burger, onOpen, onUnavailable }) {
         <div className={styles.thumbWrap}>
           <img
             className={styles.thumb}
-            src={resolvePublicPath(burger.img || "/burgers/placeholder.jpg")}
+            src={resolvePublicPath(burger.img || "/burgers/placeholder.svg")}
             alt={burger.name}
             loading="lazy"
           />

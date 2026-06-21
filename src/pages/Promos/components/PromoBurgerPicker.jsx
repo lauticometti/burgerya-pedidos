@@ -68,7 +68,7 @@ export default function PromoBurgerPicker({
                           burger.id === "smoklahoma" ? styles.pickThumbTrim : ""
                         }`}
                         src={resolvePublicPath(
-                          burger.img || "/burgers/placeholder.jpg",
+                          burger.img || "/burgers/placeholder.svg",
                         )}
                         alt={burger.name}
                         loading="lazy"

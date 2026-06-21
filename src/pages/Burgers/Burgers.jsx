@@ -162,7 +162,7 @@ export default function Burgers() {
       ? {
           x: rect.left + rect.width / 2,
           y: rect.top + rect.height / 2,
-          imageSrc: resolvePublicPath(burger.img || "/burgers/placeholder.jpg"),
+          imageSrc: resolvePublicPath(burger.img || "/burgers/placeholder.svg"),
         }
       : null;
 
@@ -257,7 +257,7 @@ export default function Burgers() {
                   <div className={styles.mediaWrap}>
                     <img
                       className={styles.media}
-                      src={resolvePublicPath(burger.img || "/burgers/placeholder.jpg")}
+                      src={resolvePublicPath(burger.img || "/burgers/placeholder.svg")}
                       alt={burger.name}
                       loading={isPriorityImage ? "eager" : "lazy"}
                       fetchPriority={isPriorityImage ? "high" : "auto"}

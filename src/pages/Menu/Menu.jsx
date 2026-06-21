@@ -65,6 +65,7 @@ const BURGER_ROWS = [
   { id: "american", emphasis: "mid" },
   { id: "bbqueen", emphasis: "deluxe" },
   { id: "smoklahoma", emphasis: "deluxe" },
+  { id: "doritos", emphasis: "deluxe" },
 ];
 
 export default function Menu() {
@@ -223,7 +224,7 @@ export default function Menu() {
       ? {
           x: rect.left + rect.width / 2,
           y: rect.top + rect.height / 2,
-          imageSrc: resolvePublicPath(burger.img || "/burgers/placeholder.jpg"),
+          imageSrc: resolvePublicPath(burger.img || "/burgers/placeholder.svg"),
         }
       : null;
     setModalOrigin(origin);
@@ -367,7 +368,7 @@ export default function Menu() {
                 <div className={styles.burgerImgWrap}>
                   <img
                     className={`${styles.burgerImg}${burger.id === "smoklahoma" ? ` ${styles.burgerImgSmoklahoma}` : ""}`}
-                    src={resolvePublicPath(burger.img || "/burgers/placeholder.jpg")}
+                    src={resolvePublicPath(burger.img || "/burgers/placeholder.svg")}
                     alt={burger.name}
                     loading={i < 2 ? "eager" : "lazy"}
                     fetchPriority={i < 2 ? "high" : "auto"}
