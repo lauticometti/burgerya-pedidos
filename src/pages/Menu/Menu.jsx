@@ -22,6 +22,7 @@ import { useScrollProgress } from "../../hooks/useScrollProgress";
 import { useCarouselControls } from "../../hooks/useCarouselControls";
 import { TOAST_KEYS } from "../../constants/toastKeys";
 import ScrollBar from "../../components/ui/ScrollBar";
+import BurgerDelDia from "../Burgers/BurgerDelDia";
 import BurgerModal from "../Burgers/BurgerModal";
 import BurgerNotice from "../../components/burgers/BurgerNotice";
 import PapasOptionModal from "../../components/papas/PapasOptionModal";
@@ -57,10 +58,12 @@ function ChevronBtn({ dir, disabled, onClick }) {
   );
 }
 
-// EVENTO 2 AÑOS — menú reducido para delivery
 const BURGER_ROWS = [
   { id: "cheese", emphasis: "top", badge: "TOP" },
+  { id: "bacon", emphasis: "top", badge: "TOP" },
   { id: "lautiboom", emphasis: "mid" },
+  { id: "american", emphasis: "mid" },
+  { id: "bbqueen", emphasis: "deluxe" },
   { id: "smoklahoma", emphasis: "deluxe" },
 ];
 
@@ -72,6 +75,8 @@ export default function Menu() {
     closedToastText,
     isClosed,
     reopenText,
+    dailyFeatureBurgerId,
+    dailyFeatureWeekdayLabel,
   } = useStoreStatus();
   const { canAddItem, showUnavailableError } = useListingPageActions({
     toastKey: TOAST_KEYS.STORE_CLOSED_PAPAS,
@@ -102,6 +107,9 @@ export default function Menu() {
   const bebidasScrollRef = React.useRef(null);
 
   const burgersById = React.useMemo(() => indexById(burgers), []);
+  const featuredBurger = dailyFeatureBurgerId
+    ? burgersById[dailyFeatureBurgerId]
+    : null;
 
   const burgerItems = React.useMemo(
     () =>
@@ -291,55 +299,21 @@ export default function Menu() {
         ref={burgersRef}
         id="section-burgers"
         className={styles.section}>
-        {/* EVENTO 2 AÑOS — burger del día oculta, cartel fijo */}
-        <div style={{
-          textAlign: "center",
-          padding: "1.5rem 1rem 0.75rem",
-        }}>
-          <p style={{
-            fontSize: "0.7rem",
-            fontWeight: 700,
-            letterSpacing: "0.14em",
-            textTransform: "uppercase",
-            color: "#FFC62A",
-            margin: "0 0 0.4rem",
-          }}>
-            Hoy celebramos
-          </p>
-          <p style={{
-            fontSize: "2rem",
-            fontWeight: 900,
-            letterSpacing: "-0.02em",
-            color: "#fff",
-            margin: "0 0 0.6rem",
-            lineHeight: 1.1,
-          }}>
-            2 años de Burger Ya
-          </p>
-          <p style={{
-            fontSize: "0.95rem",
-            color: "#ccc",
-            margin: "0 0 0.5rem",
-            lineHeight: 1.4,
-          }}>
-            Te esperamos en Malaspina 1602 con burger y tragos
-          </p>
-        </div>
-        <div style={{
-          textAlign: "center",
-          padding: "0.25rem 1rem 0.5rem",
-        }}>
-          <p style={{
-            fontSize: "0.75rem",
-            fontWeight: 700,
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            color: "#888",
-            margin: 0,
-          }}>
-            O pedi por delivery:
-          </p>
-        </div>
+        {featuredBurger ? (
+          <div className={styles.featuredWrap}>
+            <BurgerDelDia
+              burger={featuredBurger}
+              weekdayLabel={dailyFeatureWeekdayLabel}
+              onOpen={(evt) => {
+                setModalSkipScroll(true);
+                openBurger(featuredBurger, evt);
+              }}
+              onAddToCart={(burger, size) =>
+                addBurgerToCart(burger, size, {}, { skipScroll: true })
+              }
+            />
+          </div>
+        ) : null}
 
         <div className={styles.sectionHead}>
           <h2 className={styles.sectionTitle}>

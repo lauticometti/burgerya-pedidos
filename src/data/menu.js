@@ -32,7 +32,7 @@ export const burgers = [
     id: "lautiboom",
     name: "Lautiboom",
     tier: "PREMIUM",
-    prices: { simple: 12500, doble: 15000, triple: 18500 },
+    prices: { simple: 11500, doble: 15000, triple: 18500 },
     desc: "Cebolla caramelizada · Salsa especial",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
@@ -41,6 +41,7 @@ export const burgers = [
     ],
     img: "/burgers/lautiboom.svg",
     isAvailable: 1,
+    notice: "Sin ceb. caramelizada",
   },
   {
     id: "american",
@@ -89,6 +90,7 @@ export const burgers = [
     ],
     img: "/burgers/bbqueen.svg",
     isAvailable: 1,
+    notice: "Sin ceb. caramelizada",
   },
   {
     id: "smoklahoma",
