@@ -110,7 +110,7 @@ export const burgers = [
   {
     id: "doritos",
     name: "Doritos",
-    tier: "DELUXE",
+    tier: "limited",
     prices: { simple: 12500, doble: 16000, triple: 19500 },
     desc: "Bacon · Doritos · Cheddar · Barbacoa",
     removableIngredients: [
