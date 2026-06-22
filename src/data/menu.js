@@ -122,6 +122,7 @@ export const burgers = [
     ],
     img: "/burgers/doritos.svg",
     isAvailable: 1,
+    notice: "Sin bacon",
   },
 ];
 
