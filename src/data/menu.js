@@ -58,7 +58,7 @@ export const burgers = [
       { id: "mil_islas", label: "Salsa Mil Islas" },
     ],
     img: "/burgers/american.svg",
-    isAvailable: 1,
+    isAvailable: 0,
   },
   {
     id: "bacon",
@@ -89,8 +89,7 @@ export const burgers = [
       { id: "caramelized_onion", label: "Cebolla caramelizada" },
     ],
     img: "/burgers/bbqueen.svg",
-    isAvailable: 1,
-    notice: "Sin ceb. caramelizada",
+    isAvailable: 0,
   },
   {
     id: "smoklahoma",
