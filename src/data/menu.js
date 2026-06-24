@@ -41,7 +41,6 @@ export const burgers = [
     ],
     img: "/burgers/lautiboom.svg",
     isAvailable: 1,
-    notice: "Sin ceb. caramelizada",
   },
   {
     id: "american",
