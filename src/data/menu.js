@@ -40,7 +40,7 @@ export const burgers = [
       { id: "caramelized_onion", label: "Cebolla caramelizada" },
     ],
     img: "/burgers/lautiboom.svg",
-    isAvailable: 0,
+    isAvailable: 1,
   },
   {
     id: "american",
@@ -88,7 +88,7 @@ export const burgers = [
       { id: "caramelized_onion", label: "Cebolla caramelizada" },
     ],
     img: "/burgers/bbqueen.svg",
-    isAvailable: 0,
+    isAvailable: 1,
   },
   {
     id: "smoklahoma",
