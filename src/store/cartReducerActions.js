@@ -56,18 +56,21 @@ export function removeItemsByPrefix(items, prefix) {
 export function splitBurgerLine(items, baseKey, lineItem) {
   const base = items[baseKey];
   if (!base || base.qty <= 0) return items;
+  if (lineItem.key === baseKey) return items;
 
   const next = { ...items };
 
-  // Decrement base or remove if qty was 1
   if (base.qty === 1) {
     delete next[baseKey];
   } else {
     next[baseKey] = { ...base, qty: base.qty - 1 };
   }
 
-  // Add custom line item
-  next[lineItem.key] = { ...lineItem, qty: 1 };
+  const existing = next[lineItem.key];
+  next[lineItem.key] = {
+    ...(existing || lineItem),
+    qty: (existing?.qty || 0) + 1,
+  };
 
   return next;
 }

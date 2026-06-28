@@ -22,6 +22,9 @@ export default function ModifyIngredientsModal({
   onApplyRemove,
   onClearRemove,
   onClose,
+  // split/confirm-all mode: single confirm button instead of per-tab applies
+  onConfirmAll,
+  confirmAllLabel,
 }) {
   const hasExtras = extras.length > 0;
   const hasRemovable = removableIngredients.length > 0;

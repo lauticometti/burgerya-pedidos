@@ -328,6 +328,10 @@ export function CartProvider({ children }) {
         dispatch({ type: "SET_REMOVED", key, removedIngredients: removed }),
       setPromoPicks: (key, picks) =>
         dispatch({ type: "SET_PROMO_PICKS", key, picks }),
+      splitBurger: (baseKey, lineItem) => {
+        if (baseKey === lineItem.key) return;
+        dispatch({ type: "SPLIT_ONE", baseKey, lineItem });
+      },
     };
   }, [closedToastText, isClosed, state.items, state.lastAdded]);
 
