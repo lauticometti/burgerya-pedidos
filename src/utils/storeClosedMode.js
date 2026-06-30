@@ -10,6 +10,9 @@ export const DAILY_FEATURE_PROMO_OFFER_ID = "daily_feature";
 const MANUAL_STORE_STATUS_DATE = null;
 export const FORCE_OPEN = true; // override manual: forzar apertura fuera de horario
 
+// Aviso de cierre especial — null para desactivar
+const CLOSURE_NOTICE = "Este martes no abrimos. Volvemos miércoles mediodía y noche.";
+
 // Feriados nacionales Argentina 2026 (formato YYYY-MM-DD, hora Argentina)
 const FERIADOS_2026 = new Set([
   "2026-01-01", // Año Nuevo
@@ -333,7 +336,8 @@ export function getStoreStatus(date = null) {
     dailyFeatureBurgerId: dailyFeature?.burgerId || null,
     dailyFeatureWeekdayLabel: dailyFeature?.weekdayLabel || "",
     nextOpenText,
-    showClosedBanner: shouldShowClosedBanner(parts),
+    closureNotice: CLOSURE_NOTICE || null,
+    showClosedBanner: CLOSURE_NOTICE ? true : shouldShowClosedBanner(parts),
   };
 }
 
