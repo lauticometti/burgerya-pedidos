@@ -11,12 +11,11 @@ const SIZES = [
   { size: "triple", label: "Triple" },
 ];
 
-export default function BurgerDelDia({ burger, weekdayLabel, onOpen, onAddToCart }) {
+export default function BurgerDelDia({ burger, weekdayLabel, eyebrow, onOpen, onAddToCart }) {
   if (!burger) return null;
 
-  const eyebrowText = weekdayLabel
-    ? `RECOMENDADA DEL ${weekdayLabel}`
-    : "RECOMENDADA DE HOY";
+  const eyebrowText = eyebrow
+    || (weekdayLabel ? `RECOMENDADA DEL ${weekdayLabel}` : "RECOMENDADA DE HOY");
 
   return (
     <div className={styles.wrapper} onClick={onOpen} role="button" tabIndex={0}

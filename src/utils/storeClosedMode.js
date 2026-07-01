@@ -207,6 +207,7 @@ function buildStatusState(overrides = {}) {
     isDailyFeaturePromoActive: false,
     dailyFeatureBurgerId: null,
     dailyFeatureWeekdayLabel: "",
+    dailyFeatureEyebrow: null,
     showPromoHero: false,
     promoHeroKicker: "",
     promoHeroTitle: "",
@@ -332,6 +333,7 @@ export function getStoreStatus(date = null) {
     isDailyFeaturePromoActive: dailyFeature !== null && dailyFeature.prices !== null,
     dailyFeatureBurgerId: dailyFeature?.burgerId || null,
     dailyFeatureWeekdayLabel: dailyFeature?.weekdayLabel || "",
+    dailyFeatureEyebrow: dailyFeature?.eyebrow || null,
     nextOpenText,
     showClosedBanner: shouldShowClosedBanner(parts),
   };

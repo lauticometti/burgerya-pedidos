@@ -107,6 +107,7 @@ export default function Burgers() {
     reopenText,
     dailyFeatureBurgerId,
     dailyFeatureWeekdayLabel,
+    dailyFeatureEyebrow,
   } = useStoreStatus();
   const [modalOpen, setModalOpen] = React.useState(false);
   const [activeBurger, setActiveBurger] = React.useState(null);
@@ -203,6 +204,7 @@ export default function Burgers() {
       <BurgerDelDia
         burger={featuredBurger}
         weekdayLabel={dailyFeatureWeekdayLabel}
+        eyebrow={dailyFeatureEyebrow}
         onOpen={(evt) => { setModalSkipScroll(true); openBurger(featuredBurger, evt); }}
         onAddToCart={(burger, size) => addBurgerToCart(burger, size, {}, { skipScroll: true })}
       />
