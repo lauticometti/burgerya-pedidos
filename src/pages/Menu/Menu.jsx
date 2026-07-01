@@ -61,10 +61,10 @@ function ChevronBtn({ dir, disabled, onClick }) {
 const BURGER_ROWS = [
   { id: "cheese", emphasis: "top", badge: "TOP" },
   { id: "bacon", emphasis: "top", badge: "TOP" },
-  { id: "smoklahoma", emphasis: "deluxe" },
   { id: "lautiboom", emphasis: "mid" },
   { id: "american", emphasis: "mid" },
   { id: "bbqueen", emphasis: "deluxe" },
+  { id: "smoklahoma", emphasis: "deluxe" },
 ];
 
 export default function Menu() {

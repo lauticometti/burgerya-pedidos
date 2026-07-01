@@ -44,16 +44,6 @@ const SHOWCASE_SECTIONS = [
     ],
   },
   {
-    id: "deluxe",
-    title: "Burgers deluxe",
-    subtitle: "Sabor de lujo.",
-    tone: "deluxe",
-    layout: "single",
-    items: [
-      { id: "smoklahoma", emphasis: "deluxe" },
-    ],
-  },
-  {
     id: "rompen",
     title: "Las que la rompen",
     subtitle: "Mas premium, mas ingredientes.",
@@ -65,13 +55,14 @@ const SHOWCASE_SECTIONS = [
     ],
   },
   {
-    id: "deluxe2",
-    title: "",
-    subtitle: "",
+    id: "deluxe",
+    title: "Burgers deluxe",
+    subtitle: "Sabor de lujo.",
     tone: "deluxe",
-    layout: "single",
+    layout: "pair",
     items: [
       { id: "bbqueen", emphasis: "deluxe" },
+      { id: "smoklahoma", emphasis: "deluxe" },
     ],
   },
   {
@@ -222,12 +213,10 @@ export default function Burgers() {
         <section
           key={section.id}
           className={`${styles.section} ${SECTION_CLASS[section.tone] || ""}`}>
-          {section.title && (
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>{section.title}</h2>
-              <p className={styles.sectionSubtitle}>{section.subtitle}</p>
-            </div>
-          )}
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>{section.title}</h2>
+            <p className={styles.sectionSubtitle}>{section.subtitle}</p>
+          </div>
 
           <div className={`${styles.cards} ${LAYOUT_CLASS[section.layout] || ""}`}>
             {section.items.map((entry, itemIndex) => {
