@@ -78,6 +78,7 @@ export default function Menu() {
     reopenText,
     dailyFeatureBurgerId,
     dailyFeatureWeekdayLabel,
+    dailyFeatureEyebrow,
   } = useStoreStatus();
   const { canAddItem, showUnavailableError } = useListingPageActions({
     toastKey: TOAST_KEYS.STORE_CLOSED_PAPAS,
@@ -305,6 +306,7 @@ export default function Menu() {
             <BurgerDelDia
               burger={featuredBurger}
               weekdayLabel={dailyFeatureWeekdayLabel}
+              eyebrow={dailyFeatureEyebrow}
               onOpen={(evt) => {
                 setModalSkipScroll(true);
                 openBurger(featuredBurger, evt);
