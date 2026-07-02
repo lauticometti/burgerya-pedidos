@@ -42,7 +42,7 @@ export function buildWhatsAppText({
     { key: "promos", title: "PROMOS" },
     { key: "combos", title: "COMBOS C/ COCA" },
     { key: "burgers", title: "BURGERS" },
-    { key: "papas", title: "PAPAS" },
+    { key: "papas", title: "PAPAS EXTRA" },
     { key: "dips", title: "EXTRAS" },
     { key: "bebidas", title: "BEBIDAS" },
   ];

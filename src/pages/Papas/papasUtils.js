@@ -26,13 +26,13 @@ export function buildPapasBase(papasById) {
   return [
     {
       id: "papas_chicas",
-      label: "Papas extra chicas",
+      label: "Papas chicas",
       size: "chica",
       basePrice: getPrice(papasById, "porcion_extra"),
     },
     {
       id: "papas_grandes",
-      label: "Papas extra grandes",
+      label: "Papas grandes",
       size: "grande",
       basePrice: getPrice(papasById, "porcion_grande_solas"),
       img: papasById["porcion_grande_solas"]?.img || null,
@@ -48,7 +48,7 @@ export function buildPapasOptionsBySize(papasById) {
     chica: [
       {
         id: "sola",
-        label: "Papas extra chicas",
+        label: "Papas chicas",
         price: baseChica,
         ...getAvailability(papasById, "porcion_extra"),
       },
@@ -56,7 +56,7 @@ export function buildPapasOptionsBySize(papasById) {
     grande: [
       {
         id: "sola",
-        label: "Papas extra grandes",
+        label: "Papas grandes",
         price: baseGrande,
         ...getAvailability(papasById, "porcion_grande_solas"),
       },
@@ -67,7 +67,7 @@ export function buildPapasOptionsBySize(papasById) {
 export function buildPapasCartItem(size, option) {
   if (!size || !option) return null;
 
-  const name = size === "chica" ? "Papas extra chicas" : "Papas extra grandes";
+  const name = size === "chica" ? "Papas chicas" : "Papas grandes";
 
   return {
     key: `papas:${size}`,

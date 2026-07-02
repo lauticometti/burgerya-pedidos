@@ -167,7 +167,7 @@ export default function Papas() {
       </StickyBar>
       <PapasOptionModal
         open={modalOpen}
-        title={activeSize === "chica" ? "Papas extra chicas" : "Papas extra grandes"}
+        title={activeSize === "chica" ? "Papas chicas" : "Papas grandes"}
         options={activeSize ? optionsBySize[activeSize] : []}
         selectedId={selectedOptionId}
         onSelect={setSelectedOptionId}
