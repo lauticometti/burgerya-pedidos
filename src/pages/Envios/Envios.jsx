@@ -7,9 +7,9 @@ import Button from "../../components/ui/Button";
 import styles from "./Envios.module.css";
 
 const MAP_EMBED =
-  "https://www.google.com/maps/d/u/0/embed?mid=1beWW2H8NuOwD8NjOphwqSHLPHgFoHJs&ehbc=2E312F&noprof=1";
+  "https://www.google.com/maps/d/u/0/embed?mid=1vZ5WYONqEpQPAtf54CTyGqv-YMtxQKQ&ll=-34.59483812296292%2C-58.630894771437305&z=14";
 const MAP_FULL =
-  "https://www.google.com/maps/d/u/0/viewer?mid=1beWW2H8NuOwD8NjOphwqSHLPHgFoHJs&ehbc=2E312F&noprof=1";
+  "https://www.google.com/maps/d/u/0/viewer?mid=1vZ5WYONqEpQPAtf54CTyGqv-YMtxQKQ&ll=-34.59483812296292%2C-58.630894771437305&z=14";
 
 export default function Envios() {
   return (
