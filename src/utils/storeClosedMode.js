@@ -8,7 +8,7 @@ export const FRIDAY_TRIPLE_PROMO_BADGE_TEXT = "TRIPLE = DOBLE";
 export const DAILY_FEATURE_PROMO_OFFER_ID = "daily_feature";
 
 const MANUAL_STORE_STATUS_DATE = null;
-export const FORCE_OPEN = true; // override manual: forzar apertura fuera de horario
+export const FORCE_OPEN = false; // override manual: forzar apertura fuera de horario
 
 // Feriados nacionales Argentina 2026 (formato YYYY-MM-DD, hora Argentina)
 const FERIADOS_2026 = new Set([
@@ -295,15 +295,59 @@ function getNextOpenText(parts) {
   return `Abrimos el ${DAY_NAMES[(day + dayOffset) % 7]} a las ${shift.label}`;
 }
 
-// El banner de cerrado se muestra fuera del horario de apertura (excepto madrugada temprana)
-const BANNER_START_MINUTES = 30;   // 00:30
-const BANNER_END_MINUTES   = 11 * 60; // 11:00 (antes del turno mediodía 11:30)
+// Al abrir, hay una ventana de "pre-pedido" antes de que arranque la cocina
+// ("ya podés hacer tu pedido, empezamos a cocinar a las X").
+const PREORDER_WINDOW_MINUTES = 30;
 
-function shouldShowClosedBanner(parts) {
+function formatMinutesLabel(minutes) {
+  const h = Math.floor(minutes / 60) % 24;
+  const m = minutes % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+// Determina si el turno activo está en fase de pre-pedido (recién abrió,
+// cocina todavía no arrancó) o de cocina (ya se puede cocinar y entregar).
+function getRelevantShiftInfo(day, minutes, dateKey = "") {
+  const shifts = isFeriado(dateKey)
+    ? FERIADO_SHIFTS
+    : SHIFTS.filter((s) => s.days.has(day));
+
+  for (const shift of shifts) {
+    const cookingStart = shift.open + PREORDER_WINDOW_MINUTES;
+    if (minutes >= shift.open && minutes < cookingStart) {
+      return { phase: "preorder", shift, cookingStart };
+    }
+    if (minutes >= cookingStart && minutes < shift.close) {
+      return { phase: "cooking", shift, cookingStart };
+    }
+  }
+  return null;
+}
+
+function getBannerState(parts) {
   const { day, minutes, dateKey } = parts;
-  if (getActiveShift(day, minutes, dateKey)) return false;
-  return minutes >= BANNER_START_MINUTES && minutes < BANNER_END_MINUTES ||
-    (minutes >= 15 * 60 && minutes < 19 * 60 + 30); // entre turnos (15:00–19:30)
+  const info = getRelevantShiftInfo(day, minutes, dateKey);
+
+  if (info?.phase === "preorder") {
+    const cookingLabel = formatMinutesLabel(info.cookingStart);
+    return {
+      type: "preorder",
+      message: `Ya podés hacer tu pedido. Empezamos a cocinar a las ${cookingLabel}.`,
+    };
+  }
+
+  if (info?.phase === "cooking") {
+    const closeLabel = formatMinutesLabel(info.shift.close);
+    return {
+      type: "cooking",
+      message: `Estamos cocinando. Podés pedir hasta las ${closeLabel}.`,
+    };
+  }
+
+  return {
+    type: "closed",
+    message: `Estamos cerrados. ${getNextOpenText(parts)}.`,
+  };
 }
 
 export function getStoreStatus(date = null) {
@@ -326,6 +370,8 @@ export function getStoreStatus(date = null) {
         reopenText: nextOpenText,
       };
 
+  const bannerState = getBannerState(parts);
+
   return {
     ...parts,
     ...baseStatus,
@@ -335,7 +381,8 @@ export function getStoreStatus(date = null) {
     dailyFeatureWeekdayLabel: dailyFeature?.weekdayLabel || "",
     dailyFeatureEyebrow: dailyFeature?.eyebrow || null,
     nextOpenText,
-    showClosedBanner: shouldShowClosedBanner(parts),
+    bannerState,
+    showClosedBanner: bannerState.type === "closed",
   };
 }
 

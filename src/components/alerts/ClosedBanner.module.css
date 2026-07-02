@@ -14,6 +14,12 @@
   width: calc(100% + 2 * var(--page-padding, 16px));
 }
 
+.banner.preorder,
+.banner.cooking {
+  background: oklch(79.5% .184 86.047);
+  color: #1a1a1a;
+}
+
 .icon {
   flex-shrink: 0;
   width: 16px;

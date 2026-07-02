@@ -2,12 +2,16 @@ import { useStoreStatus } from "../../utils/storeClosedMode";
 import styles from "./ClosedBanner.module.css";
 
 export default function ClosedBanner() {
-  const { showClosedBanner, nextOpenText } = useStoreStatus();
+  const { bannerState } = useStoreStatus();
 
-  if (!showClosedBanner) return null;
+  if (!bannerState) return null;
+
+  const bannerClass = [styles.banner, styles[bannerState.type]]
+    .filter(Boolean)
+    .join(" ");
 
   return (
-    <div className={styles.banner} role="status">
+    <div className={bannerClass} role="status">
       <svg
         className={styles.icon}
         aria-hidden="true"
@@ -23,7 +27,7 @@ export default function ClosedBanner() {
         <circle cx="12" cy="12" r="10" />
         <polyline points="12 6 12 12 16 14" />
       </svg>
-      <span className={styles.text}>Estamos cerrados. {nextOpenText}.</span>
+      <span className={styles.text}>{bannerState.message}</span>
     </div>
   );
 }
