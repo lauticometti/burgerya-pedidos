@@ -263,7 +263,7 @@ const FERIADO_SHIFTS = [
 // día sin afectar el horario habitual de otros días con el mismo nombre.
 const SPECIAL_DAY_SHIFTS = {
   "2026-07-03": [
-    { open: 12 * 60,      close: 15 * 60, label: "12:00" }, // mediodía habitual
+    { open: 11 * 60 + 30, close: 15 * 60, label: "11:30" }, // mediodía habitual
     { open: 18 * 60,      close: 24 * 60, label: "18:00" }, // Argentina vs Cabo Verde
   ],
 };
