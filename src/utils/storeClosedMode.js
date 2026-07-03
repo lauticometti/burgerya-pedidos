@@ -258,11 +258,30 @@ const FERIADO_SHIFTS = [
   { open: 19 * 60 + 30, close: 24 * 60,     label: "19:30" },
 ];
 
+// Excepciones puntuales de horario para una fecha específica (formato
+// YYYY-MM-DD, hora Argentina). Reemplazan por completo los turnos de ese
+// día sin afectar el horario habitual de otros días con el mismo nombre.
+const SPECIAL_DAY_SHIFTS = {
+  "2026-07-03": [
+    { open: 12 * 60,      close: 15 * 60, label: "12:00" }, // mediodía habitual
+    { open: 18 * 60,      close: 24 * 60, label: "18:00" }, // Argentina vs Cabo Verde
+  ],
+};
+
+function getSpecialShifts(dateKey) {
+  return SPECIAL_DAY_SHIFTS[dateKey] ?? null;
+}
+
+function getShiftsForDay(day, dateKey) {
+  const special = getSpecialShifts(dateKey);
+  if (special) return special;
+  if (isFeriado(dateKey)) return FERIADO_SHIFTS;
+  return SHIFTS.filter((s) => s.days.has(day));
+}
+
 function getActiveShift(day, minutes, dateKey = "") {
-  if (isFeriado(dateKey)) {
-    return FERIADO_SHIFTS.find((s) => minutes >= s.open && minutes < s.close) ?? null;
-  }
-  return SHIFTS.find((s) => s.days.has(day) && minutes >= s.open && minutes < s.close) ?? null;
+  const shifts = getShiftsForDay(day, dateKey);
+  return shifts.find((s) => minutes >= s.open && minutes < s.close) ?? null;
 }
 
 function getNextShift(day, minutes, dateKey = "") {
@@ -270,8 +289,8 @@ function getNextShift(day, minutes, dateKey = "") {
   for (let offset = 0; offset <= 7; offset++) {
     const checkDay = (day + offset) % 7;
     let shiftsToday;
-    if (offset === 0 && isFeriado(dateKey)) {
-      shiftsToday = [...FERIADO_SHIFTS].sort((a, b) => a.open - b.open);
+    if (offset === 0) {
+      shiftsToday = [...getShiftsForDay(checkDay, dateKey)].sort((a, b) => a.open - b.open);
     } else {
       shiftsToday = SHIFTS.filter((s) => s.days.has(checkDay)).sort((a, b) => a.open - b.open);
     }
@@ -308,9 +327,7 @@ function formatMinutesLabel(minutes) {
 // Determina si el turno activo está en fase de pre-pedido (recién abrió,
 // cocina todavía no arrancó) o de cocina (ya se puede cocinar y entregar).
 function getRelevantShiftInfo(day, minutes, dateKey = "") {
-  const shifts = isFeriado(dateKey)
-    ? FERIADO_SHIFTS
-    : SHIFTS.filter((s) => s.days.has(day));
+  const shifts = getShiftsForDay(day, dateKey);
 
   for (const shift of shifts) {
     const cookingStart = shift.open + PREORDER_WINDOW_MINUTES;
