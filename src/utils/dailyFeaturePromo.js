@@ -14,7 +14,7 @@ export const STOCK_FALLBACK_ID = null;
 // Burgers adicionales que salen al precio promo del día (con tachado).
 // { burgerId: precioOverride } — null = sin promos extras.
 export const DAILY_FEATURE_EXTRA_PROMOS = {
-  cheese: PRICES_PREMIUM,
+  cheese: { simple: 10500, doble: 13500, triple: 17500 },
 };
 
 // Sets de precios promo del día.
