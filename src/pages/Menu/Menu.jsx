@@ -118,7 +118,13 @@ export default function Menu() {
         const burger = burgersById[entry.id];
         if (!burger) return null;
         return { ...entry, burger };
-      }).filter(Boolean),
+      })
+      .filter(Boolean)
+      .sort((a, b) => {
+        const aUnavail = isItemUnavailable(a.burger) ? 1 : 0;
+        const bUnavail = isItemUnavailable(b.burger) ? 1 : 0;
+        return aUnavail - bUnavail;
+      }),
     [burgersById],
   );
 
