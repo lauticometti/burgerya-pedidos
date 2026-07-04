@@ -11,6 +11,12 @@ export const DAILY_FEATURE_OVERRIDE_LABEL = null;
 // null = sin fallback, se muestra la burger del día normal.
 export const STOCK_FALLBACK_ID = null;
 
+// Burgers adicionales que salen al precio promo del día (con tachado).
+// { burgerId: precioOverride } — null = sin promos extras.
+export const DAILY_FEATURE_EXTRA_PROMOS = {
+  cheese: PRICES_PREMIUM,
+};
+
 // Sets de precios promo del día.
 const PRICES_PREMIUM = { simple: 11000, doble: 13500, triple: 17500 }; // original: 11500/15000/18500
 const PRICES_DELUXE  = { simple: 11500, doble: 14000, triple: 18000 }; // original: 12000/15500/19000
@@ -80,6 +86,8 @@ export function getDailyFeature(date = null) {
 
 export function getDailyFeaturePrices(burgerId, date = null) {
   const feature = getDailyFeature(date);
-  if (!feature || feature.burgerId !== burgerId) return null;
-  return feature.prices;
+  if (!feature) return null;
+  if (feature.burgerId === burgerId) return feature.prices;
+  if (DAILY_FEATURE_EXTRA_PROMOS?.[burgerId]) return DAILY_FEATURE_EXTRA_PROMOS[burgerId];
+  return null;
 }
