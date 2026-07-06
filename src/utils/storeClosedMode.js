@@ -10,6 +10,10 @@ export const DAILY_FEATURE_PROMO_OFFER_ID = "daily_feature";
 const MANUAL_STORE_STATUS_DATE = null;
 export const FORCE_OPEN = false; // override manual: forzar apertura fuera de horario
 
+// Mensaje de aviso especial cuando cerramos antes por falta de stock.
+// null = mensaje genérico "Estamos cerrados. Abrimos...".
+export const SOLD_OUT_NOTICE = "¡Todo vendido por hoy! Volvemos el lunes de 12 a 15.";
+
 // Feriados nacionales Argentina 2026 (formato YYYY-MM-DD, hora Argentina)
 const FERIADOS_2026 = new Set([
   "2026-01-01", // Año Nuevo
@@ -266,6 +270,12 @@ const SPECIAL_DAY_SHIFTS = {
     { open: 11 * 60 + 30, close: 15 * 60, label: "11:30" }, // mediodía habitual
     { open: 18 * 60,      close: 24 * 60, label: "18:00" }, // Argentina vs Cabo Verde
   ],
+  "2026-07-05": [
+    { open: 19 * 60 + 30, close: 22 * 60 + 43, label: "19:30" }, // noche corta: todo vendido
+  ],
+  "2026-07-06": [
+    { open: 12 * 60, close: 15 * 60, label: "12:00" }, // lunes: abrimos a las 12
+  ],
 };
 
 function getSpecialShifts(dateKey) {
@@ -359,6 +369,10 @@ function getBannerState(parts) {
       type: "cooking",
       message: `Estamos cocinando. Podés pedir hasta las ${closeLabel}.`,
     };
+  }
+
+  if (SOLD_OUT_NOTICE) {
+    return { type: "closed", message: SOLD_OUT_NOTICE };
   }
 
   return {
