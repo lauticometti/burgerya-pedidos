@@ -1,11 +1,16 @@
 import { getArgentinaTimeParts } from "./storeClosedMode";
 
+// TEMP ARGENTINA MATCH DAY: flag única de campaña. Poner en false para revertir todo.
+export const MATCH_DAY_CAMPAIGN = true;
+
 // Override manual: si querés forzar otra burger un día puntual,
 // poné el id acá (ej: "bacon"). null = usar el mapping automático por día.
-export const DAILY_FEATURE_OVERRIDE_ID = null;
+export const DAILY_FEATURE_OVERRIDE_ID = MATCH_DAY_CAMPAIGN ? "cheese" : null;
 
 // Texto del eyebrow cuando usás override manual. null = muestra "RECOMENDADA DEL <DÍA>" normal.
-export const DAILY_FEATURE_OVERRIDE_LABEL = null;
+export const DAILY_FEATURE_OVERRIDE_LABEL = MATCH_DAY_CAMPAIGN
+  ? "LA BURGER PARA EL PARTIDO"
+  : null;
 
 // Fallback de stock: cuando se agota la burger del día, poné el id acá (ej: "cheese").
 // null = sin fallback, se muestra la burger del día normal.
@@ -58,7 +63,7 @@ export function getDailyFeature(date = null) {
 
   if (DAILY_FEATURE_OVERRIDE_ID === "off") return null;
 
-  if (DAILY_FEATURE_OVERRIDE_ID && DAILY_FEATURE_OVERRIDE_ID !== entry.burgerId) {
+  if (DAILY_FEATURE_OVERRIDE_ID) {
     return {
       burgerId: DAILY_FEATURE_OVERRIDE_ID,
       prices: findPricesForBurgerId(DAILY_FEATURE_OVERRIDE_ID),

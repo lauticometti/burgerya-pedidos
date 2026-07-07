@@ -1,4 +1,5 @@
 import { useStoreStatus } from "../../utils/storeClosedMode";
+import { MATCH_DAY_CAMPAIGN } from "../../utils/dailyFeaturePromo";
 import styles from "./ClosedBanner.module.css";
 
 export default function ClosedBanner() {
@@ -6,7 +7,12 @@ export default function ClosedBanner() {
 
   if (!bannerState) return null;
 
-  const bannerClass = [styles.banner, styles[bannerState.type]]
+  // TEMP ARGENTINA MATCH DAY: recolorea solo el estado "closed" (rojo → celeste). Revertir: MATCH_DAY_CAMPAIGN = false.
+  const bannerClass = [
+    styles.banner,
+    styles[bannerState.type],
+    MATCH_DAY_CAMPAIGN && bannerState.type === "closed" ? styles.matchDay : "",
+  ]
     .filter(Boolean)
     .join(" ");
 

@@ -3,6 +3,7 @@ import { getBurgerPriceInfo } from "../../utils/burgerPricing";
 import { formatMoney } from "../../utils/formatMoney";
 import { resolvePublicPath } from "../../utils/assetPath";
 import BurgerNotice from "../../components/burgers/BurgerNotice";
+import { MATCH_DAY_CAMPAIGN } from "../../utils/dailyFeaturePromo";
 import styles from "./BurgerDelDia.module.css";
 
 const SIZES = [
@@ -22,7 +23,21 @@ export default function BurgerDelDia({ burger, weekdayLabel, eyebrow, onOpen, on
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onOpen(e); }}
       aria-label={`Ver ${burger.name}`}>
 
-      <p className={styles.eyebrow}>{eyebrowText}</p>
+      {/* TEMP ARGENTINA MATCH DAY: cabecera editorial. Quitar este bloque (o MATCH_DAY_CAMPAIGN=false) para revertir. */}
+      {MATCH_DAY_CAMPAIGN ? (
+        <div className={styles.matchDayHead}>
+          <span className={styles.matchDayBar} aria-hidden="true" />
+          <p className={styles.matchDayEyebrow}>Hoy juega Argentina</p>
+          <p className={styles.matchDayTitle}>
+            <span className={styles.matchDayTitleWhite}>La Cheese</span>
+            <br />
+            <span className={styles.matchDayTitleAccent}>para el partido</span>
+          </p>
+          <p className={styles.matchDaySubline}>Doble smash, cheddar y papas incluidas.</p>
+        </div>
+      ) : (
+        <p className={styles.eyebrow}>{eyebrowText}</p>
+      )}
 
       <div className={styles.body}>
         <div className={styles.imgWrap}>
@@ -34,7 +49,7 @@ export default function BurgerDelDia({ burger, weekdayLabel, eyebrow, onOpen, on
         </div>
 
         <div className={styles.info}>
-          <h2 className={styles.name}>{burger.name}</h2>
+          {MATCH_DAY_CAMPAIGN ? null : <h2 className={styles.name}>{burger.name}</h2>}
           {burger.notice ? <BurgerNotice notice={burger.notice} /> : null}
           {burger.desc ? <p className={styles.desc}>{burger.desc}</p> : null}
           <p className={styles.papas}>+ papas incluidas</p>

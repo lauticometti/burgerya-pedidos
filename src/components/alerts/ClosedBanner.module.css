@@ -20,6 +20,12 @@
   color: #1a1a1a;
 }
 
+/* TEMP ARGENTINA MATCH DAY: quitar este bloque (o poner MATCH_DAY_CAMPAIGN=false) para revertir */
+.banner.matchDay {
+  background: #2E9BD6;
+  color: #fff;
+}
+
 .icon {
   flex-shrink: 0;
   width: 16px;
