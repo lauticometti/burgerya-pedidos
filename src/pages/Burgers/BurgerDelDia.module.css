@@ -50,7 +50,7 @@
 .matchDayHead {
   --argentina-celeste: #74C9F5;
   text-align: center;
-  padding-top: 2px;
+  padding-top: 30px;
   margin-bottom: 6px;
 }
 
@@ -94,6 +94,41 @@
   font-size: 14px;
   color: rgba(255, 255, 255, 0.65);
   line-height: 1.35;
+}
+
+/* TEMP ARGENTINA MATCH DAY: decoración festiva, no interactiva. Quitar (o MATCH_DAY_CAMPAIGN=false) para revertir. */
+.matchDayDecor {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  color: var(--argentina-celeste, #74C9F5);
+  z-index: 0;
+}
+
+.matchDayHead,
+.body {
+  position: relative;
+  z-index: 1;
+}
+
+.decorPennants {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  opacity: 0.9;
+}
+
+.decorString {
+  opacity: 0.5;
+}
+
+.decorPennantsGhost {
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  right: 0;
+  opacity: 0.08;
 }
 
 .body {

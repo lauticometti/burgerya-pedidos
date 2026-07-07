@@ -7,11 +7,11 @@ export default function ClosedBanner() {
 
   if (!bannerState) return null;
 
-  // TEMP ARGENTINA MATCH DAY: recolorea solo el estado "closed" (rojo → celeste). Revertir: MATCH_DAY_CAMPAIGN = false.
+  // TEMP ARGENTINA MATCH DAY: recolorea el banner (rojo/amarillo → celeste) en cualquier estado. Revertir: MATCH_DAY_CAMPAIGN = false.
   const bannerClass = [
     styles.banner,
     styles[bannerState.type],
-    MATCH_DAY_CAMPAIGN && bannerState.type === "closed" ? styles.matchDay : "",
+    MATCH_DAY_CAMPAIGN ? styles.matchDay : "",
   ]
     .filter(Boolean)
     .join(" ");

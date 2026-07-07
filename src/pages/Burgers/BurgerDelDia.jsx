@@ -23,7 +23,54 @@ export default function BurgerDelDia({ burger, weekdayLabel, eyebrow, onOpen, on
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onOpen(e); }}
       aria-label={`Ver ${burger.name}`}>
 
-      {/* TEMP ARGENTINA MATCH DAY: cabecera editorial. Quitar este bloque (o MATCH_DAY_CAMPAIGN=false) para revertir. */}
+      {/* TEMP ARGENTINA MATCH DAY: decoración festiva en las esquinas del hero. Quitar este bloque (o MATCH_DAY_CAMPAIGN=false) para revertir. */}
+      {MATCH_DAY_CAMPAIGN ? (
+        <div className={styles.matchDayDecor} aria-hidden="true">
+          <svg className={styles.decorPennants} viewBox="0 0 400 46" preserveAspectRatio="none" width="100%" height="40">
+            <path className={styles.decorString} d="M0 4 Q 100 34, 200 4 T 400 4" fill="none" stroke="currentColor" strokeWidth="1.2" />
+            {(() => {
+              const n = 13;
+              const flags = [];
+              for (let i = 0; i < n; i++) {
+                const t = i / (n - 1);
+                const x = t * 400;
+                const y = 4 + Math.sin(t * Math.PI) * 26 + Math.sin(t * Math.PI * 2) * 4;
+                const isBlue = i % 2 === 0;
+                flags.push(
+                  <path
+                    key={i}
+                    d={`M${x - 8} ${y} L${x + 8} ${y} L${x} ${y + 15} Z`}
+                    fill={isBlue ? "currentColor" : "#fff"}
+                    fillOpacity={isBlue ? 1 : 0.85}
+                  />
+                );
+              }
+              return flags;
+            })()}
+          </svg>
+          <svg className={styles.decorPennantsGhost} viewBox="0 0 400 46" preserveAspectRatio="none" width="100%" height="34">
+            {(() => {
+              const n = 9;
+              const flags = [];
+              for (let i = 0; i < n; i++) {
+                const t = i / (n - 1);
+                const x = t * 400;
+                const y = 2 + Math.sin(t * Math.PI) * 18;
+                const isBlue = i % 2 === 0;
+                flags.push(
+                  <path
+                    key={i}
+                    d={`M${x - 7} ${y} L${x + 7} ${y} L${x} ${y + 13} Z`}
+                    fill={isBlue ? "currentColor" : "#fff"}
+                  />
+                );
+              }
+              return flags;
+            })()}
+          </svg>
+        </div>
+      ) : null}
+
       {MATCH_DAY_CAMPAIGN ? (
         <div className={styles.matchDayHead}>
           <span className={styles.matchDayBar} aria-hidden="true" />

@@ -270,6 +270,18 @@ const SPECIAL_DAY_SHIFTS = {
     { open: 11 * 60 + 30, close: 15 * 60, label: "11:30" }, // mediodía habitual
     { open: 18 * 60,      close: 24 * 60, label: "18:00" }, // Argentina vs Cabo Verde
   ],
+  // TEMP ARGENTINA MATCH DAY: abrimos antes para que se pueda ir reservando,
+  // cocina arranca a las 12hs igual que siempre, y hoy cerramos más tarde
+  // (18hs en vez del cierre habitual de las 15hs) por el partido. Revertir: borrar esta entrada.
+  "2026-07-07": [
+    {
+      open: 11 * 60,
+      close: 18 * 60,
+      label: "11:00",
+      cookingStart: 12 * 60,
+      cookingMessage: "Estamos cocinando. ¡Hacé tu pedido para el partido!",
+    },
+  ],
 };
 
 function getSpecialShifts(dateKey) {
@@ -334,7 +346,9 @@ function getRelevantShiftInfo(day, minutes, dateKey = "") {
   const shifts = getShiftsForDay(day, dateKey);
 
   for (const shift of shifts) {
-    const cookingStart = shift.open + PREORDER_WINDOW_MINUTES;
+    // TEMP ARGENTINA MATCH DAY: algunos turnos especiales definen su propio cookingStart
+    // (ver SPECIAL_DAY_SHIFTS) en vez de usar PREORDER_WINDOW_MINUTES. Revertir: quitar `cookingStart` del shift.
+    const cookingStart = shift.cookingStart ?? shift.open + PREORDER_WINDOW_MINUTES;
     if (minutes >= shift.open && minutes < cookingStart) {
       return { phase: "preorder", shift, cookingStart };
     }
@@ -358,6 +372,11 @@ function getBannerState(parts) {
   }
 
   if (info?.phase === "cooking") {
+    // TEMP ARGENTINA MATCH DAY: si el shift trae cookingMessage, se usa tal cual
+    // (sin horario de cierre). Revertir: quitar `cookingMessage` del shift.
+    if (info.shift.cookingMessage) {
+      return { type: "cooking", message: info.shift.cookingMessage };
+    }
     const closeLabel = formatMinutesLabel(info.shift.close);
     return {
       type: "cooking",

@@ -27,7 +27,14 @@ import BurgerModal from "../Burgers/BurgerModal";
 import BurgerNotice from "../../components/burgers/BurgerNotice";
 import PapasOptionModal from "../../components/papas/PapasOptionModal";
 import SectionNav from "./SectionNav";
+import { MATCH_DAY_CAMPAIGN } from "../../utils/dailyFeaturePromo";
 import styles from "./Menu.module.css";
+
+// TEMP ARGENTINA MATCH DAY: chip temático por sección. Quitar (o MATCH_DAY_CAMPAIGN=false) para revertir.
+function MatchDayBadge({ children }) {
+  if (!MATCH_DAY_CAMPAIGN) return null;
+  return <span className={styles.matchDayBadge}>{children}</span>;
+}
 import {
   buildBurgerAddedToastText,
   buildBurgerCartItem,
@@ -323,12 +330,24 @@ export default function Menu() {
           </div>
         ) : null}
 
+        {/* TEMP ARGENTINA MATCH DAY: cinta temática entre el hero y el listado. Quitar (o MATCH_DAY_CAMPAIGN=false) para revertir. */}
+        {MATCH_DAY_CAMPAIGN ? (
+          <div className={styles.matchDayRibbon}>
+            <svg className={styles.matchDayRibbonIcon} viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.4" />
+              <path d="M12 6.5 15.5 9l-1.3 4H9.8L8.5 9Z" stroke="currentColor" strokeWidth="1.1" />
+            </svg>
+            <span>ARMÁ TU PEDIDO ANTES DEL PARTIDO</span>
+          </div>
+        ) : null}
+
         <div className={styles.sectionHead}>
           <h2 className={styles.sectionTitle}>
             Burgers
             <span className={styles.sectionTitleSide}>con papas</span>
           </h2>
           <p className={styles.sectionSub}>Smash. Cheddar. Punto.</p>
+          <MatchDayBadge>Las titulares</MatchDayBadge>
         </div>
 
         <div className={styles.carouselWrap}>
@@ -444,6 +463,7 @@ export default function Menu() {
         <div className={styles.sectionHead}>
           <h2 className={styles.sectionTitle}>Papas extra</h2>
           <p className={styles.sectionSub}>Las burgers del menú ya incluyen papas. Estas son porciones extra.</p>
+          <MatchDayBadge>Para compartir</MatchDayBadge>
         </div>
         <div className={styles.carouselWrap}>
           <ChevronBtn dir="left" disabled={!papasControls.canScrollLeft} onClick={papasControls.scrollPrev} />
@@ -500,7 +520,10 @@ export default function Menu() {
         id="section-dips"
         className={styles.section}>
         <div className={styles.sectionHead}>
-          <h2 className={styles.sectionTitle}>Dips</h2>
+          <h2 className={styles.sectionTitle}>
+            Dips
+            <MatchDayBadge>Para mojar todo</MatchDayBadge>
+          </h2>
         </div>
         <div className={styles.carouselWrap}>
           <ChevronBtn dir="left" disabled={!dipsControls.canScrollLeft} onClick={dipsControls.scrollPrev} />
@@ -566,7 +589,10 @@ export default function Menu() {
         id="section-bebidas"
         className={styles.section}>
         <div className={styles.sectionHead}>
-          <h2 className={styles.sectionTitle}>Bebidas</h2>
+          <h2 className={styles.sectionTitle}>
+            Bebidas
+            <MatchDayBadge>Sumá bebida</MatchDayBadge>
+          </h2>
         </div>
         <div className={styles.carouselWrap}>
           <ChevronBtn dir="left" disabled={!bebidasControls.canScrollLeft} onClick={bebidasControls.scrollPrev} />
