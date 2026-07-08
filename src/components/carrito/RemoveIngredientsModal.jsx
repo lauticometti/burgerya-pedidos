@@ -8,6 +8,7 @@ export default function RemoveIngredientsModal({
   title,
   ingredients = [],
   selectedIds = [],
+  forcedIds = [],
   onToggle,
   onApply,
   onClear,
@@ -33,17 +34,20 @@ export default function RemoveIngredientsModal({
         <div className={styles.list}>
           {ingredients.map((ing) => {
             const checked = selectedIds.includes(ing.id);
+            const isForced = forcedIds.includes(ing.id);
             return (
               <label
                 key={ing.id}
-                className={`${styles.row} ${checked ? styles.rowOn : ""}`}>
+                className={`${styles.row} ${checked ? styles.rowOn : ""} ${isForced ? styles.rowForced : ""}`}>
                 <input
                   type="checkbox"
                   className={styles.checkbox}
                   checked={checked}
-                  onChange={() => onToggle?.(ing.id)}
+                  disabled={isForced}
+                  onChange={() => !isForced && onToggle?.(ing.id)}
                 />
                 <span className={styles.name}>{ing.label}</span>
+                {isForced ? <span className={styles.forcedTag}>sin stock</span> : null}
               </label>
             );
           })}

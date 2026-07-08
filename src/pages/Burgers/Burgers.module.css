@@ -179,6 +179,12 @@
   border: 1px solid rgba(255, 198, 42, 0.7);
 }
 
+.signalAlert {
+  background: rgba(18, 18, 18, 0.92);
+  color: #ff9f43;
+  border: 1px solid rgba(255, 159, 67, 0.5);
+}
+
 .cardBody {
   padding: 6px;
   display: grid;

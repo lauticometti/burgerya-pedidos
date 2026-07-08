@@ -39,7 +39,7 @@ const SHOWCASE_SECTIONS = [
     tone: "gustan",
     layout: "pairHero",
     items: [
-      { id: "bacon", badge: "TOP", emphasis: "top" },
+      { id: "bacon", badge: "SIN BACON", badgeStyle: "alert", emphasis: "top" },
       { id: "cheese", badge: "TOP", emphasis: "top" },
     ],
   },
@@ -61,8 +61,8 @@ const SHOWCASE_SECTIONS = [
     tone: "deluxe",
     layout: "pair",
     items: [
-      { id: "bbqueen", emphasis: "deluxe" },
-      { id: "smoklahoma", emphasis: "deluxe" },
+      { id: "bbqueen", emphasis: "deluxe", badge: "SIN BACON", badgeStyle: "alert" },
+      { id: "smoklahoma", emphasis: "deluxe", badge: "SIN BACON", badgeStyle: "alert" },
     ],
   },
   {
@@ -237,9 +237,11 @@ export default function Burgers() {
                 : entry.badge || null;
               const cardSignalClass = isHoySection
                 ? styles.signalDiscount
-                : entry.badge
-                  ? styles.signalTop
-                  : "";
+                : entry.badgeStyle === "alert"
+                  ? styles.signalAlert
+                  : entry.badge
+                    ? styles.signalTop
+                    : "";
 
               return (
                 <article

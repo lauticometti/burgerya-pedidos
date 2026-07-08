@@ -55,11 +55,12 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
     if (!open || !burger) return;
     const first =
       SIZE_ORDER.find((candidate) => burger.prices?.[candidate] != null) || null;
+    const forcedIds = burger.forcedRemovals?.map((r) => r.id) || [];
     setWantsPapas(false);
     setPapasImprovements([]);
     setCustomizations({
       size: first,
-      removedIds: [],
+      removedIds: forcedIds,
       extrasIds: [],
       papasIds: [],
     });
@@ -437,14 +438,16 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
         title={`Quitar a ${burger.name}`}
         ingredients={removableIngredients}
         selectedIds={modals.removeDraftIds}
-        onToggle={(id) =>
+        forcedIds={burger.forcedRemovals?.map((r) => r.id) || []}
+        onToggle={(id) => {
+          if (burger.forcedRemovals?.some((r) => r.id === id)) return;
           setModals((prev) => ({
             ...prev,
             removeDraftIds: prev.removeDraftIds.includes(id)
               ? prev.removeDraftIds.filter((itemId) => itemId !== id)
               : [...prev.removeDraftIds, id],
-          }))
-        }
+          }));
+        }}
         onApply={() => {
           setCustomizations((prev) => ({
             ...prev,
