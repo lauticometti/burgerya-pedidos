@@ -51,7 +51,7 @@ const SHOWCASE_SECTIONS = [
     layout: "pair",
     items: [
       { id: "american", emphasis: "mid" },
-      { id: "lautiboom", emphasis: "mid" },
+      { id: "lautiboom", emphasis: "mid", badge: "SIN CEB. CARAMELIZADA", badgeStyle: "alert" },
     ],
   },
   {
@@ -61,8 +61,8 @@ const SHOWCASE_SECTIONS = [
     tone: "deluxe",
     layout: "pair",
     items: [
-      { id: "bbqueen", emphasis: "deluxe" },
-      { id: "smoklahoma", emphasis: "deluxe", badge: "SIN CEBOLLA", badgeStyle: "alert" },
+      { id: "bbqueen", emphasis: "deluxe", badge: "SIN CEB. CARAMELIZADA", badgeStyle: "alert" },
+      { id: "smoklahoma", emphasis: "deluxe" },
     ],
   },
   {

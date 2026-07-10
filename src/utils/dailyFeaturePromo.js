@@ -5,12 +5,12 @@ export const MATCH_DAY_CAMPAIGN = false;
 
 // Override manual: si querés forzar otra burger un día puntual,
 // poné el id acá (ej: "bacon"). null = usar el mapping automático por día.
-export const DAILY_FEATURE_OVERRIDE_ID = MATCH_DAY_CAMPAIGN ? "cheese" : null;
+export const DAILY_FEATURE_OVERRIDE_ID = MATCH_DAY_CAMPAIGN ? "cheese" : "cheese";
 
 // Texto del eyebrow cuando usás override manual. null = muestra "RECOMENDADA DEL <DÍA>" normal.
 export const DAILY_FEATURE_OVERRIDE_LABEL = MATCH_DAY_CAMPAIGN
   ? "LA BURGER PARA EL PARTIDO"
-  : null;
+  : "PROMO MEDIODIA";
 
 // Fallback de stock: cuando se agota la burger del día, poné el id acá (ej: "cheese").
 // null = sin fallback, se muestra la burger del día normal.
