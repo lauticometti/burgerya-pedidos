@@ -96,7 +96,6 @@ export const burgers = [
     tier: "DELUXE",
     prices: { simple: 12000, doble: 15500, triple: 19000 },
     desc: "Carne con cebolla ultrafina · Bacon · Salsa especial",
-    notice: "Sale sin cebolla",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
       { id: "onion", label: "Cebolla" },
