@@ -62,7 +62,7 @@ const SHOWCASE_SECTIONS = [
     layout: "pair",
     items: [
       { id: "bbqueen", emphasis: "deluxe" },
-      { id: "smoklahoma", emphasis: "deluxe" },
+      { id: "smoklahoma", emphasis: "deluxe", badge: "SIN CEBOLLA", badgeStyle: "alert" },
     ],
   },
   {
