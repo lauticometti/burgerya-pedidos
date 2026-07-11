@@ -20,7 +20,7 @@ export const burgers = [
     id: "cheese",
     name: "Cheese",
     tier: "BASICA",
-    prices: { simple: 10500, doble: 14000, triple: 17500 },
+    prices: { simple: 11000, doble: 14500, triple: 18000 },
     desc: "Pan de papa, carne smash, cheddar",
     removableIngredients: [{ id: "cheddar", label: "Cheddar" }],
     img: "/burgers/cheese.svg",
@@ -32,7 +32,7 @@ export const burgers = [
     id: "lautiboom",
     name: "Lautiboom",
     tier: "PREMIUM",
-    prices: { simple: 11500, doble: 15000, triple: 18500 },
+    prices: { simple: 12000, doble: 15500, triple: 19000 },
     desc: "Cebolla caramelizada · Salsa especial",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
@@ -46,7 +46,7 @@ export const burgers = [
     id: "american",
     name: "American",
     tier: "PREMIUM",
-    prices: { simple: 11500, doble: 15000, triple: 18500 },
+    prices: { simple: 12000, doble: 15500, triple: 19000 },
     desc: "Lechuga · Tomate · Cebolla · Pepinos · Salsa especial",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
@@ -63,7 +63,7 @@ export const burgers = [
     id: "bacon",
     name: "Bacon",
     tier: "PREMIUM",
-    prices: { simple: 11500, doble: 15000, triple: 18500 },
+    prices: { simple: 12000, doble: 15500, triple: 19000 },
     desc: "Doble cheddar · Bacon crocante",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
@@ -78,7 +78,7 @@ export const burgers = [
     id: "bbqueen",
     name: "BBQueen",
     tier: "DELUXE",
-    prices: { simple: 12000, doble: 15500, triple: 19000 },
+    prices: { simple: 12500, doble: 16000, triple: 19500 },
     desc: "Bacon · Cebolla caramelizada · Tomate · Salsa barbacoa",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
@@ -94,7 +94,7 @@ export const burgers = [
     id: "smoklahoma",
     name: "Smoklahoma",
     tier: "DELUXE",
-    prices: { simple: 12000, doble: 15500, triple: 19000 },
+    prices: { simple: 12500, doble: 16000, triple: 19500 },
     desc: "Carne con cebolla ultrafina · Bacon · Salsa especial",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
