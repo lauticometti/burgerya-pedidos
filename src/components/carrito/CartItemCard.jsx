@@ -57,7 +57,7 @@ export default function CartItemCard({
   const picksText = item.meta?.picks?.length
     ? formatPickNames(item.meta.picks)
     : null;
-  const joiner = isPromo ? " / " : " + ";
+  const joiner = isPromo ? " / " : ", ";
   const burgerId = item.meta?.burgerId;
   const burger = burgerId ? burgersById[burgerId] : null;
   const burgerSizes = burger ? Object.keys(burger.prices || {}).length : 0;
@@ -73,6 +73,8 @@ export default function CartItemCard({
   const removedIngredients = item.removedIngredients || [];
   const showRemoveButton = !locked;
   const displayName = isGift ? "Papas extra incluidas" : item.name;
+  const isBurger = item.meta?.type === "burger";
+  const modifyButtonLabel = isBurger ? "Personalizar burger" : "Modificar ingredientes";
 
   function getPickRemovables(pick) {
     const burgerId = pick.id || pick.burgerId;
@@ -139,12 +141,13 @@ export default function CartItemCard({
       {(canAddExtras || (!isPromo && removableIngredients.length > 0)) ? (
         <div className={styles.actions}>
           <Button size="sm" onClick={onOpenModify}>
-            Modificar ingredientes
+            {modifyButtonLabel}
           </Button>
         </div>
       ) : null}
 
       {!isPromo &&
+      !isBurger &&
       item.meta?.type !== "papas" &&
       item.meta?.type !== "bebida" ? (
         <div className={styles.noteEditor}>

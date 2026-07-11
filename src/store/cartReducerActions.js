@@ -47,27 +47,66 @@ export function removeItemsByPrefix(items, prefix) {
 }
 
 /**
- * Handle burger split: create line item variant while decrementing base qty
+ * Apply a full modifier draft (extras, removed ingredients, note) to exactly
+ * one unit of a burger line, splitting it off from the rest of the qty.
+ * If a line with the resulting configuration already exists, merges into it.
  * @param {Object} items - Items mapping
- * @param {string} baseKey - Original burger key
- * @param {Object} lineItem - New line item with custom modifications
+ * @param {string} baseKey - Original burger line key
+ * @param {Object} draft - { key, extras, removedIngredients, note, meta }
  * @returns {Object} - New items object
  */
-export function splitBurgerLine(items, baseKey, lineItem) {
+export function updateOneBurgerLine(items, baseKey, draft) {
   const base = items[baseKey];
   if (!base || base.qty <= 0) return items;
 
   const next = { ...items };
 
-  // Decrement base or remove if qty was 1
   if (base.qty === 1) {
     delete next[baseKey];
   } else {
     next[baseKey] = { ...base, qty: base.qty - 1 };
   }
 
-  // Add custom line item
-  next[lineItem.key] = { ...lineItem, qty: 1 };
+  const existing = next[draft.key];
+  if (existing && draft.key !== baseKey) {
+    next[draft.key] = { ...existing, qty: existing.qty + 1 };
+  } else {
+    next[draft.key] = {
+      ...base,
+      ...draft,
+      qty: 1,
+    };
+  }
+
+  return next;
+}
+
+/**
+ * Apply a full modifier draft (extras, removed ingredients, note) to every
+ * unit of a burger line. If a line with the resulting configuration already
+ * exists, merges the whole quantity into it.
+ * @param {Object} items - Items mapping
+ * @param {string} baseKey - Original burger line key
+ * @param {Object} draft - { key, extras, removedIngredients, note, meta }
+ * @returns {Object} - New items object
+ */
+export function updateAllBurgerLine(items, baseKey, draft) {
+  const base = items[baseKey];
+  if (!base || base.qty <= 0) return items;
+
+  const next = { ...items };
+  delete next[baseKey];
+
+  const existing = draft.key !== baseKey ? next[draft.key] : null;
+  if (existing) {
+    next[draft.key] = { ...existing, qty: existing.qty + base.qty };
+  } else {
+    next[draft.key] = {
+      ...base,
+      ...draft,
+      qty: base.qty,
+    };
+  }
 
   return next;
 }

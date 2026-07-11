@@ -2,6 +2,8 @@
 import { useCart } from "../../store/useCart";
 import { burgers, papas } from "../../data/menu";
 import ModifyIngredientsModal from "../../components/carrito/ModifyIngredientsModal";
+import ModifyScopeDialog from "../../components/carrito/ModifyScopeDialog";
+import PromoPickModifiersModal from "../../components/carrito/PromoPickModifiersModal";
 import { formatMoney } from "../../utils/formatMoney";
 import Page from "../../components/layout/Page";
 import StickyBar from "../../components/layout/StickyBar";
@@ -23,6 +25,8 @@ import {
 } from "./carritoUtils";
 import useCartUndo from "./useCartUndo";
 import useCarritoModals from "./useCarritoModals";
+import useBurgerCustomizeModal from "./useBurgerCustomizeModal";
+import { extras as extrasData } from "../../data/menu";
 import useCarritoCheckoutForm from "./useCarritoCheckoutForm";
 import useCheckoutValidation from "./useCheckoutValidation";
 import useCarritoTimeSlots from "./useCarritoTimeSlots";
@@ -139,12 +143,22 @@ export default function Carrito() {
     papasMejoras,
   );
 
+  const burgerCustomize = useBurgerCustomizeModal({
+    cart,
+    burgersById,
+    extraItems: extrasData,
+  });
+
   const [modifyOpen, setModifyOpen] = React.useState(false);
   const openModifyModal = React.useCallback((item, mode, pickIndex = null) => {
+    if (pickIndex == null && item.meta?.type === "burger") {
+      burgerCustomize.openCustomize(item);
+      return;
+    }
     extrasModal.openExtrasModal(item, mode ?? "extras", pickIndex);
     removeModal.openRemoveModal(item, pickIndex);
     setModifyOpen(true);
-  }, [extrasModal, removeModal]);
+  }, [extrasModal, removeModal, burgerCustomize]);
   const closeModifyModal = React.useCallback(() => {
     setModifyOpen(false);
     extrasModal.closeExtrasModal();
@@ -367,7 +381,7 @@ export default function Carrito() {
         )}
       </StickyBar>
 
-      <ModifyIngredientsModal
+      <PromoPickModifiersModal
         open={modifyOpen}
         title="Modificar ingredientes"
         extras={extrasModal.modalItems || []}
@@ -382,6 +396,26 @@ export default function Carrito() {
         onApplyRemove={() => { removeModal.applySelection(); closeModifyModal(); }}
         onClearRemove={removeModal.clearSelection}
         onClose={closeModifyModal}
+      />
+
+      <ModifyScopeDialog
+        open={burgerCustomize.scopeChoiceOpen}
+        label={burgerCustomize.scopeChoiceLabel}
+        onChooseOne={() => burgerCustomize.chooseScope("one")}
+        onChooseAll={() => burgerCustomize.chooseScope("all")}
+        onClose={burgerCustomize.cancelScopeChoice}
+      />
+
+      <ModifyIngredientsModal
+        open={burgerCustomize.modalOpen}
+        title="Personalizar burger"
+        extras={burgerCustomize.extras}
+        removableIngredients={burgerCustomize.removableIngredients}
+        initialExtraIds={(burgerCustomize.modalItem?.extras || []).map((e) => e.id)}
+        initialRemovedIds={(burgerCustomize.modalItem?.removedIngredients || []).map((i) => i.id)}
+        initialNote={burgerCustomize.modalItem?.note || ""}
+        onApply={burgerCustomize.applyChanges}
+        onClose={burgerCustomize.closeModal}
       />
       <BebidasModal
         open={bebidaModal.bebidaOpen}

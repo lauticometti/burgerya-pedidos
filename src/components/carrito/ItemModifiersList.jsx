@@ -12,12 +12,8 @@ export function RemovedIngredientsList({ items }) {
   if (!items?.length) return null;
 
   return (
-    <div className={styles.removedList}>
-      {items.map((rem) => (
-        <div key={rem.id || rem.label} className={styles.removedLine}>
-          - Sin {rem.label || rem.id}
-        </div>
-      ))}
+    <div className={styles.metaSmall}>
+      Sin: {items.map((rem) => rem.label || rem.id).join(", ")}
     </div>
   );
 }

@@ -5,11 +5,13 @@ import { getBurgerPriceInfo } from "../utils/burgerPricing";
 import { getPapasUpgradePrice } from "../utils/papasPricing";
 import { toast } from "../utils/toast";
 import { useStoreStatus } from "../utils/storeClosedMode";
+import { buildBurgerLineKey } from "../utils/cartKeys";
 import {
   mutateItem,
   removeItems,
   removeItemsByPrefix,
-  splitBurgerLine,
+  updateOneBurgerLine,
+  updateAllBurgerLine,
   setPapasUpgrade,
 } from "./cartReducerActions";
 
@@ -18,10 +20,16 @@ function reducer(state, action) {
     case "REMOVE_MANY":
       return { ...state, items: removeItems(state.items, action.keys) };
 
-    case "SPLIT_ONE":
+    case "UPDATE_ONE_BURGER_LINE":
       return {
         ...state,
-        items: splitBurgerLine(state.items, action.baseKey, action.lineItem),
+        items: updateOneBurgerLine(state.items, action.baseKey, action.draft),
+      };
+
+    case "UPDATE_ALL_BURGER_LINE":
+      return {
+        ...state,
+        items: updateAllBurgerLine(state.items, action.baseKey, action.draft),
       };
 
     case "SET_PAPAS_UP":
@@ -328,6 +336,35 @@ export function CartProvider({ children }) {
         dispatch({ type: "SET_REMOVED", key, removedIngredients: removed }),
       setPromoPicks: (key, picks) =>
         dispatch({ type: "SET_PROMO_PICKS", key, picks }),
+      applyBurgerLineModifiers: (item, scope, modifiers) => {
+        const { extras = [], removedIngredients = [], note = "" } = modifiers;
+        const removedIds = removedIngredients.map((ing) => ing.id).filter(Boolean);
+        const extrasIds = extras.map((extra) => extra.id).filter(Boolean);
+        const key = buildBurgerLineKey({
+          burgerId: item.meta?.burgerId,
+          size: item.meta?.size,
+          removedIds,
+          extrasIds,
+          papasIds: item.meta?.papasIds || [],
+          note,
+        });
+        const draft = {
+          key,
+          extras,
+          removedIngredients,
+          note,
+          meta: {
+            ...item.meta,
+            extrasIds,
+            removedIngredientIds: removedIds,
+          },
+        };
+        dispatch({
+          type: scope === "one" ? "UPDATE_ONE_BURGER_LINE" : "UPDATE_ALL_BURGER_LINE",
+          baseKey: item.key,
+          draft,
+        });
+      },
     };
   }, [closedToastText, isClosed, state.items, state.lastAdded]);
 

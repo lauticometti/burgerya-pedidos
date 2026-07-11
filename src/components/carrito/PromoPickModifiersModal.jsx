@@ -1,72 +1,36 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Button from "../ui/Button";
 import CloseButton from "../ui/CloseButton";
-import { TextareaField } from "../ui/FormFields";
 import styles from "./ModifyIngredientsModal.module.css";
 import useEscapeToClose from "../../hooks/useEscapeToClose";
 import { getUnavailableReason, isItemUnavailable } from "../../utils/availability";
 
-export default function ModifyIngredientsModal({
+export default function PromoPickModifiersModal({
   open,
   title,
   extras = [],
+  selectedExtraIds = [],
+  onToggleExtra,
+  onApplyExtras,
+  onClearExtras,
+  disableApplyExtras,
   removableIngredients = [],
-  initialExtraIds = [],
-  initialRemovedIds = [],
-  initialNote = "",
-  showNote = true,
-  onApply,
+  removedIds = [],
+  onToggleRemove,
+  onApplyRemove,
+  onClearRemove,
   onClose,
 }) {
   const hasExtras = extras.length > 0;
   const hasRemovable = removableIngredients.length > 0;
-  const [tab, setTab] = useState("extras");
-  const [extraIds, setExtraIds] = useState(initialExtraIds);
-  const [removedIds, setRemovedIds] = useState(initialRemovedIds);
-  const [note, setNote] = useState(initialNote);
+  const defaultTab = hasExtras ? "extras" : "remove";
+  const [tab, setTab] = useState(defaultTab);
 
   useEscapeToClose(open, onClose);
-
-  useEffect(() => {
-    if (!open) return;
-    setTab(hasExtras ? "extras" : "remove");
-    setExtraIds(initialExtraIds);
-    setRemovedIds(initialRemovedIds);
-    setNote(initialNote);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
 
   if (!open) return null;
 
   const showTabs = hasExtras && hasRemovable;
-
-  function toggleExtra(id) {
-    const item = extras.find((e) => e.id === id);
-    if (isItemUnavailable(item)) return;
-    setExtraIds((prev) =>
-      prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id],
-    );
-  }
-
-  function toggleRemove(id) {
-    setRemovedIds((prev) =>
-      prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id],
-    );
-  }
-
-  function handleApply() {
-    const selectedExtras = extras.filter(
-      (item) => extraIds.includes(item.id) && !isItemUnavailable(item),
-    );
-    const selectedRemoved = removableIngredients.filter((ing) =>
-      removedIds.includes(ing.id),
-    );
-    onApply?.({
-      extras: selectedExtras,
-      removedIngredients: selectedRemoved,
-      note,
-    });
-  }
 
   return (
     <div className={styles.backdrop} onMouseDown={onClose}>
@@ -74,10 +38,10 @@ export default function ModifyIngredientsModal({
         className={styles.card}
         role="dialog"
         aria-modal="true"
-        aria-label={title || "Personalizar burger"}
+        aria-label={title || "Modificar ingredientes"}
         onMouseDown={(e) => e.stopPropagation()}>
         <div className={styles.header}>
-          <div className={styles.title}>{title || "Personalizar burger"}</div>
+          <div className={styles.title}>{title || "Modificar ingredientes"}</div>
           <CloseButton onClick={onClose} aria-label="Cerrar" />
         </div>
 
@@ -105,7 +69,7 @@ export default function ModifyIngredientsModal({
             ) : null}
             <div className={styles.list}>
               {extras.map((item) => {
-                const checked = extraIds.includes(item.id);
+                const checked = selectedExtraIds.includes(item.id);
                 const unavailable = isItemUnavailable(item);
                 const reason = getUnavailableReason(item);
                 return (
@@ -120,7 +84,10 @@ export default function ModifyIngredientsModal({
                       disabled={unavailable}
                       aria-disabled={unavailable}
                       title={unavailable ? reason : undefined}
-                      onChange={() => toggleExtra(item.id)}
+                      onChange={() => {
+                        if (unavailable) return;
+                        onToggleExtra?.(item.id);
+                      }}
                     />
                     <span className={styles.rowNameWrap}>
                       <span className={styles.rowName}>{item.name}</span>
@@ -134,6 +101,24 @@ export default function ModifyIngredientsModal({
                   </label>
                 );
               })}
+            </div>
+            <div className={styles.footer}>
+              <div className={styles.footerPrimary}>
+                <Button
+                  variant="primary"
+                  type="button"
+                  onClick={onApplyExtras}
+                  disabled={disableApplyExtras}>
+                  Aplicar
+                </Button>
+              </div>
+              <div className={styles.footerSecondary}>
+                {onClearExtras ? (
+                  <Button type="button" onClick={onClearExtras}>
+                    Limpiar
+                  </Button>
+                ) : null}
+              </div>
             </div>
           </>
         ) : null}
@@ -154,7 +139,7 @@ export default function ModifyIngredientsModal({
                       type="checkbox"
                       className={styles.checkbox}
                       checked={checked}
-                      onChange={() => toggleRemove(ing.id)}
+                      onChange={() => onToggleRemove?.(ing.id)}
                     />
                     <span className={styles.rowName}>{ing.label}</span>
                   </label>
@@ -164,36 +149,20 @@ export default function ModifyIngredientsModal({
                 <div className={styles.empty}>Sin ingredientes removibles.</div>
               ) : null}
             </div>
+            <div className={styles.footer}>
+              <div className={styles.footerPrimary}>
+                <Button variant="primary" type="button" onClick={onApplyRemove}>
+                  Aplicar
+                </Button>
+              </div>
+              <div className={styles.footerSecondary}>
+                <Button type="button" onClick={onClearRemove}>
+                  Limpiar
+                </Button>
+              </div>
+            </div>
           </>
         ) : null}
-
-        {showNote ? (
-          <div className={styles.noteSection}>
-            <div className={styles.sectionLabel}>
-              Aclaración para esta burger (opcional)
-            </div>
-            <TextareaField
-              placeholder="Ej: bien cocida, cortar al medio"
-              value={note}
-              onChange={(event) => setNote(event.target.value)}
-              rows={2}
-              className={styles.noteInput}
-            />
-          </div>
-        ) : null}
-
-        <div className={styles.footer}>
-          <div className={styles.footerPrimary}>
-            <Button variant="primary" type="button" onClick={handleApply}>
-              Aplicar cambios
-            </Button>
-          </div>
-          <div className={styles.footerSecondary}>
-            <Button type="button" onClick={onClose}>
-              Cancelar
-            </Button>
-          </div>
-        </div>
       </div>
     </div>
   );

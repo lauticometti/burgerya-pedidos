@@ -1,3 +1,14 @@
+export function normalizeNote(note) {
+  return String(note ?? "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+}
+
+function dedupeSorted(ids = []) {
+  return Array.from(new Set((ids || []).filter(Boolean))).sort();
+}
+
 export function buildBurgerLineKey({
   kind = "burger",
   burgerId,
@@ -6,29 +17,28 @@ export function buildBurgerLineKey({
   removedIds = [],
   extrasIds = [],
   papasIds = [],
+  note = "",
 }) {
-  const cleanRemoved = (removedIds || []).filter(Boolean);
-  const cleanExtras = (extrasIds || []).filter(Boolean);
-  const cleanPapas = (papasIds || []).filter(Boolean);
-  const removalSuffix = cleanRemoved.length
-    ? `rm:${cleanRemoved.slice().sort().join("-")}`
-    : "";
-  const extrasSuffix = cleanExtras.length
-    ? `ex:${cleanExtras.slice().sort().join("-")}`
-    : "";
-  const papasSuffix = cleanPapas.length
-    ? `pp:${cleanPapas.slice().sort().join("-")}`
-    : "";
+  const sortedRemoved = dedupeSorted(removedIds);
+  const sortedExtras = dedupeSorted(extrasIds);
+  const sortedPapas = dedupeSorted(papasIds);
+  const normalizedNote = normalizeNote(note);
 
   if (kind === "combo") {
-    const parts = ["combo", comboId || "combo", burgerId || "burger"];
-    if (removalSuffix) parts.push(removalSuffix);
-    return parts.join(":");
+    return [
+      `combo:${comboId || "combo"}`,
+      `burger:${burgerId || "burger"}`,
+      `removed:${sortedRemoved.join(",")}`,
+      `note:${encodeURIComponent(normalizedNote)}`,
+    ].join("|");
   }
 
-  const parts = ["burger", burgerId || "burger", size || "simple"];
-  if (removalSuffix) parts.push(removalSuffix);
-  if (extrasSuffix) parts.push(extrasSuffix);
-  if (papasSuffix) parts.push(papasSuffix);
-  return parts.join(":");
+  return [
+    `burger:${burgerId || "burger"}`,
+    `size:${size || "simple"}`,
+    `extras:${sortedExtras.join(",")}`,
+    `removed:${sortedRemoved.join(",")}`,
+    `papas:${sortedPapas.join(",")}`,
+    `note:${encodeURIComponent(normalizedNote)}`,
+  ].join("|");
 }
