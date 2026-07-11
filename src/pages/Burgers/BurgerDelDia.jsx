@@ -76,11 +76,11 @@ export default function BurgerDelDia({ burger, weekdayLabel, eyebrow, onOpen, on
           <span className={styles.matchDayBar} aria-hidden="true" />
           <p className={styles.matchDayEyebrow}>Hoy juega Argentina</p>
           <p className={styles.matchDayTitle}>
-            <span className={styles.matchDayTitleWhite}>La Cheese</span>
+            <span className={styles.matchDayTitleWhite}>La Bacon</span>
             <br />
             <span className={styles.matchDayTitleAccent}>para el partido</span>
           </p>
-          <p className={styles.matchDaySubline}>Doble smash, cheddar y papas incluidas.</p>
+          <p className={styles.matchDaySubline}>Doble cheddar, bacon crocante y papas incluidas.</p>
         </div>
       ) : (
         <p className={styles.eyebrow}>{eyebrowText}</p>
