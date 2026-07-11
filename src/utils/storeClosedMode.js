@@ -282,6 +282,12 @@ const SPECIAL_DAY_SHIFTS = {
       cookingMessage: "Estamos cocinando. ¡Hacé tu pedido para el partido!",
     },
   ],
+  // Horario especial sábado noche: web abre 18:30 (en vez de 19:30) y cocina
+  // arranca 19:00 (en vez de 20:00). El resto del día (mediodía) queda igual.
+  "2026-07-11": [
+    { open: 11 * 60 + 30, close: 15 * 60, label: "11:30" }, // mediodía habitual
+    { open: 18 * 60 + 30, close: 24 * 60, label: "18:30" }, // noche especial
+  ],
 };
 
 function getSpecialShifts(dateKey) {
