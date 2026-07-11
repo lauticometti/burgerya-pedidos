@@ -131,7 +131,6 @@ export const promoRules = {
 };
 
 export const extras = [
-  { id: "cheddar", name: "Cheddar", price: 500, isAvailable: 1 },
   {
     id: "carne_cheddar",
     name: "Carne c/cheddar",
@@ -139,13 +138,14 @@ export const extras = [
     isAvailable: 1,
   },
   { id: "bacon_crocante", name: "Bacon", price: 1500, isAvailable: 1 },
+  { id: "cheddar", name: "Extra cheddar", price: 500, isAvailable: 1 },
   {
     id: "cebolla_caram",
     name: "Cebolla caramelizada",
-    price: 600,
+    price: 500,
     isAvailable: 1,
   },
-  { id: "pepinos", name: "Pepinos", price: 800, isAvailable: 1 },
+  { id: "pepinos", name: "Pepinos", price: 500, isAvailable: 1 },
   { id: "lechuga", name: "Lechuga", price: 500, isAvailable: 1 },
   { id: "tomate", name: "Tomate", price: 500, isAvailable: 1 },
   { id: "cebolla", name: "Cebolla", price: 500, isAvailable: 1 },
@@ -184,7 +184,7 @@ export const bebidas = [
   {
     id: "coca_600",
     name: "Coca Cola 600ml",
-    price: 3000,
+    price: 2500,
     isAvailable: 1,
     img: "/bebidas/coca-cola-600ml.svg",
   },
