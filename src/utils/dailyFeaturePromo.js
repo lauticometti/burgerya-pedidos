@@ -1,7 +1,7 @@
 import { getArgentinaTimeParts } from "./storeClosedMode";
 
 // TEMP ARGENTINA MATCH DAY: flag única de campaña. Poner en false para revertir todo.
-export const MATCH_DAY_CAMPAIGN = true;
+export const MATCH_DAY_CAMPAIGN = false;
 
 // Override manual: si querés forzar otra burger un día puntual,
 // poné el id acá (ej: "bacon"). null = usar el mapping automático por día.
