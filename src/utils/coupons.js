@@ -5,6 +5,7 @@ export const COUPON_CODES = {
   oneTimeAmerican: "JUANSINLECHUGA",
   percent25: "JUAN25",
   weekend20: "20SABADO",
+  prode: "PRODE",
 };
 
 // Variantes toleradas para que los clientes puedan escribir "combo ya" con espacios o guiones.
@@ -12,6 +13,7 @@ const COMBO_CODE_VARIANTS = ["COMBOYA", "COMBO YA", "COMBO-YA", "COMBO_YA"];
 
 const ONE_TIME_STORAGE_KEY = "coupon:juansinlechuga:used:v2";
 const WEEKEND_COUPON_EXPIRY_TS = new Date(2026, 2, 22, 0, 1, 0).getTime(); // domingo 22/03/2026 00:01 (BA)
+const PRODE_COUPON_EXPIRY_TS = new Date(2026, 6, 21, 0, 1, 0).getTime(); // martes 21/07/2026 00:01 (BA) -> vence lunes 20/7
 const COMBO_TARGETS = { simple: 12990, doble: 15990 };
 
 export function normalizeCouponInput(value = "") {
@@ -98,8 +100,31 @@ function isWeekendCouponActive(nowTs = Date.now()) {
   return nowTs < WEEKEND_COUPON_EXPIRY_TS;
 }
 
+function isProdeCouponActive(nowTs = Date.now()) {
+  return nowTs < PRODE_COUPON_EXPIRY_TS;
+}
+
 function hasBurger(cartItems = []) {
   return cartItems.some((it) => it.meta?.type === "burger");
+}
+
+function computeCheeseDiscount(cartItems = []) {
+  return cartItems.reduce((sum, it) => {
+    if (it.meta?.type !== "burger") return sum;
+    if ((it.meta?.burgerId || "").toLowerCase() !== "cheese") return sum;
+
+    const papasContext = { size: it.meta?.size, itemType: it.meta?.type };
+    const extrasTotal = (it.extras || []).reduce(
+      (extrasSum, extra) => extrasSum + extra.price,
+      0,
+    );
+    const papasTotal = (it.papas || []).reduce(
+      (papasSum, extra) => papasSum + getPapasUpgradePrice(extra, papasContext),
+      0,
+    );
+    const lineTotal = it.qty * (it.unitPrice + extrasTotal + papasTotal);
+    return sum + Math.round(lineTotal * 0.1);
+  }, 0);
 }
 
 /**
@@ -152,6 +177,27 @@ if (normalized === COUPON_CODES.weekend20) {
       appliedCode: COUPON_CODES.weekend20,
       discount,
       message: `${COUPON_CODES.weekend20} aplicado: 20% off hasta sábado 21 (BA)`,
+    };
+  }
+
+  if (normalized === COUPON_CODES.prode) {
+    if (!isProdeCouponActive(nowTs)) {
+      return {
+        error: "PRODE venció: era 10% off en Cheese hasta el lunes 20/7 (BA)",
+        discount: 0,
+      };
+    }
+    const discount = computeCheeseDiscount(cartItems);
+    if (discount <= 0) {
+      return {
+        error: "PRODE es 10% off en Cheese: agregá una Cheese al carrito",
+        discount: 0,
+      };
+    }
+    return {
+      appliedCode: COUPON_CODES.prode,
+      discount,
+      message: `${COUPON_CODES.prode} aplicado: 10% off en Cheese hasta el lunes 20/7 (BA)`,
     };
   }
 
