@@ -29,7 +29,7 @@ const PRICES_CHEESE  = { simple: 10000, doble: 13000, triple: 17000 }; // origin
 const DAILY_FEATURE_BY_WEEKDAY = {
   0: { burgerId: "lautiboom",  prices: PRICES_PREMIUM }, // Domingo
   1: { burgerId: "cheese",     prices: PRICES_CHEESE  }, // Lunes
-  2: { burgerId: "cheese",     prices: PRICES_CHEESE  }, // Martes
+  2: { burgerId: "smoklahoma", prices: PRICES_DELUXE  }, // Martes
   3: { burgerId: "american",   prices: PRICES_PREMIUM }, // Miércoles
   4: { burgerId: "smoklahoma", prices: PRICES_DELUXE  }, // Jueves
   5: { burgerId: "bbqueen",    prices: PRICES_DELUXE  }, // Viernes
