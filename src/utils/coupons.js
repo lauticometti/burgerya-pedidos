@@ -13,7 +13,7 @@ const COMBO_CODE_VARIANTS = ["COMBOYA", "COMBO YA", "COMBO-YA", "COMBO_YA"];
 
 const ONE_TIME_STORAGE_KEY = "coupon:juansinlechuga:used:v2";
 const WEEKEND_COUPON_EXPIRY_TS = new Date(2026, 2, 22, 0, 1, 0).getTime(); // domingo 22/03/2026 00:01 (BA)
-const PRODE_COUPON_EXPIRY_TS = new Date(2026, 6, 21, 0, 1, 0).getTime(); // martes 21/07/2026 00:01 (BA) -> vence lunes 20/7
+const PRODE_COUPON_EXPIRY_TS = new Date(2026, 6, 17, 0, 1, 0).getTime(); // viernes 17/07/2026 00:01 (BA) -> vence jueves 16/7
 const COMBO_TARGETS = { simple: 12990, doble: 15990 };
 
 export function normalizeCouponInput(value = "") {
@@ -183,7 +183,7 @@ if (normalized === COUPON_CODES.weekend20) {
   if (normalized === COUPON_CODES.prode) {
     if (!isProdeCouponActive(nowTs)) {
       return {
-        error: "PRODE venció: era 10% off en Cheese hasta el lunes 20/7 (BA)",
+        error: "PRODE venció: era 10% off en Cheese hasta el jueves 16/7 (BA)",
         discount: 0,
       };
     }
