@@ -1,6 +1,7 @@
 import React from "react";
 import { burgers, papas as papasData, bebidas, dips, cervezas } from "../../data/menu";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
+import ArgentinaNamesNotice from "../../components/alerts/ArgentinaNamesNotice";
 import BrandLogo from "../../components/brand/BrandLogo";
 import DeliveryMapLink from "../../components/delivery/DeliveryMapLink";
 import Page from "../../components/layout/Page";
@@ -306,6 +307,7 @@ export default function Menu() {
   return (
     <Page>
       <BrandLogo />
+      <ArgentinaNamesNotice />
       <SectionNav active={activeSection} onSelect={scrollToSection} />
       <ClosedInlineNotice />
 

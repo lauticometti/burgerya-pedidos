@@ -344,9 +344,9 @@ function getNextOpenText(parts) {
   if (!next) return "Volvemos pronto";
 
   const { shift, dayOffset } = next;
-  if (dayOffset === 0) return `Abrimos hoy a las ${shift.label}`;
-  if (dayOffset === 1) return `Abrimos mañana a las ${shift.label}`;
-  return `Abrimos el ${DAY_NAMES[(day + dayOffset) % 7]} a las ${shift.label}`;
+  if (dayOffset === 0) return `Podés pedir desde las ${shift.label}`;
+  if (dayOffset === 1) return `Podés pedir mañana desde las ${shift.label}`;
+  return `Podés pedir el ${DAY_NAMES[(day + dayOffset) % 7]} desde las ${shift.label}`;
 }
 
 // Al abrir, hay una ventana de "pre-pedido" antes de que arranque la cocina
@@ -447,6 +447,39 @@ export function getStoreStatus(date = null) {
     bannerState,
     showClosedBanner: bannerState.type === "closed",
   };
+}
+
+const DAY_ABBR = ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"];
+
+function ceilToHour(minutes) {
+  return Math.ceil(minutes / 60);
+}
+
+function formatHourLabel(hour24) {
+  return String(hour24 % 24).padStart(2, "0");
+}
+
+// Horario completo de hoy, para mostrar debajo del banner de estado.
+// Reutiliza los mismos turnos (SHIFTS/SPECIAL_DAY_SHIFTS/feriados) que
+// determinan si el local está abierto, redondeando a la hora de cocina
+// (cookingStart, no el horario de apertura web) hacia arriba.
+export function getTodaySchedule(date = null) {
+  const parts = getArgentinaTimeParts(date instanceof Date ? date : getNowDate());
+  const shifts = getShiftsForDay(parts.day, parts.dateKey);
+  const dayLabel = DAY_ABBR[parts.day];
+
+  if (shifts.length === 0) {
+    return { dayLabel, ranges: [], isClosed: true };
+  }
+
+  const ranges = shifts.map((shift) => {
+    const cookingStart = shift.cookingStart ?? shift.open + PREORDER_WINDOW_MINUTES;
+    const startHour = formatHourLabel(ceilToHour(cookingStart));
+    const endHour = formatHourLabel(ceilToHour(shift.close));
+    return `${startHour}–${endHour}`;
+  });
+
+  return { dayLabel, ranges, isClosed: false };
 }
 
 function getSnapshot() {

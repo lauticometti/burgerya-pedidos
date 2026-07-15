@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { burgers, papas as papasData } from "../../data/menu";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
+import ArgentinaNamesNotice from "../../components/alerts/ArgentinaNamesNotice";
 import BrandLogo from "../../components/brand/BrandLogo";
 import CartSummary from "../../components/cart/CartSummary";
 import DeliveryMapLink from "../../components/delivery/DeliveryMapLink";
@@ -199,6 +200,7 @@ export default function Burgers() {
   return (
     <Page>
       <BrandLogo />
+      <ArgentinaNamesNotice />
       <TopNav />
       <ClosedInlineNotice />
 

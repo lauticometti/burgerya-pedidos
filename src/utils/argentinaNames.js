@@ -21,3 +21,10 @@ export function getArgentinaName(originalName) {
   if (!ARGENTINA_NAMES_CAMPAIGN) return null;
   return ARGENTINA_NAME_MAP[originalName] || null;
 }
+
+// Lista [original, argentino] para mostrar el mapeo completo (ej. en el
+// aviso de la home). Vacía si la campaña está apagada.
+export function getArgentinaNameEntries() {
+  if (!ARGENTINA_NAMES_CAMPAIGN) return [];
+  return Object.entries(ARGENTINA_NAME_MAP);
+}
