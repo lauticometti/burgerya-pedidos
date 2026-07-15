@@ -6,7 +6,7 @@ const VALID_WHEN_OPTIONS = ["Ahora", "Mas tarde"];
 // Bump this to force a one-time reset of whenMode for everyone
 // (e.g. changing the default). Old storages without this version
 // get their whenMode reset instead of being trusted as-is.
-const WHEN_MODE_RESET_VERSION = "2026-07-15";
+const WHEN_MODE_RESET_VERSION = "2026-07-15b";
 const WHEN_MODE_RESET_KEY = "burgerya_carrito_when_mode_reset_version";
 
 export default function useCarritoCheckoutForm() {
@@ -18,7 +18,7 @@ export default function useCarritoCheckoutForm() {
     cross: "",
     pay: "Efectivo",
     notes: "",
-    whenMode: "Mas tarde",
+    whenMode: "Ahora",
     whenSlot: "",
   });
 
@@ -30,12 +30,12 @@ export default function useCarritoCheckoutForm() {
       if (!raw) return;
       const saved = JSON.parse(raw);
       if (!VALID_WHEN_OPTIONS.includes(saved.whenMode)) {
-        saved.whenMode = "Mas tarde";
+        saved.whenMode = "Ahora";
       }
 
       const resetVersion = window.localStorage.getItem(WHEN_MODE_RESET_KEY);
       if (resetVersion !== WHEN_MODE_RESET_VERSION) {
-        saved.whenMode = "Mas tarde";
+        saved.whenMode = "Ahora";
         saved.whenSlot = "";
         window.localStorage.setItem(
           WHEN_MODE_RESET_KEY,
