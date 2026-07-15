@@ -1,11 +1,24 @@
 ﻿import { formatMoney } from "./formatMoney";
 import { getCategory } from "./itemGrouping";
+import { getArgentinaName } from "./argentinaNames";
 import {
   getSizeLabel,
   formatComboGroup,
   formatPromoPicks,
   formatItemModifiers,
 } from "./whatsappFormatters";
+
+// Nombre a usar en el mensaje de WhatsApp: el argentino directo (sin tachado,
+// esto es texto plano) si hay mapeo vigente, si no el nombre original.
+function displayName(name) {
+  return getArgentinaName(name) || name;
+}
+
+// El resto del mensaje va en minúsculas, pero el nombre de la burger debe
+// arrancar con mayúscula (ej. "1 La argenta doble", no "1 la argenta doble").
+function capitalize(text) {
+  return text ? text.charAt(0).toUpperCase() + text.slice(1) : text;
+}
 
 export function buildWhatsAppText({
   name,
@@ -70,7 +83,7 @@ export function buildWhatsAppText({
         // Extras/dips destacados
         const sizeLabel = getSizeLabel(it);
         const sizeSuffix = sizeLabel ? ` ${sizeLabel}` : "";
-        lines.push(` ${it.qty} ${it.name.toUpperCase()}${sizeSuffix}`);
+        lines.push(` ${it.qty} ${displayName(it.name).toUpperCase()}${sizeSuffix}`);
         if (it.note?.trim()) {
           lines.push(`  Aclaracion: ${it.note.trim()}`);
         }
@@ -79,7 +92,7 @@ export function buildWhatsAppText({
 
       if (it.meta?.type === "promo") {
         const qtyPrefix = it.qty > 1 ? `${it.qty} ` : "";
-        lines.push(`${qtyPrefix}${it.name.toLowerCase()}:`);
+        lines.push(`${qtyPrefix}${capitalize(displayName(it.name).toLowerCase())}:`);
         if (it.meta?.description) {
           lines.push(`  Incluye: ${it.meta.description}`);
         }
@@ -92,7 +105,7 @@ export function buildWhatsAppText({
       } else {
         const sizeLabel = it.meta?.burgerId === "cheese_promo" ? null : getSizeLabel(it);
         const sizeSuffix = sizeLabel ? ` ${sizeLabel}` : "";
-        lines.push(`${it.qty} ${it.name.toLowerCase()}${sizeSuffix}`);
+        lines.push(`${it.qty} ${capitalize(displayName(it.name).toLowerCase())}${sizeSuffix}`);
       }
 
       if (it.removedIngredients?.length) {

@@ -9,6 +9,7 @@ import Page from "../../components/layout/Page";
 import StickyBar from "../../components/layout/StickyBar";
 import TopNav from "../../components/TopNav";
 import Button from "../../components/ui/Button";
+import ProductName from "../../components/ui/ProductName";
 import { useCart } from "../../store/useCart";
 import { resolvePublicPath } from "../../utils/assetPath";
 import {
@@ -276,7 +277,11 @@ export default function Burgers() {
 
                   <div className={styles.cardBody}>
                     <div className={styles.cardTopRow}>
-                      <h3 className={styles.cardTitle}>{burger.shortName || burger.name}</h3>
+                      <ProductName
+                        as="h3"
+                        className={styles.cardTitle}
+                        name={burger.shortName || burger.name}
+                      />
                       {burger.desc ? (
                         <p className={styles.cardDesc}>{burger.desc}</p>
                       ) : null}

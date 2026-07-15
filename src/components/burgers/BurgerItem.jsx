@@ -1,4 +1,5 @@
 import Button from "../ui/Button";
+import ProductName from "../ui/ProductName";
 import styles from "./BurgerItem.module.css";
 import { formatMoney } from "../../utils/formatMoney";
 import { getMinPrice } from "../../utils/menuPricing";
@@ -45,7 +46,7 @@ export default function BurgerItem({ burger, onOpen, onUnavailable }) {
         }
       }}>
       <div className={styles.itemLeft}>
-        <div className={styles.itemName}>{burger.name}</div>
+        <ProductName as="div" className={styles.itemName} name={burger.name} />
         {burger.desc ? <div className={styles.itemDesc}>{burger.desc}</div> : null}
         <div className={styles.itemPrices}>Desde {formatMoney(minPrice)}</div>
         {isDisabled ? (

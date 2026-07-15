@@ -1,6 +1,7 @@
 import Button from "../../../components/ui/Button.jsx";
 import Card from "../../../components/ui/Card.jsx";
 import Pill from "../../../components/ui/Pill.jsx";
+import ProductName from "../../../components/ui/ProductName.jsx";
 import { formatMoney } from "../../../utils/formatMoney.js";
 import { resolvePublicPath } from "../../../utils/assetPath.js";
 import styles from "../Promos.module.css";
@@ -53,7 +54,7 @@ export default function PromoPickedSummary({
                       alt={name}
                       loading="lazy"
                     />
-                    <span className={styles.pickName}>{name}</span>
+                    <ProductName as="span" className={styles.pickName} name={name} />
                   </span>
                   <button
                     type="button"

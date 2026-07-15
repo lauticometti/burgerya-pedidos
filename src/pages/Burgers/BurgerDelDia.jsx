@@ -3,6 +3,7 @@ import { getBurgerPriceInfo } from "../../utils/burgerPricing";
 import { formatMoney } from "../../utils/formatMoney";
 import { resolvePublicPath } from "../../utils/assetPath";
 import BurgerNotice from "../../components/burgers/BurgerNotice";
+import ProductName from "../../components/ui/ProductName";
 import { MATCH_DAY_CAMPAIGN } from "../../utils/dailyFeaturePromo";
 import styles from "./BurgerDelDia.module.css";
 
@@ -76,11 +77,11 @@ export default function BurgerDelDia({ burger, weekdayLabel, eyebrow, onOpen, on
           <span className={styles.matchDayBar} aria-hidden="true" />
           <p className={styles.matchDayEyebrow}>Hoy juega Argentina</p>
           <p className={styles.matchDayTitle}>
-            <span className={styles.matchDayTitleWhite}>La Bacon</span>
+            <span className={styles.matchDayTitleWhite}>La Argenta</span>
             <br />
             <span className={styles.matchDayTitleAccent}>para el partido</span>
           </p>
-          <p className={styles.matchDaySubline}>Doble cheddar, bacon crocante y papas incluidas.</p>
+          <p className={styles.matchDaySubline}>Lechuga, tomate, cebolla, pepinos y papas incluidas.</p>
         </div>
       ) : (
         <p className={styles.eyebrow}>{eyebrowText}</p>
@@ -96,7 +97,9 @@ export default function BurgerDelDia({ burger, weekdayLabel, eyebrow, onOpen, on
         </div>
 
         <div className={styles.info}>
-          {MATCH_DAY_CAMPAIGN ? null : <h2 className={styles.name}>{burger.name}</h2>}
+          {MATCH_DAY_CAMPAIGN ? null : (
+            <ProductName as="h2" className={styles.name} name={burger.name} />
+          )}
           {burger.notice ? <BurgerNotice notice={burger.notice} /> : null}
           {burger.desc ? <p className={styles.desc}>{burger.desc}</p> : null}
           <p className={styles.papas}>+ papas incluidas</p>

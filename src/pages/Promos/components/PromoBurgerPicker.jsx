@@ -1,5 +1,6 @@
 import Button from "../../../components/ui/Button.jsx";
 import Card from "../../../components/ui/Card.jsx";
+import ProductName from "../../../components/ui/ProductName.jsx";
 import {
   getUnavailableReason,
   isItemUnavailable,
@@ -73,7 +74,7 @@ export default function PromoBurgerPicker({
                         alt={burger.name}
                         loading="lazy"
                       />
-                      <span className={styles.pickLabel}>{burger.name}</span>
+                      <ProductName as="span" className={styles.pickLabel} name={burger.name} />
                     </span>
                   </Button>
                 );

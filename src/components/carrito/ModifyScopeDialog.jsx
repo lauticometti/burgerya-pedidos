@@ -1,5 +1,6 @@
 import Button from "../ui/Button";
 import CloseButton from "../ui/CloseButton";
+import ProductName from "../ui/ProductName";
 import styles from "./ModifyScopeDialog.module.css";
 import useEscapeToClose from "../../hooks/useEscapeToClose";
 
@@ -20,7 +21,7 @@ export default function ModifyScopeDialog({ open, label, onChooseOne, onChooseAl
           <div className={styles.title}>¿A cuáles querés modificar?</div>
           <CloseButton onClick={onClose} aria-label="Cerrar" />
         </div>
-        {label ? <div className={styles.subtitle}>{label}</div> : null}
+        {label ? <ProductName as="div" className={styles.subtitle} name={label} /> : null}
         <div className={styles.actions}>
           <Button variant="primary" type="button" onClick={onChooseOne}>
             Modificar una

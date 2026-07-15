@@ -32,7 +32,7 @@ export default function CartGroupsList({
     const undoIndex = hasUndo
       ? Math.min(undoItem.index ?? 0, groupItems.length)
       : -1;
-    const undoLabel = hasUndo ? getUndoLabel(undoItem.item) : "";
+    const undoLabel = hasUndo ? getUndoLabel(undoItem.item) : null;
 
     return (
       <div key={group.key} className={classes.group}>

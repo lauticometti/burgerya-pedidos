@@ -22,6 +22,7 @@ import { useScrollProgress } from "../../hooks/useScrollProgress";
 import { useCarouselControls } from "../../hooks/useCarouselControls";
 import { TOAST_KEYS } from "../../constants/toastKeys";
 import ScrollBar from "../../components/ui/ScrollBar";
+import ProductName from "../../components/ui/ProductName";
 import BurgerDelDia from "../Burgers/BurgerDelDia";
 import BurgerModal from "../Burgers/BurgerModal";
 import BurgerNotice from "../../components/burgers/BurgerNotice";
@@ -402,7 +403,11 @@ export default function Menu() {
                   />
                 </div>
                 <div className={styles.burgerBody}>
-                  <h3 className={styles.burgerName}>{burger.shortName || burger.name}</h3>
+                  <ProductName
+                    as="h3"
+                    className={styles.burgerName}
+                    name={burger.shortName || burger.name}
+                  />
                   {burger.notice ? (
                     <BurgerNotice notice={burger.notice} className={styles.burgerNotice} />
                   ) : null}

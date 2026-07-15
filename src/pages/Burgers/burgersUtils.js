@@ -1,8 +1,10 @@
 import { toast } from "../../utils/toast";
 import { buildBurgerLineKey } from "../../utils/cartKeys";
+import { getArgentinaName } from "../../utils/argentinaNames";
 
 export function notifyUnavailableBurger(burger, reason = "no disponible por hoy") {
-  toast.error(`${burger.name}: ${reason}`, {
+  const displayName = getArgentinaName(burger.name) || burger.name;
+  toast.error(`${displayName}: ${reason}`, {
     key: `burger-unavailable:${burger.id}`,
   });
 }
@@ -66,8 +68,9 @@ export function buildBurgerCartItem(
 }
 
 export function buildBurgerAddedToastText(burgerName, size, burgerId) {
+  const displayName = getArgentinaName(burgerName) || burgerName;
   if (burgerId === "cheese_promo") {
-    return `${burgerName} agregado`;
+    return `${displayName} agregado`;
   }
-  return `${burgerName} ${size} agregado`;
+  return `${displayName} ${size} agregado`;
 }

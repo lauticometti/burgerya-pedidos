@@ -3,6 +3,14 @@
  * Extracted from buildWhatsAppText to reduce complexity
  */
 
+import { getArgentinaName } from "./argentinaNames";
+
+// Nombre a usar en el mensaje de WhatsApp: el argentino directo (sin tachado,
+// esto es texto plano) si hay mapeo vigente, si no el nombre original.
+function displayName(name) {
+  return getArgentinaName(name) || name;
+}
+
 /**
  * Get size label for an item (simple, doble, triple)
  */
@@ -29,12 +37,14 @@ export function formatComboGroup(items) {
     const name = (it.meta?.comboTitle || it.name || "")
       .replace(/^combo\s*/i, "")
       .trim();
-    const burgerLabel = (
-      it.meta?.burgerName ||
-      it.name?.split("·")[1] ||
-      it.name ||
-      ""
-    ).trim();
+    const burgerLabel = displayName(
+      (
+        it.meta?.burgerName ||
+        it.name?.split("·")[1] ||
+        it.name ||
+        ""
+      ).trim(),
+    );
 
     const removalLabels = (it.removedIngredients || [])
       .map((rem) => rem.label || rem.name || rem.id || rem)
@@ -110,7 +120,7 @@ export function formatPromoPicks(picks, itemType) {
   const promoQueue = new Map();
 
   picks.forEach((pick, idx) => {
-    const pickName = pick.name || pick.id || "";
+    const pickName = displayName(pick.name || pick.id || "");
     const extrasKey = (pick.extras || [])
       .map((extra) => extra.name)
       .sort()

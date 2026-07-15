@@ -1,0 +1,23 @@
+// TEMP ARGENTINA MATCH DAY: mapeo visual de nombres (Argentina vs. Inglaterra).
+// Solo afecta cómo se muestra el nombre en pantalla. No toca ids, precios,
+// datos ni el texto del pedido de WhatsApp.
+
+// Flag única: poner en false para apagar el mapeo de nombres sin borrar nada.
+export const ARGENTINA_NAMES_CAMPAIGN = true;
+
+// name original (tal cual burger.name en menu.js) → nombre argentino a mostrar.
+const ARGENTINA_NAME_MAP = {
+  BBQueen: "Reina del Asado",
+  Smoklahoma: "Con Cebolla Ahumada",
+  Cheese: "Queso",
+  Bacon: "Panceta",
+  American: "La Argenta",
+  Lautiboom: "Lautibomba",
+};
+
+// Devuelve el nombre argentino para un nombre original, o null si no aplica
+// (campaña apagada, o la burger no tiene mapeo).
+export function getArgentinaName(originalName) {
+  if (!ARGENTINA_NAMES_CAMPAIGN) return null;
+  return ARGENTINA_NAME_MAP[originalName] || null;
+}

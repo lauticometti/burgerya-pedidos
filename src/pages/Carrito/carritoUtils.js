@@ -1,17 +1,20 @@
 // Consolidated in src/utils/itemGrouping.js
 export { CART_GROUP_ORDER, getCategory, groupItemsByCategory } from "../../utils/itemGrouping";
 
+// Devuelve { name, suffix } en vez de un string armado, para que la UI pueda
+// mostrar `name` con el componente ProductName (tachado + nombre argentino)
+// y `suffix` (talle, etc.) aparte.
 export function getUndoLabel(item) {
-  if (!item) return "producto";
-  if (item.meta?.type === "promo") return item.name || "promo";
+  if (!item) return { name: "producto", suffix: "" };
+  if (item.meta?.type === "promo") return { name: item.name || "promo", suffix: "" };
 
   if (item.meta?.type === "papas") {
     const sizeLabel = item.meta?.size === "chica" ? "chicas" : "grandes";
-    return `Papas ${sizeLabel}`;
+    return { name: `Papas ${sizeLabel}`, suffix: "" };
   }
 
   if (item.meta?.burgerId === "cheese_promo") {
-    return item.name;
+    return { name: item.name, suffix: "" };
   }
 
   const sizeLabel =
@@ -24,7 +27,7 @@ export function getUndoLabel(item) {
           : "";
 
   const baseName = item.name || "producto";
-  return sizeLabel ? `${baseName} ${sizeLabel}` : baseName;
+  return { name: baseName, suffix: sizeLabel ? ` ${sizeLabel}` : "" };
 }
 
 export function buildBebidaQuantitiesInitial(items = []) {

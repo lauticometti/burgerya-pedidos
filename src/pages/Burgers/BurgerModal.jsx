@@ -4,6 +4,7 @@ import Button from "../../components/ui/Button";
 import ItemExtrasModal from "../../components/ItemExtrasModal";
 import RemoveIngredientsModal from "../../components/carrito/RemoveIngredientsModal";
 import BurgerNotice from "../../components/burgers/BurgerNotice";
+import ProductName from "../../components/ui/ProductName";
 import useEscapeToClose from "../../hooks/useEscapeToClose";
 import { extras, papas } from "../../data/menu";
 import { resolvePublicPath } from "../../utils/assetPath";
@@ -184,7 +185,7 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
             />
 
             <div className={styles.name}>
-              <span>{burger.name}</span>
+              <ProductName name={burger.name} />
               <span className={styles.nameSide}>
                 {burger.id === "cheese_promo" ? "papas opcionales" : "con papas"}
               </span>
@@ -436,6 +437,7 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
       <RemoveIngredientsModal
         open={modals.removeOpen}
         title={`Quitar a ${burger.name}`}
+        titleName={burger.name}
         ingredients={removableIngredients}
         selectedIds={modals.removeDraftIds}
         forcedIds={burger.forcedRemovals?.map((r) => r.id) || []}

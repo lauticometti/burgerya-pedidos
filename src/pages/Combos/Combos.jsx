@@ -14,6 +14,8 @@ import StickyBar from "../../components/layout/StickyBar";
 import CartSummary from "../../components/cart/CartSummary";
 import Button from "../../components/ui/Button";
 import PageTitle from "../../components/ui/PageTitle";
+import ProductName from "../../components/ui/ProductName";
+import { getArgentinaName } from "../../utils/argentinaNames";
 import { resolvePublicPath } from "../../utils/assetPath";
 import { buildBurgerLineKey } from "../../utils/cartKeys";
 import styles from "./Combos.module.css";
@@ -89,7 +91,7 @@ export default function Combos() {
         includes: ["papas", "coca_600"],
       },
     });
-    toast.added(`${combo.title} con ${burger.name}`);
+    toast.added(`${combo.title} con ${getArgentinaName(burger.name) || burger.name}`);
   }
 
   return (
@@ -165,7 +167,7 @@ export default function Combos() {
                           alt={burger.name}
                           loading="lazy"
                         />
-                        <span className={styles.pickerName}>{burger.name}</span>
+                        <ProductName as="span" className={styles.pickerName} name={burger.name} />
                       </span>
                     </Button>
                   );

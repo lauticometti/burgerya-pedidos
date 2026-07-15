@@ -4,6 +4,7 @@ import { TextareaField } from "../ui/FormFields";
 import CloseButton from "../ui/CloseButton";
 import { ItemModifiersDisplay } from "./ItemModifiersList";
 import BurgerNotice from "../burgers/BurgerNotice";
+import ProductName from "../ui/ProductName";
 import styles from "./CartItemCard.module.css";
 import { formatMoney } from "../../utils/formatMoney";
 import { formatPickNames } from "../../utils/formatPicks";
@@ -99,11 +100,17 @@ export default function CartItemCard({
           ) : null}
           <div className={styles.nameBlock}>
             <div className={styles.name}>
-              {displayName}
-              {!isPromo && sizeLabel && burgerSizes > 1 ? ` ${sizeLabel}` : ""}
-              {locked ? (
-                <span className={styles.lockedTag}>{isGift ? "REGALO" : "BONIFICADO"}</span>
-              ) : null}
+              <ProductName
+                name={displayName}
+                suffix={
+                  <>
+                    {!isPromo && sizeLabel && burgerSizes > 1 ? ` ${sizeLabel}` : ""}
+                    {locked ? (
+                      <span className={styles.lockedTag}>{isGift ? "REGALO" : "BONIFICADO"}</span>
+                    ) : null}
+                  </>
+                }
+              />
             </div>
             {burger?.notice ? (
               <BurgerNotice notice={burger.notice} className={styles.itemNotice} />

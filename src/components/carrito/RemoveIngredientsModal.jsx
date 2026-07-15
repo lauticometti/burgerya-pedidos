@@ -1,11 +1,13 @@
 import CloseButton from "../ui/CloseButton";
 import Button from "../ui/Button";
+import ProductName from "../ui/ProductName";
 import styles from "./RemoveIngredientsModal.module.css";
 import useEscapeToClose from "../../hooks/useEscapeToClose";
 
 export default function RemoveIngredientsModal({
   open,
   title,
+  titleName,
   ingredients = [],
   selectedIds = [],
   forcedIds = [],
@@ -27,7 +29,15 @@ export default function RemoveIngredientsModal({
         aria-label={title}
         onMouseDown={(e) => e.stopPropagation()}>
         <div className={styles.header}>
-          <div className={styles.title}>{title || "Quitar ingredientes"}</div>
+          <div className={styles.title}>
+            {titleName ? (
+              <>
+                Quitar a <ProductName name={titleName} />
+              </>
+            ) : (
+              title || "Quitar ingredientes"
+            )}
+          </div>
           <CloseButton onClick={onClose} aria-label="Cerrar" />
         </div>
 
