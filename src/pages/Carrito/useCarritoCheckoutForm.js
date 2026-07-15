@@ -12,7 +12,7 @@ export default function useCarritoCheckoutForm() {
     cross: "",
     pay: "Efectivo",
     notes: "",
-    whenMode: "Ahora",
+    whenMode: "Mas tarde",
     whenSlot: "",
   });
 

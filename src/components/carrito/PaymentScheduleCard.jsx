@@ -39,6 +39,7 @@ export default function PaymentScheduleCard({
         </div>
 
         <div className={styles.question}>Cuándo</div>
+        <div className={styles.hint}>Elegí para cuándo la querés</div>
         <div className={styles.choiceRow}>
           <button
             type="button"
