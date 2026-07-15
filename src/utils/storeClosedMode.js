@@ -294,9 +294,9 @@ const SPECIAL_DAY_SHIFTS = {
   // siempre. Noche sin cambios. Revertir mañana 16/7: borrar esta entrada.
   "2026-07-15": [
     {
-      open: 12 * 60 + 30,
+      open: 11 * 60 + 30,
       close: 16 * 60,
-      label: "12:30",
+      label: "11:30",
       cookingStart: 13 * 60,
     }, // mediodía especial partido
     { open: 19 * 60 + 30, close: 24 * 60, label: "19:30" }, // noche habitual
