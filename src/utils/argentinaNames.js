@@ -2,8 +2,8 @@
 // Solo afecta cómo se muestra el nombre en pantalla. No toca ids, precios,
 // datos ni el texto del pedido de WhatsApp.
 
-// Flag única: poner en false para apagar el mapeo de nombres sin borrar nada.
-export const ARGENTINA_NAMES_CAMPAIGN = true;
+// Flag única: poner en true para reactivar el mapeo de nombres el próximo partido.
+export const ARGENTINA_NAMES_CAMPAIGN = false;
 
 // name original (tal cual burger.name en menu.js) → nombre argentino a mostrar.
 const ARGENTINA_NAME_MAP = {
