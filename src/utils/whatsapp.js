@@ -7,16 +7,6 @@ import {
   formatPromoPicks,
   formatItemModifiers,
 } from "./whatsappFormatters";
-import { normalizeCouponInput } from "./coupons";
-import { giveawayCoupons } from "../data/giveawayCoupons";
-
-const NORMALIZED_GIVEAWAY_CODES = new Set(
-  giveawayCoupons.map((c) => normalizeCouponInput(c.code)),
-);
-
-function isGiveawayCode(couponCode) {
-  return NORMALIZED_GIVEAWAY_CODES.has(normalizeCouponInput(couponCode || ""));
-}
 
 // Nombre a usar en el mensaje de WhatsApp: el argentino directo (sin tachado,
 // esto es texto plano) si hay mapeo vigente, si no el nombre original.
@@ -148,11 +138,6 @@ export function buildWhatsAppText({
   if (discountAmount > 0 && couponCode) {
     lines.push(`Subtotal: ${formatMoney(subtotal)}`);
     lines.push(`Codigo ${couponCode}: -${formatMoney(discountAmount)}`);
-  }
-  if (couponCode && isGiveawayCode(couponCode)) {
-    lines.push("");
-    lines.push("🎁 Código premio:");
-    lines.push(couponCode);
   }
   lines.push(`${formatMoney(total)} ${pay}`);
   return encodeURIComponent(lines.join("\n"));
