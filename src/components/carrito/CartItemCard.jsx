@@ -29,6 +29,7 @@ export default function CartItemCard({
   onOpenPromoPickRemove,
   removableIngredients = [],
   burgersById = {},
+  hasGiveawayBenefit = false,
 }) {
   const isPromo = item.meta?.type === "promo";
   const allowPromoQty = item.meta?.allowQty;
@@ -107,6 +108,9 @@ export default function CartItemCard({
                     {!isPromo && sizeLabel && burgerSizes > 1 ? ` ${sizeLabel}` : ""}
                     {locked ? (
                       <span className={styles.lockedTag}>{isGift ? "REGALO" : "BONIFICADO"}</span>
+                    ) : null}
+                    {hasGiveawayBenefit ? (
+                      <span className={styles.giveawayTag}>PREMIO APLICADO</span>
                     ) : null}
                   </>
                 }

@@ -97,8 +97,15 @@ export default function Carrito() {
   }, []);
 
   const { slotOptions } = useCarritoTimeSlots(whenMode, whenSlot, setWhenSlot);
-  const { couponCode, setCouponCode, appliedCoupon, totalDiscount, applyCoupon, removeCoupon } =
-    useCouponCode(cart.items, cart.total, cart);
+  const {
+    couponCode,
+    setCouponCode,
+    appliedCoupon,
+    totalDiscount,
+    giveawayTarget,
+    applyCoupon,
+    removeCoupon,
+  } = useCouponCode(cart.items, cart.total, cart);
 
   const totalWithDiscount = Math.max(0, cart.total - totalDiscount);
 
@@ -253,6 +260,7 @@ export default function Carrito() {
                 onSetPromoPicks={cart.setPromoPicks}
                 burgersById={burgersById}
                 classes={groupListClasses}
+                giveawayTargetKey={giveawayTarget?.lineKey || null}
               />
             )}
           </div>
@@ -279,28 +287,76 @@ export default function Carrito() {
                 ) : null}
               </div>
               <div className={styles.addRight}>
-                <input
-                  className={styles.couponInput}
-                  type="text"
-                  placeholder="Código de descuento"
-                  value={couponCode}
-                  onChange={(e) => {
-                    setCouponCode(e.target.value);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      applyCoupon();
-                    }
-                  }}
-                />
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className={styles.couponApply}
-                  onClick={applyCoupon}>
-                  Aplicar
-                </Button>
+                {!appliedCoupon ? (
+                  <>
+                    <input
+                      className={styles.couponInput}
+                      type="text"
+                      placeholder="Código de descuento"
+                      value={couponCode}
+                      autoComplete="off"
+                      autoCorrect="off"
+                      autoCapitalize="none"
+                      spellCheck={false}
+                      onChange={(e) => {
+                        setCouponCode(e.target.value);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          applyCoupon();
+                        }
+                      }}
+                    />
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className={styles.couponApply}
+                      onClick={applyCoupon}>
+                      Aplicar
+                    </Button>
+                  </>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
+
+          {appliedCoupon && giveawayTarget ? (
+            <div className={styles.couponAppliedBlock}>
+              <div className={styles.couponAppliedHeader}>✓ PREMIO APLICADO</div>
+              <div className={styles.couponAppliedCode}>{appliedCoupon}</div>
+              <div className={styles.couponAppliedBenefit}>
+                {giveawayTarget.benefitLabel}
+              </div>
+              <div className={styles.couponAppliedDiscount}>
+                Descuento: -{formatMoney(totalDiscount)}
+              </div>
+              <button
+                type="button"
+                className={styles.couponAppliedRemove}
+                onClick={removeCoupon}>
+                Quitar código
+              </button>
+            </div>
+          ) : null}
+
+          {totalDiscount > 0 ? (
+            <div className={styles.totalBreakdown}>
+              <div className={styles.totalBreakdownRow}>
+                <span>Subtotal</span>
+                <span>{formatMoney(cart.total)}</span>
+              </div>
+              <div className={styles.totalBreakdownRow}>
+                <span>
+                  {giveawayTarget?.burgerName
+                    ? `Premio — ${giveawayTarget.burgerName}`
+                    : "Descuento"}
+                </span>
+                <span>-{formatMoney(totalDiscount)}</span>
+              </div>
+              <div className={`${styles.totalBreakdownRow} ${styles.totalBreakdownFinal}`}>
+                <span>Total</span>
+                <span>{formatMoney(totalWithDiscount)}</span>
               </div>
             </div>
           ) : null}

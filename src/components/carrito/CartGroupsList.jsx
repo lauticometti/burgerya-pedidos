@@ -22,6 +22,7 @@ export default function CartGroupsList({
   onSetPromoPicks,
   burgersById = {},
   classes,
+  giveawayTargetKey = null,
 }) {
   return groups.map((group) => {
     const groupItems = groupedItems[group.key] || [];
@@ -80,6 +81,7 @@ export default function CartGroupsList({
                   canAddExtras={canAddExtras}
                   removableIngredients={burgerConfig?.removableIngredients || []}
                   burgersById={burgersById}
+                  hasGiveawayBenefit={giveawayTargetKey === item.key}
                 />
               </React.Fragment>
             );

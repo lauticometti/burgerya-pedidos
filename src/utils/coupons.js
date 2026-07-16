@@ -1,4 +1,20 @@
 import { getPapasUpgradePrice } from "./papasPricing";
+import { burgers } from "../data/menu";
+import { getBurgerPrice } from "./burgerPricing";
+import {
+  giveawayCoupons,
+  GIVEAWAY_COUPON_EXPIRY_TS,
+} from "../data/giveawayCoupons";
+
+// Texto explicativo del beneficio del premio, reutilizado por el bloque de
+// cupón aplicado y por la etiqueta en la línea del carrito.
+export function getGiveawayBenefitLabel({ targetBurgerName, targetSize }) {
+  if (!targetBurgerName) return "";
+  if (targetSize === "triple") {
+    return `Premio aplicado: valor de ${targetBurgerName} doble`;
+  }
+  return `${targetBurgerName}${targetSize ? ` ${targetSize}` : ""} gratis`;
+}
 
 export const COUPON_CODES = {
   combo: "COMBOYA",
@@ -127,6 +143,62 @@ function computeCheeseDiscount(cartItems = []) {
   }, 0);
 }
 
+const NORMALIZED_GIVEAWAY_COUPONS = new Map(
+  giveawayCoupons.map((c) => [normalizeCouponInput(c.code), c]),
+);
+
+function isGiveawayCouponActive(nowTs = Date.now()) {
+  return nowTs < GIVEAWAY_COUPON_EXPIRY_TS;
+}
+
+const burgersById = burgers.reduce((acc, b) => {
+  acc[b.id] = b;
+  return acc;
+}, {});
+
+// El premio regala una burger: simple/doble se descuentan enteras, la triple
+// solo hasta el precio de la doble de esa misma burger (el cliente paga la
+// diferencia). Se aplica sobre la línea que le da mayor descuento al cliente.
+function computeGiveawayBurgerDiscount(item, date = new Date()) {
+  const burger = burgersById[item.meta?.burgerId];
+  if (!burger) return 0;
+  const size = item.meta?.size;
+  const unitPrice = getBurgerPrice(burger, size, date) || item.unitPrice || 0;
+  if (size === "triple") {
+    const doublePrice = getBurgerPrice(burger, "doble", date);
+    if (typeof doublePrice !== "number") return 0;
+    return Math.min(doublePrice, unitPrice);
+  }
+  if (size === "simple" || size === "doble") {
+    return unitPrice;
+  }
+  return 0;
+}
+
+// Busca, entre las líneas de burger del carrito, la que produce el mayor
+// descuento posible y devuelve tanto el importe como los datos para
+// identificarla en la UI y en el mensaje de WhatsApp.
+function findBestGiveawayTarget(cartItems = [], date = new Date()) {
+  let best = null;
+  for (const item of cartItems) {
+    if (item.meta?.type !== "burger") continue;
+    if (!item.qty) continue;
+    const lineDiscount = computeGiveawayBurgerDiscount(item, date);
+    if (lineDiscount > 0 && lineDiscount > (best?.discount || 0)) {
+      const burger = burgersById[item.meta?.burgerId];
+      best = {
+        discount: lineDiscount,
+        targetLineKey: item.key,
+        targetBurgerId: item.meta?.burgerId || null,
+        targetBurgerName: burger?.name || item.name || "",
+        targetSize: item.meta?.size || null,
+        giveawayBaseSize: item.meta?.size === "triple" ? "doble" : item.meta?.size || null,
+      };
+    }
+  }
+  return best;
+}
+
 /**
  * Evaluate a coupon against the current cart.
  * @param {Object} params
@@ -198,6 +270,30 @@ if (normalized === COUPON_CODES.weekend20) {
       appliedCode: COUPON_CODES.prode,
       discount,
       message: `${COUPON_CODES.prode} aplicado: 10% off en Cheese hasta el lunes 20/7 (BA)`,
+    };
+  }
+
+  const giveaway = NORMALIZED_GIVEAWAY_COUPONS.get(normalized);
+  if (giveaway) {
+    if (!isGiveawayCouponActive(nowTs)) {
+      return { error: "Ese código de premio venció", discount: 0 };
+    }
+    const target = findBestGiveawayTarget(cartItems, now);
+    if (!target) {
+      return {
+        error: "Agregá una burger al carrito para usar el premio",
+        discount: 0,
+      };
+    }
+    return {
+      appliedCode: giveaway.code,
+      discount: target.discount,
+      targetLineKey: target.targetLineKey,
+      targetBurgerId: target.targetBurgerId,
+      targetBurgerName: target.targetBurgerName,
+      targetSize: target.targetSize,
+      giveawayBaseSize: target.giveawayBaseSize,
+      message: "✓ Premio aplicado",
     };
   }
 

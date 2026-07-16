@@ -4,6 +4,7 @@ import {
   couponStorage,
   evaluateCoupon,
   normalizeCouponInput,
+  getGiveawayBenefitLabel,
 } from "../../utils/coupons";
 
 export default function useCouponCode(cartItems, cartTotal) {
@@ -24,6 +25,19 @@ export default function useCouponCode(cartItems, cartTotal) {
   }, [appliedCoupon, cartItems, cartTotal]);
 
   const totalDiscount = discountResult?.discount || 0;
+  const giveawayTarget = appliedCoupon && discountResult?.targetLineKey
+    ? {
+        lineKey: discountResult.targetLineKey,
+        burgerId: discountResult.targetBurgerId,
+        burgerName: discountResult.targetBurgerName,
+        size: discountResult.targetSize,
+        baseSize: discountResult.giveawayBaseSize,
+        benefitLabel: getGiveawayBenefitLabel({
+          targetBurgerName: discountResult.targetBurgerName,
+          targetSize: discountResult.targetSize,
+        }),
+      }
+    : null;
 
   React.useEffect(() => {
     if (!appliedCoupon) return;
@@ -76,6 +90,7 @@ export default function useCouponCode(cartItems, cartTotal) {
     setCouponCode,
     appliedCoupon,
     totalDiscount,
+    giveawayTarget,
     applyCoupon,
     removeCoupon,
   };
