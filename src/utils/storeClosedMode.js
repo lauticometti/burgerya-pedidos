@@ -302,10 +302,16 @@ const SPECIAL_DAY_SHIFTS = {
     }, // mediodía especial partido
     {
       open: 20 * 60 + 30,
-      close: 24 * 60,
+      close: 21 * 60 + 30,
       label: "20:30",
       cookingStart: 21 * 60,
-    }, // noche especial partido
+    }, // noche especial partido: pausa por saturación desde 21:30
+    {
+      open: 22 * 60 + 30,
+      close: 24 * 60,
+      label: "22:30",
+      cookingStart: 22 * 60 + 30,
+    }, // reabre 22:30, cocina retoma de inmediato (sin ventana de pre-pedido)
   ],
 };
 
