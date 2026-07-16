@@ -362,11 +362,13 @@ function getActiveShift(day, minutes, dateKey = "") {
 }
 
 // Número ordinal y creciente del turno "actual": cuenta cuántos turnos
-// (mediodía/noche, contando también los especiales) ya arrancaron desde una
-// fecha ancla fija. Al estar cerrados entre turnos, cuenta como "todavía en
-// el turno que acaba de cerrar" hasta que abra el siguiente. Se usa para
-// saber si ya "cambió de turno" respecto a un día anterior (ver
-// isItemUnavailable en utils/availability.js), sin depender de horas exactas.
+// (mediodía/noche, contando también los especiales) ya CERRARON desde una
+// fecha ancla fija. Solo avanza cuando un turno termina (no cuando arranca),
+// así que un item marcado no disponible durante un turno sigue así mientras
+// ese turno esté corriendo, y se repone apenas cierra (no recién cuando abre
+// el siguiente). Se usa para saber si ya "cambió de turno" respecto a un
+// momento anterior (ver isItemUnavailable en utils/availability.js), sin
+// depender de horas exactas.
 const SHIFT_EPOCH_MS = Date.UTC(2026, 0, 1);
 
 // Turnos máximos por día (para que el ordinal sea estrictamente creciente
@@ -388,12 +390,12 @@ export function getShiftOrdinal(date = null) {
   const shiftsToday = [...getShiftsForDay(parts.day, parts.dateKey)].sort(
     (a, b) => a.open - b.open,
   );
-  // Cuántos turnos de hoy ya arrancaron (>= su hora de apertura).
-  const shiftsStartedToday = shiftsToday.filter(
-    (s) => parts.minutes >= s.open,
+  // Cuántos turnos de hoy ya cerraron (>= su hora de cierre).
+  const shiftsClosedToday = shiftsToday.filter(
+    (s) => parts.minutes >= s.close,
   ).length;
 
-  return daysSinceEpoch * MAX_SHIFTS_PER_DAY + shiftsStartedToday;
+  return daysSinceEpoch * MAX_SHIFTS_PER_DAY + shiftsClosedToday;
 }
 
 // Ordinal del turno "mediodia" o "noche" de una fecha dada (formato
@@ -423,8 +425,10 @@ export function getNamedShiftOrdinal(dateKey, shiftName) {
 
   if (!target) return null;
 
-  const shiftsBeforeOrEqual = shiftsThatDay.filter((s) => s.open <= target.open).length;
-  return daysSinceEpoch * MAX_SHIFTS_PER_DAY + shiftsBeforeOrEqual;
+  // Turnos que ya cerraron antes que este (sin contar al propio target):
+  // el item sigue no disponible mientras el turno marcado no haya cerrado.
+  const shiftsClosedBefore = shiftsThatDay.filter((s) => s.close < target.close).length;
+  return daysSinceEpoch * MAX_SHIFTS_PER_DAY + shiftsClosedBefore;
 }
 
 function getNextShift(day, minutes, dateKey = "") {
