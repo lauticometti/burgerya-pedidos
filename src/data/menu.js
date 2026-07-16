@@ -60,6 +60,7 @@ export const burgers = [
     isAvailable: 0,
     unavailableReason: "no disponible este mediodia",
     unavailableSince: "2026-07-16",
+    unavailableShift: "mediodia",
   },
   {
     id: "bacon",

@@ -1,4 +1,4 @@
-import { getShiftOrdinal } from "./storeClosedMode";
+import { getShiftOrdinal, getNamedShiftOrdinal } from "./storeClosedMode";
 
 export const UNAVAILABLE_REASON_DEFAULT = "no disponible este turno";
 
@@ -7,18 +7,18 @@ export const UNAVAILABLE_REASON_DEFAULT = "no disponible este turno";
 // reponer antes del próximo turno, así que el badge no debe sobrevivir a un
 // cambio de turno sin que alguien lo revierta a mano.
 //
-// unavailableSince (formato "YYYY-MM-DD") es la fecha en la que se marcó el
-// item como no disponible. Se asume que fue marcado durante el turno que
-// esté corriendo ahora en ese día (uso normal: se marca en el momento).
+// Para marcar un item, agregar en menu.js:
+//   unavailableSince: "2026-07-16"   (fecha en que se marcó, hoy)
+//   unavailableShift: "mediodia"     ("mediodia" o "noche", el turno en que se marcó)
 function isStillWithinMarkedShift(item) {
   const since = item?.unavailableSince;
-  if (!since) return true; // sin fecha registrada, no se puede auto-reponer
+  const shiftName = item?.unavailableShift;
+  if (!since || !shiftName) return true; // sin datos, no se puede auto-reponer
 
-  const [year, month, day] = since.split("-").map(Number);
-  const sinceDate = new Date();
-  sinceDate.setFullYear(year, month - 1, day);
+  const markedShift = getNamedShiftOrdinal(since, shiftName);
+  if (markedShift == null) return true;
 
-  return getShiftOrdinal(sinceDate) >= getShiftOrdinal();
+  return markedShift >= getShiftOrdinal();
 }
 
 export function isItemUnavailable(item) {

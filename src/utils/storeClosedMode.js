@@ -8,7 +8,7 @@ export const FRIDAY_TRIPLE_PROMO_BADGE_TEXT = "TRIPLE = DOBLE";
 export const DAILY_FEATURE_PROMO_OFFER_ID = "daily_feature";
 
 const MANUAL_STORE_STATUS_DATE = null;
-export const FORCE_OPEN = false; // override manual: forzar apertura fuera de horario
+export const FORCE_OPEN = true; // override manual: forzar apertura fuera de horario
 
 // Mensaje de aviso especial cuando cerramos antes por falta de stock.
 // null = mensaje genérico "Estamos cerrados. Abrimos...".
@@ -244,13 +244,31 @@ function getFridayPromoStatus(parts) {
   });
 }
 
-const DAY_NAMES = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+const DAY_NAMES = [
+  "domingo",
+  "lunes",
+  "martes",
+  "miércoles",
+  "jueves",
+  "viernes",
+  "sábado",
+];
 
 // Turnos de apertura: cada entrada define días habilitados y rango horario (en minutos desde medianoche)
 // day indices: 0=Dom, 1=Lun, 2=Mar, 3=Mié, 4=Jue, 5=Vie, 6=Sáb
 const SHIFTS = [
-  { days: new Set([1, 2, 3, 4, 5, 6]), open: 11 * 60 + 30, close: 15 * 60, label: "11:30" }, // Lun–Sáb mediodía
-  { days: new Set([0, 3, 4, 5, 6]),    open: 19 * 60 + 30, close: 24 * 60, label: "19:30" }, // Mié–Dom noche
+  {
+    days: new Set([1, 2, 3, 4, 5, 6]),
+    open: 11 * 60 + 30,
+    close: 15 * 60,
+    label: "11:30",
+  }, // Lun–Sáb mediodía
+  {
+    days: new Set([0, 3, 4, 5, 6]),
+    open: 19 * 60 + 30,
+    close: 24 * 60,
+    label: "19:30",
+  }, // Mié–Dom noche
 ];
 
 function isFeriado(dateKey) {
@@ -258,8 +276,8 @@ function isFeriado(dateKey) {
 }
 
 const FERIADO_SHIFTS = [
-  { open: 11 * 60 + 30, close: 15 * 60,     label: "11:30" },
-  { open: 19 * 60 + 30, close: 24 * 60,     label: "19:30" },
+  { open: 11 * 60 + 30, close: 15 * 60, label: "11:30" },
+  { open: 19 * 60 + 30, close: 24 * 60, label: "19:30" },
 ];
 
 // Excepciones puntuales de horario para una fecha específica (formato
@@ -268,7 +286,7 @@ const FERIADO_SHIFTS = [
 const SPECIAL_DAY_SHIFTS = {
   "2026-07-03": [
     { open: 11 * 60 + 30, close: 15 * 60, label: "11:30" }, // mediodía habitual
-    { open: 18 * 60,      close: 24 * 60, label: "18:00" }, // Argentina vs Cabo Verde
+    { open: 18 * 60, close: 24 * 60, label: "18:00" }, // Argentina vs Cabo Verde
   ],
   // TEMP ARGENTINA MATCH DAY: abrimos antes para que se pueda ir reservando,
   // cocina arranca a las 12hs igual que siempre, y hoy cerramos más tarde
@@ -351,24 +369,62 @@ function getActiveShift(day, minutes, dateKey = "") {
 // isItemUnavailable en utils/availability.js), sin depender de horas exactas.
 const SHIFT_EPOCH_MS = Date.UTC(2026, 0, 1);
 
+// Turnos máximos por día (para que el ordinal sea estrictamente creciente
+// entre días distintos, independientemente de cuántos turnos tenga cada uno).
+const MAX_SHIFTS_PER_DAY = 4;
+
+function getDaysSinceEpoch(parts) {
+  return Math.floor(
+    (Date.UTC(parts.year, parts.month - 1, parts.dayOfMonth) - SHIFT_EPOCH_MS) /
+      86_400_000,
+  );
+}
+
 export function getShiftOrdinal(date = null) {
   const resolvedDate = date instanceof Date ? date : getNowDate();
   const parts = getArgentinaTimeParts(resolvedDate);
-  const daysSinceEpoch = Math.floor(
-    (Date.UTC(parts.year, parts.month - 1, parts.dayOfMonth) - SHIFT_EPOCH_MS) / 86_400_000
-  );
+  const daysSinceEpoch = getDaysSinceEpoch(parts);
 
   const shiftsToday = [...getShiftsForDay(parts.day, parts.dateKey)].sort(
-    (a, b) => a.open - b.open
+    (a, b) => a.open - b.open,
   );
   // Cuántos turnos de hoy ya arrancaron (>= su hora de apertura).
-  const shiftsStartedToday = shiftsToday.filter((s) => parts.minutes >= s.open).length;
-
-  // Turnos máximos por día (para que el ordinal sea estrictamente creciente
-  // entre días distintos, independientemente de cuántos turnos tenga cada uno).
-  const MAX_SHIFTS_PER_DAY = 4;
+  const shiftsStartedToday = shiftsToday.filter(
+    (s) => parts.minutes >= s.open,
+  ).length;
 
   return daysSinceEpoch * MAX_SHIFTS_PER_DAY + shiftsStartedToday;
+}
+
+// Ordinal del turno "mediodia" o "noche" de una fecha dada (formato
+// "YYYY-MM-DD"), para poder registrar a mano en qué turno se marcó un item
+// como no disponible sin tener que calcular el número manualmente. Busca,
+// entre los turnos de ese día, el que abre más cerca de mediodía (12:00) o
+// el que abre después de las 18:00, respectivamente.
+export function getNamedShiftOrdinal(dateKey, shiftName) {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  const daysSinceEpoch = getDaysSinceEpoch({ year, month, dayOfMonth: day });
+
+  // El weekday real solo importa para los turnos habituales (SHIFTS); los
+  // especiales/feriados se resuelven por dateKey sin mirar el día.
+  const weekday = new Date(Date.UTC(year, month - 1, day, 12)).getUTCDay();
+  const shiftsThatDay = [...getShiftsForDay(weekday, dateKey)].sort(
+    (a, b) => a.open - b.open,
+  );
+
+  const target =
+    shiftName === "noche"
+      ? shiftsThatDay
+          .filter((s) => s.open >= 18 * 60)
+          .sort((a, b) => a.open - b.open)[0]
+      : shiftsThatDay
+          .filter((s) => s.open < 18 * 60)
+          .sort((a, b) => Math.abs(a.open - 12 * 60) - Math.abs(b.open - 12 * 60))[0];
+
+  if (!target) return null;
+
+  const shiftsBeforeOrEqual = shiftsThatDay.filter((s) => s.open <= target.open).length;
+  return daysSinceEpoch * MAX_SHIFTS_PER_DAY + shiftsBeforeOrEqual;
 }
 
 function getNextShift(day, minutes, dateKey = "") {
@@ -377,9 +433,13 @@ function getNextShift(day, minutes, dateKey = "") {
     const checkDay = (day + offset) % 7;
     let shiftsToday;
     if (offset === 0) {
-      shiftsToday = [...getShiftsForDay(checkDay, dateKey)].sort((a, b) => a.open - b.open);
+      shiftsToday = [...getShiftsForDay(checkDay, dateKey)].sort(
+        (a, b) => a.open - b.open,
+      );
     } else {
-      shiftsToday = SHIFTS.filter((s) => s.days.has(checkDay)).sort((a, b) => a.open - b.open);
+      shiftsToday = SHIFTS.filter((s) => s.days.has(checkDay)).sort(
+        (a, b) => a.open - b.open,
+      );
     }
     for (const shift of shiftsToday) {
       if (offset > 0 || minutes < shift.open) {
@@ -419,7 +479,8 @@ function getRelevantShiftInfo(day, minutes, dateKey = "") {
   for (const shift of shifts) {
     // TEMP ARGENTINA MATCH DAY: algunos turnos especiales definen su propio cookingStart
     // (ver SPECIAL_DAY_SHIFTS) en vez de usar PREORDER_WINDOW_MINUTES. Revertir: quitar `cookingStart` del shift.
-    const cookingStart = shift.cookingStart ?? shift.open + PREORDER_WINDOW_MINUTES;
+    const cookingStart =
+      shift.cookingStart ?? shift.open + PREORDER_WINDOW_MINUTES;
     if (minutes >= shift.open && minutes < cookingStart) {
       return { phase: "preorder", shift, cookingStart };
     }
@@ -471,7 +532,9 @@ export function getStoreStatus(date = null) {
   const promoStatus = getFridayPromoStatus(parts);
   const dailyFeature = getDailyFeature(resolvedDate);
   const nextOpenText = getNextOpenText(parts);
-  const isOpenNow = FORCE_OPEN || getActiveShift(parts.day, parts.minutes, parts.dateKey) !== null;
+  const isOpenNow =
+    FORCE_OPEN ||
+    getActiveShift(parts.day, parts.minutes, parts.dateKey) !== null;
 
   const baseStatus = promoStatus || buildStatusState();
   const closedOverrides = isOpenNow
@@ -491,7 +554,8 @@ export function getStoreStatus(date = null) {
     ...parts,
     ...baseStatus,
     ...closedOverrides,
-    isDailyFeaturePromoActive: dailyFeature !== null && dailyFeature.prices !== null,
+    isDailyFeaturePromoActive:
+      dailyFeature !== null && dailyFeature.prices !== null,
     dailyFeatureBurgerId: dailyFeature?.burgerId || null,
     dailyFeatureWeekdayLabel: dailyFeature?.weekdayLabel || "",
     dailyFeatureEyebrow: dailyFeature?.eyebrow || null,
@@ -516,7 +580,9 @@ function formatHourLabel(hour24) {
 // determinan si el local está abierto, redondeando a la hora de cocina
 // (cookingStart, no el horario de apertura web) hacia arriba.
 export function getTodaySchedule(date = null) {
-  const parts = getArgentinaTimeParts(date instanceof Date ? date : getNowDate());
+  const parts = getArgentinaTimeParts(
+    date instanceof Date ? date : getNowDate(),
+  );
   const shifts = getShiftsForDay(parts.day, parts.dateKey);
   const dayLabel = DAY_ABBR[parts.day];
 
@@ -525,7 +591,8 @@ export function getTodaySchedule(date = null) {
   }
 
   const ranges = shifts.map((shift) => {
-    const cookingStart = shift.cookingStart ?? shift.open + PREORDER_WINDOW_MINUTES;
+    const cookingStart =
+      shift.cookingStart ?? shift.open + PREORDER_WINDOW_MINUTES;
     const startHour = formatHourLabel(ceilToHour(cookingStart));
     const endHour = formatHourLabel(ceilToHour(shift.close));
     return `${startHour}–${endHour}`;
