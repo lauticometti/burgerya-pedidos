@@ -343,6 +343,34 @@ function getActiveShift(day, minutes, dateKey = "") {
   return shifts.find((s) => minutes >= s.open && minutes < s.close) ?? null;
 }
 
+// Número ordinal y creciente del turno "actual": cuenta cuántos turnos
+// (mediodía/noche, contando también los especiales) ya arrancaron desde una
+// fecha ancla fija. Al estar cerrados entre turnos, cuenta como "todavía en
+// el turno que acaba de cerrar" hasta que abra el siguiente. Se usa para
+// saber si ya "cambió de turno" respecto a un día anterior (ver
+// isItemUnavailable en utils/availability.js), sin depender de horas exactas.
+const SHIFT_EPOCH_MS = Date.UTC(2026, 0, 1);
+
+export function getShiftOrdinal(date = null) {
+  const resolvedDate = date instanceof Date ? date : getNowDate();
+  const parts = getArgentinaTimeParts(resolvedDate);
+  const daysSinceEpoch = Math.floor(
+    (Date.UTC(parts.year, parts.month - 1, parts.dayOfMonth) - SHIFT_EPOCH_MS) / 86_400_000
+  );
+
+  const shiftsToday = [...getShiftsForDay(parts.day, parts.dateKey)].sort(
+    (a, b) => a.open - b.open
+  );
+  // Cuántos turnos de hoy ya arrancaron (>= su hora de apertura).
+  const shiftsStartedToday = shiftsToday.filter((s) => parts.minutes >= s.open).length;
+
+  // Turnos máximos por día (para que el ordinal sea estrictamente creciente
+  // entre días distintos, independientemente de cuántos turnos tenga cada uno).
+  const MAX_SHIFTS_PER_DAY = 4;
+
+  return daysSinceEpoch * MAX_SHIFTS_PER_DAY + shiftsStartedToday;
+}
+
 function getNextShift(day, minutes, dateKey = "") {
   // Busca el próximo turno dentro de los próximos 7 días (incluyendo hoy)
   for (let offset = 0; offset <= 7; offset++) {
