@@ -4,8 +4,10 @@ import { getArgentinaTimeParts } from "./storeClosedMode";
 export const MATCH_DAY_CAMPAIGN = true;
 
 // Override manual: si querés forzar otra burger un día puntual,
-// poné el id acá (ej: "bacon"). null = usar el mapping automático por día.
-export const DAILY_FEATURE_OVERRIDE_ID = MATCH_DAY_CAMPAIGN ? "american" : null;
+// poné el id acá (ej: "bacon"). null = usar el mapping automático por día,
+// "off" = no mostrar tarjeta destacada.
+// Apagada: saturados, solo cheese y bacon disponibles hoy.
+export const DAILY_FEATURE_OVERRIDE_ID = "off";
 
 // Texto del eyebrow cuando usás override manual. null = muestra "RECOMENDADA DEL <DÍA>" normal.
 export const DAILY_FEATURE_OVERRIDE_LABEL = MATCH_DAY_CAMPAIGN

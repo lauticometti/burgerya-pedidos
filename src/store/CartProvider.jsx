@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useReducer } from "react";
 import { burgers } from "../data/menu";
+import { isItemUnavailable } from "../utils/availability";
 import { CartContext } from "./cartContext";
 import { getBurgerPriceInfo } from "../utils/burgerPricing";
 import { getPapasUpgradePrice } from "../utils/papasPricing";
@@ -174,13 +175,21 @@ const REMOVED_CART_KEY_PREFIXES = [
   "papas:grande:bacon",
 ];
 
+const MENU_BURGERS_BY_ID = burgers.reduce((idx, burger) => {
+  idx[burger.id] = burger;
+  return idx;
+}, {});
+
 function sanitizePersistedItems(items) {
   const cleaned = {};
   let hadRemoved = false;
   for (const [key, item] of Object.entries(items)) {
     const isRemovedKey = REMOVED_CART_KEY_PREFIXES.some((prefix) => key.startsWith(prefix));
     const isRemovedId = item.meta?.itemId && REMOVED_ITEM_IDS.has(item.meta.itemId);
-    if (isRemovedKey || isRemovedId) {
+    const isUnavailableBurger =
+      item.meta?.type === "burger" &&
+      (!MENU_BURGERS_BY_ID[item.meta.burgerId] || isItemUnavailable(MENU_BURGERS_BY_ID[item.meta.burgerId]));
+    if (isRemovedKey || isRemovedId || isUnavailableBurger) {
       hadRemoved = true;
       continue;
     }

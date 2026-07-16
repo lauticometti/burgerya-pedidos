@@ -40,7 +40,8 @@ export const burgers = [
       { id: "caramelized_onion", label: "Cebolla caramelizada" },
     ],
     img: "/burgers/lautiboom.svg",
-    isAvailable: 1,
+    isAvailable: 0,
+    unavailableReason: "hoy solo cheese y bacon",
   },
   {
     id: "american",
@@ -89,7 +90,8 @@ export const burgers = [
       { id: "caramelized_onion", label: "Cebolla caramelizada" },
     ],
     img: "/burgers/bbqueen.svg",
-    isAvailable: 1,
+    isAvailable: 0,
+    unavailableReason: "hoy solo cheese y bacon",
   },
   {
     id: "smoklahoma",
@@ -104,7 +106,8 @@ export const burgers = [
       { id: "bacon", label: "Bacon" },
     ],
     img: "/burgers/smoklahoma.svg",
-    isAvailable: 1,
+    isAvailable: 0,
+    unavailableReason: "hoy solo cheese y bacon",
   },
 ];
 
