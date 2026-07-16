@@ -46,6 +46,38 @@
   line-height: 1.4;
 }
 
+.wrapperUnavailable .img {
+  filter: grayscale(1) opacity(0.5);
+}
+
+.soldOutBadge {
+  display: block;
+  width: fit-content;
+  margin: 6px auto 0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ff5c5c;
+  background: rgba(255, 92, 92, 0.12);
+  border: 1px solid rgba(255, 92, 92, 0.4);
+  border-radius: 6px;
+  padding: 3px 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.sizeBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sizeBtn:disabled:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  transform: none;
+}
+
 /* TEMP ARGENTINA MATCH DAY: quitar este bloque (o poner MATCH_DAY_CAMPAIGN=false) para revertir */
 .matchDayHead {
   --argentina-celeste: #74C9F5;

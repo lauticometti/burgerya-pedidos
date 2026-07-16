@@ -13,14 +13,16 @@ const SIZES = [
   { size: "triple", label: "Triple" },
 ];
 
-export default function BurgerDelDia({ burger, weekdayLabel, eyebrow, onOpen, onAddToCart }) {
+export default function BurgerDelDia({ burger, weekdayLabel, eyebrow, onOpen, onAddToCart, unavailable = false, unavailableReason = "" }) {
   if (!burger) return null;
 
   const eyebrowText = eyebrow
     || (weekdayLabel ? `RECOMENDADA DEL ${weekdayLabel}` : "RECOMENDADA DE HOY");
 
   return (
-    <div className={styles.wrapper} onClick={onOpen} role="button" tabIndex={0}
+    <div
+      className={`${styles.wrapper} ${unavailable ? styles.wrapperUnavailable : ""}`}
+      onClick={onOpen} role="button" tabIndex={0}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onOpen(e); }}
       aria-label={`Ver ${burger.name}`}>
 
@@ -87,6 +89,10 @@ export default function BurgerDelDia({ burger, weekdayLabel, eyebrow, onOpen, on
         <p className={styles.eyebrow}>{eyebrowText}</p>
       )}
 
+      {unavailable ? (
+        <span className={styles.soldOutBadge}>{unavailableReason || "Sin stock"}</span>
+      ) : null}
+
       <div className={styles.body}>
         <div className={styles.imgWrap}>
           <img
@@ -118,6 +124,7 @@ export default function BurgerDelDia({ burger, weekdayLabel, eyebrow, onOpen, on
                   <button
                     type="button"
                     className={`${styles.sizeBtn} ${isFeatured ? styles.sizeBtnFeatured : ""}`}
+                    disabled={unavailable}
                     onClick={(e) => {
                       e.stopPropagation();
                       onAddToCart(burger, size);

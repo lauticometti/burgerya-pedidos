@@ -257,6 +257,10 @@ export default function Menu() {
       toast.error(closedToastText, { key: "store-closed-burger" });
       return;
     }
+    if (isItemUnavailable(burger)) {
+      notifyUnavailableBurger(burger, getUnavailableReason(burger));
+      return;
+    }
     const price = getBurgerPriceInfo(burger, size);
     const cartItem = buildBurgerCartItem(burger, size, price, removedIngredients, extras, papas);
     cart.add(cartItem);
@@ -322,6 +326,8 @@ export default function Menu() {
               burger={featuredBurger}
               weekdayLabel={dailyFeatureWeekdayLabel}
               eyebrow={dailyFeatureEyebrow}
+              unavailable={isItemUnavailable(featuredBurger)}
+              unavailableReason={getUnavailableReason(featuredBurger)}
               onOpen={(evt) => {
                 setModalSkipScroll(true);
                 openBurger(featuredBurger, evt);

@@ -291,7 +291,8 @@ const SPECIAL_DAY_SHIFTS = {
   // TEMP ARGENTINA MATCH DAY: mediodía especial por el partido Argentina vs
   // Inglaterra. Cocina arranca 13:00 y cierra 16:00 (una hora más tarde que
   // el habitual 12:00-15:00); web abre media hora antes de la cocina, como
-  // siempre. Noche sin cambios. Revertir mañana 16/7: borrar esta entrada.
+  // siempre. A la noche pasa lo mismo: abrimos más tarde, cocina de 21 a 00,
+  // pedidos desde 20:30. Revertir mañana 16/7: borrar esta entrada.
   "2026-07-15": [
     {
       open: 11 * 60 + 30,
@@ -299,7 +300,12 @@ const SPECIAL_DAY_SHIFTS = {
       label: "11:30",
       cookingStart: 13 * 60,
     }, // mediodía especial partido
-    { open: 19 * 60 + 30, close: 24 * 60, label: "19:30" }, // noche habitual
+    {
+      open: 20 * 60 + 30,
+      close: 24 * 60,
+      label: "20:30",
+      cookingStart: 21 * 60,
+    }, // noche especial partido
   ],
 };
 
