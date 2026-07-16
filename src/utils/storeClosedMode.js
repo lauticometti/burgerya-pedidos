@@ -313,6 +313,18 @@ const SPECIAL_DAY_SHIFTS = {
       cookingStart: 22 * 60 + 30,
     }, // reabre 22:30, cocina retoma de inmediato (sin ventana de pre-pedido)
   ],
+  // Mediodía especial de hoy: cerrado hasta las 12hs, pedidos desde 12hs,
+  // cocina arranca 12:30 (en vez del habitual 11:30/apertura cocina 12:00).
+  // Noche sin cambios. Revertir mañana: borrar esta entrada.
+  "2026-07-16": [
+    {
+      open: 12 * 60,
+      close: 15 * 60,
+      label: "12:00",
+      cookingStart: 12 * 60 + 30,
+    }, // mediodía especial
+    { open: 19 * 60 + 30, close: 24 * 60, label: "19:30" }, // noche habitual
+  ],
 };
 
 function getSpecialShifts(dateKey) {
