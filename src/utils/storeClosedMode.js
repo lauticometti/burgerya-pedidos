@@ -559,18 +559,11 @@ export function getStoreStatus(date = null) {
 
 const DAY_ABBR = ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"];
 
-function ceilToHour(minutes) {
-  return Math.ceil(minutes / 60);
-}
-
-function formatHourLabel(hour24) {
-  return String(hour24 % 24).padStart(2, "0");
-}
-
 // Horario completo de hoy, para mostrar debajo del banner de estado.
-// Reutiliza los mismos turnos (SHIFTS/SPECIAL_DAY_SHIFTS/feriados) y el
-// mismo `shift.label` que usa el banner ("Podés pedir desde las X") para
-// el inicio, así nunca queda desincronizado con lo que dice el banner.
+// Reutiliza los mismos turnos (SHIFTS/SPECIAL_DAY_SHIFTS/feriados) y las
+// mismas funciones de formateo (formatMinutesLabel) que usa el banner para
+// la hora de cocina y de cierre, sin redondear — así nunca queda
+// desincronizado con lo que dice el banner.
 export function getTodaySchedule(date = null) {
   const parts = getArgentinaTimeParts(
     date instanceof Date ? date : getNowDate(),
@@ -583,9 +576,9 @@ export function getTodaySchedule(date = null) {
   }
 
   const ranges = shifts.map((shift) => {
-    const startHour = shift.label.split(":")[0].padStart(2, "0");
-    const endHour = formatHourLabel(ceilToHour(shift.close));
-    return `${startHour}–${endHour}`;
+    const cookingStart =
+      shift.cookingStart ?? shift.open + PREORDER_WINDOW_MINUTES;
+    return `${formatMinutesLabel(cookingStart)}–${formatMinutesLabel(shift.close)}`;
   });
 
   return { dayLabel, ranges, isClosed: false };
