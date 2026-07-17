@@ -559,11 +559,20 @@ export function getStoreStatus(date = null) {
 
 const DAY_ABBR = ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"];
 
+// Versión compacta de formatMinutesLabel: sin minutos cuando caen en :00
+// (ej. "12"), con minutos cuando no (ej. "12:30"). Mismos valores que usa
+// el banner, solo cambia cómo se muestran acá para que quede corto.
+function formatCompactMinutesLabel(minutes) {
+  const h = Math.floor(minutes / 60) % 24;
+  const m = minutes % 60;
+  if (m === 0) return String(h).padStart(2, "0");
+  return formatMinutesLabel(minutes);
+}
+
 // Horario completo de hoy, para mostrar debajo del banner de estado.
-// Reutiliza los mismos turnos (SHIFTS/SPECIAL_DAY_SHIFTS/feriados) y las
-// mismas funciones de formateo (formatMinutesLabel) que usa el banner para
-// la hora de cocina y de cierre, sin redondear — así nunca queda
-// desincronizado con lo que dice el banner.
+// Reutiliza los mismos turnos (SHIFTS/SPECIAL_DAY_SHIFTS/feriados) y los
+// mismos valores (cookingStart, close) que usa el banner para sus
+// mensajes de pre-pedido/cocina — así nunca queda desincronizado.
 export function getTodaySchedule(date = null) {
   const parts = getArgentinaTimeParts(
     date instanceof Date ? date : getNowDate(),
@@ -578,7 +587,7 @@ export function getTodaySchedule(date = null) {
   const ranges = shifts.map((shift) => {
     const cookingStart =
       shift.cookingStart ?? shift.open + PREORDER_WINDOW_MINUTES;
-    return `${formatMinutesLabel(cookingStart)}–${formatMinutesLabel(shift.close)}`;
+    return `${formatCompactMinutesLabel(cookingStart)}–${formatCompactMinutesLabel(shift.close)}`;
   });
 
   return { dayLabel, ranges, isClosed: false };
