@@ -259,10 +259,10 @@ const DAY_NAMES = [
 const SHIFTS = [
   {
     days: new Set([1, 2, 3, 4, 5, 6]),
-    open: 11 * 60 + 30,
+    open: 12 * 60,
     close: 15 * 60,
-    label: "11:30",
-  }, // Lun–Sáb mediodía
+    label: "12:00",
+  }, // Lun–Sáb mediodía (pedidos 12:00, cocina 12:30)
   {
     days: new Set([0, 3, 4, 5, 6]),
     open: 19 * 60 + 30,
@@ -276,7 +276,7 @@ function isFeriado(dateKey) {
 }
 
 const FERIADO_SHIFTS = [
-  { open: 11 * 60 + 30, close: 15 * 60, label: "11:30" },
+  { open: 12 * 60, close: 15 * 60, label: "12:00" },
   { open: 19 * 60 + 30, close: 24 * 60, label: "19:30" },
 ];
 
@@ -330,18 +330,6 @@ const SPECIAL_DAY_SHIFTS = {
       label: "22:30",
       cookingStart: 22 * 60 + 30,
     }, // reabre 22:30, cocina retoma de inmediato (sin ventana de pre-pedido)
-  ],
-  // Mediodía especial de hoy: cerrado hasta las 12hs, pedidos desde 12hs,
-  // cocina arranca 12:30 (en vez del habitual 11:30/apertura cocina 12:00).
-  // Noche sin cambios. Revertir mañana: borrar esta entrada.
-  "2026-07-16": [
-    {
-      open: 12 * 60,
-      close: 15 * 60,
-      label: "12:00",
-      cookingStart: 12 * 60 + 30,
-    }, // mediodía especial
-    { open: 19 * 60 + 30, close: 24 * 60, label: "19:30" }, // noche habitual
   ],
 };
 
