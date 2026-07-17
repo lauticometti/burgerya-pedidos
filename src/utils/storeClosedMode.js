@@ -568,9 +568,9 @@ function formatHourLabel(hour24) {
 }
 
 // Horario completo de hoy, para mostrar debajo del banner de estado.
-// Reutiliza los mismos turnos (SHIFTS/SPECIAL_DAY_SHIFTS/feriados) que
-// determinan si el local está abierto, redondeando a la hora de cocina
-// (cookingStart, no el horario de apertura web) hacia arriba.
+// Reutiliza los mismos turnos (SHIFTS/SPECIAL_DAY_SHIFTS/feriados) y el
+// mismo `shift.label` que usa el banner ("Podés pedir desde las X") para
+// el inicio, así nunca queda desincronizado con lo que dice el banner.
 export function getTodaySchedule(date = null) {
   const parts = getArgentinaTimeParts(
     date instanceof Date ? date : getNowDate(),
@@ -583,9 +583,7 @@ export function getTodaySchedule(date = null) {
   }
 
   const ranges = shifts.map((shift) => {
-    const cookingStart =
-      shift.cookingStart ?? shift.open + PREORDER_WINDOW_MINUTES;
-    const startHour = formatHourLabel(ceilToHour(cookingStart));
+    const startHour = shift.label.split(":")[0].padStart(2, "0");
     const endHour = formatHourLabel(ceilToHour(shift.close));
     return `${startHour}–${endHour}`;
   });
