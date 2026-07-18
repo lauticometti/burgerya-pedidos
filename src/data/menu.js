@@ -103,7 +103,8 @@ export const burgers = [
       { id: "bacon", label: "Bacon" },
     ],
     img: "/burgers/smoklahoma.svg",
-    isAvailable: 1,
+    isAvailable: 0,
+    unavailableReason: "sin stock",
   },
 ];
 
@@ -193,7 +194,8 @@ export const bebidas = [
     name: "Coca Cola 2.25L",
     orderName: "Coca 2.25",
     price: 6000,
-    isAvailable: 1,
+    isAvailable: 0,
+    unavailableReason: "sin stock",
     img: "/bebidas/coca-cola-225l.svg",
   },
 ];

@@ -9,6 +9,7 @@ export const DAILY_FEATURE_PROMO_OFFER_ID = "daily_feature";
 
 const MANUAL_STORE_STATUS_DATE = null;
 export const FORCE_OPEN = false; // override manual: forzar apertura fuera de horario
+export const FORCE_CLOSED = true; // override manual: cierre manual, ignora el horario. Poner en false para reabrir.
 
 // Mensaje de aviso especial cuando cerramos antes por falta de stock.
 // null = mensaje genérico "Estamos cerrados. Abrimos...".
@@ -443,6 +444,8 @@ function getNextShift(day, minutes, dateKey = "") {
 }
 
 function getNextOpenText(parts) {
+  if (FORCE_CLOSED) return "Volvemos pronto";
+
   const { day, minutes, dateKey } = parts;
   const next = getNextShift(day, minutes, dateKey);
   if (!next) return "Volvemos pronto";
@@ -485,6 +488,14 @@ function getRelevantShiftInfo(day, minutes, dateKey = "") {
 
 function getBannerState(parts) {
   const { day, minutes, dateKey } = parts;
+
+  if (FORCE_CLOSED) {
+    return {
+      type: "closed",
+      message: `Estamos cerrados. ${getNextOpenText(parts)}.`,
+    };
+  }
+
   const info = getRelevantShiftInfo(day, minutes, dateKey);
 
   if (info?.phase === "preorder") {
@@ -525,8 +536,9 @@ export function getStoreStatus(date = null) {
   const dailyFeature = getDailyFeature(resolvedDate);
   const nextOpenText = getNextOpenText(parts);
   const isOpenNow =
-    FORCE_OPEN ||
-    getActiveShift(parts.day, parts.minutes, parts.dateKey) !== null;
+    !FORCE_CLOSED &&
+    (FORCE_OPEN ||
+      getActiveShift(parts.day, parts.minutes, parts.dateKey) !== null);
 
   const baseStatus = promoStatus || buildStatusState();
   const closedOverrides = isOpenNow
