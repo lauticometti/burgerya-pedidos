@@ -9,7 +9,7 @@ export const DAILY_FEATURE_PROMO_OFFER_ID = "daily_feature";
 
 const MANUAL_STORE_STATUS_DATE = null;
 export const FORCE_OPEN = false; // override manual: forzar apertura fuera de horario
-export const FORCE_CLOSED = true; // override manual: cierre manual, ignora el horario. Poner en false para reabrir.
+export const FORCE_CLOSED = false; // override manual: cierre manual, ignora el horario. Poner en true para cerrar la web entera.
 
 // Mensaje de aviso especial cuando cerramos antes por falta de stock.
 // null = mensaje genérico "Estamos cerrados. Abrimos...".
@@ -331,6 +331,11 @@ const SPECIAL_DAY_SHIFTS = {
       label: "22:30",
       cookingStart: 22 * 60 + 30,
     }, // reabre 22:30, cocina retoma de inmediato (sin ventana de pre-pedido)
+  ],
+  // Cierre manual del mediodía de hoy (sin turno de mediodía). La noche
+  // queda con su horario habitual (19:30-24:00) y abre sola.
+  "2026-07-18": [
+    { open: 19 * 60 + 30, close: 24 * 60, label: "19:30" }, // noche habitual
   ],
 };
 
