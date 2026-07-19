@@ -193,7 +193,10 @@ export const bebidas = [
     name: "Coca Cola 2.25L",
     orderName: "Coca 2.25",
     price: 6000,
-    isAvailable: 1,
+    isAvailable: 0,
+    unavailableReason: "coca no nos trajo 2.25",
+    unavailableSince: "2026-07-19",
+    unavailableShift: "mediodia",
     img: "/bebidas/coca-cola-225l.svg",
   },
 ];

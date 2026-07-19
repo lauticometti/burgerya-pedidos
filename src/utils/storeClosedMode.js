@@ -343,6 +343,18 @@ const SPECIAL_DAY_SHIFTS = {
     }, // mediodía especial
     { open: 19 * 60 + 30, close: 24 * 60, label: "19:30" }, // noche habitual
   ],
+  // TEMP ARGENTINA MATCH DAY: hoy domingo juega Argentina, sumamos turno
+  // especial de mediodía 13 a 16hs (en vez de estar cerrados hasta la noche).
+  // Revertir mañana 20/7: borrar esta entrada.
+  "2026-07-19": [
+    {
+      open: 12 * 60 + 30,
+      close: 16 * 60,
+      label: "12:30",
+      cookingStart: 13 * 60,
+    }, // mediodía especial partido: cocina 13hs, pedidos desde 12:30
+    { open: 19 * 60 + 30, close: 24 * 60, label: "19:30" }, // noche habitual
+  ],
 };
 
 function getSpecialShifts(dateKey) {
