@@ -230,6 +230,16 @@ function ArgentinaTakeoverPage() {
           21 a 00 hs
         </p>
       </div>
+      <p
+        style={{
+          margin: "0.25rem 0 0",
+          fontSize: "0.9rem",
+          color: "#ccc",
+          fontWeight: 600,
+          letterSpacing: "0.01em",
+        }}>
+        Delivery a todo Hurlingham
+      </p>
     </div>
   );
 }
