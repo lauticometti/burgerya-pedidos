@@ -18,8 +18,7 @@ export default function CartUpsellBanner({ items, onAddBebida, disabled }) {
   return (
     <div className={styles.banner}>
       <div className={styles.text}>
-        <strong>¿Le sumás una bebida?</strong>
-        <span>Sumale una Coca bien fría.</span>
+        <strong>No arranques el partido sin una Coca bien fría.</strong>
       </div>
       <Button
         size="sm"

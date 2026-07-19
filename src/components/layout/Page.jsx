@@ -1,6 +1,7 @@
 import styles from './Page.module.css';
 import OpenTodayAlert from '../alerts/OpenTodayAlert';
 import ClosedBanner from '../alerts/ClosedBanner';
+import MatchDayCountdown from '../alerts/MatchDayCountdown';
 import TodayScheduleLine from '../alerts/TodayScheduleLine';
 
 export default function Page({ children, className = '' }) {
@@ -8,6 +9,7 @@ export default function Page({ children, className = '' }) {
   return (
     <div className={classes}>
       <ClosedBanner />
+      <MatchDayCountdown />
       <TodayScheduleLine />
       <OpenTodayAlert />
       {children}

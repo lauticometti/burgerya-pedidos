@@ -389,11 +389,20 @@
   }
 
   .stickyRight {
-    width: auto;
+    width: 100%;
+    min-width: 0;
     justify-items: end;
   }
 
   .stickyRight > * {
     width: auto;
+    max-width: 100%;
+  }
+
+  .stickyHint {
+    max-width: 100%;
+    text-align: right;
+    white-space: normal;
+    overflow-wrap: break-word;
   }
 }

@@ -346,6 +346,10 @@ const SPECIAL_DAY_SHIFTS = {
       close: 16 * 60,
       label: "12:30",
       cookingStart: 13 * 60,
+      // TEMP ARGENTINA MATCH DAY FINAL: últimos 30 min antes del cierre (16hs,
+      // hora de la Final) se muestran como urgencia "últimos minutos para
+      // pedir". Sigue siendo turno abierto (no cerrado). Revertir: borrar `lastCallStart`.
+      lastCallStart: 15 * 60 + 30,
     }, // mediodía especial partido: cocina 13hs, pedidos desde 12:30
     {
       open: 20 * 60 + 30,
@@ -505,6 +509,12 @@ function getRelevantShiftInfo(day, minutes, dateKey = "") {
     if (minutes >= shift.open && minutes < cookingStart) {
       return { phase: "preorder", shift, cookingStart };
     }
+    // TEMP ARGENTINA MATCH DAY FINAL: si el shift define `lastCallStart`, el
+    // tramo final antes del cierre se separa en fase "lastCall" (urgencia
+    // visual, sigue siendo turno abierto). Revertir: quitar `lastCallStart` del shift.
+    if (shift.lastCallStart != null && minutes >= shift.lastCallStart && minutes < shift.close) {
+      return { phase: "lastCall", shift, cookingStart };
+    }
     if (minutes >= cookingStart && minutes < shift.close) {
       return { phase: "cooking", shift, cookingStart };
     }
@@ -512,8 +522,24 @@ function getRelevantShiftInfo(day, minutes, dateKey = "") {
   return null;
 }
 
+// TEMP ARGENTINA MATCH DAY FINAL: fecha de la Final, para acotar los mensajes
+// especiales de banner/botón al día de hoy sin afectar otros días con el
+// mismo turno especial. Revertir mañana 20/7: borrar esta constante y sus usos.
+const MATCH_DAY_FINAL_DATE_KEY = "2026-07-19";
+const MATCH_DAY_FINAL_MESSAGE =
+  "FINAL DEL MUNDIAL • Pedí antes de las 15:30 y mirá el partido tranquilo.";
+const MATCH_DAY_LAST_CALL_MESSAGE = "ÚLTIMOS MINUTOS PARA PEDIR";
+const MATCH_DAY_HALFTIME_MESSAGE =
+  "ESTAMOS VIENDO LA FINAL • VOLVEMOS A LAS 20:30";
+
 function getBannerState(parts) {
   const { day, minutes, dateKey } = parts;
+  const isMatchDayFinalToday = dateKey === MATCH_DAY_FINAL_DATE_KEY;
+  // Antes de que abra el turno mediodía de hoy (12:30): mismo mensaje
+  // festivo que preorder/cooking, no el de "estamos viendo la Final".
+  const isBeforeMatchDayMiddayOpen =
+    isMatchDayFinalToday &&
+    (getSpecialShifts(dateKey)?.[0]?.open ?? Infinity) > minutes;
 
   if (FORCE_CLOSED) {
     return {
@@ -524,7 +550,15 @@ function getBannerState(parts) {
 
   const info = getRelevantShiftInfo(day, minutes, dateKey);
 
+  // TEMP ARGENTINA MATCH DAY FINAL: el copy festivo es específico del turno
+  // mediodía de hoy (el que tiene `lastCallStart`), no del turno noche.
+  const isMatchDayFinalMiddayShift =
+    isMatchDayFinalToday && info?.shift?.lastCallStart != null;
+
   if (info?.phase === "preorder") {
+    if (isMatchDayFinalMiddayShift) {
+      return { type: "preorder", message: MATCH_DAY_FINAL_MESSAGE, matchDay: true };
+    }
     const cookingLabel = formatMinutesLabel(info.cookingStart);
     return {
       type: "preorder",
@@ -532,7 +566,14 @@ function getBannerState(parts) {
     };
   }
 
+  if (info?.phase === "lastCall") {
+    return { type: "cooking", message: MATCH_DAY_LAST_CALL_MESSAGE, matchDay: true };
+  }
+
   if (info?.phase === "cooking") {
+    if (isMatchDayFinalMiddayShift) {
+      return { type: "cooking", message: MATCH_DAY_FINAL_MESSAGE, matchDay: true };
+    }
     // TEMP ARGENTINA MATCH DAY: si el shift trae cookingMessage, se usa tal cual
     // (sin horario de cierre). Revertir: quitar `cookingMessage` del shift.
     if (info.shift.cookingMessage) {
@@ -545,6 +586,19 @@ function getBannerState(parts) {
     };
   }
 
+  // TEMP ARGENTINA MATCH DAY FINAL: antes de las 12:30 de hoy, mismo mensaje
+  // festivo que preorder/cooking. Revertir mañana 20/7: depende de dateKey.
+  if (isBeforeMatchDayMiddayOpen) {
+    return { type: "closed", message: MATCH_DAY_FINAL_MESSAGE, matchDay: true };
+  }
+
+  // TEMP ARGENTINA MATCH DAY FINAL: tramo 16:00-20:30 de hoy (cerrado entre
+  // el fin del turno mediodía y la apertura del turno noche). Revertir
+  // mañana 20/7: este bloque deja de aplicar solo (depende de dateKey).
+  if (isMatchDayFinalToday && !info) {
+    return { type: "closed", message: MATCH_DAY_HALFTIME_MESSAGE, matchDay: true };
+  }
+
   if (SOLD_OUT_NOTICE) {
     return { type: "closed", message: SOLD_OUT_NOTICE };
   }
@@ -553,6 +607,17 @@ function getBannerState(parts) {
     type: "closed",
     message: `Estamos cerrados. ${getNextOpenText(parts)}.`,
   };
+}
+
+// TEMP ARGENTINA MATCH DAY FINAL: cuenta regresiva "Abrimos en X h Y min" /
+// "Y min" (sin segundos, formato pedido por el usuario). Revertir mañana
+// 20/7: borrar esta función y sus usos en getStoreStatus.
+function formatCountdown(minutesUntil) {
+  const total = Math.max(0, minutesUntil);
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+  if (h > 0) return `${h} h ${m} min`;
+  return `${m} min`;
 }
 
 export function getStoreStatus(date = null) {
@@ -580,10 +645,49 @@ export function getStoreStatus(date = null) {
 
   const bannerState = getBannerState(parts);
 
+  // TEMP ARGENTINA MATCH DAY FINAL: CTA principal ("closedActionLabel") con
+  // copy específico de hoy cuando el local está cerrado. Antes de las 12:30
+  // muestra cuenta regresiva viva; entre 16:00 y 20:30 muestra el horario de
+  // reapertura fijo. Revertir mañana 20/7: borrar este bloque (depende de dateKey).
+  let matchDayCtaOverrides = {};
+  // TEMP ARGENTINA MATCH DAY FINAL: contador aparte (debajo del banner),
+  // visible solo antes de abrir y en el tramo de "últimos minutos". Revertir
+  // mañana 20/7: borrar `matchDayCountdown` (depende de dateKey).
+  let matchDayCountdown = null;
+  if (parts.dateKey === MATCH_DAY_FINAL_DATE_KEY) {
+    const middayShift = getSpecialShifts(parts.dateKey)?.[0] ?? null;
+    if (middayShift && !isOpenNow && parts.minutes < middayShift.open) {
+      matchDayCtaOverrides = {
+        closedActionLabel: `Abrimos en ${formatCountdown(middayShift.open - parts.minutes)}`,
+        reopenText: "",
+      };
+      matchDayCountdown = {
+        label: "Abrimos en",
+        value: formatCountdown(middayShift.open - parts.minutes),
+      };
+    } else if (middayShift && !isOpenNow && parts.minutes >= middayShift.close) {
+      matchDayCtaOverrides = {
+        closedActionLabel: "Volvemos a las 20:30",
+        reopenText: "",
+      };
+    } else if (
+      middayShift?.lastCallStart != null &&
+      parts.minutes >= middayShift.lastCallStart &&
+      parts.minutes < middayShift.close
+    ) {
+      matchDayCountdown = {
+        label: "Cierra en",
+        value: formatCountdown(middayShift.close - parts.minutes),
+      };
+    }
+  }
+
   return {
     ...parts,
     ...baseStatus,
     ...closedOverrides,
+    ...matchDayCtaOverrides,
+    matchDayCountdown,
     isDailyFeaturePromoActive:
       dailyFeature !== null && dailyFeature.prices !== null,
     dailyFeatureBurgerId: dailyFeature?.burgerId || null,
