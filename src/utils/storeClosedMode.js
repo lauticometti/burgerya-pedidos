@@ -347,7 +347,12 @@ const SPECIAL_DAY_SHIFTS = {
       label: "12:30",
       cookingStart: 13 * 60,
     }, // mediodía especial partido: cocina 13hs, pedidos desde 12:30
-    { open: 19 * 60 + 30, close: 24 * 60, label: "19:30" }, // noche habitual
+    {
+      open: 20 * 60 + 30,
+      close: 24 * 60,
+      label: "20:30",
+      cookingStart: 21 * 60,
+    }, // noche especial FINAL DEL MUNDIAL: cocina 21hs (en vez de 19:30/20), pedidos desde 20:30
   ],
 };
 
@@ -427,13 +432,17 @@ export function getNamedShiftOrdinal(dateKey, shiftName) {
           .sort((a, b) => a.open - b.open)[0]
       : shiftsThatDay
           .filter((s) => s.open < 18 * 60)
-          .sort((a, b) => Math.abs(a.open - 12 * 60) - Math.abs(b.open - 12 * 60))[0];
+          .sort(
+            (a, b) => Math.abs(a.open - 12 * 60) - Math.abs(b.open - 12 * 60),
+          )[0];
 
   if (!target) return null;
 
   // Turnos que ya cerraron antes que este (sin contar al propio target):
   // el item sigue no disponible mientras el turno marcado no haya cerrado.
-  const shiftsClosedBefore = shiftsThatDay.filter((s) => s.close < target.close).length;
+  const shiftsClosedBefore = shiftsThatDay.filter(
+    (s) => s.close < target.close,
+  ).length;
   return daysSinceEpoch * MAX_SHIFTS_PER_DAY + shiftsClosedBefore;
 }
 
