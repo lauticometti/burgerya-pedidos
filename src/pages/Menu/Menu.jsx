@@ -79,18 +79,11 @@ const BURGER_ROWS = [
 export default function Menu() {
   const cart = useCart();
   const {
-    canPreviewMenu,
-    closedActionLabel,
-    closedToastText,
-    isClosed,
-    reopenText,
     dailyFeatureBurgerId,
     dailyFeatureWeekdayLabel,
     dailyFeatureEyebrow,
   } = useStoreStatus();
-  const { canAddItem, showUnavailableError } = useListingPageActions({
-    toastKey: TOAST_KEYS.STORE_CLOSED_PAPAS,
-  });
+  const { canAddItem, showUnavailableError } = useListingPageActions();
 
   // Burger modal state
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -226,10 +219,6 @@ export default function Menu() {
 
   // Burger actions
   function openBurger(burger, evt) {
-    if (isClosed && !canPreviewMenu) {
-      notifyUnavailableBurger(burger, reopenText);
-      return;
-    }
     if (isItemUnavailable(burger)) {
       notifyUnavailableBurger(burger, getUnavailableReason(burger));
       return;
@@ -253,10 +242,6 @@ export default function Menu() {
     { removedIngredients = [], extras = [], papas = [] } = {},
     { skipScroll = false } = {},
   ) {
-    if (isClosed) {
-      toast.error(closedToastText, { key: "store-closed-burger" });
-      return;
-    }
     if (isItemUnavailable(burger)) {
       notifyUnavailableBurger(burger, getUnavailableReason(burger));
       return;
@@ -373,11 +358,8 @@ export default function Menu() {
           onMouseLeave={burgersControls.onMouseLeave}>
           {burgerItems.map((entry, i) => {
             const burger = entry.burger;
-            const isStoreLocked = isClosed && !canPreviewMenu;
-            const isUnavailable = isStoreLocked || isItemUnavailable(burger);
-            const unavailableReason = isStoreLocked
-              ? reopenText
-              : getUnavailableReason(burger);
+            const isUnavailable = isItemUnavailable(burger);
+            const unavailableReason = getUnavailableReason(burger);
 
             const simplePrice = getBurgerPriceInfo(burger, "simple");
             const doublePrice = getBurgerPriceInfo(burger, "doble");
@@ -495,14 +477,13 @@ export default function Menu() {
               key={item.id}
               type="button"
               className={item.img ? styles.bebidaCard : styles.papasCard}
-              disabled={isClosed}
               onClick={() => openPapasModal(item.size)}>
               {item.img ? (
                 <>
                   <div className={styles.bebidaInfo}>
                     <span className={styles.bebidaName}>{item.label}</span>
                     <span className={styles.bebidaPrice}>
-                      {isClosed ? reopenText : formatMoney(item.basePrice)}
+                      {formatMoney(item.basePrice)}
                     </span>
                   </div>
                   <div className={styles.bebidaImgWrap}>
@@ -517,7 +498,7 @@ export default function Menu() {
                 <>
                   <span className={styles.papasName}>{item.label}</span>
                   <span className={styles.papasPrice}>
-                    {isClosed ? reopenText : formatMoney(item.basePrice)}
+                    {formatMoney(item.basePrice)}
                   </span>
                 </>
               )}
@@ -551,7 +532,7 @@ export default function Menu() {
           onMouseUp={dipsControls.onMouseUp}
           onMouseLeave={dipsControls.onMouseLeave}>
           {dipItems.map((item) => {
-            const unavailable = isClosed || isItemUnavailable(item);
+            const unavailable = isItemUnavailable(item);
             return (
               <button
                 key={item.id}
@@ -574,9 +555,7 @@ export default function Menu() {
                   ) : null}
                   <span className={styles.bebidaPrice}>
                     {unavailable
-                      ? isClosed
-                        ? reopenText
-                        : item.unavailableReason || "no disponible"
+                      ? item.unavailableReason || "no disponible"
                       : formatMoney(item.price)}
                   </span>
                 </div>
@@ -621,7 +600,7 @@ export default function Menu() {
           onMouseLeave={bebidasControls.onMouseLeave}>
           {[...cervezas, ...bebidas].map((item) => {
             const isCerveza = item.subtitle !== undefined;
-            const unavailable = isClosed || isItemUnavailable(item);
+            const unavailable = isItemUnavailable(item);
             return (
               <button
                 key={item.id}
@@ -629,10 +608,6 @@ export default function Menu() {
                 className={styles.bebidaCard}
                 disabled={unavailable}
                 onClick={() => {
-                  if (isClosed) {
-                    toast.error(closedToastText, { key: "store-closed-bebida" });
-                    return;
-                  }
                   if (isItemUnavailable(item)) {
                     toast.error(`${item.name}: ${getUnavailableReason(item)}`, {
                       key: `bebida-unavailable:${item.id}`,
@@ -655,9 +630,7 @@ export default function Menu() {
                   ) : null}
                   <span className={styles.bebidaPrice}>
                     {unavailable
-                      ? isClosed
-                        ? reopenText
-                        : getUnavailableReason(item)
+                      ? getUnavailableReason(item)
                       : formatMoney(item.price)}
                   </span>
                 </div>
@@ -735,9 +708,6 @@ export default function Menu() {
         onSelect={setSelectedOptionId}
         onClose={closePapasModal}
         onConfirm={addSelectedPapas}
-        isClosed={isClosed}
-        closedActionLabel={closedActionLabel}
-        reopenText={reopenText}
       />
 
       <FloatingCartPill

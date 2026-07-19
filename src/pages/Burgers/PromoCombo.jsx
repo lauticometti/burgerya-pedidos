@@ -1,26 +1,16 @@
 import React from "react";
 import { useCart } from "../../store/useCart";
-import { useStoreStatus } from "../../utils/storeClosedMode";
 import { toast } from "../../utils/toast";
 import styles from "./PromoCombo.module.css";
 
 const PROMO_VISIBLE = true;
 
 export default function PromoCombo({ visible = PROMO_VISIBLE }) {
+  const cart = useCart();
+
   if (!visible) return null;
 
-  const cart = useCart();
-  const { isClosed, closedToastText } = useStoreStatus();
-
   function handleAddCombo() {
-    if (isClosed) {
-      toast.error(closedToastText, {
-        key: "store-closed-promo",
-        duration: 2800,
-      });
-      return;
-    }
-
     cart.add({
       key: "burger:bacon:doble",
       name: "Bacon Doble",

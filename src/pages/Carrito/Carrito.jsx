@@ -35,12 +35,10 @@ import CartUpsellBanner, { shouldShowBebidaUpsell } from "./CartUpsellBanner";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
 import { buildPapasMejoras } from "../../utils/papasUpgradeOptions";
 import { useStoreStatus } from "../../utils/storeClosedMode";
-import { toast } from "../../utils/toast";
 
 export default function Carrito() {
   const cart = useCart();
-  const { closedActionLabel, closedToastText, isClosed, reopenText, dateKey, showClosedBanner } =
-    useStoreStatus();
+  const { closedActionLabel, isClosed } = useStoreStatus();
 
   React.useEffect(() => {
     const metaRobots = document.querySelector('meta[name="robots"]');
@@ -109,7 +107,7 @@ export default function Carrito() {
 
   const totalWithDiscount = Math.max(0, cart.total - totalDiscount);
 
-  const canContinue = !isClosed && cart.items.length > 0;
+  const canContinue = cart.items.length > 0;
   const couponApplied = Boolean(appliedCoupon);
   const { canSend, missingFields, waHref } = useCheckoutValidation({
     deliveryMode,
@@ -233,14 +231,7 @@ export default function Carrito() {
         <>
           <CartUpsellBanner
             items={cart.items}
-            disabled={isClosed}
-            onAddBebida={() => {
-              if (isClosed) {
-                toast.error(closedToastText, { key: "store-closed-bebidas" });
-                return;
-              }
-              bebidaModal.openBebidaModal();
-            }}
+            onAddBebida={() => bebidaModal.openBebidaModal()}
           />
           <div className={styles.items}>
             {cart.items.length === 0 ? (
@@ -272,16 +263,7 @@ export default function Carrito() {
                     size="sm"
                     variant="secondary"
                     className={styles.drinkCta}
-                    disabled={isClosed}
-                    onClick={() => {
-                      if (isClosed) {
-                        toast.error(closedToastText, {
-                          key: "store-closed-bebidas",
-                        });
-                        return;
-                      }
-                      bebidaModal.openBebidaModal();
-                    }}>
+                    onClick={() => bebidaModal.openBebidaModal()}>
                     Agregar bebidas
                   </Button>
                 ) : null}
@@ -409,30 +391,33 @@ export default function Carrito() {
               variant="primary"
               disabled={!canContinue}
               onClick={() => setStep(2)}>
-              {isClosed ? closedActionLabel : "Continuar"}
+              Continuar
             </Button>
             {!canContinue ? (
-              <div className={styles.stickyHint}>
-                {isClosed ? reopenText : "Agrega items para continuar."}
-              </div>
+              <div className={styles.stickyHint}>Agrega items para continuar.</div>
             ) : null}
           </div>
         ) : (
           <div className={styles.stickyRight}>
-            {showClosedBanner ? (
-              <div className={styles.stickyHint}>Cerrado</div>
+            {isClosed ? (
+              <div className={styles.stickyHint}>Podés dejar tu pedido listo</div>
             ) : null}
             <a
               href={sendEnabled ? waHref : "#"}
               target="_blank"
-              rel="noreferrer">
+              rel="noreferrer"
+              onClick={(event) => {
+                // Guard funcional: el local cerrado nunca debe poder enviar
+                // el pedido por WhatsApp, sin importar el estado visual del botón.
+                if (isClosed || !sendEnabled) {
+                  event.preventDefault();
+                  return;
+                }
+              }}>
               <Button variant="primary" disabled={!sendEnabled}>
                 {isClosed ? closedActionLabel : "Enviar por WhatsApp"}
               </Button>
             </a>
-            {isClosed && !showClosedBanner ? (
-              <div className={styles.stickyHint}>{reopenText}</div>
-            ) : null}
           </div>
         )}
       </StickyBar>

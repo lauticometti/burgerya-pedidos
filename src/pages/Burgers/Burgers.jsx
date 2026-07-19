@@ -102,11 +102,6 @@ const CARD_CLASS = {
 export default function Burgers() {
   const cart = useCart();
   const {
-    canPreviewMenu,
-    closedActionLabel,
-    closedToastText,
-    isClosed,
-    reopenText,
     dailyFeatureBurgerId,
     dailyFeatureWeekdayLabel,
     dailyFeatureEyebrow,
@@ -151,10 +146,6 @@ export default function Burgers() {
   }, [sections]);
 
   function openBurger(burger, evt) {
-    if (isClosed && !canPreviewMenu) {
-      notifyUnavailableBurger(burger, reopenText);
-      return;
-    }
     if (isItemUnavailable(burger)) {
       notifyUnavailableBurger(burger, getUnavailableReason(burger));
       return;
@@ -180,13 +171,6 @@ export default function Burgers() {
     { removedIngredients = [], extras = [], papas = [] } = {},
     { skipScroll = false } = {},
   ) {
-    if (isClosed) {
-      toast.error(closedToastText, {
-        key: "store-closed-burger",
-      });
-      return;
-    }
-
     const price = getBurgerPriceInfo(burger, size);
     const cartItem = buildBurgerCartItem(burger, size, price, removedIngredients, extras, papas);
     cart.add(cartItem);
@@ -224,11 +208,8 @@ export default function Burgers() {
           <div className={`${styles.cards} ${LAYOUT_CLASS[section.layout] || ""}`}>
             {section.items.map((entry, itemIndex) => {
               const burger = entry.burger;
-              const isStoreLocked = isClosed && !canPreviewMenu;
-              const isUnavailable = isStoreLocked || isItemUnavailable(burger);
-              const unavailableReason = isStoreLocked
-                ? reopenText
-                : getUnavailableReason(burger);
+              const isUnavailable = isItemUnavailable(burger);
+              const unavailableReason = getUnavailableReason(burger);
               const globalIndex = (sectionOffsets[sectionIndex] || 0) + itemIndex;
               const isPriorityImage = globalIndex < 2;
               const simplePrice = getBurgerPriceInfo(burger, "simple");
@@ -434,17 +415,11 @@ export default function Burgers() {
 
       <StickyBar>
         <CartSummary total={cart.total} />
-        {isClosed ? (
-          <Button variant="primary" disabled subLabel={reopenText}>
-            {closedActionLabel}
+        <Link to="/carrito">
+          <Button variant="primary" disabled={cart.items.length === 0}>
+            Cerrar pedido
           </Button>
-        ) : (
-          <Link to="/carrito">
-            <Button variant="primary" disabled={cart.items.length === 0}>
-              Cerrar pedido
-            </Button>
-          </Link>
-        )}
+        </Link>
       </StickyBar>
     </Page>
   );

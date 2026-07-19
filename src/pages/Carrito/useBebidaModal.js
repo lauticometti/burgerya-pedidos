@@ -3,11 +3,8 @@ import { toast } from "../../utils/toast";
 import { isItemUnavailable } from "../../utils/availability";
 import { createBebidaItem, createCervezaItem } from "../../utils/cartItemBuilders";
 import { buildBebidaQuantitiesInitial } from "./carritoUtils";
-import { useStoreStatus } from "../../utils/storeClosedMode";
-import { TOAST_KEYS } from "../../constants/toastKeys";
 
 export default function useBebidaModal({ cart, bebidaItems }) {
-  const { closedToastText, isClosed } = useStoreStatus();
   const [bebidaOpen, setBebidaOpen] = React.useState(false);
   const [bebidaQuantities, setBebidaQuantities] = React.useState({});
 
@@ -30,12 +27,6 @@ export default function useBebidaModal({ cart, bebidaItems }) {
   }, []);
 
   const applyBebidaSelection = React.useCallback(() => {
-    if (isClosed) {
-      toast.error(closedToastText, {
-        key: TOAST_KEYS.STORE_CLOSED_BEBIDAS_MODAL,
-      });
-      return;
-    }
     const selected = bebidaItems.filter(
       (item) => !isItemUnavailable(item) && (bebidaQuantities[item.id] || 0) > 0,
     );
@@ -55,7 +46,7 @@ export default function useBebidaModal({ cart, bebidaItems }) {
     );
 
     closeBebidaModal();
-  }, [bebidaItems, bebidaQuantities, cart, closeBebidaModal, closedToastText, isClosed]);
+  }, [bebidaItems, bebidaQuantities, cart, closeBebidaModal]);
 
   return {
     bebidaOpen,

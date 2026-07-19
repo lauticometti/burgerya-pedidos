@@ -20,7 +20,6 @@ import { resolvePublicPath } from "../../utils/assetPath";
 import { buildBurgerLineKey } from "../../utils/cartKeys";
 import styles from "./Combos.module.css";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
-import { useStoreStatus } from "../../utils/storeClosedMode";
 import { TOAST_KEYS } from "../../constants/toastKeys";
 import { useListingPageActions } from "../../hooks/useListingPageActions";
 
@@ -49,10 +48,7 @@ const COMBO_ALLOWED_BURGERS = ["lautiboom", "bacon", "american"];
 
 export default function Combos() {
   const cart = useCart();
-  const { closedActionLabel, isClosed, reopenText } = useStoreStatus();
-  const { canAddItem, showUnavailableError } = useListingPageActions({
-    toastKey: TOAST_KEYS.STORE_CLOSED_COMBOS,
-  });
+  const { canAddItem, showUnavailableError } = useListingPageActions();
 
   const burgersBySize = useMemo(
     () => {
@@ -143,20 +139,14 @@ export default function Combos() {
                 {burgersBySize[
                   combo.size || (combo.sizeLabel.includes("doble") ? "doble" : "simple")
                 ].map((burger) => {
-                  const unavailable = isClosed || isItemUnavailable(burger);
+                  const unavailable = isItemUnavailable(burger);
                   return (
                     <Button
                       key={burger.id}
                       size="sm"
                       className={styles.pickerButton}
                       disabled={unavailable}
-                      subLabel={
-                        unavailable
-                          ? isClosed
-                            ? reopenText
-                            : getUnavailableReason(burger)
-                          : undefined
-                      }
+                      subLabel={unavailable ? getUnavailableReason(burger) : undefined}
                       onClick={() => addCombo(combo, burger)}>
                       <span className={styles.pickerChoice}>
                         <img
@@ -180,17 +170,11 @@ export default function Combos() {
 
       <StickyBar>
         <CartSummary total={cart.total} />
-        {isClosed ? (
-          <Button variant="primary" disabled subLabel={reopenText}>
-            {closedActionLabel}
+        <Link to="/carrito">
+          <Button variant="primary" disabled={cart.items.length === 0}>
+            Cerrar pedido
           </Button>
-        ) : (
-          <Link to="/carrito">
-            <Button variant="primary" disabled={cart.items.length === 0}>
-              Cerrar pedido
-            </Button>
-          </Link>
-        )}
+        </Link>
       </StickyBar>
     </Page>
   );

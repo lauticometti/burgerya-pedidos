@@ -221,7 +221,7 @@ export function CartProvider({ children }) {
     { items: {}, lastAdded: null },
     loadPersistedState,
   );
-  const { closedToastText, dateKey, isClosed, minutes } = useStoreStatus();
+  const { dateKey, minutes } = useStoreStatus();
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.__cartHadRemovedItems) {
@@ -325,14 +325,6 @@ export function CartProvider({ children }) {
       total,
       lastAdded: state.lastAdded,
       add: (item) => {
-        const allowDuringClosed = item?.meta?.allowDuringClosed;
-        if (isClosed && !allowDuringClosed) {
-          toast.error(closedToastText, {
-            key: "store-closed-add",
-            duration: 2800,
-          });
-          return;
-        }
         dispatch({ type: "ADD", item });
       },
       remove: (key) => dispatch({ type: "REMOVE", key }),
@@ -375,7 +367,7 @@ export function CartProvider({ children }) {
         });
       },
     };
-  }, [closedToastText, isClosed, state.items, state.lastAdded]);
+  }, [state.items, state.lastAdded]);
 
   return <CartContext.Provider value={api}>{children}</CartContext.Provider>;
 }

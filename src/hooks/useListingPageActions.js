@@ -1,6 +1,8 @@
 /**
  * Generic hook for listing pages (Papas, Extras, Combos)
- * Consolidates common patterns: closed store guard, availability checks, toasts
+ * Consolidates common patterns: availability checks, toasts.
+ * El local cerrado ya NO bloquea armar el carrito — solo el envío final por
+ * WhatsApp (ver Carrito.jsx) debe depender de isClosed.
  *
  * Uso:
  * const { canAddItem, showUnavailableError, handleAddItem } = useListingPageActions();
@@ -14,24 +16,13 @@
 import { useCallback } from "react";
 import { toast } from "../utils/toast";
 import { getUnavailableReason, isItemUnavailable } from "../utils/availability";
-import { useStoreStatus } from "../utils/storeClosedMode";
 
 /**
  * Hook for managing actions on listing pages
- * @param {Object} config - Configuration
- * @param {string} config.toastKey - Toast key when store is closed
  * @returns {Object} - { canAddItem, showUnavailableError, handleAddItem }
  */
-export function useListingPageActions({ toastKey = "store-closed" } = {}) {
-  const { closedToastText, isClosed } = useStoreStatus();
-
-  const canAddItem = useCallback(() => {
-    if (isClosed) {
-      toast.error(closedToastText, { key: toastKey });
-      return false;
-    }
-    return true;
-  }, [isClosed, toastKey, closedToastText]);
+export function useListingPageActions() {
+  const canAddItem = useCallback(() => true, []);
 
   const showUnavailableError = useCallback(
     (item, errorToastKey) => {

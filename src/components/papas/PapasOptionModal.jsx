@@ -16,15 +16,12 @@ export default function PapasOptionModal({
   onSelect,
   onClose,
   onConfirm,
-  isClosed = false,
-  closedActionLabel,
-  reopenText,
 }) {
   useEscapeToClose(open, onClose);
 
   if (!open) return null;
   const selectedOption = options.find((item) => item.id === selectedId);
-  const disableConfirm = isClosed || !selectedId || isItemUnavailable(selectedOption);
+  const disableConfirm = !selectedId || isItemUnavailable(selectedOption);
 
   return (
     <div className={styles.backdrop} onMouseDown={onClose}>
@@ -87,7 +84,7 @@ export default function PapasOptionModal({
             type="button"
             onClick={onConfirm}
             disabled={disableConfirm}>
-            {isClosed ? closedActionLabel || reopenText || "No disponible" : "Agregar"}
+            Agregar
           </Button>
         </div>
       </div>

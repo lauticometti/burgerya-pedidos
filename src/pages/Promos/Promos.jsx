@@ -14,11 +14,9 @@ import PromoFilters from "./components/PromoFilters.jsx";
 import PromoBurgerPicker from "./components/PromoBurgerPicker.jsx";
 import PromoPickedSummary from "./components/PromoPickedSummary.jsx";
 import usePromoBuilder from "./usePromoBuilder.js";
-import { useStoreStatus } from "../../utils/storeClosedMode.js";
 
 export default function Promos() {
   const cart = useCart();
-  const { closedActionLabel, isClosed, reopenText } = useStoreStatus();
   const {
     tier,
     count,
@@ -81,13 +79,10 @@ export default function Promos() {
         size={size}
         picked={picked}
         allowedByTier={allowedByTier}
-        canPickMore={isClosed ? false : canPickMore}
+        canPickMore={canPickMore}
         pickRef={pickRef}
         onPickBurger={pickBurger}
         onUndoLast={undoLast}
-        isClosed={isClosed}
-        closedActionLabel={closedActionLabel}
-        reopenText={reopenText}
       />
 
       <PromoPickedSummary
@@ -99,24 +94,15 @@ export default function Promos() {
         remainingText={remainingText}
         onRemovePick={removePick}
         onAddPromoToCart={addPromoToCart}
-        isClosed={isClosed}
-        closedActionLabel={closedActionLabel}
-        reopenText={reopenText}
       />
 
       <StickyBar>
         <CartSummary total={cart.total} />
-        {isClosed ? (
-          <Button variant="primary" disabled subLabel={reopenText}>
-            {closedActionLabel}
+        <Link to="/carrito">
+          <Button variant="primary" disabled={cart.items.length === 0}>
+            Cerrar pedido
           </Button>
-        ) : (
-          <Link to="/carrito">
-            <Button variant="primary" disabled={cart.items.length === 0}>
-              Cerrar pedido
-            </Button>
-          </Link>
-        )}
+        </Link>
       </StickyBar>
     </Page>
   );

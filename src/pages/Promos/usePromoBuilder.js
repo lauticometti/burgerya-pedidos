@@ -8,17 +8,12 @@ import {
 import { scrollToRef, pushUnavailableToast } from "../../utils/promoHelpers.js";
 import { getStepHelp } from "./promosConfig.js";
 import { groupAllowedBurgers, indexBurgersById } from "./promosSelectors.js";
-import { useStoreStatus } from "../../utils/storeClosedMode.js";
-import { TOAST_KEYS } from "../../constants/toastKeys.js";
-
 export default function usePromoBuilder({
   burgers,
   promoPrices,
   promoRules,
   cart,
 }) {
-  const { closedToastText, isClosed } = useStoreStatus();
-
   // Consolidated state
   const [state, setState] = useState({
     tier: null, // BASICA | PREMIUM | DELUXE
@@ -143,12 +138,6 @@ export default function usePromoBuilder({
 
   function addPromoToCart() {
     if (!tier || !count || !size || picked.length !== count || price == null) return;
-    if (isClosed) {
-      toast.error(closedToastText, {
-        key: TOAST_KEYS.STORE_CLOSED_CARRITO,
-      });
-      return;
-    }
 
     const unavailablePick = picked.find((pick) =>
       isItemUnavailable(burgersById[pick.id]),

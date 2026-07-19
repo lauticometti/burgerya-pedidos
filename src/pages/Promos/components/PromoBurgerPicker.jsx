@@ -19,13 +19,8 @@ export default function PromoBurgerPicker({
   pickRef,
   onPickBurger,
   onUndoLast,
-  isClosed = false,
-  closedActionLabel,
-  reopenText,
 }) {
   if (!tier || !count || !size) return null;
-
-  const disabledMessage = isClosed ? reopenText : null;
 
   return (
     <div ref={pickRef}>
@@ -50,15 +45,13 @@ export default function PromoBurgerPicker({
                 <div className={styles.pickGroupLabel}>{TIER_LABELS[tierKey]}</div>
                 <div className={`${styles.row} ${styles.rowWrap} ${styles.pickRow}`}>
                   {tierItems.map((burger) => {
-                    const isUnavailable = isClosed || isItemUnavailable(burger);
-                    const unavailableReason = isClosed
-                      ? disabledMessage || closedActionLabel || "No disponible"
-                      : getUnavailableReason(burger);
+                    const isUnavailable = isItemUnavailable(burger);
+                    const unavailableReason = getUnavailableReason(burger);
                     return (
                       <Button
                         key={burger.id}
                         onClick={() => onPickBurger(burger)}
-                        disabled={!canPickMore || isClosed}
+                        disabled={!canPickMore || isUnavailable}
                         aria-disabled={isUnavailable}
                         title={isUnavailable ? unavailableReason : undefined}
                         subLabel={isUnavailable ? unavailableReason : undefined}

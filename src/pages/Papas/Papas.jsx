@@ -21,17 +21,12 @@ import {
   indexPapasById,
 } from "./papasUtils";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
-import { useStoreStatus } from "../../utils/storeClosedMode";
 import { TOAST_KEYS } from "../../constants/toastKeys";
 import { useListingPageActions } from "../../hooks/useListingPageActions";
 
 export default function Papas() {
   const cart = useCart();
-  const { closedActionLabel, closedToastText, isClosed, reopenText } =
-    useStoreStatus();
-  const { canAddItem, showUnavailableError } = useListingPageActions({
-    toastKey: TOAST_KEYS.STORE_CLOSED_PAPAS,
-  });
+  const { canAddItem, showUnavailableError } = useListingPageActions();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [activeSize, setActiveSize] = useState(null);
@@ -102,9 +97,9 @@ export default function Papas() {
             key={item.id}
             item={{ name: item.label, price: item.basePrice }}
             onAdd={() => openModal(item.size)}
-            actionLabel={isClosed ? reopenText : "Ver opciones"}
-            isUnavailable={isClosed}
-            unavailableReason={reopenText}
+            actionLabel="Ver opciones"
+            isUnavailable={false}
+            unavailableReason=""
           />
         ))}
       </div>
@@ -118,15 +113,9 @@ export default function Papas() {
               <PapasItem
                 key={item.id}
                 item={item}
-                isUnavailable={isClosed || isItemUnavailable(item)}
-                unavailableReason={isClosed ? reopenText : item.unavailableReason}
+                isUnavailable={isItemUnavailable(item)}
+                unavailableReason={item.unavailableReason}
                 onAdd={() => {
-                  if (isClosed) {
-                    toast.error(closedToastText, {
-                      key: "store-closed-bebida",
-                    });
-                    return;
-                  }
                   if (isItemUnavailable(item)) {
                     const reason = getUnavailableReason(item);
                     toast.error(`${item.name}: ${reason}`, {
@@ -150,20 +139,14 @@ export default function Papas() {
       ) : null}
       <StickyBar>
         <CartSummary total={cart.total} />
-        {isClosed ? (
-          <Button variant="primary" type="button" disabled subLabel={reopenText}>
-            {closedActionLabel}
+        <Link to="/carrito">
+          <Button
+            variant="primary"
+            type="button"
+            disabled={cart.items.length === 0}>
+            Cerrar pedido
           </Button>
-        ) : (
-          <Link to="/carrito">
-            <Button
-              variant="primary"
-              type="button"
-              disabled={cart.items.length === 0}>
-              Cerrar pedido
-            </Button>
-          </Link>
-        )}
+        </Link>
       </StickyBar>
       <PapasOptionModal
         open={modalOpen}
@@ -173,9 +156,6 @@ export default function Papas() {
         onSelect={setSelectedOptionId}
         onClose={closeModal}
         onConfirm={addSelectedPapas}
-        isClosed={isClosed}
-        closedActionLabel={closedActionLabel}
-        reopenText={reopenText}
       />
     </Page>
   );

@@ -11,7 +11,6 @@ import { resolvePublicPath } from "../../utils/assetPath";
 import { getBurgerPriceInfo } from "../../utils/burgerPricing";
 import { formatMoney } from "../../utils/formatMoney";
 import { buildPapasMejoras } from "../../utils/papasUpgradeOptions";
-import { useStoreStatus } from "../../utils/storeClosedMode";
 import styles from "./BurgerModal.module.css";
 
 const SIZE_ORDER = ["simple", "doble", "triple"];
@@ -40,8 +39,6 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
 
   const [wantsPapas, setWantsPapas] = React.useState(false);
   const [papasImprovements, setPapasImprovements] = React.useState([]);
-
-  const { closedActionLabel, isClosed, reopenText } = useStoreStatus();
 
   const papasMejoras = React.useMemo(
     () => buildPapasMejoras(papas),
@@ -152,7 +149,7 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
     : undefined;
   const burgerImg =
     origin?.imageSrc || resolvePublicPath(burger.img || "/burgers/placeholder.svg");
-  const addDisabled = !selectedSize || isClosed;
+  const addDisabled = !selectedSize;
 
   function handleBackdropMouseDown(event) {
     if (hasNestedModalOpen) return;
@@ -340,13 +337,8 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
                   papas: selectedPapas,
                 }, { wantsPapas, papasImprovements });
               }}>
-              {isClosed
-                ? closedActionLabel || reopenText
-                : isTitanica
-                  ? "Yo me animo"
-                  : "Sumar al pedido"}
+              {isTitanica ? "Yo me animo" : "Sumar al pedido"}
             </button>
-            {isClosed ? <div className={styles.footerNote}>{reopenText}</div> : null}
           </div>
         </div>
       </div>

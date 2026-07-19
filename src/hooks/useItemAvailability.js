@@ -1,6 +1,7 @@
 /**
- * Hook para verificar disponibilidad de items
- * Consolida lógica: isClosed || isItemUnavailable(item)
+ * Hook para verificar disponibilidad de items por stock/producto.
+ * El local cerrado ya NO afecta esta disponibilidad — solo el stock real
+ * del item (isItemUnavailable) lo bloquea.
  *
  * Uso:
  * const { isUnavailable, reason } = useItemAvailability(item);
@@ -16,18 +17,12 @@ import {
   getUnavailableReason,
   isItemUnavailable,
 } from "../utils/availability";
-import { useStoreStatus } from "../utils/storeClosedMode";
 
 export function useItemAvailability(item) {
-  const { isClosed, reopenText } = useStoreStatus();
-
   return useMemo(() => {
-    const unavailable = isClosed || isItemUnavailable(item);
-    const reason = isClosed ? reopenText : getUnavailableReason(item);
-
     return {
-      isUnavailable: unavailable,
-      reason,
+      isUnavailable: isItemUnavailable(item),
+      reason: getUnavailableReason(item),
     };
-  }, [item, isClosed, reopenText]);
+  }, [item]);
 }
