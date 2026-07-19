@@ -224,10 +224,10 @@ function ArgentinaTakeoverPage() {
             textTransform: "uppercase",
             color: "#74C9F5",
           }}>
-          Hoy abrimos
+          La cocina prende
         </p>
         <p style={{ margin: "0.2rem 0 0", fontSize: "1.4rem", fontWeight: 900 }}>
-          21 a 00 hs
+          21:00 HS
         </p>
       </div>
       <p
