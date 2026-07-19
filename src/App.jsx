@@ -15,8 +15,8 @@ const MAINTENANCE_MODE = false;
 const EVENT_MODE_ACTIVE = false;
 
 // Pantalla de agradecimiento post Final (no es "mantenimiento"): tapa toda
-// la web con un mensaje simple. Para reactivarla: ARGENTINA_TAKEOVER_MODE = true.
-const ARGENTINA_TAKEOVER_MODE = false;
+// la web con un mensaje simple. Para desactivarla: ARGENTINA_TAKEOVER_MODE = false.
+const ARGENTINA_TAKEOVER_MODE = true;
 
 function EventPage() {
   const block = {
