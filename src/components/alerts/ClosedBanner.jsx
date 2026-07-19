@@ -1,5 +1,5 @@
 import { useStoreStatus } from "../../utils/storeClosedMode";
-import { MATCH_DAY_CAMPAIGN } from "../../utils/dailyFeaturePromo";
+import { ARGENTINA_ACCENT_THEME } from "../../utils/dailyFeaturePromo";
 import styles from "./ClosedBanner.module.css";
 
 export default function ClosedBanner() {
@@ -7,14 +7,12 @@ export default function ClosedBanner() {
 
   if (!bannerState) return null;
 
-  // TEMP ARGENTINA MATCH DAY: recolorea el banner (rojo/amarillo → celeste) en cualquier estado. Revertir: MATCH_DAY_CAMPAIGN = false.
-  // TEMP ARGENTINA MATCH DAY FINAL: `bannerState.matchDay` marca mensajes puntuales
-  // de hoy (ver storeClosedMode.js) que deben verse festivos aunque su `type`
-  // sea el semánticamente correcto (preorder/cooking/closed), no uno inventado.
+  // Recolorea el banner (rojo/amarillo → celeste) como acento de identidad
+  // Argentina, sin depender de si hay campaña de partido activa.
   const bannerClass = [
     styles.banner,
     styles[bannerState.type],
-    MATCH_DAY_CAMPAIGN || bannerState.matchDay ? styles.matchDay : "",
+    ARGENTINA_ACCENT_THEME ? styles.argentinaAccent : "",
   ]
     .filter(Boolean)
     .join(" ");

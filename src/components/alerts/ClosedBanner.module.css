@@ -20,8 +20,10 @@
   color: #1a1a1a;
 }
 
-/* TEMP ARGENTINA MATCH DAY: quitar este bloque (o poner MATCH_DAY_CAMPAIGN=false) para revertir */
-.banner.matchDay {
+/* Acento celeste permanente (identidad Argentina), independiente de si hay
+   campaña de partido activa. Solo color, sin texto ni mención a ningún
+   partido. Quitar este bloque (o ARGENTINA_ACCENT_THEME=false) para sacarlo. */
+.banner.argentinaAccent {
   background: #2E9BD6;
   color: #fff;
 }

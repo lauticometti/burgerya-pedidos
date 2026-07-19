@@ -3,6 +3,11 @@ import { getArgentinaTimeParts } from "./storeClosedMode";
 // TEMP ARGENTINA MATCH DAY: flag única de campaña. Poner en true para reactivar el próximo partido.
 export const MATCH_DAY_CAMPAIGN = false;
 
+// Acento visual celeste en el banner de estado (identidad Argentina), sin
+// texto ni mención a ningún partido. Independiente de MATCH_DAY_CAMPAIGN:
+// se puede dejar prendido aunque no haya campaña de partido activa.
+export const ARGENTINA_ACCENT_THEME = true;
+
 // Override manual: si querés forzar otra burger un día puntual,
 // poné el id acá (ej: "bacon"). null = usar el mapping automático por día.
 export const DAILY_FEATURE_OVERRIDE_ID = MATCH_DAY_CAMPAIGN ? "cheese" : null;
