@@ -352,11 +352,11 @@ const SPECIAL_DAY_SHIFTS = {
       lastCallStart: 15 * 60 + 30,
     }, // mediodía especial partido: cocina 13hs, pedidos desde 12:30
     {
-      open: 20 * 60 + 30,
+      open: 21 * 60,
       close: 24 * 60,
-      label: "20:30",
+      label: "21:00",
       cookingStart: 21 * 60,
-    }, // noche especial FINAL DEL MUNDIAL: cocina 21hs (en vez de 19:30/20), pedidos desde 20:30
+    }, // noche especial FINAL DEL MUNDIAL: abre 21hs (pedidos y cocina juntos), cierra 00hs
   ],
 };
 
@@ -530,7 +530,7 @@ const MATCH_DAY_FINAL_MESSAGE =
   "FINAL DEL MUNDIAL • Pedí antes de las 15:30 y mirá el partido tranquilo.";
 const MATCH_DAY_LAST_CALL_MESSAGE = "ÚLTIMOS MINUTOS PARA PEDIR";
 const MATCH_DAY_HALFTIME_MESSAGE =
-  "ESTAMOS VIENDO LA FINAL • VOLVEMOS A LAS 20:30";
+  "ESTAMOS VIENDO LA FINAL • VOLVEMOS A LAS 21:00";
 
 function getBannerState(parts) {
   const { day, minutes, dateKey } = parts;
@@ -592,7 +592,7 @@ function getBannerState(parts) {
     return { type: "closed", message: MATCH_DAY_FINAL_MESSAGE, matchDay: true };
   }
 
-  // TEMP ARGENTINA MATCH DAY FINAL: tramo 16:00-20:30 de hoy (cerrado entre
+  // TEMP ARGENTINA MATCH DAY FINAL: tramo 16:00-21:00 de hoy (cerrado entre
   // el fin del turno mediodía y la apertura del turno noche). Revertir
   // mañana 20/7: este bloque deja de aplicar solo (depende de dateKey).
   if (isMatchDayFinalToday && !info) {
@@ -647,7 +647,7 @@ export function getStoreStatus(date = null) {
 
   // TEMP ARGENTINA MATCH DAY FINAL: CTA principal ("closedActionLabel") con
   // copy específico de hoy cuando el local está cerrado. Antes de las 12:30
-  // muestra cuenta regresiva viva; entre 16:00 y 20:30 muestra el horario de
+  // muestra cuenta regresiva viva; entre 16:00 y 21:00 muestra el horario de
   // reapertura fijo. Revertir mañana 20/7: borrar este bloque (depende de dateKey).
   let matchDayCtaOverrides = {};
   // TEMP ARGENTINA MATCH DAY FINAL: contador aparte (debajo del banner),
@@ -667,7 +667,7 @@ export function getStoreStatus(date = null) {
       };
     } else if (middayShift && !isOpenNow && parts.minutes >= middayShift.close) {
       matchDayCtaOverrides = {
-        closedActionLabel: "Volvemos a las 20:30",
+        closedActionLabel: "Volvemos a las 21:00",
         reopenText: "",
       };
     } else if (
