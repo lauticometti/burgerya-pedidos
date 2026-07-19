@@ -285,74 +285,26 @@ const FERIADO_SHIFTS = [
 // YYYY-MM-DD, hora Argentina). Reemplazan por completo los turnos de ese
 // día sin afectar el horario habitual de otros días con el mismo nombre.
 const SPECIAL_DAY_SHIFTS = {
-  "2026-07-03": [
-    { open: 11 * 60 + 30, close: 15 * 60, label: "11:30" }, // mediodía habitual
-    { open: 18 * 60, close: 24 * 60, label: "18:00" }, // Argentina vs Cabo Verde
-  ],
-  // TEMP ARGENTINA MATCH DAY: abrimos antes para que se pueda ir reservando,
-  // cocina arranca a las 12hs igual que siempre, y hoy cerramos más tarde
-  // (18hs en vez del cierre habitual de las 15hs) por el partido. Revertir: borrar esta entrada.
-  "2026-07-07": [
-    {
-      open: 11 * 60,
-      close: 18 * 60,
-      label: "11:00",
-      cookingStart: 12 * 60,
-      cookingMessage: "Estamos cocinando. ¡Hacé tu pedido para el partido!",
-    },
-  ],
   // Horario especial sábado noche: web abre 18:30 (en vez de 19:30) y cocina
   // arranca 19:00 (en vez de 20:00). El resto del día (mediodía) queda igual.
   "2026-07-11": [
     { open: 11 * 60 + 30, close: 15 * 60, label: "11:30" }, // mediodía habitual
     { open: 18 * 60 + 30, close: 24 * 60, label: "18:30" }, // noche especial
   ],
-  // TEMP ARGENTINA MATCH DAY: mediodía especial por el partido Argentina vs
-  // Inglaterra. Cocina arranca 13:00 y cierra 16:00 (una hora más tarde que
-  // el habitual 12:00-15:00); web abre media hora antes de la cocina, como
-  // siempre. A la noche pasa lo mismo: abrimos más tarde, cocina de 21 a 00,
-  // pedidos desde 20:30. Revertir mañana 16/7: borrar esta entrada.
-  "2026-07-15": [
-    {
-      open: 11 * 60 + 30,
-      close: 16 * 60,
-      label: "11:30",
-      cookingStart: 13 * 60,
-    }, // mediodía especial partido
-    {
-      open: 20 * 60 + 30,
-      close: 21 * 60 + 30,
-      label: "20:30",
-      cookingStart: 21 * 60,
-    }, // noche especial partido: pausa por saturación desde 21:30
-    {
-      open: 22 * 60 + 30,
-      close: 24 * 60,
-      label: "22:30",
-      cookingStart: 22 * 60 + 30,
-    }, // reabre 22:30, cocina retoma de inmediato (sin ventana de pre-pedido)
-  ],
   // Cierre manual del mediodía de hoy (sin turno de mediodía). La noche
   // queda con su horario habitual (19:30-24:00) y abre sola.
   "2026-07-18": [
     { open: 19 * 60 + 30, close: 24 * 60, label: "19:30" }, // noche habitual
   ],
-  // TEMP ARGENTINA MATCH DAY: hoy domingo juega Argentina, sumamos turno
-  // especial de mediodía 13 a 16hs (en vez de estar cerrados hasta la noche).
-  // Revertir mañana 20/7: borrar esta entrada.
+  // Excepción de esta noche: abre 21hs en vez del habitual 19:30 (pedidos y
+  // cocina juntos, sin ventana de pre-pedido), cierra 00hs. Ya comunicado.
   "2026-07-19": [
-    {
-      open: 12 * 60 + 30,
-      close: 16 * 60,
-      label: "12:30",
-      cookingStart: 13 * 60,
-    }, // mediodía especial: cocina 13hs, pedidos desde 12:30
     {
       open: 21 * 60,
       close: 24 * 60,
       label: "21:00",
       cookingStart: 21 * 60,
-    }, // noche especial: abre 21hs (pedidos y cocina juntos), cierra 00hs
+    },
   ],
 };
 

@@ -324,15 +324,14 @@ export default function Menu() {
           </div>
         ) : null}
 
-        {/* TEMP ARGENTINA MATCH DAY FINAL: cinta temática entre el hero y el listado. Quitar (o MATCH_DAY_CAMPAIGN=false) para revertir. */}
+        {/* TEMP ARGENTINA MATCH DAY: cinta temática entre el hero y el listado. Quitar (o MATCH_DAY_CAMPAIGN=false) para revertir. */}
         {MATCH_DAY_CAMPAIGN ? (
           <div className={styles.matchDayRibbon}>
             <svg className={styles.matchDayRibbonIcon} viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden="true">
-              <circle cx="12" cy="12" r="9.3" stroke="currentColor" strokeWidth="1.3" />
-              <path d="M12 7.2 15.2 9.5l-1.2 3.7H9.9L8.7 9.5Z" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round" />
-              <path d="M12 7.2V4.6M15.2 9.5l2.5-.8M14 13.2l1.5 2.1M8.7 9.5l-2.5-.8M10 13.2l-1.5 2.1" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" />
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.4" />
+              <path d="M12 6.5 15.5 9l-1.3 4H9.8L8.5 9Z" stroke="currentColor" strokeWidth="1.1" />
             </svg>
-            <span>FINAL DEL MUNDIAL • Pedí antes de las 15:30</span>
+            <span>ARMÁ TU PEDIDO ANTES DEL PARTIDO</span>
           </div>
         ) : null}
 
