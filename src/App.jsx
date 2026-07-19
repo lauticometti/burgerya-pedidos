@@ -14,6 +14,11 @@ const MAINTENANCE_MODE = false;
 // Dia de la Hamburguesa — para desactivar: cambiar EVENT_MODE_ACTIVE a false
 const EVENT_MODE_ACTIVE = false;
 
+// Pantalla de agradecimiento post Final (no es "mantenimiento"): tapa toda
+// la web con un mensaje simple mientras se trabaja el resto de los cambios
+// aparte. Para desactivar: ARGENTINA_TAKEOVER_MODE = false.
+const ARGENTINA_TAKEOVER_MODE = true;
+
 function EventPage() {
   const block = {
     background: "#1a1a1a",
@@ -158,6 +163,77 @@ function EventPage() {
   );
 }
 
+function ArgentinaTakeoverPage() {
+  return (
+    <div
+      style={{
+        minHeight: "100dvh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#0f0f0f",
+        color: "#fff",
+        textAlign: "center",
+        padding: "2rem",
+        gap: "1.1rem",
+        fontFamily: "inherit",
+      }}>
+      <img
+        src="/logo.png"
+        alt="Burger Ya"
+        style={{ width: 80, marginBottom: "0.25rem" }}
+        onError={(e) => {
+          e.target.style.display = "none";
+        }}
+      />
+      <span
+        style={{
+          fontSize: "0.75rem",
+          fontWeight: 800,
+          letterSpacing: "0.14em",
+          textTransform: "uppercase",
+          color: "#74C9F5",
+        }}>
+        Gracias, Selección
+      </span>
+      <h1
+        style={{
+          fontSize: "clamp(1.75rem, 7vw, 2.5rem)",
+          fontWeight: 900,
+          margin: 0,
+          letterSpacing: "-0.02em",
+          lineHeight: 1.1,
+        }}>
+        VAMOS ARGENTINA
+      </h1>
+      <div
+        style={{
+          marginTop: "0.5rem",
+          padding: "0.9rem 1.75rem",
+          border: "1px solid #74C9F5",
+          borderRadius: "12px",
+          background: "rgba(116, 201, 245, 0.08)",
+        }}>
+        <p
+          style={{
+            margin: 0,
+            fontSize: "0.75rem",
+            fontWeight: 700,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+            color: "#74C9F5",
+          }}>
+          Hoy abrimos
+        </p>
+        <p style={{ margin: "0.2rem 0 0", fontSize: "1.4rem", fontWeight: 900 }}>
+          21 a 00 hs
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function MaintenancePage() {
   return (
     <div
@@ -225,6 +301,7 @@ function MaintenancePage() {
 }
 
 export default function App() {
+  if (ARGENTINA_TAKEOVER_MODE) return <ArgentinaTakeoverPage />;
   if (MAINTENANCE_MODE) return <MaintenancePage />;
   if (EVENT_MODE_ACTIVE) return <EventPage />;
 
