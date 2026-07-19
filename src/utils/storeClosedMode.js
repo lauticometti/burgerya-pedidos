@@ -9,6 +9,7 @@ export const DAILY_FEATURE_PROMO_OFFER_ID = "daily_feature";
 
 const MANUAL_STORE_STATUS_DATE = null;
 export const FORCE_OPEN = false; // override manual: forzar apertura fuera de horario
+export const FORCE_CLOSED = false; // override manual: cierre manual, ignora el horario. Poner en true para cerrar la web entera.
 
 // Mensaje de aviso especial cuando cerramos antes por falta de stock.
 // null = mensaje genérico "Estamos cerrados. Abrimos...".
@@ -259,10 +260,10 @@ const DAY_NAMES = [
 const SHIFTS = [
   {
     days: new Set([1, 2, 3, 4, 5, 6]),
-    open: 11 * 60 + 30,
+    open: 12 * 60,
     close: 15 * 60,
-    label: "11:30",
-  }, // Lun–Sáb mediodía
+    label: "12:00",
+  }, // Lun–Sáb mediodía (pedidos 12:00, cocina 12:30)
   {
     days: new Set([0, 3, 4, 5, 6]),
     open: 19 * 60 + 30,
@@ -276,7 +277,7 @@ function isFeriado(dateKey) {
 }
 
 const FERIADO_SHIFTS = [
-  { open: 11 * 60 + 30, close: 15 * 60, label: "11:30" },
+  { open: 12 * 60, close: 15 * 60, label: "12:00" },
   { open: 19 * 60 + 30, close: 24 * 60, label: "19:30" },
 ];
 
@@ -331,16 +332,9 @@ const SPECIAL_DAY_SHIFTS = {
       cookingStart: 22 * 60 + 30,
     }, // reabre 22:30, cocina retoma de inmediato (sin ventana de pre-pedido)
   ],
-  // Mediodía especial de hoy: cerrado hasta las 12hs, pedidos desde 12hs,
-  // cocina arranca 12:30 (en vez del habitual 11:30/apertura cocina 12:00).
-  // Noche sin cambios. Revertir mañana: borrar esta entrada.
-  "2026-07-16": [
-    {
-      open: 12 * 60,
-      close: 15 * 60,
-      label: "12:00",
-      cookingStart: 12 * 60 + 30,
-    }, // mediodía especial
+  // Cierre manual del mediodía de hoy (sin turno de mediodía). La noche
+  // queda con su horario habitual (19:30-24:00) y abre sola.
+  "2026-07-18": [
     { open: 19 * 60 + 30, close: 24 * 60, label: "19:30" }, // noche habitual
   ],
   // TEMP ARGENTINA MATCH DAY: hoy domingo juega Argentina, sumamos turno
@@ -467,6 +461,8 @@ function getNextShift(day, minutes, dateKey = "") {
 }
 
 function getNextOpenText(parts) {
+  if (FORCE_CLOSED) return "Volvemos pronto";
+
   const { day, minutes, dateKey } = parts;
   const next = getNextShift(day, minutes, dateKey);
   if (!next) return "Volvemos pronto";
@@ -509,6 +505,14 @@ function getRelevantShiftInfo(day, minutes, dateKey = "") {
 
 function getBannerState(parts) {
   const { day, minutes, dateKey } = parts;
+
+  if (FORCE_CLOSED) {
+    return {
+      type: "closed",
+      message: `Estamos cerrados. ${getNextOpenText(parts)}.`,
+    };
+  }
+
   const info = getRelevantShiftInfo(day, minutes, dateKey);
 
   if (info?.phase === "preorder") {
@@ -549,8 +553,9 @@ export function getStoreStatus(date = null) {
   const dailyFeature = getDailyFeature(resolvedDate);
   const nextOpenText = getNextOpenText(parts);
   const isOpenNow =
-    FORCE_OPEN ||
-    getActiveShift(parts.day, parts.minutes, parts.dateKey) !== null;
+    !FORCE_CLOSED &&
+    (FORCE_OPEN ||
+      getActiveShift(parts.day, parts.minutes, parts.dateKey) !== null);
 
   const baseStatus = promoStatus || buildStatusState();
   const closedOverrides = isOpenNow
@@ -583,18 +588,20 @@ export function getStoreStatus(date = null) {
 
 const DAY_ABBR = ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"];
 
-function ceilToHour(minutes) {
-  return Math.ceil(minutes / 60);
-}
-
-function formatHourLabel(hour24) {
-  return String(hour24 % 24).padStart(2, "0");
+// Versión compacta de formatMinutesLabel: sin minutos cuando caen en :00
+// (ej. "12"), con minutos cuando no (ej. "12:30"). Mismos valores que usa
+// el banner, solo cambia cómo se muestran acá para que quede corto.
+function formatCompactMinutesLabel(minutes) {
+  const h = Math.floor(minutes / 60) % 24;
+  const m = minutes % 60;
+  if (m === 0) return String(h).padStart(2, "0");
+  return formatMinutesLabel(minutes);
 }
 
 // Horario completo de hoy, para mostrar debajo del banner de estado.
-// Reutiliza los mismos turnos (SHIFTS/SPECIAL_DAY_SHIFTS/feriados) que
-// determinan si el local está abierto, redondeando a la hora de cocina
-// (cookingStart, no el horario de apertura web) hacia arriba.
+// Reutiliza los mismos turnos (SHIFTS/SPECIAL_DAY_SHIFTS/feriados) y los
+// mismos valores (cookingStart, close) que usa el banner para sus
+// mensajes de pre-pedido/cocina — así nunca queda desincronizado.
 export function getTodaySchedule(date = null) {
   const parts = getArgentinaTimeParts(
     date instanceof Date ? date : getNowDate(),
@@ -609,9 +616,7 @@ export function getTodaySchedule(date = null) {
   const ranges = shifts.map((shift) => {
     const cookingStart =
       shift.cookingStart ?? shift.open + PREORDER_WINDOW_MINUTES;
-    const startHour = formatHourLabel(ceilToHour(cookingStart));
-    const endHour = formatHourLabel(ceilToHour(shift.close));
-    return `${startHour}–${endHour}`;
+    return `${formatCompactMinutesLabel(cookingStart)}–${formatCompactMinutesLabel(shift.close)}`;
   });
 
   return { dayLabel, ranges, isClosed: false };
