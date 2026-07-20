@@ -8,6 +8,8 @@ export default function useCheckoutValidation({
   address,
   cross,
   pay,
+  payCashAmount,
+  payTransferAmount,
   notes,
   items,
   total,
@@ -22,11 +24,21 @@ export default function useCheckoutValidation({
     const isDelivery = deliveryMode === "Delivery";
     const hasAddressOk = !isDelivery || !!address.trim();
 
+    const isMixedPay = pay === "Mixto";
+    const cashNum = Number(payCashAmount) || 0;
+    const transferNum = Number(payTransferAmount) || 0;
+    const hasMixedPayOk =
+      !isMixedPay ||
+      (payCashAmount !== "" &&
+        payTransferAmount !== "" &&
+        cashNum + transferNum === total);
+
     const canSend =
       items.length > 0 &&
       !!name.trim() &&
       !!pay.trim() &&
       hasAddressOk &&
+      hasMixedPayOk &&
       hasDeliveryMode;
 
     const missingFields = [
@@ -34,6 +46,7 @@ export default function useCheckoutValidation({
       hasDeliveryMode && !name.trim() ? "nombre" : null,
       hasDeliveryMode && isDelivery && !address.trim() ? "direccion" : null,
       hasDeliveryMode && !pay.trim() ? "pago" : null,
+      hasDeliveryMode && pay.trim() && !hasMixedPayOk ? "montos de pago" : null,
     ].filter(Boolean);
 
     const waHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${buildWhatsAppText({
@@ -41,6 +54,8 @@ export default function useCheckoutValidation({
       address,
       cross,
       pay,
+      payCashAmount: isMixedPay ? cashNum : null,
+      payTransferAmount: isMixedPay ? transferNum : null,
       deliveryMode,
       notes,
       items,
@@ -63,6 +78,8 @@ export default function useCheckoutValidation({
     address,
     cross,
     pay,
+    payCashAmount,
+    payTransferAmount,
     notes,
     items,
     total,

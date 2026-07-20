@@ -80,6 +80,10 @@ export default function Carrito() {
     setCross,
     pay,
     setPay,
+    payCashAmount,
+    setPayCashAmount,
+    payTransferAmount,
+    setPayTransferAmount,
     notes,
     setNotes,
     whenMode,
@@ -115,6 +119,8 @@ export default function Carrito() {
     address,
     cross,
     pay,
+    payCashAmount,
+    payTransferAmount,
     notes,
     whenMode,
     whenSlot,
@@ -361,11 +367,16 @@ export default function Carrito() {
 
           <PaymentScheduleCard
             pay={pay}
+            payCashAmount={payCashAmount}
+            payTransferAmount={payTransferAmount}
+            total={totalWithDiscount}
             whenMode={whenMode}
             whenSlot={whenSlot}
             availableSlots={slotOptions}
             notes={notes}
             onPayChange={setPay}
+            onPayCashAmountChange={setPayCashAmount}
+            onPayTransferAmountChange={setPayTransferAmount}
             onWhenModeChange={setWhenMode}
             onWhenSlotChange={setWhenSlot}
             onNotesChange={setNotes}

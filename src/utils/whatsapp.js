@@ -25,6 +25,8 @@ export function buildWhatsAppText({
   address,
   cross,
   pay,
+  payCashAmount = null,
+  payTransferAmount = null,
   deliveryMode,
   notes,
   items,
@@ -139,6 +141,10 @@ export function buildWhatsAppText({
     lines.push(`Subtotal: ${formatMoney(subtotal)}`);
     lines.push(`Codigo ${couponCode}: -${formatMoney(discountAmount)}`);
   }
-  lines.push(`${formatMoney(total)} ${pay}`);
+  if (pay === "Mixto" && payCashAmount != null && payTransferAmount != null) {
+    lines.push(`${formatMoney(total)} (Efectivo ${formatMoney(payCashAmount)} + Transferencia ${formatMoney(payTransferAmount)})`);
+  } else {
+    lines.push(`${formatMoney(total)} ${pay}`);
+  }
   return encodeURIComponent(lines.join("\n"));
 }
