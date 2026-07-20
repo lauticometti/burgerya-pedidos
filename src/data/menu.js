@@ -2,7 +2,7 @@ export const WHATSAPP_NUMBER = "5491134158607";
 
 // Deshabilita la opción Delivery en el checkout: solo se puede retirar en
 // el local. Poner en true para reactivar delivery.
-export const DELIVERY_ENABLED = false;
+export const DELIVERY_ENABLED = true;
 
 // Burgers con precios
 export const burgers = [
