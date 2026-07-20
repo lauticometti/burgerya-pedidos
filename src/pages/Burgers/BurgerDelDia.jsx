@@ -5,6 +5,7 @@ import { resolvePublicPath } from "../../utils/assetPath";
 import BurgerNotice from "../../components/burgers/BurgerNotice";
 import ProductName from "../../components/ui/ProductName";
 import { MATCH_DAY_CAMPAIGN } from "../../utils/dailyFeaturePromo";
+import { getArgentinaTimeParts } from "../../utils/storeClosedMode";
 import styles from "./BurgerDelDia.module.css";
 
 const SIZES = [
@@ -18,6 +19,10 @@ export default function BurgerDelDia({ burger, weekdayLabel, eyebrow, onOpen, on
 
   const eyebrowText = eyebrow
     || (weekdayLabel ? `RECOMENDADA DEL ${weekdayLabel}` : "RECOMENDADA DE HOY");
+
+  // Día del Amigo (2026-07-20): frase discreta bajo la descripción, sin
+  // combos ni descuentos. Quitar esta condición para revertir.
+  const isFriendsDay = getArgentinaTimeParts().dateKey === "2026-07-20";
 
   return (
     <div
@@ -107,6 +112,9 @@ export default function BurgerDelDia({ burger, weekdayLabel, eyebrow, onOpen, on
           )}
           {burger.notice ? <BurgerNotice notice={burger.notice} /> : null}
           {burger.desc ? <p className={styles.desc}>{burger.desc}</p> : null}
+          {isFriendsDay ? (
+            <p className={styles.friendsDayNote}>Hoy la excusa es juntarse.</p>
+          ) : null}
           <p className={styles.papas}>+ papas incluidas</p>
 
           <div className={styles.sizeButtons}>
@@ -116,7 +124,7 @@ export default function BurgerDelDia({ burger, weekdayLabel, eyebrow, onOpen, on
               const isFeatured = size === "doble";
               return (
                 <div key={size} className={styles.sizeBtnWrapper}>
-                  {isFeatured
+                  {isFeatured && !isFriendsDay
                     ? <span className={styles.featuredTag}>Elegí esta</span>
                     : <span className={styles.featuredTagSpacer} aria-hidden="true">&nbsp;</span>
                   }

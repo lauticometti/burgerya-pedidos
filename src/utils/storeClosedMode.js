@@ -474,47 +474,79 @@ function getRelevantShiftInfo(day, minutes, dateKey = "") {
   return null;
 }
 
+// Día del Amigo: prefijo breve en el banner de estado, sin tocar la lógica
+// de horarios/fases. Solo activo el 2026-07-20; quitar este bloque (o la
+// condición de dateKey) para revertir.
+const FRIENDS_DAY_DATE_KEY = "2026-07-20";
+const FRIENDS_DAY_BANNER_PREFIX = "DÍA DEL AMIGO 🍔 · ";
+
+function applyFriendsDayPrefix(bannerState, dateKey) {
+  if (dateKey !== FRIENDS_DAY_DATE_KEY) return bannerState;
+  return {
+    ...bannerState,
+    message: `${FRIENDS_DAY_BANNER_PREFIX}${bannerState.message}`,
+  };
+}
+
 function getBannerState(parts) {
   const { day, minutes, dateKey } = parts;
 
   if (FORCE_CLOSED) {
-    return {
-      type: "closed",
-      message: `Estamos cerrados. ${getNextOpenText(parts)}.`,
-    };
+    return applyFriendsDayPrefix(
+      {
+        type: "closed",
+        message: `Estamos cerrados. ${getNextOpenText(parts)}.`,
+      },
+      dateKey,
+    );
   }
 
   const info = getRelevantShiftInfo(day, minutes, dateKey);
 
   if (info?.phase === "preorder") {
     const cookingLabel = formatMinutesLabel(info.cookingStart);
-    return {
-      type: "preorder",
-      message: `Ya podés hacer tu pedido. Empezamos a cocinar a las ${cookingLabel}.`,
-    };
+    return applyFriendsDayPrefix(
+      {
+        type: "preorder",
+        message: `Ya podés hacer tu pedido. Empezamos a cocinar a las ${cookingLabel}.`,
+      },
+      dateKey,
+    );
   }
 
   if (info?.phase === "cooking") {
     // TEMP ARGENTINA MATCH DAY: si el shift trae cookingMessage, se usa tal cual
     // (sin horario de cierre). Revertir: quitar `cookingMessage` del shift.
     if (info.shift.cookingMessage) {
-      return { type: "cooking", message: info.shift.cookingMessage };
+      return applyFriendsDayPrefix(
+        { type: "cooking", message: info.shift.cookingMessage },
+        dateKey,
+      );
     }
     const closeLabel = formatMinutesLabel(info.shift.close);
-    return {
-      type: "cooking",
-      message: `Estamos cocinando. Podés pedir hasta las ${closeLabel}.`,
-    };
+    return applyFriendsDayPrefix(
+      {
+        type: "cooking",
+        message: `Estamos cocinando. Podés pedir hasta las ${closeLabel}.`,
+      },
+      dateKey,
+    );
   }
 
   if (SOLD_OUT_NOTICE) {
-    return { type: "closed", message: SOLD_OUT_NOTICE };
+    return applyFriendsDayPrefix(
+      { type: "closed", message: SOLD_OUT_NOTICE },
+      dateKey,
+    );
   }
 
-  return {
-    type: "closed",
-    message: `Estamos cerrados. ${getNextOpenText(parts)}.`,
-  };
+  return applyFriendsDayPrefix(
+    {
+      type: "closed",
+      message: `Estamos cerrados. ${getNextOpenText(parts)}.`,
+    },
+    dateKey,
+  );
 }
 
 export function getStoreStatus(date = null) {

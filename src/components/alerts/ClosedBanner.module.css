@@ -20,9 +20,8 @@
   color: #1a1a1a;
 }
 
-/* Acento celeste permanente (identidad Argentina), independiente de si hay
-   campaña de partido activa. Solo color, sin texto ni mención a ningún
-   partido. Quitar este bloque (o ARGENTINA_ACCENT_THEME=false) para sacarlo. */
+/* Acento celeste (identidad Argentina), desactivado vía ARGENTINA_ACCENT_THEME=false
+   en dailyFeaturePromo.js. Solo color, sin texto ni mención a ningún partido. */
 .banner.argentinaAccent {
   background: #2E9BD6;
   color: #fff;
