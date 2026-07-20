@@ -1,5 +1,5 @@
 import React from "react";
-import { burgers, papas as papasData, bebidas, dips, cervezas } from "../../data/menu";
+import { burgers, papas as papasData, bebidas, dips, cervezas, DELIVERY_ENABLED } from "../../data/menu";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
 import ArgentinaNamesNotice from "../../components/alerts/ArgentinaNamesNotice";
 import BrandLogo from "../../components/brand/BrandLogo";
@@ -650,7 +650,9 @@ export default function Menu() {
         <ScrollBar progress={bebidasProgress} />
       </section>
 
-      <DeliveryMapLink className={styles.deliveryLink} />
+      {DELIVERY_ENABLED ? (
+        <DeliveryMapLink className={styles.deliveryLink} />
+      ) : null}
 
       <BurgerModal
         open={modalOpen}

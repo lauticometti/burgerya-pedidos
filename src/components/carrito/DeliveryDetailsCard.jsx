@@ -1,5 +1,6 @@
 ﻿import Card from "../ui/Card";
 import { TextInput } from "../ui/FormFields";
+import { DELIVERY_ENABLED } from "../../data/menu";
 import styles from "./DeliveryDetailsCard.module.css";
 
 export default function DeliveryDetailsCard({
@@ -19,17 +20,21 @@ export default function DeliveryDetailsCard({
     <Card className={styles.card}>
       <div className={styles.title}>Datos de entrega</div>
       <div className={styles.fields}>
-        <div className={styles.question}>¿Delivery o retirás vos?</div>
+        <div className={styles.question}>
+          {DELIVERY_ENABLED ? "¿Delivery o retirás vos?" : "Retiro en el local"}
+        </div>
         <div className={styles.modeRow}>
-          <button
-            type="button"
-            className={`${styles.modeButton} ${
-              deliveryMode === "Delivery" ? styles.modeButtonActive : ""
-            }`}
-            aria-pressed={deliveryMode === "Delivery"}
-            onClick={() => onDeliveryModeChange("Delivery")}>
-            Delivery
-          </button>
+          {DELIVERY_ENABLED ? (
+            <button
+              type="button"
+              className={`${styles.modeButton} ${
+                deliveryMode === "Delivery" ? styles.modeButtonActive : ""
+              }`}
+              aria-pressed={deliveryMode === "Delivery"}
+              onClick={() => onDeliveryModeChange("Delivery")}>
+              Delivery
+            </button>
+          ) : null}
           <button
             type="button"
             className={`${styles.modeButton} ${

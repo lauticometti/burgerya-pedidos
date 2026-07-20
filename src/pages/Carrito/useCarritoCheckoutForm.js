@@ -1,4 +1,5 @@
 import React from "react";
+import { DELIVERY_ENABLED } from "../../data/menu";
 
 const STORAGE_KEY = "burgerya_carrito_form";
 const VALID_WHEN_OPTIONS = ["Ahora", "Mas tarde"];
@@ -12,7 +13,7 @@ const WHEN_MODE_RESET_KEY = "burgerya_carrito_when_mode_reset_version";
 export default function useCarritoCheckoutForm() {
   // Consolidated state
   const [formData, setFormData] = React.useState({
-    deliveryMode: "",
+    deliveryMode: DELIVERY_ENABLED ? "" : "Retiro",
     name: "",
     address: "",
     cross: "",
@@ -31,6 +32,12 @@ export default function useCarritoCheckoutForm() {
       const saved = JSON.parse(raw);
       if (!VALID_WHEN_OPTIONS.includes(saved.whenMode)) {
         saved.whenMode = "Ahora";
+      }
+
+      if (!DELIVERY_ENABLED && saved.deliveryMode === "Delivery") {
+        saved.deliveryMode = "Retiro";
+        saved.address = "";
+        saved.cross = "";
       }
 
       const resetVersion = window.localStorage.getItem(WHEN_MODE_RESET_KEY);
