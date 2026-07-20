@@ -309,7 +309,12 @@ const SPECIAL_DAY_SHIFTS = {
   // Día del Amigo: hoy lunes no abrimos al mediodía (sin turno habitual de
   // 12-15hs), solo noche 20:00-00:00.
   "2026-07-20": [
-    { open: 20 * 60, close: 24 * 60, label: "20:00", cookingStart: 20 * 60 },
+    {
+      open: 19 * 60 + 30,
+      close: 24 * 60,
+      label: "19:30",
+      cookingStart: 20 * 60,
+    },
   ],
 };
 
