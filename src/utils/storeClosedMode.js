@@ -259,17 +259,11 @@ const DAY_NAMES = [
 // day indices: 0=Dom, 1=Lun, 2=Mar, 3=Mié, 4=Jue, 5=Vie, 6=Sáb
 const SHIFTS = [
   {
-    days: new Set([1, 2, 3, 4, 5, 6]),
-    open: 12 * 60,
-    close: 15 * 60,
-    label: "12:00",
-  }, // Lun–Sáb mediodía (pedidos 12:00, cocina 12:30)
-  {
-    days: new Set([0, 3, 4, 5, 6]),
-    open: 19 * 60 + 30,
+    days: new Set([0, 1, 2, 3, 4, 5, 6]),
+    open: 20 * 60,
     close: 24 * 60,
-    label: "19:30",
-  }, // Mié–Dom noche
+    label: "20:00",
+  }, // Todos los días, solo turno noche (sin mediodía)
 ];
 
 function isFeriado(dateKey) {
@@ -277,8 +271,7 @@ function isFeriado(dateKey) {
 }
 
 const FERIADO_SHIFTS = [
-  { open: 12 * 60, close: 15 * 60, label: "12:00" },
-  { open: 19 * 60 + 30, close: 24 * 60, label: "19:30" },
+  { open: 20 * 60, close: 24 * 60, label: "20:00" },
 ];
 
 // Excepciones puntuales de horario para una fecha específica (formato
