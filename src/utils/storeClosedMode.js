@@ -1,5 +1,11 @@
 import { useSyncExternalStore } from "react";
 import { getDailyFeature } from "./dailyFeaturePromo";
+import {
+  WEEKLY_SCHEDULE,
+  DATE_OVERRIDES,
+  HOLIDAY_SCHEDULE,
+  FERIADOS_2026,
+} from "./schedule";
 
 export const ARGENTINA_TIME_ZONE = "America/Argentina/Buenos_Aires";
 export const FRIDAY_TRIPLE_PROMO_DATE_KEY = "2026-03-27";
@@ -15,25 +21,8 @@ export const FORCE_CLOSED = false; // override manual: cierre manual, ignora el 
 // null = mensaje genérico "Estamos cerrados. Abrimos...".
 export const SOLD_OUT_NOTICE = null;
 
-// Feriados nacionales Argentina 2026 (formato YYYY-MM-DD, hora Argentina)
-const FERIADOS_2026 = new Set([
-  "2026-01-01", // Año Nuevo
-  "2026-02-16", // Carnaval
-  "2026-02-17", // Carnaval
-  "2026-03-24", // Día de la Memoria
-  "2026-04-02", // Malvinas
-  "2026-04-03", // Viernes Santo
-  "2026-05-01", // Día del Trabajador
-  "2026-05-25", // Revolución de Mayo
-  "2026-06-15", // Paso a la Inmortalidad de Güemes
-  "2026-06-20", // Paso a la Inmortalidad de Belgrano
-  "2026-07-09", // Independencia
-  "2026-08-17", // Paso a la Inmortalidad de San Martín
-  "2026-10-12", // Día del Respeto a la Diversidad Cultural
-  "2026-11-23", // Día de la Soberanía Nacional
-  "2026-12-08", // Inmaculada Concepción de María
-  "2026-12-25", // Navidad
-]);
+const FERIADOS_SET = new Set(FERIADOS_2026);
+
 const WEEKDAY_INDEX = {
   Sun: 0,
   Mon: 1,
@@ -43,6 +32,36 @@ const WEEKDAY_INDEX = {
   Fri: 5,
   Sat: 6,
 };
+
+// Convierte "HH:MM" a minutos desde medianoche. "00:00" como close se
+// interpreta como medianoche del día siguiente (24:00), como espera el
+// resto de la lógica de turnos.
+function timeStringToMinutes(time, { isClose = false } = {}) {
+  const [h, m] = time.split(":").map(Number);
+  if (isClose && h === 0 && m === 0) return 24 * 60;
+  return h * 60 + m;
+}
+
+function normalizeShift(shift) {
+  return {
+    open: timeStringToMinutes(shift.open),
+    close: timeStringToMinutes(shift.close, { isClose: true }),
+    label: shift.open,
+    ...(shift.cookingStart
+      ? { cookingStart: timeStringToMinutes(shift.cookingStart) }
+      : {}),
+  };
+}
+
+const WEEKDAY_KEY_BY_INDEX = [
+  "domingo",
+  "lunes",
+  "martes",
+  "miercoles",
+  "jueves",
+  "viernes",
+  "sabado",
+];
 
 const argentinaDateTimeFormatter = new Intl.DateTimeFormat("en-US", {
   timeZone: ARGENTINA_TIME_ZONE,
@@ -255,71 +274,26 @@ const DAY_NAMES = [
   "sábado",
 ];
 
-// Turnos de apertura: cada entrada define días habilitados y rango horario (en minutos desde medianoche)
-// day indices: 0=Dom, 1=Lun, 2=Mar, 3=Mié, 4=Jue, 5=Vie, 6=Sáb
-const SHIFTS = [
-  {
-    days: new Set([0, 1, 2, 3, 4, 5, 6]),
-    open: 20 * 60,
-    close: 24 * 60,
-    label: "20:00",
-  }, // Todos los días, solo turno noche (sin mediodía)
-];
+// Horarios: los datos reales viven en ./schedule.js (fuente única de
+// verdad, fácil de editar sin tocar esta lógica). Acá solo se normalizan
+// ("HH:MM" → minutos) y se resuelve la prioridad para un día dado:
+//   1. Excepción puntual en DATE_OVERRIDES (prioridad máxima)
+//   2. Feriado (HOLIDAY_SCHEDULE) si la fecha está en FERIADOS_2026
+//   3. Horario semanal normal (WEEKLY_SCHEDULE) según el día de la semana
 
 function isFeriado(dateKey) {
-  return FERIADOS_2026.has(dateKey);
-}
-
-const FERIADO_SHIFTS = [
-  { open: 20 * 60, close: 24 * 60, label: "20:00" },
-];
-
-// Excepciones puntuales de horario para una fecha específica (formato
-// YYYY-MM-DD, hora Argentina). Reemplazan por completo los turnos de ese
-// día sin afectar el horario habitual de otros días con el mismo nombre.
-const SPECIAL_DAY_SHIFTS = {
-  // Horario especial sábado noche: web abre 18:30 (en vez de 19:30) y cocina
-  // arranca 19:00 (en vez de 20:00). El resto del día (mediodía) queda igual.
-  "2026-07-11": [
-    { open: 11 * 60 + 30, close: 15 * 60, label: "11:30" }, // mediodía habitual
-    { open: 18 * 60 + 30, close: 24 * 60, label: "18:30" }, // noche especial
-  ],
-  // Cierre manual del mediodía de hoy (sin turno de mediodía). La noche
-  // queda con su horario habitual (19:30-24:00) y abre sola.
-  "2026-07-18": [
-    { open: 19 * 60 + 30, close: 24 * 60, label: "19:30" }, // noche habitual
-  ],
-  // Excepción de esta noche: abre 21hs en vez del habitual 19:30 (pedidos y
-  // cocina juntos, sin ventana de pre-pedido), cierra 00hs. Ya comunicado.
-  "2026-07-19": [
-    {
-      open: 21 * 60,
-      close: 24 * 60,
-      label: "21:00",
-      cookingStart: 21 * 60,
-    },
-  ],
-  // Día del Amigo: hoy lunes no abrimos al mediodía (sin turno habitual de
-  // 12-15hs), solo noche 20:00-00:00.
-  "2026-07-20": [
-    {
-      open: 19 * 60 + 30,
-      close: 24 * 60,
-      label: "19:30",
-      cookingStart: 20 * 60,
-    },
-  ],
-};
-
-function getSpecialShifts(dateKey) {
-  return SPECIAL_DAY_SHIFTS[dateKey] ?? null;
+  return FERIADOS_SET.has(dateKey);
 }
 
 function getShiftsForDay(day, dateKey) {
-  const special = getSpecialShifts(dateKey);
-  if (special) return special;
-  if (isFeriado(dateKey)) return FERIADO_SHIFTS;
-  return SHIFTS.filter((s) => s.days.has(day));
+  if (Object.prototype.hasOwnProperty.call(DATE_OVERRIDES, dateKey)) {
+    return DATE_OVERRIDES[dateKey].map(normalizeShift);
+  }
+  if (isFeriado(dateKey)) {
+    return HOLIDAY_SCHEDULE.map(normalizeShift);
+  }
+  const weekdayKey = WEEKDAY_KEY_BY_INDEX[day];
+  return WEEKLY_SCHEDULE[weekdayKey].map(normalizeShift);
 }
 
 function getActiveShift(day, minutes, dateKey = "") {
@@ -411,7 +385,9 @@ function getNextShift(day, minutes, dateKey = "") {
         (a, b) => a.open - b.open,
       );
     } else {
-      shiftsToday = SHIFTS.filter((s) => s.days.has(checkDay)).sort(
+      // No conocemos el dateKey real de días futuros acá, así que solo
+      // aplicamos el horario semanal normal (sin overrides ni feriados).
+      shiftsToday = getShiftsForDay(checkDay, "").sort(
         (a, b) => a.open - b.open,
       );
     }
@@ -453,8 +429,8 @@ function getRelevantShiftInfo(day, minutes, dateKey = "") {
   const shifts = getShiftsForDay(day, dateKey);
 
   for (const shift of shifts) {
-    // TEMP ARGENTINA MATCH DAY: algunos turnos especiales definen su propio cookingStart
-    // (ver SPECIAL_DAY_SHIFTS) en vez de usar PREORDER_WINDOW_MINUTES. Revertir: quitar `cookingStart` del shift.
+    // Algunos turnos (ver DATE_OVERRIDES en schedule.js) definen su propio
+    // cookingStart en vez de usar la ventana normal de PREORDER_WINDOW_MINUTES.
     const cookingStart =
       shift.cookingStart ?? shift.open + PREORDER_WINDOW_MINUTES;
     if (minutes >= shift.open && minutes < cookingStart) {
@@ -595,9 +571,9 @@ function formatCompactMinutesLabel(minutes) {
 }
 
 // Horario completo de hoy, para mostrar debajo del banner de estado.
-// Reutiliza los mismos turnos (SHIFTS/SPECIAL_DAY_SHIFTS/feriados) y los
-// mismos valores (cookingStart, close) que usa el banner para sus
-// mensajes de pre-pedido/cocina — así nunca queda desincronizado.
+// Reutiliza los mismos turnos (ver ./schedule.js) y los mismos valores
+// (cookingStart, close) que usa el banner para sus mensajes de
+// pre-pedido/cocina — así nunca queda desincronizado.
 export function getTodaySchedule(date = null) {
   const parts = getArgentinaTimeParts(
     date instanceof Date ? date : getNowDate(),
