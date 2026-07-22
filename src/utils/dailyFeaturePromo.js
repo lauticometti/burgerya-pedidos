@@ -10,8 +10,7 @@ export const ARGENTINA_ACCENT_THEME = false;
 
 // Override manual: si querés forzar otra burger un día puntual,
 // poné el id acá (ej: "bacon"). null = usar el mapping automático por día.
-// Forzada a "cheese" hoy: poca gente en la cocina, solo Cheese y Bacon.
-export const DAILY_FEATURE_OVERRIDE_ID = "cheese";
+export const DAILY_FEATURE_OVERRIDE_ID = null;
 
 // Texto del eyebrow cuando usás override manual. null = muestra "RECOMENDADA DEL <DÍA>" normal.
 export const DAILY_FEATURE_OVERRIDE_LABEL = null;

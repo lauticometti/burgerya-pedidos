@@ -22,14 +22,16 @@
 // ---------------------------------------------------------------------------
 // Un array vacío [] = cerrado ese día.
 // Para cambiar el horario habitual, editá los horarios acá.
+// Pedidos abiertos desde las 19:30, cocina arranca a las 20:00 (ventana de
+// pre-pedido de 30 min = PREORDER_WINDOW_MINUTES en storeClosedMode.js).
 export const WEEKLY_SCHEDULE = {
-  domingo:   [{ open: "20:00", close: "00:00" }],
+  domingo:   [{ open: "19:30", close: "00:00" }],
   lunes:     [],
   martes:    [],
-  miercoles: [{ open: "20:00", close: "00:00" }],
-  jueves:    [{ open: "20:00", close: "00:00" }],
-  viernes:   [{ open: "20:00", close: "00:00" }],
-  sabado:    [{ open: "20:00", close: "00:00" }],
+  miercoles: [{ open: "19:30", close: "00:00" }],
+  jueves:    [{ open: "19:30", close: "00:00" }],
+  viernes:   [{ open: "19:30", close: "00:00" }],
+  sabado:    [{ open: "19:30", close: "00:00" }],
 };
 
 // ---------------------------------------------------------------------------
@@ -62,11 +64,11 @@ export const DATE_OVERRIDES = {
 // 3) FERIADOS NACIONALES ARGENTINA 2026
 // ---------------------------------------------------------------------------
 // Todo feriado de esta lista abre automáticamente con HOLIDAY_SCHEDULE
-// (por defecto, el mismo horario noche 20:00-00:00), incluso si cae lunes o
+// (por defecto, el mismo horario noche 19:30-00:00), incluso si cae lunes o
 // martes (días normalmente cerrados). Si un feriado puntual necesita otro
 // horario (o cerrar), cargá una excepción en DATE_OVERRIDES para esa fecha:
 // tiene prioridad sobre esta lista.
-export const HOLIDAY_SCHEDULE = [{ open: "20:00", close: "00:00" }];
+export const HOLIDAY_SCHEDULE = [{ open: "19:30", close: "00:00" }];
 
 export const FERIADOS_2026 = [
   "2026-01-01", // Año Nuevo
