@@ -10,7 +10,11 @@ export const ARGENTINA_ACCENT_THEME = false;
 
 // Override manual: si querés forzar otra burger un día puntual,
 // poné el id acá (ej: "bacon"). null = usar el mapping automático por día.
-export const DAILY_FEATURE_OVERRIDE_ID = null;
+// ACTIVO 2026-07-23: se agotó la American (recomendada del miércoles), la
+// reemplazamos por Cheese con su mismo descuento de siempre. A diferencia del
+// isAvailable de American (que se repone solo por turno), esto NO se revierte
+// solo: volver a null cuando haya stock de American de nuevo.
+export const DAILY_FEATURE_OVERRIDE_ID = "cheese";
 
 // Texto del eyebrow cuando usás override manual. null = muestra "RECOMENDADA DEL <DÍA>" normal.
 export const DAILY_FEATURE_OVERRIDE_LABEL = null;

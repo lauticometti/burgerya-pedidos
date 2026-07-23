@@ -61,7 +61,10 @@ export const burgers = [
       { id: "mil_islas", label: "Salsa Mil Islas" },
     ],
     img: "/burgers/american.svg",
-    isAvailable: 1,
+    isAvailable: 0,
+    unavailableReason: "Se agotó por hoy",
+    unavailableSince: "2026-07-23",
+    unavailableShift: "noche",
   },
   {
     id: "bacon",
