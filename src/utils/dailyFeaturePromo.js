@@ -12,10 +12,8 @@ export const ARGENTINA_ACCENT_THEME = false;
 // acá (ej: "bacon") y la fecha en DAILY_FEATURE_OVERRIDE_DATE. Se aplica
 // SOLO ese día: a partir de las 00hs del día siguiente se ignora solo y
 // vuelve el mapping automático de siempre. null = sin override.
-// ACTIVO 2026-07-23: se agotó la American (recomendada del miércoles), la
-// reemplazamos por Cheese con su mismo descuento de siempre.
-export const DAILY_FEATURE_OVERRIDE_ID = "cheese";
-export const DAILY_FEATURE_OVERRIDE_DATE = "2026-07-23";
+export const DAILY_FEATURE_OVERRIDE_ID = null;
+export const DAILY_FEATURE_OVERRIDE_DATE = null;
 
 // Texto del eyebrow cuando usás override manual. null = muestra "RECOMENDADA DEL <DÍA>" normal.
 export const DAILY_FEATURE_OVERRIDE_LABEL = null;

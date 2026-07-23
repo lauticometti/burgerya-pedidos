@@ -61,10 +61,7 @@ export const burgers = [
       { id: "mil_islas", label: "Salsa Mil Islas" },
     ],
     img: "/burgers/american.svg",
-    isAvailable: 0,
-    unavailableReason: "Se agotó por hoy",
-    unavailableSince: "2026-07-23",
-    unavailableShift: "noche",
+    isAvailable: 1,
   },
   {
     id: "bacon",
@@ -110,10 +107,7 @@ export const burgers = [
       { id: "bacon", label: "Bacon" },
     ],
     img: "/burgers/smoklahoma.svg",
-    isAvailable: 0,
-    unavailableReason: "Se agotó por hoy",
-    unavailableSince: "2026-07-23",
-    unavailableShift: "noche",
+    isAvailable: 1,
   },
 ];
 
@@ -195,7 +189,10 @@ export const bebidas = [
     id: "coca_600",
     name: "Coca Cola 600ml",
     price: 2500,
-    isAvailable: 1,
+    isAvailable: 0,
+    unavailableReason: "Sin stock",
+    unavailableSince: "2026-07-23",
+    unavailableShift: "noche",
     img: "/bebidas/coca-cola-600ml.svg",
   },
   {
@@ -204,7 +201,9 @@ export const bebidas = [
     orderName: "Coca 2.25",
     price: 6000,
     isAvailable: 0,
-    unavailableReason: "coca no nos mando de 2.25",
+    unavailableReason: "Sin stock",
+    unavailableSince: "2026-07-23",
+    unavailableShift: "noche",
     img: "/bebidas/coca-cola-225l.svg",
   },
 ];
