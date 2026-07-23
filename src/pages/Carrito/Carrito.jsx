@@ -38,6 +38,10 @@ import { buildPapasMejoras } from "../../utils/papasUpgradeOptions";
 import { useStoreStatus } from "../../utils/storeClosedMode";
 import { toast } from "../../utils/toast";
 
+// Oculta temporalmente el banner de upsell de bebida en el carrito (queda
+// solo el del dip). No borra la lógica: para volver a mostrarlo, poner en true.
+const SHOW_BEBIDA_UPSELL_BANNER = false;
+
 export default function Carrito() {
   const cart = useCart();
   const { closedActionLabel, isClosed } = useStoreStatus();
@@ -237,10 +241,12 @@ export default function Carrito() {
 
       {step === 1 ? (
         <>
-          <CartUpsellBanner
-            items={cart.items}
-            onAddBebida={() => bebidaModal.openBebidaModal()}
-          />
+          {SHOW_BEBIDA_UPSELL_BANNER ? (
+            <CartUpsellBanner
+              items={cart.items}
+              onAddBebida={() => bebidaModal.openBebidaModal()}
+            />
+          ) : null}
           <CartDipUpsellBanner
             items={cart.items}
             onAddDip={(item) => {
