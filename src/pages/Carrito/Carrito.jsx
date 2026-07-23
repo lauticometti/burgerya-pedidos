@@ -32,9 +32,11 @@ import useCheckoutValidation from "./useCheckoutValidation";
 import useCarritoTimeSlots from "./useCarritoTimeSlots";
 import useCouponCode from "./useCouponCode";
 import CartUpsellBanner, { shouldShowBebidaUpsell } from "./CartUpsellBanner";
+import CartDipUpsellBanner from "./CartDipUpsellBanner";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
 import { buildPapasMejoras } from "../../utils/papasUpgradeOptions";
 import { useStoreStatus } from "../../utils/storeClosedMode";
+import { toast } from "../../utils/toast";
 
 export default function Carrito() {
   const cart = useCart();
@@ -238,6 +240,13 @@ export default function Carrito() {
           <CartUpsellBanner
             items={cart.items}
             onAddBebida={() => bebidaModal.openBebidaModal()}
+          />
+          <CartDipUpsellBanner
+            items={cart.items}
+            onAddDip={(item) => {
+              cart.add(item);
+              toast.added(item.name);
+            }}
           />
           <div className={styles.items}>
             {cart.items.length === 0 ? (
