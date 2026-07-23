@@ -8,13 +8,14 @@ export const MATCH_DAY_CAMPAIGN = false;
 // se puede dejar prendido aunque no haya campaña de partido activa.
 export const ARGENTINA_ACCENT_THEME = false;
 
-// Override manual: si querés forzar otra burger un día puntual,
-// poné el id acá (ej: "bacon"). null = usar el mapping automático por día.
+// Override manual: si querés forzar otra burger un día puntual, poné el id
+// acá (ej: "bacon") y la fecha en DAILY_FEATURE_OVERRIDE_DATE. Se aplica
+// SOLO ese día: a partir de las 00hs del día siguiente se ignora solo y
+// vuelve el mapping automático de siempre. null = sin override.
 // ACTIVO 2026-07-23: se agotó la American (recomendada del miércoles), la
-// reemplazamos por Cheese con su mismo descuento de siempre. A diferencia del
-// isAvailable de American (que se repone solo por turno), esto NO se revierte
-// solo: volver a null cuando haya stock de American de nuevo.
+// reemplazamos por Cheese con su mismo descuento de siempre.
 export const DAILY_FEATURE_OVERRIDE_ID = "cheese";
+export const DAILY_FEATURE_OVERRIDE_DATE = "2026-07-23";
 
 // Texto del eyebrow cuando usás override manual. null = muestra "RECOMENDADA DEL <DÍA>" normal.
 export const DAILY_FEATURE_OVERRIDE_LABEL = null;
@@ -72,9 +73,12 @@ export function getDailyFeature(date = null) {
   const entry = DAILY_FEATURE_BY_WEEKDAY[day];
   if (!entry) return null;
 
-  if (DAILY_FEATURE_OVERRIDE_ID === "off") return null;
+  const overrideActive =
+    DAILY_FEATURE_OVERRIDE_ID && dateKey === DAILY_FEATURE_OVERRIDE_DATE;
 
-  if (DAILY_FEATURE_OVERRIDE_ID) {
+  if (overrideActive && DAILY_FEATURE_OVERRIDE_ID === "off") return null;
+
+  if (overrideActive) {
     const eyebrow = dateKey === FRIENDS_DAY_DATE_KEY
       ? FRIENDS_DAY_OVERRIDE_LABEL
       : (DAILY_FEATURE_OVERRIDE_LABEL || null);
