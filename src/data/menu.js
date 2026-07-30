@@ -188,7 +188,7 @@ export const bebidas = [
   {
     id: "coca_600",
     name: "Coca Cola 600ml",
-    price: 2500,
+    price: 2200,
     isAvailable: 1,
     img: "/bebidas/coca-cola-600ml.svg",
   },
@@ -196,7 +196,7 @@ export const bebidas = [
     id: "coca_175",
     name: "Coca Cola 1.75L",
     orderName: "Coca 1.75",
-    price: 5000,
+    price: 4200,
     isAvailable: 1,
     img: "/bebidas/coca-cola-175l.png",
   },
