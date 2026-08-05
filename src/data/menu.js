@@ -52,9 +52,9 @@ export const burgers = [
     tier: "PREMIUM",
     prices: { simple: 12000, doble: 15500, triple: 19000 },
     desc: "Lechuga · Tomate · Cebolla · Pepinos · Salsa especial",
+    notice: "Sin pepinos por hoy",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
-      { id: "pickles", label: "Pepinos agridulces" },
       { id: "tomato", label: "Tomate" },
       { id: "lettuce", label: "Lechuga" },
       { id: "onion", label: "Cebolla" },
