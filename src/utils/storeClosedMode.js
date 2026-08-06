@@ -537,6 +537,7 @@ export function getStoreStatus(date = null) {
         isClosed: true,
         canPreviewMenu: true,
         statusTone: "closed",
+        closedActionLabel: "Pedido listo",
         closedToastText: "El local está cerrado ahora",
         reopenText: nextOpenText,
       };
