@@ -428,7 +428,7 @@ export default function Carrito() {
         ) : (
           <div className={styles.stickyRight}>
             {isClosed ? (
-              <div className={styles.stickyHint}>Podés dejar tu pedido listo</div>
+              <div className={styles.stickyHint}>Envía tu pedido a las 20hs</div>
             ) : null}
             <a
               href={sendEnabled ? waHref : "#"}
