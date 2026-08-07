@@ -22,6 +22,7 @@ export const COUPON_CODES = {
   percent25: "JUAN25",
   weekend20: "20SABADO",
   prode: "PRODE",
+  matiAmerican: "MATI.AMERICAN",
 };
 
 // Variantes toleradas para que los clientes puedan escribir "combo ya" con espacios o guiones.
@@ -30,6 +31,7 @@ const COMBO_CODE_VARIANTS = ["COMBOYA", "COMBO YA", "COMBO-YA", "COMBO_YA"];
 const ONE_TIME_STORAGE_KEY = "coupon:juansinlechuga:used:v2";
 const WEEKEND_COUPON_EXPIRY_TS = new Date(2026, 2, 22, 0, 1, 0).getTime(); // domingo 22/03/2026 00:01 (BA)
 const PRODE_COUPON_EXPIRY_TS = new Date(2026, 6, 17, 0, 1, 0).getTime(); // viernes 17/07/2026 00:01 (BA) -> vence jueves 16/7
+const MATI_AMERICAN_COUPON_EXPIRY_TS = new Date(2026, 7, 7, 21, 0, 0).getTime(); // viernes 07/08/2026 21:00 (BA)
 const COMBO_TARGETS = { simple: 12990, doble: 15990 };
 
 export function normalizeCouponInput(value = "") {
@@ -43,6 +45,10 @@ export function normalizeCouponInput(value = "") {
 
 const NORMALIZED_COMBO_CODES = new Set(
   COMBO_CODE_VARIANTS.map((code) => normalizeCouponInput(code)),
+);
+
+const NORMALIZED_MATI_AMERICAN_CODE = normalizeCouponInput(
+  COUPON_CODES.matiAmerican,
 );
 
 function isComboWindowActive(now = new Date()) {
@@ -120,14 +126,18 @@ function isProdeCouponActive(nowTs = Date.now()) {
   return nowTs < PRODE_COUPON_EXPIRY_TS;
 }
 
+function isMatiAmericanCouponActive(nowTs = Date.now()) {
+  return nowTs < MATI_AMERICAN_COUPON_EXPIRY_TS;
+}
+
 function hasBurger(cartItems = []) {
   return cartItems.some((it) => it.meta?.type === "burger");
 }
 
-function computeCheeseDiscount(cartItems = []) {
+function computeBurgerPercentDiscount(cartItems = [], burgerId, percent) {
   return cartItems.reduce((sum, it) => {
     if (it.meta?.type !== "burger") return sum;
-    if ((it.meta?.burgerId || "").toLowerCase() !== "cheese") return sum;
+    if ((it.meta?.burgerId || "").toLowerCase() !== burgerId) return sum;
 
     const papasContext = { size: it.meta?.size, itemType: it.meta?.type };
     const extrasTotal = (it.extras || []).reduce(
@@ -139,7 +149,7 @@ function computeCheeseDiscount(cartItems = []) {
       0,
     );
     const lineTotal = it.qty * (it.unitPrice + extrasTotal + papasTotal);
-    return sum + Math.round(lineTotal * 0.1);
+    return sum + Math.round(lineTotal * percent);
   }, 0);
 }
 
@@ -259,7 +269,7 @@ if (normalized === COUPON_CODES.weekend20) {
         discount: 0,
       };
     }
-    const discount = computeCheeseDiscount(cartItems);
+    const discount = computeBurgerPercentDiscount(cartItems, "cheese", 0.1);
     if (discount <= 0) {
       return {
         error: "PRODE es 10% off en Cheese: agregá una Cheese al carrito",
@@ -270,6 +280,27 @@ if (normalized === COUPON_CODES.weekend20) {
       appliedCode: COUPON_CODES.prode,
       discount,
       message: `${COUPON_CODES.prode} aplicado: 10% off en Cheese hasta el lunes 20/7 (BA)`,
+    };
+  }
+
+  if (normalized === NORMALIZED_MATI_AMERICAN_CODE) {
+    if (!isMatiAmericanCouponActive(nowTs)) {
+      return {
+        error: `${COUPON_CODES.matiAmerican} venció: era 10% off en American hasta el viernes 07/08 21:00 (BA)`,
+        discount: 0,
+      };
+    }
+    const discount = computeBurgerPercentDiscount(cartItems, "american", 0.1);
+    if (discount <= 0) {
+      return {
+        error: `${COUPON_CODES.matiAmerican} es 10% off en American: agregá una American al carrito`,
+        discount: 0,
+      };
+    }
+    return {
+      appliedCode: COUPON_CODES.matiAmerican,
+      discount,
+      message: `${COUPON_CODES.matiAmerican} aplicado: 10% off en American hasta el viernes 07/08 21:00 (BA)`,
     };
   }
 
