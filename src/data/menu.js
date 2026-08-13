@@ -38,7 +38,6 @@ export const burgers = [
     tier: "PREMIUM",
     prices: { simple: 12000, doble: 15500, triple: 19000 },
     desc: "Cebolla caramelizada · Salsa especial",
-    notice: "Sin ceb. caramelizada",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
       { id: "mil_islas", label: "Salsa Mil Islas" },
@@ -53,7 +52,6 @@ export const burgers = [
     tier: "PREMIUM",
     prices: { simple: 12000, doble: 15500, triple: 19000 },
     desc: "Lechuga · Tomate · Cebolla · Pepinos · Salsa especial",
-    notice: "Sin lechuga",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
       { id: "pickles", label: "Pepinos agridulces" },
@@ -86,7 +84,6 @@ export const burgers = [
     tier: "DELUXE",
     prices: { simple: 12500, doble: 16000, triple: 19500 },
     desc: "Bacon · Cebolla caramelizada · Tomate · Salsa barbacoa",
-    notice: "Sin ceb. caramelizada",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
       { id: "bacon", label: "Bacon" },
