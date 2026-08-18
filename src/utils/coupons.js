@@ -23,6 +23,7 @@ export const COUPON_CODES = {
   weekend20: "20SABADO",
   prode: "PRODE",
   matiAmerican: "MATI.AMERICAN",
+  cheese10Lucas: "CHEESE10LUCAS",
 };
 
 // Variantes toleradas para que los clientes puedan escribir "combo ya" con espacios o guiones.
@@ -33,6 +34,7 @@ const WEEKEND_COUPON_EXPIRY_TS = new Date(2026, 2, 22, 0, 1, 0).getTime(); // do
 const PRODE_COUPON_EXPIRY_TS = new Date(2026, 6, 17, 0, 1, 0).getTime(); // viernes 17/07/2026 00:01 (BA) -> vence jueves 16/7
 const MATI_AMERICAN_COUPON_EXPIRY_TS = new Date(2026, 7, 7, 21, 0, 0).getTime(); // viernes 07/08/2026 21:00 (BA)
 const COMBO_TARGETS = { simple: 12990, doble: 15990 };
+const CHEESE_10_LUCAS_TARGET = 10000;
 
 export function normalizeCouponInput(value = "") {
   return value
@@ -73,6 +75,16 @@ function computeComboDiscount(cartItems = []) {
     const target = COMBO_TARGETS[size];
     if (!target) return sum;
     const diff = Math.max(0, (it.unitPrice || 0) - target);
+    return sum + diff * (it.qty || 0);
+  }, 0);
+}
+
+function computeCheese10LucasDiscount(cartItems = []) {
+  return cartItems.reduce((sum, it) => {
+    if (it.meta?.type !== "burger") return sum;
+    if ((it.meta?.burgerId || "").toLowerCase() !== "cheese") return sum;
+    if (it.meta?.size !== "doble") return sum;
+    const diff = Math.max(0, (it.unitPrice || 0) - CHEESE_10_LUCAS_TARGET);
     return sum + diff * (it.qty || 0);
   }, 0);
 }
@@ -301,6 +313,21 @@ if (normalized === COUPON_CODES.weekend20) {
       appliedCode: COUPON_CODES.matiAmerican,
       discount,
       message: `${COUPON_CODES.matiAmerican} aplicado: 10% off en American hasta el viernes 07/08 21:00 (BA)`,
+    };
+  }
+
+  if (normalized === COUPON_CODES.cheese10Lucas) {
+    const discount = computeCheese10LucasDiscount(cartItems);
+    if (discount <= 0) {
+      return {
+        error: `${COUPON_CODES.cheese10Lucas} es Cheese doble a $10.000: agregá una Cheese doble al carrito`,
+        discount: 0,
+      };
+    }
+    return {
+      appliedCode: COUPON_CODES.cheese10Lucas,
+      discount,
+      message: `${COUPON_CODES.cheese10Lucas} aplicado: Cheese doble con papas a $10.000`,
     };
   }
 
