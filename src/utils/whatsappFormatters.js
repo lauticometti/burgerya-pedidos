@@ -4,6 +4,11 @@
  */
 
 import { getArgentinaName } from "./argentinaNames";
+import {
+  FRIES_UPGRADE_TICKET_LINE,
+  hasFriesUpgrade,
+  isFriesUpgradeEntry,
+} from "./friesUpgrade";
 
 // Nombre a usar en el mensaje de WhatsApp: el argentino directo (sin tachado,
 // esto es texto plano) si hay mapeo vigente, si no el nombre original.
@@ -186,6 +191,13 @@ export function formatPromoPicks(picks, itemType) {
 
 /**
  * Format extra modifiers for an item (extras, papas)
+ *
+ * La mejora de papas sale en MAYUSCULA y en su propia linea, colgada de la
+ * variante: el carrito ya agrupa las unidades identicas, asi que "2 Smoklahoma
+ * doble" + "PAPAS: CHEDDAR + BACON" significa que esas DOS llevan las papas
+ * especiales, y las que no aparecen con esa linea van normales. Es la unica
+ * linea en mayuscula debajo de una burger, para que en cocina no haya que
+ * leer el pedido entero para encontrarlas.
  */
 export function formatItemModifiers(item) {
   const lines = [];
@@ -195,10 +207,20 @@ export function formatItemModifiers(item) {
   if (item.extras?.length) {
     lines.push(`  Agregados: ${item.extras.map((extra) => extra.name).join(joiner)}`);
   }
-  if (item.papas?.length && !isPapasItem) {
-    lines.push(
-      `  Mejorar papas: ${item.papas.map((extra) => extra.name).join(joiner)}`,
+  if (!isPapasItem) {
+    if (hasFriesUpgrade(item)) {
+      lines.push(`  ${FRIES_UPGRADE_TICKET_LINE}`);
+    }
+    // Mejoras de papas que no son la actual: carritos viejos guardados en
+    // localStorage con opciones que ya no se ofrecen.
+    const otherPapas = (item.papas || []).filter(
+      (extra) => !isFriesUpgradeEntry(extra),
     );
+    if (otherPapas.length) {
+      lines.push(
+        `  Mejorar papas: ${otherPapas.map((extra) => extra.name).join(joiner)}`,
+      );
+    }
   }
 
   return lines;

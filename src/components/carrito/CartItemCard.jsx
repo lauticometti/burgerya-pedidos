@@ -10,6 +10,7 @@ import { formatMoney } from "../../utils/formatMoney";
 import { formatPickNames } from "../../utils/formatPicks";
 import { getPapasUpgradePrice } from "../../utils/papasPricing";
 import { FRIDAY_TRIPLE_PROMO_OFFER_ID } from "../../utils/storeClosedMode";
+import { FRIES_UPGRADE_LABELS, hasFriesUpgrade } from "../../utils/friesUpgrade";
 
 export default function CartItemCard({
   item,
@@ -18,7 +19,7 @@ export default function CartItemCard({
   onDecrease,
   onIncrease,
   onRemove,
-  onOpenPapas,
+  onToggleFriesUpgrade,
   canImprovePapas,
   canAddExtras,
   promoPicks = [],
@@ -36,7 +37,7 @@ export default function CartItemCard({
   const locked = item.meta?.locked;
   const isGift = Boolean(item.meta?.promoGiftId);
   const showQtyControls = !locked && (!isPromo || allowPromoQty);
-  const showActions = canAddExtras || canImprovePapas;
+  const friesUpgraded = hasFriesUpgrade(item);
   const papasContext = { size: item.meta?.size, itemType: item.meta?.type };
   const extrasTotal = (item.extras || []).reduce(
     (sum, extra) => sum + extra.price,
@@ -77,6 +78,8 @@ export default function CartItemCard({
   const displayName = isGift ? "Papas extra incluidas" : item.name;
   const isBurger = item.meta?.type === "burger";
   const modifyButtonLabel = isBurger ? "Personalizar burger" : "Modificar ingredientes";
+  const showModifyButton = canAddExtras || (!isPromo && removableIngredients.length > 0);
+  const showActions = showModifyButton || canImprovePapas;
 
   function getPickRemovables(pick) {
     const burgerId = pick.id || pick.burgerId;
@@ -149,11 +152,26 @@ export default function CartItemCard({
         </div>
       </div>
 
-      {(canAddExtras || (!isPromo && removableIngredients.length > 0)) ? (
+      {showActions ? (
         <div className={styles.actions}>
-          <Button size="sm" onClick={onOpenModify}>
-            {modifyButtonLabel}
-          </Button>
+          {showModifyButton ? (
+            <Button size="sm" onClick={onOpenModify}>
+              {modifyButtonLabel}
+            </Button>
+          ) : null}
+          {canImprovePapas ? (
+            <Button
+              size="sm"
+              onClick={onToggleFriesUpgrade}
+              aria-pressed={friesUpgraded}
+              className={`${styles.papasButton}${
+                friesUpgraded ? ` ${styles.papasButtonOn}` : ""
+              }`}>
+              {friesUpgraded
+                ? FRIES_UPGRADE_LABELS.active
+                : FRIES_UPGRADE_LABELS.idle}
+            </Button>
+          ) : null}
         </div>
       ) : null}
 

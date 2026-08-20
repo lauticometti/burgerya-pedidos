@@ -26,6 +26,8 @@ import {
 import useCartUndo from "./useCartUndo";
 import useCarritoModals from "./useCarritoModals";
 import useBurgerCustomizeModal from "./useBurgerCustomizeModal";
+import useFriesUpgradeModal from "./useFriesUpgradeModal";
+import FriesUpgradeQtyModal from "../../components/carrito/FriesUpgradeQtyModal";
 import { extras as extrasData } from "../../data/menu";
 import useCarritoCheckoutForm from "./useCarritoCheckoutForm";
 import useCheckoutValidation from "./useCheckoutValidation";
@@ -166,6 +168,14 @@ export default function Carrito() {
     extraItems: extrasData,
   });
 
+  const friesUpgrade = useFriesUpgradeModal(cart);
+  // Mismo nombre + talle que usa la barra de deshacer, para no reescribir el
+  // armado del label (ProductName ya resuelve el nombre argentino).
+  const friesUpgradeLabel = React.useMemo(
+    () => getUndoLabel(friesUpgrade.item),
+    [friesUpgrade.item],
+  );
+
   const [modifyOpen, setModifyOpen] = React.useState(false);
   const openModifyModal = React.useCallback((item, mode, pickIndex = null) => {
     if (pickIndex == null && item.meta?.type === "burger") {
@@ -270,6 +280,7 @@ export default function Carrito() {
                 onRemove={handleRemove}
                 onOpenModifyModal={openModifyModal}
                 onSetPromoPicks={cart.setPromoPicks}
+                onToggleFriesUpgrade={friesUpgrade.toggle}
                 burgersById={burgersById}
                 classes={groupListClasses}
                 giveawayTargetKey={giveawayTarget?.lineKey || null}
@@ -465,6 +476,18 @@ export default function Carrito() {
         onApplyRemove={() => { removeModal.applySelection(); closeModifyModal(); }}
         onClearRemove={removeModal.clearSelection}
         onClose={closeModifyModal}
+      />
+
+      <FriesUpgradeQtyModal
+        open={friesUpgrade.open}
+        mode={friesUpgrade.mode}
+        name={friesUpgradeLabel.name}
+        nameSuffix={friesUpgradeLabel.suffix}
+        count={friesUpgrade.count}
+        maxCount={friesUpgrade.maxCount}
+        onChangeCount={friesUpgrade.changeCount}
+        onConfirm={friesUpgrade.confirm}
+        onClose={friesUpgrade.close}
       />
 
       <ModifyScopeDialog

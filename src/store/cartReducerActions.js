@@ -47,65 +47,47 @@ export function removeItemsByPrefix(items, prefix) {
 }
 
 /**
- * Apply a full modifier draft (extras, removed ingredients, note) to exactly
- * one unit of a burger line, splitting it off from the rest of the qty.
- * If a line with the resulting configuration already exists, merges into it.
+ * Mueve N unidades de una linea de burger a otra variante (split) y las fusiona
+ * con la linea destino si esa variante ya existe (merge).
+ *
+ * Es el UNICO motor de split/merge de burgers: lo usan tanto "Personalizar
+ * burger" (scope una / todas) como "Mejorar papas" (cantidad elegida). Al ser
+ * uno solo, cualquier atributo que entre en buildBurgerLineKey() participa
+ * automaticamente del split y del merge, sin comparaciones sueltas repartidas
+ * por los componentes.
+ *
  * @param {Object} items - Items mapping
- * @param {string} baseKey - Original burger line key
- * @param {Object} draft - { key, extras, removedIngredients, note, meta }
+ * @param {string} baseKey - Clave de la linea original
+ * @param {Object} draft - { key, extras, removedIngredients, papas, note, meta }
+ * @param {number} count - Unidades a mover (se acota a [1, qty de la linea])
  * @returns {Object} - New items object
  */
-export function updateOneBurgerLine(items, baseKey, draft) {
+export function updateBurgerLineUnits(items, baseKey, draft, count) {
   const base = items[baseKey];
   if (!base || base.qty <= 0) return items;
 
+  const requested = Math.floor(Number(count));
+  const moving = Math.min(
+    Math.max(Number.isFinite(requested) ? requested : base.qty, 1),
+    base.qty,
+  );
+
   const next = { ...items };
 
-  if (base.qty === 1) {
-    delete next[baseKey];
-  } else {
-    next[baseKey] = { ...base, qty: base.qty - 1 };
-  }
+  // 1. Sacar de la linea original las unidades que se mueven. Si se mueven
+  //    todas, la linea desaparece: nunca queda una linea en qty 0.
+  const remaining = base.qty - moving;
+  if (remaining > 0) next[baseKey] = { ...base, qty: remaining };
+  else delete next[baseKey];
 
+  // 2. Mergear en la variante destino si ya existe; si no, crearla.
+  //    Si draft.key === baseKey el cambio es un no-op y la cuenta cierra sola:
+  //    las unidades vuelven a la misma linea sin perderse.
   const existing = next[draft.key];
-  if (existing && draft.key !== baseKey) {
-    next[draft.key] = { ...existing, qty: existing.qty + 1 };
-  } else {
-    next[draft.key] = {
-      ...base,
-      ...draft,
-      qty: 1,
-    };
-  }
-
-  return next;
-}
-
-/**
- * Apply a full modifier draft (extras, removed ingredients, note) to every
- * unit of a burger line. If a line with the resulting configuration already
- * exists, merges the whole quantity into it.
- * @param {Object} items - Items mapping
- * @param {string} baseKey - Original burger line key
- * @param {Object} draft - { key, extras, removedIngredients, note, meta }
- * @returns {Object} - New items object
- */
-export function updateAllBurgerLine(items, baseKey, draft) {
-  const base = items[baseKey];
-  if (!base || base.qty <= 0) return items;
-
-  const next = { ...items };
-  delete next[baseKey];
-
-  const existing = draft.key !== baseKey ? next[draft.key] : null;
   if (existing) {
-    next[draft.key] = { ...existing, qty: existing.qty + base.qty };
+    next[draft.key] = { ...existing, qty: existing.qty + moving };
   } else {
-    next[draft.key] = {
-      ...base,
-      ...draft,
-      qty: base.qty,
-    };
+    next[draft.key] = { ...base, ...draft, qty: moving };
   }
 
   return next;

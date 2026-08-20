@@ -4,6 +4,7 @@
  */
 
 import styles from "./CartItemCard.module.css";
+import { FRIES_UPGRADE_LABELS } from "../../utils/friesUpgrade";
 
 /**
  * Display removed ingredients list
@@ -32,14 +33,17 @@ export function ExtrasList({ items, joiner = " + " }) {
 }
 
 /**
- * Display papas upgrades
+ * Display papas upgrades — "Papas mejoradas: Cheddar + Bacon".
+ * Va aparte de ExtrasList a proposito: lo que se le suma a las papas incluidas
+ * no es lo mismo que lo que se le suma a la burger.
  */
 export function PapasList({ items, joiner = " + " }) {
   if (!items?.length) return null;
 
   return (
     <div className={styles.metaSmall}>
-      Mejorar papas: {items.map((extra) => extra.name).join(joiner)}
+      {FRIES_UPGRADE_LABELS.cartLine}:{" "}
+      {items.map((extra) => extra.name).join(joiner)}
     </div>
   );
 }

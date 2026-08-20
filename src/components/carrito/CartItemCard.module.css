@@ -287,27 +287,20 @@
   color: rgba(255, 255, 255, 0.40) !important;
 }
 
+/* Boton "Mejorar papas", al lado de "Personalizar burger". Apagado se ve igual
+   que el resto de las acciones del item; encendido toma el amarillo de la marca
+   para que se lea de un vistazo que esa variante lleva las papas mejoradas.
+   La specificity sube con `.actions` porque `.actions button` pisa fondo, color
+   y borde con !important. */
 .papasButton {
-  position: relative;
-  border-color: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.72);
-  background: rgba(255, 255, 255, 0.035);
-  padding-left: 18px;
+  white-space: nowrap;
 }
 
-.papasButton::before {
-  content: "";
-  position: absolute;
-  left: 8px;
-  top: 6px;
-  bottom: 6px;
-  width: 3px;
-  border-radius: 999px;
-  background: rgba(255, 198, 42, 0.25);
-}
-
-.papasButton:hover {
-  border-color: rgba(255, 255, 255, 0.15);
+.actions .papasButtonOn {
+  color: #ffc62a !important;
+  border-color: rgba(255, 198, 42, 0.55) !important;
+  background: rgba(255, 198, 42, 0.12) !important;
+  font-weight: 700;
 }
 
 @media (max-width: 540px) {

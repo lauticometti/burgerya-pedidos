@@ -6,13 +6,13 @@ import { getBurgerPriceInfo } from "../utils/burgerPricing";
 import { getPapasUpgradePrice } from "../utils/papasPricing";
 import { toast } from "../utils/toast";
 import { useStoreStatus } from "../utils/storeClosedMode";
-import { buildBurgerLineKey } from "../utils/cartKeys";
+import { buildBurgerVariantDraft } from "../utils/cartKeys";
+import { createFriesUpgradeEntry } from "../utils/friesUpgrade";
 import {
   mutateItem,
   removeItems,
   removeItemsByPrefix,
-  updateOneBurgerLine,
-  updateAllBurgerLine,
+  updateBurgerLineUnits,
   setPapasUpgrade,
 } from "./cartReducerActions";
 
@@ -21,16 +21,15 @@ function reducer(state, action) {
     case "REMOVE_MANY":
       return { ...state, items: removeItems(state.items, action.keys) };
 
-    case "UPDATE_ONE_BURGER_LINE":
+    case "UPDATE_BURGER_LINE_UNITS":
       return {
         ...state,
-        items: updateOneBurgerLine(state.items, action.baseKey, action.draft),
-      };
-
-    case "UPDATE_ALL_BURGER_LINE":
-      return {
-        ...state,
-        items: updateAllBurgerLine(state.items, action.baseKey, action.draft),
+        items: updateBurgerLineUnits(
+          state.items,
+          action.baseKey,
+          action.draft,
+          action.count,
+        ),
       };
 
     case "SET_PAPAS_UP":
@@ -337,33 +336,39 @@ export function CartProvider({ children }) {
         dispatch({ type: "SET_REMOVED", key, removedIngredients: removed }),
       setPromoPicks: (key, picks) =>
         dispatch({ type: "SET_PROMO_PICKS", key, picks }),
+      // "Personalizar burger": toca agregados / ingredientes quitados /
+      // aclaracion y deja intacta la mejora de papas que ya tenga la variante.
       applyBurgerLineModifiers: (item, scope, modifiers) => {
         const { extras = [], removedIngredients = [], note = "" } = modifiers;
-        const removedIds = removedIngredients.map((ing) => ing.id).filter(Boolean);
-        const extrasIds = extras.map((extra) => extra.id).filter(Boolean);
-        const key = buildBurgerLineKey({
-          burgerId: item.meta?.burgerId,
-          size: item.meta?.size,
-          removedIds,
-          extrasIds,
-          papasIds: item.meta?.papasIds || [],
-          note,
-        });
-        const draft = {
-          key,
+        const draft = buildBurgerVariantDraft(item, {
           extras,
           removedIngredients,
+          papas: item.papas || [],
           note,
-          meta: {
-            ...item.meta,
-            extrasIds,
-            removedIngredientIds: removedIds,
-          },
-        };
+        });
         dispatch({
-          type: scope === "one" ? "UPDATE_ONE_BURGER_LINE" : "UPDATE_ALL_BURGER_LINE",
+          type: "UPDATE_BURGER_LINE_UNITS",
           baseKey: item.key,
           draft,
+          count: scope === "one" ? 1 : item.qty,
+        });
+      },
+
+      // "Mejorar papas": toca SOLO la mejora de las papas incluidas y deja
+      // intacta la personalizacion de la burger. `count` = cuantas unidades de
+      // esa linea pasan a la variante nueva (el resto queda como estaba).
+      setFriesUpgrade: (item, enabled, count) => {
+        const draft = buildBurgerVariantDraft(item, {
+          extras: item.extras || [],
+          removedIngredients: item.removedIngredients || [],
+          papas: enabled ? [createFriesUpgradeEntry()] : [],
+          note: item.note || "",
+        });
+        dispatch({
+          type: "UPDATE_BURGER_LINE_UNITS",
+          baseKey: item.key,
+          draft,
+          count: count ?? item.qty,
         });
       },
     };

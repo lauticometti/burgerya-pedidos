@@ -1,6 +1,7 @@
 import React from "react";
 import CartItemCard from "./CartItemCard";
 import CartUndoBar from "./CartUndoBar";
+import { canUpgradeFries } from "../../utils/friesUpgrade";
 
 function withPromoNote(item, targetIndex, note) {
   return (item.meta?.picks || []).map((pick, pickIndex) =>
@@ -20,6 +21,7 @@ export default function CartGroupsList({
   onRemove,
   onOpenModifyModal,
   onSetPromoPicks,
+  onToggleFriesUpgrade,
   burgersById = {},
   classes,
   giveawayTargetKey = null,
@@ -41,7 +43,8 @@ export default function CartGroupsList({
         <div className={classes.groupItems}>
           {groupItems.map((item, index) => {
             const isPromo = item.meta?.type === "promo";
-            const canImprovePapas = item.meta?.type === "burger";
+            // Solo burgers con papas incluidas: nunca papas sueltas, extras ni dips.
+            const canImprovePapas = canUpgradeFries(item);
             const canAddExtras = item.meta?.type === "burger";
             const burgerConfig = burgersById[item.meta?.burgerId] || null;
 
@@ -77,6 +80,7 @@ export default function CartGroupsList({
                   onOpenPromoPickRemove={(pickIndex) =>
                     onOpenModifyModal?.(item, null, pickIndex)
                   }
+                  onToggleFriesUpgrade={() => onToggleFriesUpgrade?.(item)}
                   canImprovePapas={canImprovePapas}
                   canAddExtras={canAddExtras}
                   removableIngredients={burgerConfig?.removableIngredients || []}
