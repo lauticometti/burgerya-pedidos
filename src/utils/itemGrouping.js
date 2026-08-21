@@ -17,6 +17,11 @@ export const CART_GROUP_ORDER = [
  * @returns {string} - Category key: "promos", "burgers", "papas", "dips", or "bebidas"
  */
 export function getCategory(item) {
+  // NO existe la categoria "combos": un item con meta.type === "combo" cae en el
+  // return "burgers" del final. Por eso la seccion "COMBOS C/ COCA" de
+  // utils/whatsapp.js nunca se imprimio. Hoy es irrelevante porque pages/Combos
+  // tampoco esta ruteada, pero si alguna vez se reactivan los combos hay que
+  // agregar aca: if (item.meta?.type === "combo") return "combos";
   if (item.meta?.type === "promo") return "promos";
   if (item.meta?.type === "cerveza") return "bebidas";
   if (item.meta?.type === "bebida") return "bebidas";

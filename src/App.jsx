@@ -2,7 +2,12 @@ import { Routes, Route } from "react-router-dom";
 import ToastHost from "./components/ToastHost/ToastHost";
 import WhatsAppFab from "./components/ui/WhatsAppFab";
 import Menu from "./pages/Menu/Menu";
-import Promos from "./pages/Promos/Promos";
+// PROMOS DADAS DE BAJA (2026-08-14). La pagina seguia viva: no habia link en la
+// home, pero se llegaba por /envios -> TopNav -> "Promos", o entrando a /promos
+// a mano. Cualquiera con la URL podia pedir una promo a precio de promoPrices.
+// Para reactivar: descomentar este import, la ruta en <Routes> y el link en
+// src/components/TopNav.jsx. El armador (pages/Promos/) queda intacto.
+// import Promos from "./pages/Promos/Promos";
 import Carrito from "./pages/Carrito/Carrito";
 import Papas from "./pages/Papas/Papas";
 import Admin from "./pages/Admin/Admin";
@@ -319,7 +324,9 @@ export default function App() {
       <ToastHost />
       <Routes>
         <Route path="/" element={<Menu />} />
-        <Route path="/promos" element={<Promos />} />
+        {/* PROMOS DADAS DE BAJA (2026-08-14) — ver comentario del import arriba.
+            Sin esta ruta, /promos cae en el 404 y no se puede pedir ninguna promo. */}
+        {/* <Route path="/promos" element={<Promos />} /> */}
         <Route path="/carrito" element={<Carrito />} />
         <Route path="/papas" element={<Papas />} />
         <Route path="/envios" element={<Envios />} />

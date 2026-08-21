@@ -3,7 +3,7 @@ import { getCategory } from "./itemGrouping";
 import { getArgentinaName } from "./argentinaNames";
 import {
   getSizeLabel,
-  formatComboGroup,
+  // formatComboGroup, // sin uso: la seccion COMBOS C/ COCA nunca se imprime
   formatPromoPicks,
   formatItemModifiers,
 } from "./whatsappFormatters";
@@ -53,9 +53,23 @@ export function buildWhatsAppText({
     lines.push("");
   }
 
+  // OJO: una seccion solo sale si getCategory() (utils/itemGrouping.js) devuelve
+  // su key para algun item del carrito. Estado real de cada una:
+  //
+  //   promos  → DADA DE BAJA (2026-08-14). Ya no se pueden agregar promos: la
+  //             ruta /promos y el link del TopNav estan comentados. Se deja el
+  //             render porque el carrito persiste en localStorage
+  //             ("burgerya:cart:v1") y un cliente con carrito viejo todavia
+  //             puede tener una promo adentro.
+  //   combos  → CODIGO MUERTO. getCategory() NUNCA devuelve "combos": los items
+  //             con meta.type === "combo" caen en el default y salen bajo
+  //             BURGERS. Ademas pages/Combos no esta ruteada, o sea que ni
+  //             siquiera se pueden agregar. Este titulo no se imprimio nunca.
+  //             Va comentado para no confundir a quien lea la comanda.
+  //   el resto → vivas y en uso.
   const groupOrder = [
     { key: "promos", title: "PROMOS" },
-    { key: "combos", title: "COMBOS C/ COCA" },
+    // { key: "combos", title: "COMBOS C/ COCA" },
     { key: "burgers", title: "BURGERS" },
     { key: "papas", title: "PAPAS EXTRA" },
     { key: "dips", title: "EXTRAS" },
@@ -72,10 +86,12 @@ export function buildWhatsAppText({
     lines.push(group.title);
     hasGroup = true;
 
-    if (group.key === "combos") {
-      lines.push(...formatComboGroup(groupItems));
-      continue;
-    }
+    // Rama inalcanzable: getCategory() nunca devuelve "combos" (ver groupOrder).
+    // Queda comentada junto con formatComboGroup() en whatsappFormatters.js.
+    // if (group.key === "combos") {
+    //   lines.push(...formatComboGroup(groupItems));
+    //   continue;
+    // }
 
     for (const it of groupItems) {
       if (

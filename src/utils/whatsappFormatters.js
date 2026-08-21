@@ -28,6 +28,11 @@ export function getSizeLabel(item) {
 
 /**
  * Format combo items (groupable by size)
+ *
+ * SIN USO (2026-08-14). Nunca se ejecuto: buildWhatsAppText la llamaba solo para
+ * la categoria "combos", y getCategory() (utils/itemGrouping.js) jamas devuelve
+ * esa key. Su unica llamada quedo comentada en utils/whatsapp.js.
+ * Se conserva por si se reactivan los combos; si no, se puede borrar entera.
  */
 export function formatComboGroup(items) {
   const lines = [];
