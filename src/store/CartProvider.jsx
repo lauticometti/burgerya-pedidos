@@ -7,7 +7,10 @@ import { getPapasUpgradePrice } from "../utils/papasPricing";
 import { toast } from "../utils/toast";
 import { useStoreStatus } from "../utils/storeClosedMode";
 import { buildBurgerVariantDraft } from "../utils/cartKeys";
-import { createFriesUpgradeEntry } from "../utils/friesUpgrade";
+import {
+  createFriesUpgradeEntry,
+  stripDisabledFriesUpgrades,
+} from "../utils/friesUpgrade";
 import {
   mutateItem,
   removeItems,
@@ -194,7 +197,14 @@ function sanitizePersistedItems(items) {
     }
     cleaned[key] = item;
   }
-  return { cleaned, hadRemoved };
+
+  // Mejora de papas dada de baja: se la sacamos a los carritos que quedaron
+  // guardados con ella puesta, para que no se sigan pidiendo esas papas.
+  const stripped = stripDisabledFriesUpgrades(cleaned);
+  return {
+    cleaned: stripped.items,
+    hadRemoved: hadRemoved || stripped.changed,
+  };
 }
 
 function loadPersistedState(initial) {

@@ -10,6 +10,21 @@
  * arma utils/cartKeys.js y por lo tanto en el split, el merge y la comanda.
  */
 
+import { buildBurgerVariantDraft } from "./cartKeys";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INTERRUPTOR — poner en true para volver a ofrecer la mejora.
+//
+// Apagada (false): el boton "Mejorar papas" no se renderiza en ningun item del
+// carrito y no hay forma de agregar la mejora. Ademas, los carritos que quedaron
+// guardados en localStorage con la mejora puesta la pierden al cargar la pagina
+// (ver stripDisabledFriesUpgrades), asi nadie la pide despues de darla de baja.
+//
+// El resto del codigo queda intacto: prender esta flag alcanza para reactivar
+// todo (boton, modal de cantidad, linea del carrito y linea de la comanda).
+// ─────────────────────────────────────────────────────────────────────────────
+export const FRIES_UPGRADE_ENABLED = false;
+
 // ─────────────────────────────────────────────────────────────────────────────
 // PRECIO — cambiar SOLO este numero para que la mejora deje de ser gratis.
 //
@@ -85,11 +100,58 @@ export function burgerIncludesFries(burgerId) {
 }
 
 /**
+ * Saca la mejora de los items que la traigan cuando la mejora esta dada de baja.
+ *
+ * Hace falta porque el carrito vive en localStorage: sin esto, alguien que la
+ * agrego antes de apagar la flag seguiria viendo "Papas mejoradas" y esas papas
+ * seguirian saliendo impresas en la comanda.
+ *
+ * La linea vuelve a su variante normal, lo que implica re-calcular su clave (la
+ * mejora forma parte de la identidad de variante) y fusionarla con la linea
+ * normal equivalente si ya existe, para no dejar dos lineas de lo mismo.
+ *
+ * @param {Object} items - Mapping key -> item tal como sale de localStorage
+ * @returns {{ items: Object, changed: boolean }}
+ */
+export function stripDisabledFriesUpgrades(items) {
+  if (FRIES_UPGRADE_ENABLED) return { items, changed: false };
+
+  const next = {};
+  let changed = false;
+
+  const put = (key, item) => {
+    const existing = next[key];
+    next[key] = existing
+      ? { ...existing, qty: (existing.qty || 0) + (item.qty || 0) }
+      : item;
+  };
+
+  for (const [key, item] of Object.entries(items)) {
+    if (!hasFriesUpgrade(item)) {
+      put(key, item);
+      continue;
+    }
+
+    changed = true;
+    const draft = buildBurgerVariantDraft(item, {
+      extras: item.extras || [],
+      removedIngredients: item.removedIngredients || [],
+      papas: (item.papas || []).filter((entry) => !isFriesUpgradeEntry(entry)),
+      note: item.note || "",
+    });
+    put(draft.key, { ...item, ...draft });
+  }
+
+  return { items: next, changed };
+}
+
+/**
  * ¿Se le puede ofrecer "Mejorar papas" a este item del carrito?
  * Solo burgers con papas incluidas, editables y que no sean parte de un combo
  * bloqueado ni una promo con picks (esas lineas no se pueden splitear).
  */
 export function canUpgradeFries(item) {
+  if (!FRIES_UPGRADE_ENABLED) return false;
   if (!item) return false;
   if (item.meta?.type !== "burger") return false;
   if (item.meta?.locked) return false;
