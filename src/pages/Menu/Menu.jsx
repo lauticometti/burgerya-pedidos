@@ -638,7 +638,7 @@ export default function Menu() {
                     <img
                       src={resolvePublicPath(item.img)}
                       alt={item.name}
-                      className={`${styles.bebidaImg}${["coca_225", "coca_175"].includes(item.id) ? ` ${styles.bebidaLarge}` : ""}`}
+                      className={`${styles.bebidaImg}${["coca_175", "coca_zero_175"].includes(item.id) ? ` ${styles.bebidaLarge}` : ""}`}
                     />
                   </div>
                 )}
