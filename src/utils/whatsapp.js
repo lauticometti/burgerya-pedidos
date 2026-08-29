@@ -120,6 +120,10 @@ export function buildWhatsAppText({
             .join(" + ");
           lines.push(`  Cocina: ${kitchenLine}`);
         }
+      } else if (it.meta?.isCokePromo) {
+        // Coca de promo: mostrar el label especial con todo en mayúsculas
+        const promoLabel = it.meta?.cokePromoLabel || it.name;
+        lines.push(`${it.qty} ${promoLabel}`);
       } else {
         const sizeLabel = it.meta?.burgerId === "cheese_promo" ? null : getSizeLabel(it);
         const sizeSuffix = sizeLabel ? ` ${sizeLabel}` : "";

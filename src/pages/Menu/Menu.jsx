@@ -28,8 +28,13 @@ import BurgerDelDia from "../Burgers/BurgerDelDia";
 import BurgerModal from "../Burgers/BurgerModal";
 import BurgerNotice from "../../components/burgers/BurgerNotice";
 import PapasOptionModal from "../../components/papas/PapasOptionModal";
+import CokePromoModal from "../../components/carrito/CokePromoModal";
+import CokePromoChoiceModal from "../../components/carrito/CokePromoChoiceModal";
+import useCokePromoModal from "../Carrito/useCokePromoModal";
+import useCokePromoChoice from "../Carrito/useCokePromoChoice";
 import SectionNav from "./SectionNav";
 import { MATCH_DAY_CAMPAIGN } from "../../utils/dailyFeaturePromo";
+import { isCokePromoAvailable } from "../../utils/cokePromo";
 import styles from "./Menu.module.css";
 
 // TEMP ARGENTINA MATCH DAY: chip temático por sección. Quitar (o MATCH_DAY_CAMPAIGN=false) para revertir.
@@ -84,6 +89,8 @@ export default function Menu() {
     dailyFeatureEyebrow,
   } = useStoreStatus();
   const { canAddItem, showUnavailableError } = useListingPageActions();
+  const cokePromo = useCokePromoModal();
+  const cokePromoChoice = useCokePromoChoice();
 
   // Burger modal state
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -246,6 +253,17 @@ export default function Menu() {
       notifyUnavailableBurger(burger, getUnavailableReason(burger));
       return;
     }
+
+    // Detectar si es una triple con promo activa - todas llevan Coca
+    if (size === "triple" && isCokePromoAvailable()) {
+      const price = getBurgerPriceInfo(burger, size);
+      const cartItem = buildBurgerCartItem(burger, size, price, removedIngredients, extras, papas);
+
+      // Abrir modal para elegir Coca (Original o Zero)
+      cokePromo.openCokeModal(cartItem);
+      return;
+    }
+
     const price = getBurgerPriceInfo(burger, size);
     const cartItem = buildBurgerCartItem(burger, size, price, removedIngredients, extras, papas);
     cart.add(cartItem);
@@ -335,6 +353,15 @@ export default function Menu() {
           </div>
         ) : null}
 
+        {/* Promo: Todas las triples con Coca gratis */}
+        {isCokePromoAvailable() ? (
+          <div className={styles.cokePromoRibbon}>
+            <div className={styles.cokePromoRibbonTitle}>TRIPLES + COCA 600 ML DE REGALO</div>
+            <div className={styles.cokePromoRibbonSub}>Elegí Coca o Coca Zero · Hasta agotar stock</div>
+            <div className={styles.cokePromoRibbonNote}>No acumulable con la Burger del día</div>
+          </div>
+        ) : null}
+
         <div className={styles.sectionHead}>
           <h2 className={styles.sectionTitle}>
             Burgers
@@ -412,30 +439,34 @@ export default function Menu() {
                     ]
                       .filter(({ info }) => typeof info.basePrice === "number" && info.basePrice > 0)
                       .map(({ size, label, info }) => (
-                        <button
-                          key={size}
-                          type="button"
-                          className={styles.priceBtn}
-                          disabled={isUnavailable}
-                          aria-label={`Agregar ${burger.name} ${label} por ${formatMoney(info.finalPrice)}`}
-                          onClick={(evt) => {
-                            evt.stopPropagation();
-                            if (isUnavailable) {
-                              notifyUnavailableBurger(burger, unavailableReason);
-                              return;
-                            }
-                            addBurgerToCart(burger, size, {}, { skipScroll: true });
-                          }}>
-                          <span className={styles.priceBtnLabel}>{label}</span>
-                          {info.hasDiscount ? (
-                            <span className={styles.priceBtnOriginal}>
-                              {formatMoney(info.basePrice)}
+                        <div key={size} className={styles.priceBtnWrap}>
+                          <button
+                            type="button"
+                            className={styles.priceBtn}
+                            disabled={isUnavailable}
+                            aria-label={`Agregar ${burger.name} ${label} por ${formatMoney(info.finalPrice)}`}
+                            onClick={(evt) => {
+                              evt.stopPropagation();
+                              if (isUnavailable) {
+                                notifyUnavailableBurger(burger, unavailableReason);
+                                return;
+                              }
+                              addBurgerToCart(burger, size, {}, { skipScroll: true });
+                            }}>
+                            <span className={styles.priceBtnLabel}>{label}</span>
+                            {info.hasDiscount ? (
+                              <span className={styles.priceBtnOriginal}>
+                                {formatMoney(info.basePrice)}
+                              </span>
+                            ) : null}
+                            <span className={styles.priceBtnValue}>
+                              {formatMoney(info.finalPrice)}
                             </span>
+                          </button>
+                          {size === "triple" && isCokePromoAvailable() ? (
+                            <div className={styles.cokePromoLabel}>+Coquita</div>
                           ) : null}
-                          <span className={styles.priceBtnValue}>
-                            {formatMoney(info.finalPrice)}
-                          </span>
-                        </button>
+                        </div>
                       ))}
                   </div>
                   {isUnavailable ? (
@@ -709,6 +740,34 @@ export default function Menu() {
         onSelect={setSelectedOptionId}
         onClose={closePapasModal}
         onConfirm={addSelectedPapas}
+      />
+
+      <CokePromoModal
+        open={cokePromo.modalOpen}
+        selectedVariety={cokePromo.selectedVariety}
+        onSelectVariety={cokePromo.selectVariety}
+        onConfirm={() => {
+          cokePromo.confirmAndAdd(cart);
+          toast.added("Triple + Coca gratis agregados");
+        }}
+        onClose={cokePromo.cancel}
+      />
+
+      <CokePromoChoiceModal
+        open={cokePromoChoice.modalOpen}
+        dailyPriceTriple={cokePromoChoice.priceInfo.daily}
+        normalPriceTriple={cokePromoChoice.priceInfo.normal}
+        selectedVariety={cokePromoChoice.selectedVariety}
+        onSelectVariety={cokePromoChoice.selectVariety}
+        onChooseDiscounted={() => {
+          cokePromoChoice.chooseDiscountedPrice(cart);
+          toast.added("Triple agregado");
+        }}
+        onChooseNormalWithCoke={() => {
+          cokePromoChoice.chooseNormalPriceWithCoke(cart, cokePromoChoice.priceInfo.normal);
+          toast.added("Triple + Coca gratis agregados");
+        }}
+        onClose={cokePromoChoice.cancel}
       />
 
       <FloatingCartPill

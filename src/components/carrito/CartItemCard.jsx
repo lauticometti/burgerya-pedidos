@@ -36,8 +36,21 @@ export default function CartItemCard({
   const allowPromoQty = item.meta?.allowQty;
   const locked = item.meta?.locked;
   const isGift = Boolean(item.meta?.promoGiftId);
-  const showQtyControls = !locked && (!isPromo || allowPromoQty);
+  const isCokePromo = Boolean(item.meta?.isCokePromo);
+  const showQtyControls = !locked && (!isPromo || allowPromoQty) && !isCokePromo;
   const friesUpgraded = hasFriesUpgrade(item);
+
+  // Diferenciación de nombre para Cocas de promo con cantidad
+  let displayNameOverride = null;
+  if (isCokePromo) {
+    const qty = item.qty || 1;
+    const qtyPrefix = qty > 1 ? `${qty} × ` : "";
+    if (item.key.includes("coca_zero")) {
+      displayNameOverride = `${qtyPrefix}Coca Zero 600 ml`;
+    } else if (item.key.includes("coca_600")) {
+      displayNameOverride = `${qtyPrefix}Coca 600 ml`;
+    }
+  }
   const papasContext = { size: item.meta?.size, itemType: item.meta?.type };
   const extrasTotal = (item.extras || []).reduce(
     (sum, extra) => sum + extra.price,
@@ -74,8 +87,8 @@ export default function CartItemCard({
           : null;
   const description = item.meta?.description;
   const removedIngredients = item.removedIngredients || [];
-  const showRemoveButton = !locked;
-  const displayName = isGift ? "Papas extra incluidas" : item.name;
+  const showRemoveButton = !locked && !isCokePromo;
+  const displayName = displayNameOverride || (isCokePromo ? "Coca gratis (promo)" : isGift ? "Papas extra incluidas" : item.name);
   const isBurger = item.meta?.type === "burger";
   const modifyButtonLabel = isBurger ? "Personalizar burger" : "Modificar ingredientes";
   const showModifyButton = canAddExtras || (!isPromo && removableIngredients.length > 0);
@@ -109,7 +122,9 @@ export default function CartItemCard({
                 suffix={
                   <>
                     {!isPromo && sizeLabel && burgerSizes > 1 ? ` ${sizeLabel}` : ""}
-                    {locked ? (
+                    {isCokePromo ? (
+                      <span className={styles.cokePromoTag}>REGALO</span>
+                    ) : locked ? (
                       <span className={styles.lockedTag}>{isGift ? "REGALO" : "BONIFICADO"}</span>
                     ) : null}
                     {hasGiveawayBenefit ? (

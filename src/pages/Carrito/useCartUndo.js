@@ -1,4 +1,5 @@
 import React from "react";
+import { incrementCokePromoStock } from "../../utils/cokePromo";
 
 export default function useCartUndo(cart) {
   const [undoItem, setUndoItem] = React.useState(null);
@@ -18,6 +19,24 @@ export default function useCartUndo(cart) {
 
   const handleRemove = React.useCallback(
     (item, groupKey, index) => {
+      // Si se elimina una Coca de promo, restaurar el stock
+      if (item.meta?.isCokePromo) {
+        const varietyId = item.key.replace("bebida:", "");
+        incrementCokePromoStock(varietyId);
+      }
+
+      // Si se elimina una triple, eliminar también sus Cocas de promo asociadas
+      if (item.meta?.type === "burger" && item.meta?.size === "triple") {
+        const linkedCokes = cart.items.filter(
+          (i) => i.meta?.linkedTripleKey === item.key && i.meta?.isCokePromo
+        );
+        linkedCokes.forEach((coke) => {
+          const varietyId = coke.key.replace("bebida:", "");
+          incrementCokePromoStock(varietyId);
+          cart.remove(coke.key);
+        });
+      }
+
       cart.remove(item.key);
       clearUndoTimer();
 

@@ -1,0 +1,125 @@
+.varietiesList {
+  display: grid;
+  gap: 10px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 198, 42, 0.7) rgba(255, 255, 255, 0.08);
+}
+
+.varietiesList::-webkit-scrollbar {
+  width: 8px;
+}
+
+.varietiesList::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+}
+
+.varietiesList::-webkit-scrollbar-thumb {
+  background: rgba(255, 198, 42, 0.65);
+  border-radius: 999px;
+  border: 2px solid #0f0f10;
+}
+
+.varietiesList::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 198, 42, 0.85);
+}
+
+.varietyOption {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  position: relative;
+  background: rgba(255, 255, 255, 0.04);
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    transform 0.08s ease;
+  text-align: left;
+  appearance: none;
+  font-family: inherit;
+  color: inherit;
+}
+
+.varietyOption:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 198, 42, 0.3);
+}
+
+.varietyOption:focus-visible {
+  outline: 2px solid rgba(255, 220, 60, 0.5);
+  outline-offset: 2px;
+}
+
+.varietyOptionSelected {
+  background: rgba(255, 198, 42, 0.15);
+  border-color: rgba(255, 198, 42, 0.5);
+}
+
+.varietyOptionSelected:hover {
+  background: rgba(255, 198, 42, 0.2);
+  border-color: rgba(255, 198, 42, 0.6);
+}
+
+.varietyOptionDisabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: rgba(255, 213, 120, 0.08);
+  border-color: rgba(255, 213, 120, 0.25);
+}
+
+.varietyOptionDisabled:hover {
+  background: rgba(255, 213, 120, 0.08);
+  border-color: rgba(255, 213, 120, 0.25);
+}
+
+.varietyImg {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.varietyImg img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.varietyInfo {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.varietyName {
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.varietyAgotada {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #ffd77a;
+}
+
+.varietyCheckmark {
+  color: rgba(255, 198, 42, 0.8);
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
