@@ -358,7 +358,6 @@ export default function Menu() {
           <div className={styles.cokePromoRibbon}>
             <div className={styles.cokePromoRibbonTitle}>TRIPLES + COCA 600 ML DE REGALO</div>
             <div className={styles.cokePromoRibbonSub}>Elegí Coca o Coca Zero · Hasta agotar stock</div>
-            <div className={styles.cokePromoRibbonNote}>No acumulable con la Burger del día</div>
           </div>
         ) : null}
 
