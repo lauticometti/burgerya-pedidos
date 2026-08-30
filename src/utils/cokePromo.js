@@ -18,7 +18,7 @@
  * Interruptor: poner en true para activar la promo.
  * Poner en false para desactivarla completamente.
  */
-export const COKE_PROMO_ENABLED = true;
+export const COKE_PROMO_ENABLED = false;
 
 /**
  * Hora de inicio: 19:30 hora de Buenos Aires.
