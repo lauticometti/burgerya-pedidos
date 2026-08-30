@@ -75,9 +75,9 @@ export function isCokePromoEnabled() {
 /**
  * ¿Hay stock disponible de al menos una variedad?
  * Si ambas están en 0, la promo no se ofrece.
+ * Función independiente sin check de COKE_PROMO_ENABLED.
  */
 export function hasCokePromoStock() {
-  if (!isCokePromoEnabled()) return false;
   const totalStock = Object.values(COKE_PROMO_STOCK).reduce((sum, qty) => sum + qty, 0);
   return totalStock > 0;
 }
@@ -85,9 +85,9 @@ export function hasCokePromoStock() {
 /**
  * ¿Hay stock disponible de una variedad específica?
  * @param {string} varietyId - "coca_600" o "coca_zero_600"
+ * Función independiente sin check de COKE_PROMO_ENABLED.
  */
 export function hasCokePromoVarietyStock(varietyId) {
-  if (!isCokePromoEnabled()) return false;
   return COKE_PROMO_STOCK[varietyId] > 0;
 }
 
