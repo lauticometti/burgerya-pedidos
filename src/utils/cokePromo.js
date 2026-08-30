@@ -158,12 +158,10 @@ export function incrementCokePromoStock(varietyId) {
 }
 
 /**
- * ¿La hora actual (Argentina) ya pasó el horario de inicio de la promo?
- * Chequea si es >= 19:30 (o la hora configurada en COKE_PROMO_START_TIME).
+ * ¿Ya pasó el horario de inicio (19:30 Argentina)?
+ * Función de tiempo independiente, sin checks de COKE_PROMO_ENABLED.
  */
-export function isCokePromoTimeActive() {
-  if (!isCokePromoEnabled()) return false;
-
+function isPromoTimeWindow() {
   const now = new Date();
   const formatter = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/Argentina/Buenos_Aires",
@@ -180,6 +178,15 @@ export function isCokePromoTimeActive() {
   const startMinutes = startHour * 60 + startMinute;
 
   return currentMinutes >= startMinutes;
+}
+
+/**
+ * ¿La hora actual (Argentina) ya pasó el horario de inicio de la promo?
+ * Chequea si es >= 19:30 (o la hora configurada en COKE_PROMO_START_TIME).
+ */
+export function isCokePromoTimeActive() {
+  if (!isCokePromoEnabled()) return false;
+  return isPromoTimeWindow();
 }
 
 /**
@@ -201,7 +208,7 @@ export const LAUTIBOOM_TRIPLE_PROMO_ENABLED = true;
  */
 export function isLautiboomboomPromoActive() {
   if (!LAUTIBOOM_TRIPLE_PROMO_ENABLED) return false;
-  if (!isCokePromoTimeActive()) return false;
+  if (!isPromoTimeWindow()) return false;
 
   const now = new Date();
   const today = now.getDay();
