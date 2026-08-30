@@ -188,3 +188,39 @@ export function isCokePromoTimeActive() {
 export function isCokePromoAvailable() {
   return isCokePromoEnabled() && isCokePromoTimeActive() && hasCokePromoStock();
 }
+
+/**
+ * PROMO LAUTIBOOM TRIPLE (solo hoy domingo)
+ * Usa el mismo mecanismo de Coca gratis pero solo para lautiboom cuando es burger del día.
+ */
+export const LAUTIBOOM_TRIPLE_PROMO_ENABLED = true;
+
+/**
+ * ¿La promo de lautiboom triple está activa?
+ * Solo hoy (domingo) y en horario de promo (19:30+)
+ */
+export function isLautiboomboomPromoActive() {
+  if (!LAUTIBOOM_TRIPLE_PROMO_ENABLED) return false;
+  if (!isCokePromoTimeActive()) return false;
+
+  const now = new Date();
+  const today = now.getDay();
+  const isSunday = today === 0;
+
+  return isSunday;
+}
+
+/**
+ * ¿Se puede ofrecer la promo de lautiboom a este item?
+ * Solo para "lautiboom" tamaño "triple" en domingo.
+ */
+export function canOfferLautiboomboomPromo(item, burgerId) {
+  if (!isLautiboomboomPromoActive()) return false;
+  if (!hasCokePromoStock()) return false;
+  if (!item) return false;
+  if (item.meta?.type !== "burger") return false;
+  if (item.meta?.size !== "triple") return false;
+  if (item.meta?.locked) return false;
+  if (burgerId !== "lautiboom") return false;
+  return true;
+}

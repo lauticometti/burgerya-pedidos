@@ -34,7 +34,7 @@ import useCokePromoModal from "../Carrito/useCokePromoModal";
 import useCokePromoChoice from "../Carrito/useCokePromoChoice";
 import SectionNav from "./SectionNav";
 import { MATCH_DAY_CAMPAIGN } from "../../utils/dailyFeaturePromo";
-import { isCokePromoAvailable } from "../../utils/cokePromo";
+import { isCokePromoAvailable, canOfferLautiboomboomPromo } from "../../utils/cokePromo";
 import styles from "./Menu.module.css";
 
 // TEMP ARGENTINA MATCH DAY: chip temático por sección. Quitar (o MATCH_DAY_CAMPAIGN=false) para revertir.
@@ -254,18 +254,21 @@ export default function Menu() {
       return;
     }
 
-    // Detectar si es una triple con promo activa - todas llevan Coca
-    if (size === "triple" && isCokePromoAvailable()) {
-      const price = getBurgerPriceInfo(burger, size);
-      const cartItem = buildBurgerCartItem(burger, size, price, removedIngredients, extras, papas);
+    const price = getBurgerPriceInfo(burger, size);
+    const cartItem = buildBurgerCartItem(burger, size, price, removedIngredients, extras, papas);
 
-      // Abrir modal para elegir Coca (Original o Zero)
+    // Detectar si es lautiboom triple con promo activa (solo hoy domingo)
+    if (canOfferLautiboomboomPromo(cartItem, burger.id)) {
       cokePromo.openCokeModal(cartItem);
       return;
     }
 
-    const price = getBurgerPriceInfo(burger, size);
-    const cartItem = buildBurgerCartItem(burger, size, price, removedIngredients, extras, papas);
+    // Detectar si es una triple con promo activa - todas llevan Coca
+    if (size === "triple" && isCokePromoAvailable()) {
+      cokePromo.openCokeModal(cartItem);
+      return;
+    }
+
     cart.add(cartItem);
     const hasCustomizations = removedIngredients.length > 0 || extras.length > 0 || papas.length > 0;
     toast.added(buildBurgerAddedToastText(burger.name, size, burger.id), {
