@@ -147,7 +147,7 @@ export const extras = [
     id: "cebolla_caram",
     name: "Cebolla caramelizada",
     price: 500,
-    isAvailable: 0,
+    isAvailable: 1,
   },
   { id: "pepinos", name: "Pepinos", price: 500, isAvailable: 1 },
   { id: "lechuga", name: "Lechuga", price: 500, isAvailable: 1 },

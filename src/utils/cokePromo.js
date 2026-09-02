@@ -200,7 +200,7 @@ export function isCokePromoAvailable() {
  * PROMO LAUTIBOOM TRIPLE (solo hoy domingo)
  * Usa el mismo mecanismo de Coca gratis pero solo para lautiboom cuando es burger del día.
  */
-export const LAUTIBOOM_TRIPLE_PROMO_ENABLED = true;
+export const LAUTIBOOM_TRIPLE_PROMO_ENABLED = false;
 
 /**
  * ¿La promo de lautiboom triple está activa?
