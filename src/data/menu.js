@@ -150,7 +150,7 @@ export const extras = [
     isAvailable: 1,
   },
   { id: "pepinos", name: "Pepinos", price: 500, isAvailable: 1 },
-  { id: "lechuga", name: "Lechuga", price: 500, isAvailable: 1 },
+  { id: "lechuga", name: "Lechuga", price: 500, isAvailable: 0 },
   { id: "tomate", name: "Tomate", price: 500, isAvailable: 1 },
   { id: "cebolla", name: "Cebolla", price: 500, isAvailable: 1 },
   { id: "salsa_mil_islas", name: "Mil Islas", price: 500, isAvailable: 1 },
