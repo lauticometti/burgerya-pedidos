@@ -9,6 +9,7 @@ import FloatingCartPill from "../../components/cart/FloatingCartPill";
 import { useCart } from "../../store/useCart";
 import { resolvePublicPath } from "../../utils/assetPath";
 import {
+  getEffectiveNotice,
   getUnavailableReason,
   isItemUnavailable,
 } from "../../utils/availability";
@@ -432,8 +433,8 @@ export default function Menu() {
                     className={styles.burgerName}
                     name={burger.shortName || burger.name}
                   />
-                  {burger.notice ? (
-                    <BurgerNotice notice={burger.notice} className={styles.burgerNotice} />
+                  {getEffectiveNotice(burger) ? (
+                    <BurgerNotice notice={getEffectiveNotice(burger)} className={styles.burgerNotice} />
                   ) : null}
                   {burger.desc ? (
                     <p className={styles.burgerDesc}>{burger.desc}</p>

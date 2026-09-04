@@ -6,6 +6,7 @@ import { ItemModifiersDisplay } from "./ItemModifiersList";
 import BurgerNotice from "../burgers/BurgerNotice";
 import ProductName from "../ui/ProductName";
 import styles from "./CartItemCard.module.css";
+import { getEffectiveNotice } from "../../utils/availability";
 import { formatMoney } from "../../utils/formatMoney";
 import { formatPickNames } from "../../utils/formatPicks";
 import { getPapasUpgradePrice } from "../../utils/papasPricing";
@@ -134,8 +135,8 @@ export default function CartItemCard({
                 }
               />
             </div>
-            {burger?.notice ? (
-              <BurgerNotice notice={burger.notice} className={styles.itemNotice} />
+            {getEffectiveNotice(burger) ? (
+              <BurgerNotice notice={getEffectiveNotice(burger)} className={styles.itemNotice} />
             ) : null}
             {picksText ? (
               <div className={styles.meta}>- {picksText}</div>

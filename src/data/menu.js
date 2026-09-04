@@ -53,6 +53,8 @@ export const burgers = [
     prices: { simple: 12000, doble: 15500, triple: 19000 },
     desc: "Lechuga · Tomate · Cebolla · Pepinos · Salsa especial",
     notice: "Sin lechuga",
+    noticeSince: "2026-09-03",
+    noticeShift: "noche",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
       { id: "pickles", label: "Pepinos agridulces" },
