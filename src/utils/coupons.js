@@ -25,6 +25,7 @@ export const COUPON_CODES = {
   matiAmerican: "MATI.AMERICAN",
   cheese10Lucas: "CHEESE10LUCAS",
   miercoles16: "MIERCOLES16",
+  jueves17: "JUEVES17",
 };
 
 // Variantes toleradas para que los clientes puedan escribir "combo ya" con espacios o guiones.
@@ -35,6 +36,7 @@ const WEEKEND_COUPON_EXPIRY_TS = new Date(2026, 2, 22, 0, 1, 0).getTime(); // do
 const PRODE_COUPON_EXPIRY_TS = new Date(2026, 6, 17, 0, 1, 0).getTime(); // viernes 17/07/2026 00:01 (BA) -> vence jueves 16/7
 const MATI_AMERICAN_COUPON_EXPIRY_TS = new Date(2026, 7, 7, 21, 0, 0).getTime(); // viernes 07/08/2026 21:00 (BA)
 const MIERCOLES16_COUPON_EXPIRY_TS = new Date(2026, 8, 17, 0, 0, 0).getTime(); // jueves 17/09/2026 00:00 (BA) -> vence miércoles 16/9 a las 00hs
+const JUEVES17_COUPON_EXPIRY_TS = new Date(2026, 8, 18, 0, 0, 0).getTime(); // viernes 18/09/2026 00:00 (BA) -> vence jueves 17/9 a las 00hs
 const COMBO_TARGETS = { simple: 12990, doble: 15990 };
 const CHEESE_10_LUCAS_TARGET = 10000;
 
@@ -148,15 +150,27 @@ function isMiercoles16CouponActive(nowTs = Date.now()) {
   return nowTs < MIERCOLES16_COUPON_EXPIRY_TS;
 }
 
+function isJueves17CouponActive(nowTs = Date.now()) {
+  return nowTs < JUEVES17_COUPON_EXPIRY_TS;
+}
+
 function hasBurger(cartItems = []) {
   return cartItems.some((it) => it.meta?.type === "burger");
 }
 
 // burgerId null/undefined = aplica a cualquier burger, no a una en particular.
-function computeBurgerPercentDiscount(cartItems = [], burgerId, percent) {
+// excludeBurgerIds: ids que quedan afuera aunque matcheen burgerId (o "cualquiera").
+function computeBurgerPercentDiscount(
+  cartItems = [],
+  burgerId,
+  percent,
+  excludeBurgerIds = [],
+) {
   return cartItems.reduce((sum, it) => {
     if (it.meta?.type !== "burger") return sum;
-    if (burgerId && (it.meta?.burgerId || "").toLowerCase() !== burgerId) return sum;
+    const itemBurgerId = (it.meta?.burgerId || "").toLowerCase();
+    if (burgerId && itemBurgerId !== burgerId) return sum;
+    if (excludeBurgerIds.includes(itemBurgerId)) return sum;
 
     const papasContext = { size: it.meta?.size, itemType: it.meta?.type };
     const extrasTotal = (it.extras || []).reduce(
@@ -356,6 +370,29 @@ if (normalized === COUPON_CODES.weekend20) {
       appliedCode: COUPON_CODES.miercoles16,
       discount,
       message: `${COUPON_CODES.miercoles16} aplicado: 15% off en todas las burgers hasta hoy 00:00 (BA)`,
+    };
+  }
+
+  if (normalized === COUPON_CODES.jueves17) {
+    if (!isJueves17CouponActive(nowTs)) {
+      return {
+        error: `${COUPON_CODES.jueves17} venció: era 10% off en burgers (menos Smoklahoma) hasta el jueves 17/9 00:00 (BA)`,
+        discount: 0,
+      };
+    }
+    const discount = computeBurgerPercentDiscount(cartItems, null, 0.1, [
+      "smoklahoma",
+    ]);
+    if (discount <= 0) {
+      return {
+        error: `${COUPON_CODES.jueves17} es 10% off en burgers (menos Smoklahoma): agregá una burger al carrito`,
+        discount: 0,
+      };
+    }
+    return {
+      appliedCode: COUPON_CODES.jueves17,
+      discount,
+      message: `${COUPON_CODES.jueves17} aplicado: 10% off en burgers (no aplica a Smoklahoma) hasta hoy 00:00 (BA)`,
     };
   }
 
