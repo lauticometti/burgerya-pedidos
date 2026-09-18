@@ -8,6 +8,7 @@ import ProductName from "../../components/ui/ProductName";
 import useEscapeToClose from "../../hooks/useEscapeToClose";
 import { extras, papas } from "../../data/menu";
 import { resolvePublicPath } from "../../utils/assetPath";
+import { getEffectiveNotice } from "../../utils/availability";
 import { getBurgerPriceInfo } from "../../utils/burgerPricing";
 import { formatMoney } from "../../utils/formatMoney";
 import { buildPapasMejoras } from "../../utils/papasUpgradeOptions";
@@ -188,8 +189,8 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
               </span>
             </div>
 
-            {burger.notice ? (
-              <BurgerNotice notice={burger.notice} className={styles.notice} />
+            {getEffectiveNotice(burger) ? (
+              <BurgerNotice notice={getEffectiveNotice(burger)} className={styles.notice} />
             ) : null}
 
             {!isTitanica && burger.id !== "cheese_promo" ? (

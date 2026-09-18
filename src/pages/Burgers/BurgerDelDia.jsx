@@ -4,6 +4,7 @@ import { formatMoney } from "../../utils/formatMoney";
 import { resolvePublicPath } from "../../utils/assetPath";
 import BurgerNotice from "../../components/burgers/BurgerNotice";
 import ProductName from "../../components/ui/ProductName";
+import { getEffectiveNotice } from "../../utils/availability";
 import { MATCH_DAY_CAMPAIGN } from "../../utils/dailyFeaturePromo";
 import { getArgentinaTimeParts } from "../../utils/storeClosedMode";
 import styles from "./BurgerDelDia.module.css";
@@ -110,7 +111,9 @@ export default function BurgerDelDia({ burger, weekdayLabel, eyebrow, onOpen, on
           {MATCH_DAY_CAMPAIGN ? null : (
             <ProductName as="h2" className={styles.name} name={burger.name} />
           )}
-          {burger.notice ? <BurgerNotice notice={burger.notice} /> : null}
+          {getEffectiveNotice(burger) ? (
+            <BurgerNotice notice={getEffectiveNotice(burger)} />
+          ) : null}
           {burger.desc ? <p className={styles.desc}>{burger.desc}</p> : null}
           {isFriendsDay ? (
             <p className={styles.friendsDayNote}>Hoy la excusa es juntarse.</p>
