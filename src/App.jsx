@@ -12,7 +12,12 @@ import Carrito from "./pages/Carrito/Carrito";
 import Papas from "./pages/Papas/Papas";
 import Admin from "./pages/Admin/Admin";
 import Envios from "./pages/Envios/Envios";
-import CheeseburgerDayHoldingPage from "./pages/CheeseburgerDayHolding/CheeseburgerDayHoldingPage";
+import CheeseburgerDay from "./pages/CheeseburgerDay/CheeseburgerDay";
+import { getArgentinaTimeParts } from "./utils/storeClosedMode";
+import {
+  CHEESEBURGER_DAY_ENABLED,
+  CHEESEBURGER_DAY_DATE,
+} from "./pages/CheeseburgerDay/cheeseburgerDayConfig";
 
 // Para reactivar el sitio: cambiar MAINTENANCE_MODE a false
 const MAINTENANCE_MODE = false;
@@ -23,10 +28,6 @@ const EVENT_MODE_ACTIVE = false;
 // Pantalla de agradecimiento post Final (no es "mantenimiento"): tapa toda
 // la web con un mensaje simple. Para reactivarla: ARGENTINA_TAKEOVER_MODE = true.
 const ARGENTINA_TAKEOVER_MODE = false;
-
-// Holding page de Cheeseburger Day — para desactivar: cambiar a false
-// Esta página tapa TODO EXCEPTO /dbadmin. Para volver al sitio normal: CHEESEBURGER_DAY_HOLDING_MODE = false
-const CHEESEBURGER_DAY_HOLDING_MODE = true;
 
 function EventPage() {
   const block = {
@@ -324,19 +325,27 @@ export default function App() {
   if (MAINTENANCE_MODE) return <MaintenancePage />;
   if (EVENT_MODE_ACTIVE) return <EventPage />;
 
+  // Cheeseburger Day: se activa SOLO si el flag está prendido Y la fecha de
+  // hoy (America/Argentina/Buenos_Aires) coincide. Así, aunque nos olvidemos
+  // de apagar el flag mañana, el menú normal vuelve solo.
+  // Para desactivar ya mismo: CHEESEBURGER_DAY_ENABLED = false en
+  // pages/CheeseburgerDay/cheeseburgerDayConfig.js.
+  const isCheeseburgerDayActive =
+    CHEESEBURGER_DAY_ENABLED &&
+    getArgentinaTimeParts().dateKey === CHEESEBURGER_DAY_DATE;
+
   return (
     <>
       <ToastHost />
       <Routes>
-        {/* /dbadmin siempre disponible (incluso en holding mode) */}
+        {/* /dbadmin siempre disponible, incluso durante el evento */}
         <Route path="/dbadmin" element={<Admin />} />
 
-        {/* Cheeseburger Day holding mode tapa todo EXCEPTO /dbadmin */}
-        {CHEESEBURGER_DAY_HOLDING_MODE ? (
-          <Route path="*" element={<CheeseburgerDayHoldingPage />} />
+        {isCheeseburgerDayActive ? (
+          <Route path="*" element={<CheeseburgerDay />} />
         ) : (
           <>
-            {/* Rutas normales (solo si no estamos en cheeseburger day holding) */}
+            {/* Rutas normales (solo si no estamos en Cheeseburger Day) */}
             <Route path="/" element={<Menu />} />
             {/* PROMOS DADAS DE BAJA (2026-08-14) — ver comentario del import arriba.
                 Sin esta ruta, /promos cae en el 404 y no se puede pedir ninguna promo. */}
@@ -347,7 +356,7 @@ export default function App() {
           </>
         )}
       </Routes>
-      {!CHEESEBURGER_DAY_HOLDING_MODE && <WhatsAppFab />}
+      {!isCheeseburgerDayActive && <WhatsAppFab />}
     </>
   );
 }
