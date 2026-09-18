@@ -14,9 +14,16 @@ import styles from "./CheeseburgerDay.module.css";
 
 const dip = dips.find((d) => d.id === CHEESEBURGER_DAY_DIP_ID) || null;
 // Papas extra: porciones adicionales por fuera de las papas ya incluidas en
-// el combo. Se reutilizan tal cual desde menu.js (id/nombre/precio/
-// disponibilidad) — las papas del combo nunca pasan por esta lista.
-const papasExtraOptions = papas.filter((p) => p.isAvailable);
+// el combo. Se reutilizan id/precio/disponibilidad tal cual desde menu.js
+// — las papas del combo nunca pasan por esta lista. Solo el nombre de
+// "porcion_grande_solas" se muestra distinto en este evento (sin tocar el
+// nombre real en menu.js, que se sigue usando en el resto del sitio).
+const PAPAS_EXTRA_DISPLAY_NAME = {
+  porcion_grande_solas: "Porción grande de papas extra",
+};
+const papasExtraOptions = papas
+  .filter((p) => p.isAvailable)
+  .map((p) => ({ ...p, name: PAPAS_EXTRA_DISPLAY_NAME[p.id] || p.name }));
 
 // El evento no ofrece pre-pedido para "mas tarde": todo pedido es Ahora.
 // Van como constantes (no estado) porque buildWhatsAppText/
