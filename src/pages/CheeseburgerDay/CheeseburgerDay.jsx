@@ -14,6 +14,12 @@ import styles from "./CheeseburgerDay.module.css";
 
 const dip = dips.find((d) => d.id === CHEESEBURGER_DAY_DIP_ID) || null;
 
+// El evento no ofrece pre-pedido para "mas tarde": todo pedido es Ahora.
+// Van como constantes (no estado) porque buildWhatsAppText/
+// useCheckoutValidation los siguen necesitando, pero ya no son editables.
+const WHEN_MODE = "Ahora";
+const WHEN_SLOT = "";
+
 export default function CheeseburgerDay() {
   const storeStatus = useStoreStatus();
 
@@ -26,11 +32,14 @@ export default function CheeseburgerDay() {
   const [address, setAddress] = useState("");
   const [cross, setCross] = useState("");
   const [notes, setNotes] = useState("");
-  const [whenMode, setWhenMode] = useState("Ahora");
-  const [whenSlot, setWhenSlot] = useState("");
   const [pay, setPay] = useState("");
-  const [payCashAmount, setPayCashAmount] = useState("");
-  const [payTransferAmount, setPayTransferAmount] = useState("");
+
+  // Mixto: se guarda cual de los dos campos edito el usuario por ultima vez
+  // y con que valor "crudo". El otro campo se deriva de `total` en cada
+  // render, asi que si el total cambia (se suma un combo/bebida/dip) el
+  // complemento se recalcula solo, sin useEffect ni estado duplicado.
+  const [mixedEditedField, setMixedEditedField] = useState(null); // "cash" | "transfer" | null
+  const [mixedRawAmount, setMixedRawAmount] = useState("");
 
   const canDeliver = comboQty >= CHEESEBURGER_DAY_MIN_DELIVERY_QTY;
   // Si la cantidad baja de 2 con Delivery ya elegido, se recalcula a Retiro
@@ -44,6 +53,27 @@ export default function CheeseburgerDay() {
   );
   const dipTotal = dip ? dipQty * dip.price : 0;
   const total = comboTotal + bebidasTotal + dipTotal;
+
+  const mixedRawNum = mixedRawAmount === "" ? 0 : Number(mixedRawAmount);
+  const mixedSafeNum = Number.isFinite(mixedRawNum) ? mixedRawNum : 0;
+  const mixedClamped = Math.max(0, Math.min(mixedSafeNum, total));
+  const payCashAmount =
+    mixedEditedField === null
+      ? ""
+      : mixedEditedField === "cash"
+        ? String(mixedClamped)
+        : String(Math.max(0, total - mixedClamped));
+  const payTransferAmount =
+    mixedEditedField === null
+      ? ""
+      : mixedEditedField === "transfer"
+        ? String(mixedClamped)
+        : String(Math.max(0, total - mixedClamped));
+
+  function handleMixedChange(field, rawValue) {
+    setMixedEditedField(field);
+    setMixedRawAmount(rawValue);
+  }
 
   const items = [
     {
@@ -72,13 +102,12 @@ export default function CheeseburgerDay() {
     couponCode: "",
     discountAmount: 0,
     totalBefore: total,
-    whenMode,
-    whenSlot,
+    whenMode: WHEN_MODE,
+    whenSlot: WHEN_SLOT,
   });
 
   const hasCrossOk = effectiveDeliveryMode !== "Delivery" || cross.trim();
-  const hasWhenOk = whenMode !== "Mas tarde" || whenSlot.trim();
-  const formValid = canSend && hasCrossOk && hasWhenOk;
+  const formValid = canSend && hasCrossOk;
   const canOrder = formValid && storeStatus.isOpenNow && !CHEESEBURGER_DAY_SOLD_OUT;
 
   function handleDeliveryClick() {
@@ -105,7 +134,6 @@ export default function CheeseburgerDay() {
   const allMissing = [
     ...missingFields,
     !hasCrossOk ? "entre calles" : null,
-    !hasWhenOk ? "horario" : null,
   ].filter(Boolean);
   const missingLabel = allMissing.length ? allMissing.join(", ") : "";
 
@@ -118,8 +146,17 @@ export default function CheeseburgerDay() {
         onError={(e) => { e.target.style.display = "none"; }}
       />
 
-      <h1 className={styles.title}>Cheeseburger<br />Day</h1>
-      <p className={styles.subtitle}>Solo Cheese · Solo Doble</p>
+      <h1 className={styles.title}>
+        Cheeseburger
+        <br />
+        Day
+      </h1>
+
+      <p className={styles.subtitle}>
+        <span className={styles.subtitleBar} aria-hidden="true" />
+        Solo Cheese · Solo Doble
+        <span className={styles.subtitleBar} aria-hidden="true" />
+      </p>
 
       <img
         src="/burgers/cheese.svg"
@@ -137,7 +174,7 @@ export default function CheeseburgerDay() {
         </div>
       )}
 
-      <section className={styles.section}>
+      <section className={styles.productBlock}>
         <p className={styles.productName}>Cheese doble + papas</p>
         <div className={styles.qtyRow}>
           <button
@@ -159,7 +196,7 @@ export default function CheeseburgerDay() {
         <p className={styles.price}>{formatMoney(comboTotal)}</p>
       </section>
 
-      <section className={styles.section}>
+      <div className={styles.modeSection}>
         <div className={styles.modeRow}>
           <button
             type="button"
@@ -179,7 +216,7 @@ export default function CheeseburgerDay() {
             Delivery arranca en 2 combos. Sumá uno más y listo.
           </p>
         )}
-      </section>
+      </div>
 
       <section className={styles.section}>
         <label className={styles.label}>
@@ -236,6 +273,7 @@ export default function CheeseburgerDay() {
           {bebidas.map((b) => (
             <div key={b.id} className={styles.extraRow}>
               <span className={styles.extraName}>{b.name}</span>
+              <span className={styles.extraPrice}>{formatMoney(b.price)}</span>
               <div className={styles.qtyRowSm}>
                 <button
                   type="button"
@@ -261,6 +299,7 @@ export default function CheeseburgerDay() {
               <p className={styles.sectionTitle}>Dip</p>
               <div className={styles.extraRow}>
                 <span className={styles.extraName}>{dip.name}</span>
+                <span className={styles.extraPrice}>{formatMoney(dip.price)}</span>
                 <div className={styles.qtyRowSm}>
                   <button
                     type="button"
@@ -285,32 +324,6 @@ export default function CheeseburgerDay() {
       )}
 
       <section className={styles.section}>
-        <p className={styles.sectionTitle}>Cuándo</p>
-        <div className={styles.modeRow}>
-          <button
-            type="button"
-            className={`${styles.modeBtn} ${whenMode === "Ahora" ? styles.modeBtnActive : ""}`}
-            onClick={() => setWhenMode("Ahora")}>
-            AHORA
-          </button>
-          <button
-            type="button"
-            className={`${styles.modeBtn} ${whenMode === "Mas tarde" ? styles.modeBtnActive : ""}`}
-            onClick={() => setWhenMode("Mas tarde")}>
-            MÁS TARDE
-          </button>
-        </div>
-        {whenMode === "Mas tarde" && (
-          <input
-            className={styles.input}
-            value={whenSlot}
-            onChange={(e) => setWhenSlot(e.target.value)}
-            placeholder="¿A qué hora? (ej: 21:30)"
-          />
-        )}
-      </section>
-
-      <section className={styles.section}>
         <p className={styles.sectionTitle}>Pago</p>
         <div className={styles.payRow}>
           {["Efectivo", "Transferencia", "Mixto"].map((p) => (
@@ -325,27 +338,34 @@ export default function CheeseburgerDay() {
         </div>
         {pay === "Mixto" && (
           <div className={styles.mixedRow}>
-            <input
-              className={styles.input}
-              type="number"
-              inputMode="numeric"
-              value={payCashAmount}
-              onChange={(e) => setPayCashAmount(e.target.value)}
-              placeholder="Efectivo $"
-            />
-            <input
-              className={styles.input}
-              type="number"
-              inputMode="numeric"
-              value={payTransferAmount}
-              onChange={(e) => setPayTransferAmount(e.target.value)}
-              placeholder="Transferencia $"
-            />
+            <label className={styles.label}>
+              Efectivo
+              <input
+                className={styles.input}
+                type="number"
+                inputMode="numeric"
+                value={payCashAmount}
+                onChange={(e) => handleMixedChange("cash", e.target.value)}
+                placeholder="$"
+              />
+            </label>
+            <label className={styles.label}>
+              Transferencia
+              <input
+                className={styles.input}
+                type="number"
+                inputMode="numeric"
+                value={payTransferAmount}
+                onChange={(e) => handleMixedChange("transfer", e.target.value)}
+                placeholder="$"
+              />
+            </label>
           </div>
         )}
       </section>
 
-      <section className={styles.summary}>
+      <section className={styles.summaryClean}>
+        <p className={styles.summaryTitle}>Resumen</p>
         <div className={styles.summaryRow}>
           <span>Cheese doble x{comboQty}</span>
           <span>{formatMoney(comboTotal)}</span>
@@ -368,6 +388,10 @@ export default function CheeseburgerDay() {
             <span>A confirmar</span>
           </div>
         )}
+        <div className={styles.summaryTotalRow}>
+          <span>TOTAL</span>
+          <span>{formatMoney(total)}</span>
+        </div>
       </section>
 
       <div className={styles.ctaSpacer} />
