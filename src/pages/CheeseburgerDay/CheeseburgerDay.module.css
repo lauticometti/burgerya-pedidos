@@ -14,15 +14,25 @@
 
 /* ---------- HERO (sin card) ---------- */
 
-.logo {
-  width: clamp(50px, 14vw, 65px);
-  margin-bottom: 0.6rem;
-  opacity: 0.95;
+.wordmark {
+  font-family: "Archivo Black", system-ui, sans-serif;
+  font-size: clamp(18px, 4.5vw, 26px);
+  letter-spacing: -0.5px;
+  color: #ffc62a;
+  line-height: 1;
+  margin: 0 0 0.7rem;
+  text-align: center;
 }
 
 .title {
   font-family: "Archivo Black", system-ui, sans-serif;
-  font-size: clamp(2.1rem, 10.5vw, 3.6rem);
+  /* "CHEESEBURGER" (12 caracteres, sin punto de quiebre) mide ~9.16px de
+     ancho por cada 1px de font-size en Archivo Black (medido con
+     canvas.measureText y verificado contra scrollWidth real). El techo de
+     este clamp se calibra con esa proporcion contra el ancho disponible en
+     375-390px; el breakpoint desktop de abajo recalibra contra el ancho
+     real de .page en esa resolucion. */
+  font-size: clamp(2.1rem, 9vw, 2.5rem);
   font-weight: 400;
   margin: 0;
   letter-spacing: -0.01em;
@@ -31,7 +41,9 @@
   color: #ffc62a;
   text-transform: uppercase;
   width: 100%;
-  overflow-wrap: anywhere;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: normal;
 }
 
 .subtitle {
@@ -60,7 +72,8 @@
   width: 100%;
   max-width: 300px;
   height: auto;
-  margin: 0 -0.5rem 0.6rem;
+  margin: 0 0 0.6rem;
+  display: block;
 }
 
 .statusLine {
@@ -388,6 +401,7 @@
   max-width: 520px;
   margin: 0 auto;
   z-index: 20;
+  box-sizing: border-box;
 }
 
 .stickyTotal {
@@ -424,5 +438,94 @@
 @media (min-width: 400px) {
   .stickyTotal {
     font-size: 1.05rem;
+  }
+}
+
+/* ==========================================================================
+   DESKTOP (>=768px)
+   .page pasa de un ancho mobile (520px) a un ancho de composicion (900px).
+   El hero (wordmark/title/subtitle/heroImg/statusLine) usa ese ancho mayor.
+   El "contenido de pedido" (producto, retiro/delivery, formulario, bebidas,
+   pago, resumen) se mantiene en una columna angosta centrada para que no
+   quede estirado de forma absurda. El sticky CTA sigue el mismo ancho que
+   .page en vez de quedar como una tira angosta perdida en el centro.
+   ========================================================================== */
+
+@media (min-width: 768px) {
+  .page {
+    max-width: 900px;
+    padding: 2.5rem 2rem 0;
+  }
+
+  .wordmark {
+    margin-bottom: 1rem;
+  }
+
+  .title {
+    /* Techo calibrado contra el ancho real de .page en este breakpoint
+       (900px max, con 2rem de padding a cada lado = ~836px de ancho util
+       en pantallas anchas, ~704px a los 768px exactos). "CHEESEBURGER"
+       entra sobrado en una sola linea con este rango. */
+    font-size: clamp(3.4rem, 6vw, 4.6rem);
+    line-height: 0.9;
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+    margin: 1rem 0 1.5rem;
+    gap: 1rem;
+  }
+
+  .subtitleBar {
+    width: 40px;
+  }
+
+  .heroImg {
+    max-width: 420px;
+    margin: 0 0 1rem;
+  }
+
+  .statusLine {
+    font-size: 0.85rem;
+    padding: 0.4rem 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Contenido de pedido: columna angosta centrada, no todo el ancho de .page */
+  .productBlock,
+  .modeSection,
+  .section,
+  .summaryClean {
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .productName {
+    font-size: 1.4rem;
+  }
+
+  .price {
+    font-size: 3.2rem;
+  }
+
+  .ctaSpacer {
+    height: 104px;
+  }
+
+  .stickyCta {
+    max-width: 900px;
+    border-radius: 16px 16px 0 0;
+    padding: 1rem 2rem calc(1rem + env(safe-area-inset-bottom));
+  }
+
+  .stickyTotal {
+    font-size: 1.25rem;
+  }
+
+  .ctaBtn {
+    flex: 0 0 auto;
+    padding: 0.9rem 2.5rem;
+    font-size: 1rem;
   }
 }
