@@ -16,11 +16,11 @@ export default function CheeseburgerDayHoldingPage() {
         margin: "0 auto",
       }}>
 
-      {/* Logo pequeño */}
+      {/* Logo */}
       <img
-        src="/logo.png"
+        src="/favicon.svg"
         alt="Burger Ya"
-        style={{ width: 45, marginBottom: "0.6rem" }}
+        style={{ width: 52, marginBottom: "0.8rem", opacity: 0.95 }}
         onError={(e) => { e.target.style.display = "none"; }}
       />
 
