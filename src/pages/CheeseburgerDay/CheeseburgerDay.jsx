@@ -237,6 +237,9 @@ export default function CheeseburgerDay() {
             Delivery arranca en 2 combos. Sumá uno más y listo.
           </p>
         )}
+        {effectiveDeliveryMode === "Retiro" && (
+          <p className={styles.pickupAddress}>Malaspina 1602, Hurlingham</p>
+        )}
       </div>
 
       <section className={styles.section}>

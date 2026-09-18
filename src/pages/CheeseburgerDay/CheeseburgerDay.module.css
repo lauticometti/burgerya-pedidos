@@ -214,6 +214,15 @@
   text-align: center;
 }
 
+.pickupAddress {
+  margin: 0.6rem 0 0;
+  font-size: 0.8rem;
+  color: #ccc;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
 .deliveryNotice {
   font-size: 0.78rem;
   color: #999;
