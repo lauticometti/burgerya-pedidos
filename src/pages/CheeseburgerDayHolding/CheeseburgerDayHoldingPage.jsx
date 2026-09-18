@@ -9,30 +9,29 @@ export default function CheeseburgerDayHoldingPage() {
         justifyContent: "flex-start",
         background: "#0b0b0b",
         color: "#f5f5f5",
-        padding: "1.5rem 1rem 2rem",
+        padding: "0.8rem 1rem 1.5rem",
         fontFamily: "inherit",
         boxSizing: "border-box",
         maxWidth: "520px",
         margin: "0 auto",
-        gap: "0.5rem",
       }}>
 
       {/* Logo pequeño */}
       <img
         src="/logo.png"
         alt="Burger Ya"
-        style={{ width: 56, marginBottom: "1rem" }}
+        style={{ width: 45, marginBottom: "0.6rem" }}
         onError={(e) => { e.target.style.display = "none"; }}
       />
 
-      {/* Título principal */}
+      {/* Título principal + Subtítulo */}
       <h1
         style={{
-          fontSize: "clamp(1.75rem, 8.5vw, 2.8rem)",
+          fontSize: "clamp(1.8rem, 8.5vw, 2.6rem)",
           fontWeight: 900,
-          margin: "0 0 0.3rem",
+          margin: "0 0 0.2rem",
           letterSpacing: "-0.025em",
-          lineHeight: 1.1,
+          lineHeight: 1.05,
           textAlign: "center",
           color: "#ffc62a",
           textTransform: "uppercase",
@@ -40,32 +39,32 @@ export default function CheeseburgerDayHoldingPage() {
         Cheeseburger<br />Day
       </h1>
 
-      {/* Subtítulo */}
       <p
         style={{
-          fontSize: "clamp(0.95rem, 3.5vw, 1.15rem)",
+          fontSize: "clamp(0.85rem, 3vw, 0.95rem)",
           color: "#ccc",
-          margin: "0 0 1.5rem",
+          margin: "0.3rem 0 0.8rem",
           textAlign: "center",
-          lineHeight: 1.4,
+          lineHeight: 1.3,
           fontWeight: 600,
           letterSpacing: "0.05em",
           textTransform: "uppercase",
         }}>
-        Solo Cheese.<br />Solo Doble.
+        Solo Cheese · Solo Doble
       </p>
 
       {/* Imagen de la Cheese */}
       <div
         style={{
           width: "100%",
-          maxWidth: "300px",
-          marginBottom: "1.5rem",
+          maxWidth: "240px",
+          marginBottom: "0.7rem",
           display: "flex",
           justifyContent: "center",
+          minHeight: "160px",
         }}>
         <img
-          src="/burgers/cheese-simple-promo.png"
+          src="/burgers/cheese.svg"
           alt="Cheese Doble + Papas"
           style={{
             width: "100%",
@@ -80,14 +79,14 @@ export default function CheeseburgerDayHoldingPage() {
       <div
         style={{
           textAlign: "center",
-          marginBottom: "1.75rem",
+          marginBottom: "0.9rem",
           width: "100%",
         }}>
         <p
           style={{
-            fontSize: "clamp(0.9rem, 2.8vw, 1rem)",
+            fontSize: "clamp(0.8rem, 2.5vw, 0.9rem)",
             color: "#ccc",
-            margin: "0 0 0.4rem",
+            margin: "0 0 0.15rem",
             fontWeight: 600,
             letterSpacing: "0.04em",
             textTransform: "uppercase",
@@ -96,7 +95,7 @@ export default function CheeseburgerDayHoldingPage() {
         </p>
         <p
           style={{
-            fontSize: "clamp(2rem, 9vw, 3.2rem)",
+            fontSize: "clamp(1.75rem, 8vw, 2.8rem)",
             fontWeight: 900,
             margin: "0",
             color: "#ffc62a",
@@ -111,17 +110,17 @@ export default function CheeseburgerDayHoldingPage() {
         style={{
           width: "100%",
           display: "flex",
-          gap: "1rem",
+          gap: "0.8rem",
           justifyContent: "center",
-          marginBottom: "1.75rem",
-          fontSize: "clamp(0.85rem, 2.5vw, 0.95rem)",
+          marginBottom: "0.8rem",
+          fontSize: "clamp(0.75rem, 2vw, 0.85rem)",
         }}>
         <div style={{ textAlign: "center" }}>
-          <p style={{ margin: "0 0 0.2rem", fontWeight: 700, color: "#ffc62a" }}>
+          <p style={{ margin: "0 0 0.1rem", fontWeight: 700, color: "#ffc62a" }}>
             RETIRO
           </p>
-          <p style={{ margin: 0, color: "#aaa", fontSize: "0.9em" }}>
-            Desde 1 combo
+          <p style={{ margin: 0, color: "#aaa", fontSize: "0.85em" }}>
+            Desde 1
           </p>
         </div>
         <div
@@ -131,21 +130,21 @@ export default function CheeseburgerDayHoldingPage() {
           }}
         />
         <div style={{ textAlign: "center" }}>
-          <p style={{ margin: "0 0 0.2rem", fontWeight: 700, color: "#ffc62a" }}>
+          <p style={{ margin: "0 0 0.1rem", fontWeight: 700, color: "#ffc62a" }}>
             DELIVERY
           </p>
-          <p style={{ margin: 0, color: "#aaa", fontSize: "0.9em" }}>
-            Desde 2 combos
+          <p style={{ margin: 0, color: "#aaa", fontSize: "0.85em" }}>
+            Desde 2
           </p>
         </div>
       </div>
 
-      {/* Horario de pedidos */}
+      {/* Horario de pedidos + Mensaje */}
       <p
         style={{
-          fontSize: "clamp(1rem, 3vw, 1.25rem)",
+          fontSize: "clamp(0.9rem, 2.8vw, 1.05rem)",
           fontWeight: 800,
-          margin: "0 0 1rem",
+          margin: "0 0 0.2rem",
           textAlign: "center",
           color: "#fff",
           letterSpacing: "0.02em",
@@ -154,12 +153,11 @@ export default function CheeseburgerDayHoldingPage() {
         Pedidos desde 19:30
       </p>
 
-      {/* Mensaje temporal */}
       <p
         style={{
-          fontSize: "0.85rem",
+          fontSize: "0.75rem",
           color: "#999",
-          margin: "0 0 1.5rem",
+          margin: "0 0 0.9rem",
           textAlign: "center",
           fontStyle: "italic",
           maxWidth: 280,
@@ -170,16 +168,16 @@ export default function CheeseburgerDayHoldingPage() {
       {/* Lema final */}
       <p
         style={{
-          fontSize: "clamp(1.1rem, 3.5vw, 1.4rem)",
+          fontSize: "clamp(1rem, 3.2vw, 1.25rem)",
           fontWeight: 800,
           margin: "0",
           textAlign: "center",
           color: "#ffc62a",
           letterSpacing: "0.03em",
           textTransform: "uppercase",
-          lineHeight: 1.3,
+          lineHeight: 1.25,
         }}>
-        Hasta donde dé<br />la cocina.
+        Hasta donde dé la cocina
       </p>
 
     </div>
