@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { bebidas, dips, papas } from "../../data/menu";
-import { createBebidaItem, createDipItem, createPapasItem } from "../../utils/cartItemBuilders";
+import { bebidas, dips } from "../../data/menu";
+import { createBebidaItem, createDipItem } from "../../utils/cartItemBuilders";
 import { formatMoney } from "../../utils/formatMoney";
 import { useStoreStatus } from "../../utils/storeClosedMode";
 import useCheckoutValidation from "../Carrito/useCheckoutValidation";
@@ -13,17 +13,6 @@ import {
 import styles from "./CheeseburgerDay.module.css";
 
 const dip = dips.find((d) => d.id === CHEESEBURGER_DAY_DIP_ID) || null;
-// Papas extra: porciones adicionales por fuera de las papas ya incluidas en
-// el combo. Se reutilizan id/precio/disponibilidad tal cual desde menu.js
-// — las papas del combo nunca pasan por esta lista. Solo el nombre de
-// "porcion_grande_solas" se muestra distinto en este evento (sin tocar el
-// nombre real en menu.js, que se sigue usando en el resto del sitio).
-const PAPAS_EXTRA_DISPLAY_NAME = {
-  porcion_grande_solas: "Porción grande de papas extra",
-};
-const papasExtraOptions = papas
-  .filter((p) => p.isAvailable)
-  .map((p) => ({ ...p, name: PAPAS_EXTRA_DISPLAY_NAME[p.id] || p.name }));
 
 // El evento no ofrece pre-pedido para "mas tarde": todo pedido es Ahora.
 // Van como constantes (no estado) porque buildWhatsAppText/
@@ -37,7 +26,6 @@ export default function CheeseburgerDay() {
   const [comboQty, setComboQty] = useState(1);
   const [bebidaQtys, setBebidaQtys] = useState({});
   const [dipQty, setDipQty] = useState(0);
-  const [papasQtys, setPapasQtys] = useState({});
   const [deliveryMode, setDeliveryMode] = useState("Retiro");
   const [showDeliveryHint, setShowDeliveryHint] = useState(false);
   const [name, setName] = useState("");
@@ -64,11 +52,7 @@ export default function CheeseburgerDay() {
     0,
   );
   const dipTotal = dip ? dipQty * dip.price : 0;
-  const papasExtraTotal = papasExtraOptions.reduce(
-    (sum, p) => sum + (papasQtys[p.id] || 0) * p.price,
-    0,
-  );
-  const total = comboTotal + bebidasTotal + dipTotal + papasExtraTotal;
+  const total = comboTotal + bebidasTotal + dipTotal;
 
   const mixedRawNum = mixedRawAmount === "" ? 0 : Number(mixedRawAmount);
   const mixedSafeNum = Number.isFinite(mixedRawNum) ? mixedRawNum : 0;
@@ -102,9 +86,6 @@ export default function CheeseburgerDay() {
       .filter((b) => (bebidaQtys[b.id] || 0) > 0)
       .map((b) => createBebidaItem(b, bebidaQtys[b.id])),
     ...(dip && dipQty > 0 ? [createDipItem(dip, dipQty)] : []),
-    ...papasExtraOptions
-      .filter((p) => (papasQtys[p.id] || 0) > 0)
-      .map((p) => createPapasItem(p, papasQtys[p.id])),
   ];
 
   const { canSend, missingFields, waHref } = useCheckoutValidation({
@@ -148,13 +129,6 @@ export default function CheeseburgerDay() {
   }
   function decBebida(id) {
     setBebidaQtys((prev) => ({ ...prev, [id]: Math.max(0, (prev[id] || 0) - 1) }));
-  }
-
-  function incPapas(id) {
-    setPapasQtys((prev) => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
-  }
-  function decPapas(id) {
-    setPapasQtys((prev) => ({ ...prev, [id]: Math.max(0, (prev[id] || 0) - 1) }));
   }
 
   const allMissing = [
@@ -347,35 +321,6 @@ export default function CheeseburgerDay() {
         </section>
       )}
 
-      {papasExtraOptions.length > 0 && (
-        <section className={styles.section}>
-          <p className={styles.sectionTitle}>Papas extra</p>
-          {papasExtraOptions.map((p) => (
-            <div key={p.id} className={styles.extraRow}>
-              <span className={styles.extraName}>{p.name}</span>
-              <span className={styles.extraPrice}>{formatMoney(p.price)}</span>
-              <div className={styles.qtyRowSm}>
-                <button
-                  type="button"
-                  className={styles.qtyBtnSm}
-                  onClick={() => decPapas(p.id)}
-                  aria-label={`Restar ${p.name}`}>
-                  −
-                </button>
-                <span className={styles.qtyValueSm}>{papasQtys[p.id] || 0}</span>
-                <button
-                  type="button"
-                  className={styles.qtyBtnSm}
-                  onClick={() => incPapas(p.id)}
-                  aria-label={`Sumar ${p.name}`}>
-                  +
-                </button>
-              </div>
-            </div>
-          ))}
-        </section>
-      )}
-
       <section className={styles.section}>
         <p className={styles.sectionTitle}>Pago</p>
         <div className={styles.payRow}>
@@ -433,12 +378,6 @@ export default function CheeseburgerDay() {
           <div className={styles.summaryRow}>
             <span>Dip</span>
             <span>{formatMoney(dipTotal)}</span>
-          </div>
-        )}
-        {papasExtraTotal > 0 && (
-          <div className={styles.summaryRow}>
-            <span>Papas extra</span>
-            <span>{formatMoney(papasExtraTotal)}</span>
           </div>
         )}
         {effectiveDeliveryMode === "Delivery" && (
