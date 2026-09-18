@@ -240,7 +240,10 @@
   color: #ffc62a;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  margin: 0 0 0.5rem;
+  margin: 1rem 0 0.5rem;
+}
+.sectionTitle:first-child {
+  margin-top: 0;
 }
 
 .label {
