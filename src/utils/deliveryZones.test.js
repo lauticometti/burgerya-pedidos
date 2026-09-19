@@ -9,8 +9,8 @@ import { getDeliveryZone, listDeliveryZones } from "./deliveryZones";
 // cada punto.
 
 describe("listDeliveryZones", () => {
-  it("expone las 19 zonas del GeoJSON", () => {
-    expect(listDeliveryZones()).toHaveLength(19);
+  it("expone las 21 zonas del GeoJSON (19 originales + 2 rellenos de huecos confirmados)", () => {
+    expect(listDeliveryZones()).toHaveLength(21);
   });
 
   it("no inventa tarifas: solo las 10 que existen en el archivo", () => {
@@ -67,6 +67,22 @@ describe("getDeliveryZone: huecos respetados (poligono con huecos)", () => {
     expect(result.covered).toBe(true);
     expect(result.zoneId).toBe("delivery-zone-01");
     expect(result.matches).toEqual([{ zoneId: "delivery-zone-01", deliveryPrice: 1000 }]);
+  });
+});
+
+describe("getDeliveryZone: huecos rellenados en Fase 3 (confirmados por el usuario)", () => {
+  it("hueco #1 (calle sin cubrir cerca de zonas 5/7) ahora cubre a $2500", () => {
+    const result = getDeliveryZone(-34.57723613159073, -58.651809515222574);
+    expect(result.covered).toBe(true);
+    expect(result.zoneId).toBe("delivery-zone-20");
+    expect(result.deliveryPrice).toBe(2500);
+  });
+
+  it("hueco #2 (calle Camargo sin cubrir) ahora cubre a $2500", () => {
+    const result = getDeliveryZone(-34.60724971517664, -58.62334972529233);
+    expect(result.covered).toBe(true);
+    expect(result.zoneId).toBe("delivery-zone-21");
+    expect(result.deliveryPrice).toBe(2500);
   });
 });
 

@@ -2154,6 +2154,136 @@
           -34.5979331
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "delivery-zone-20",
+        "featureType": "delivery_zone",
+        "name": "Zona 4 - $2500",
+        "originalName": "Zona 4 - $2500 (relleno manual)",
+        "zoneNumber": 4,
+        "customerDeliveryFee": 2500,
+        "deliveryPrice": 2500,
+        "description": "Hueco de cobertura confirmado por el usuario como error de trazado (zona sin calles que quedo afuera de los poligonos originales, cerca de zonas 5/7). Agregado en Fase 3 para cerrar el hueco, no proviene del KMZ original.",
+        "source": "gap-fill-fase-3"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -58.65332809381818,
+              -34.576973717745176
+            ],
+            [
+              -58.65202645502195,
+              -34.577760959281854
+            ],
+            [
+              -58.65137563562383,
+              -34.578023373127415
+            ],
+            [
+              -58.650724816225704,
+              -34.57828578697298
+            ],
+            [
+              -58.65007399682759,
+              -34.57828578697298
+            ],
+            [
+              -58.65007399682759,
+              -34.578023373127415
+            ],
+            [
+              -58.650724816225704,
+              -34.57749854543629
+            ],
+            [
+              -58.65202645502195,
+              -34.57644889005405
+            ],
+            [
+              -58.652351864721005,
+              -34.5761864762085
+            ],
+            [
+              -58.652677274420064,
+              -34.5761864762085
+            ],
+            [
+              -58.65300268411912,
+              -34.57644889005405
+            ],
+            [
+              -58.65332809381818,
+              -34.576711303899614
+            ],
+            [
+              -58.65332809381818,
+              -34.576973717745176
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "delivery-zone-21",
+        "featureType": "delivery_zone",
+        "name": "Zona 4 - $2500",
+        "originalName": "Zona 4 - $2500 (relleno manual)",
+        "zoneNumber": 4,
+        "customerDeliveryFee": 2500,
+        "deliveryPrice": 2500,
+        "description": "Hueco de cobertura confirmado por el usuario como error de trazado (parte de la calle Camargo que quedo sin cubrir en los poligonos originales). Agregado en Fase 3 para cerrar el hueco, no proviene del KMZ original.",
+        "source": "gap-fill-fase-3"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -58.624366630601884,
+              -34.6082009653668
+            ],
+            [
+              -58.624041220902825,
+              -34.6082009653668
+            ],
+            [
+              -58.62273958210658,
+              -34.60715130998456
+            ],
+            [
+              -58.622414172407524,
+              -34.606888896139
+            ],
+            [
+              -58.622414172407524,
+              -34.606364068447874
+            ],
+            [
+              -58.62273958210658,
+              -34.606364068447874
+            ],
+            [
+              -58.623715811203766,
+              -34.60715130998455
+            ],
+            [
+              -58.624366630601884,
+              -34.607676137675675
+            ],
+            [
+              -58.624366630601884,
+              -34.6082009653668
+            ]
+          ]
+        ]
+      }
     }
   ]
 }
