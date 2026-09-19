@@ -17,9 +17,12 @@ const MANUAL_STORE_STATUS_DATE = null;
 export const FORCE_OPEN = false; // override manual: forzar apertura fuera de horario
 export const FORCE_CLOSED = false; // override manual: cierre manual, ignora el horario. Poner en true para cerrar la web entera.
 
-// Mensaje de aviso especial cuando cerramos antes por falta de stock.
-// null = mensaje genérico "Estamos cerrados. Abrimos...".
-export const SOLD_OUT_NOTICE = null;
+// Mensaje de aviso especial cuando cerramos antes (falta de stock,
+// saturación, etc). Se aplica SOLO en SOLD_OUT_NOTICE_DATE: otro día se
+// ignora solo y vuelve el mensaje genérico "Estamos cerrados. Abrimos...".
+export const SOLD_OUT_NOTICE =
+  "Estamos saturados de pedidos. Volvemos a tomar pedidos a las 21:45.";
+export const SOLD_OUT_NOTICE_DATE = "2026-09-18";
 
 const FERIADOS_SET = new Set(FERIADOS_2026);
 
@@ -502,7 +505,7 @@ function getBannerState(parts) {
     );
   }
 
-  if (SOLD_OUT_NOTICE) {
+  if (SOLD_OUT_NOTICE && dateKey === SOLD_OUT_NOTICE_DATE) {
     return applyFriendsDayPrefix(
       { type: "closed", message: SOLD_OUT_NOTICE },
       dateKey,
