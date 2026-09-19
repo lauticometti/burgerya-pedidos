@@ -21,7 +21,7 @@ export const FORCE_CLOSED = false; // override manual: cierre manual, ignora el 
 // saturación, etc). Se aplica SOLO en SOLD_OUT_NOTICE_DATE: otro día se
 // ignora solo y vuelve el mensaje genérico "Estamos cerrados. Abrimos...".
 export const SOLD_OUT_NOTICE =
-  "Estamos saturados de pedidos. Por hoy no tomamos más pedidos.";
+  "Estamos saturados de pedidos. Volvemos a tomar pedidos a las 23:15.";
 export const SOLD_OUT_NOTICE_DATE = "2026-09-18";
 
 const FERIADOS_SET = new Set(FERIADOS_2026);
