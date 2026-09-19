@@ -57,10 +57,9 @@ export const WEEKLY_SCHEDULE = {
 // junto con la apertura, no 30 min después):
 //   "2026-09-10": [{ open: "21:00", close: "00:00", cookingStart: "21:00" }],
 export const DATE_OVERRIDES = {
-  // Saturados de pedidos: bloqueado hasta las 23:15 en punto (isOpenNow
-  // recién da true a partir de ese minuto, no antes). Cierra a las 00:00
-  // como cualquier viernes.
-  "2026-09-18": [{ open: "23:15", close: "00:00" }],
+  // Saturados de pedidos: cierra por el resto del día. Vuelve solo el
+  // horario normal mañana.
+  "2026-09-18": [],
 };
 
 // ---------------------------------------------------------------------------
