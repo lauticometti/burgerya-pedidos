@@ -17,9 +17,14 @@ const ZONES = geojson.features
     id: f.properties.id,
     name: f.properties.name,
     deliveryPrice: f.properties.deliveryPrice,
-    // Cada elemento es un anillo [ [lng,lat], ... ]. El primero es el
-    // contorno exterior; los siguientes (si existen) son huecos.
-    rings: f.geometry.coordinates,
+    // Cada "parte" es un array de anillos [ [lng,lat], ... ] (el primero es
+    // el contorno exterior, los siguientes son huecos). Polygon -> una sola
+    // parte. MultiPolygon (dos zonas del mismo precio que NO se tocan, ej.
+    // Fase 3.5) -> una parte por cada pieza disjunta.
+    parts:
+      f.geometry.type === "MultiPolygon"
+        ? f.geometry.coordinates
+        : [f.geometry.coordinates],
   }));
 
 // Ray-casting sobre UN anillo (regla even-odd, no depende del sentido de
@@ -50,6 +55,12 @@ function pointInPolygonRings(lng, lat, rings) {
   return inside;
 }
 
+// Un punto esta "en" una zona si cae dentro de CUALQUIERA de sus partes
+// (siempre una sola parte, salvo MultiPolygon).
+function pointInZone(lng, lat, zone) {
+  return zone.parts.some((rings) => pointInPolygonRings(lng, lat, rings));
+}
+
 /**
  * Resuelve la zona de delivery para una coordenada.
  *
@@ -61,7 +72,7 @@ function pointInPolygonRings(lng, lat, rings) {
  * explicitamente antes de tocar geometria.
  */
 export function getDeliveryZone(lat, lng) {
-  const matches = ZONES.filter((z) => pointInPolygonRings(lng, lat, z.rings));
+  const matches = ZONES.filter((z) => pointInZone(lng, lat, z));
 
   if (matches.length === 0) {
     return { covered: false, zoneId: null, deliveryPrice: null };
