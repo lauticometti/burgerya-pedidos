@@ -39,7 +39,7 @@ export const burgers = [
     prices: { simple: 12000, doble: 15500, triple: 19000 },
     desc: "Cebolla caramelizada · Salsa especial",
     notice: "Sin ceb. caramelizada",
-    noticeSince: "2026-09-11",
+    noticeSince: "2026-09-20",
     noticeShift: "noche",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
@@ -91,7 +91,7 @@ export const burgers = [
     prices: { simple: 12500, doble: 16000, triple: 19500 },
     desc: "Bacon · Cebolla caramelizada · Tomate · Salsa barbacoa",
     notice: "Sin ceb. caramelizada",
-    noticeSince: "2026-09-11",
+    noticeSince: "2026-09-20",
     noticeShift: "noche",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
