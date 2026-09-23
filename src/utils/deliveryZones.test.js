@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { getDeliveryZone, listDeliveryZones } from "./deliveryZones";
+import rawGeoJSON from "../data/deliveryZones.geojson?raw";
 
 // Todas las coordenadas de este archivo fueron derivadas y verificadas
 // programaticamente contra src/data/deliveryZones.geojson (centroides o
@@ -91,11 +92,11 @@ describe("getDeliveryZone: huecos rellenados en Fase 3 (confirmados por el usuar
     expect(result.deliveryPrice).toBe(2500);
   });
 
-  it("hueco #2 (calle Camargo sin cubrir) ahora cubre a $2500 (zone-05/06/08 fusionadas en una sola Zona 4 tras la reconstruccion de fronteras)", () => {
+  it("hueco #2 (calle Camargo sin cubrir) sigue cubierto tras la reconstruccion de fronteras por calles reales; la frontera Z3/Z4 se corrio ~19m al snapearse a la calle real, este punto historico quedo del lado Z3 ($2000) en vez de Z4 ($2500)", () => {
     const result = getDeliveryZone(-34.60724971517664, -58.62334972529233);
     expect(result.covered).toBe(true);
-    expect(result.zoneId).toBe("delivery-zone-05");
-    expect(result.deliveryPrice).toBe(2500);
+    expect(result.zoneId).toBe("delivery-zone-03");
+    expect(result.deliveryPrice).toBe(2000);
   });
 });
 
@@ -142,5 +143,80 @@ describe("getDeliveryZone: fuera de cobertura", () => {
   it("un punto muy lejano (margen de seguridad) tambien da uncovered", () => {
     const result = getDeliveryZone(-34.6, -58.75);
     expect(result).toEqual({ covered: false, zoneId: null, deliveryPrice: null });
+  });
+});
+
+// Tests de regresion agregados tras el bug de reconstruccion de fronteras por
+// calles reales: el loop cerrado Z1<->Z2 (Z1 encerrada dentro de Z2) quedo con
+// auto-intersecciones sin resolver, y como Z2 tambien linda con Z3, la
+// deformacion se propago en cascada (Z2, Z3 y sus vecinos quedaron con formas
+// incorrectas aunque la topologia agregada — area total, 0 overlaps — parecia
+// sana). Estos tests fijan ese comportamiento para que no vuelva a pasar
+// desapercibido.
+describe("regresion: reconstruccion de fronteras por calles (streetsnap)", () => {
+  const geojson = JSON.parse(rawGeoJSON);
+  const zoneFeatures = geojson.features.filter((f) => f.properties.featureType === "delivery_zone");
+
+  // interseccion de segmentos sin depender de ninguna libreria de geometria
+  function segmentsCross(p1, p2, p3, p4) {
+    const d = (p2[0] - p1[0]) * (p4[1] - p3[1]) - (p2[1] - p1[1]) * (p4[0] - p3[0]);
+    if (Math.abs(d) < 1e-15) return false;
+    const t = ((p3[0] - p1[0]) * (p4[1] - p3[1]) - (p3[1] - p1[1]) * (p4[0] - p3[0])) / d;
+    const u = ((p3[0] - p1[0]) * (p2[1] - p1[1]) - (p3[1] - p1[1]) * (p2[0] - p1[0])) / d;
+    return t > 1e-9 && t < 1 - 1e-9 && u > 1e-9 && u < 1 - 1e-9;
+  }
+  function ringSelfIntersects(ring) {
+    for (let i = 0; i < ring.length - 1; i++) {
+      for (let j = i + 2; j < ring.length - 1; j++) {
+        if (i === 0 && j === ring.length - 2) continue; // vertice de cierre compartido, no es un cruce real
+        if (segmentsCross(ring[i], ring[i + 1], ring[j], ring[j + 1])) return true;
+      }
+    }
+    return false;
+  }
+  function allRingsOf(feature) {
+    const parts = feature.geometry.type === "MultiPolygon" ? feature.geometry.coordinates : [feature.geometry.coordinates];
+    return parts.flat();
+  }
+
+  it("ninguna zona (en particular Z1, encerrada como loop cerrado dentro de Z2) tiene auto-intersecciones", () => {
+    for (const f of zoneFeatures) {
+      for (const ring of allRingsOf(f)) {
+        expect(ringSelfIntersects(ring), `${f.properties.id} tiene un anillo con auto-interseccion`).toBe(false);
+      }
+    }
+  });
+
+  it("los dos lados de una frontera Z3/Z4 (Av. Julio A. Roca) devuelven las dos zonas correctas", () => {
+    const ladoZ3 = getDeliveryZone(-34.58029693648337, -58.63936868669294);
+    const ladoZ4 = getDeliveryZone(-34.5801642, -58.6393979);
+    expect(ladoZ3.deliveryPrice).toBe(2000);
+    expect(ladoZ4.deliveryPrice).toBe(2500);
+  });
+
+  it("los dos lados de una frontera Z6/Z7 (Cayetano Valdez / Juan de Langara) devuelven las dos zonas correctas", () => {
+    const ladoZ6 = getDeliveryZone(-34.62055232592485, -58.64892777904995);
+    const ladoZ7 = getDeliveryZone(-34.62052804184979, -58.64930345129503);
+    expect(ladoZ6.deliveryPrice).toBe(3500);
+    expect(ladoZ7.deliveryPrice).toBe(4000);
+  });
+
+  it("un punto apenas desplazado 1m de una frontera interna (Z5/Z6, La Trinidad) resuelve a una zona real, nunca a fuera de cobertura por una microfranja", () => {
+    const ladoNorte = getDeliveryZone(-34.62338616229254 + 1 / 111320, -58.638341495884575);
+    const ladoSur = getDeliveryZone(-34.62338616229254 - 1 / 111320, -58.638341495884575);
+    expect(ladoNorte.covered).toBe(true);
+    expect(ladoSur.covered).toBe(true);
+    expect(ladoNorte.deliveryPrice).not.toBe(null);
+    expect(ladoSur.deliveryPrice).not.toBe(null);
+  });
+
+  it("tarifa menor en un empate exacto sigue funcionando (logica de desempate no rota por la reconstruccion)", () => {
+    const matches = [
+      { zoneId: "z-cara", deliveryPrice: 4500 },
+      { zoneId: "z-barata", deliveryPrice: 1000 },
+      { zoneId: "z-media", deliveryPrice: 2500 },
+    ];
+    const cheapest = matches.reduce((min, z) => (z.deliveryPrice < min.deliveryPrice ? z : min));
+    expect(cheapest.zoneId).toBe("z-barata");
   });
 });
