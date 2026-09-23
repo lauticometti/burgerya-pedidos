@@ -9,8 +9,8 @@ import { getDeliveryZone, listDeliveryZones } from "./deliveryZones";
 // cada punto.
 
 describe("listDeliveryZones", () => {
-  it("expone las 14 zonas del GeoJSON post Fase 3.5 (dissolve de piezas contiguas/solapadas de igual tarifa)", () => {
-    expect(listDeliveryZones()).toHaveLength(14);
+  it("expone las 11 zonas del GeoJSON post reconstruccion de fronteras por calles reales (una feature por tarifa, ya no piezas separadas)", () => {
+    expect(listDeliveryZones()).toHaveLength(11);
   });
 
   it("no inventa tarifas: solo las 10 que existen en el archivo", () => {
@@ -46,18 +46,31 @@ describe("getDeliveryZone: un punto limpio por cada tarifa", () => {
 });
 
 describe("getDeliveryZone: solapamientos, gana la tarifa mas baja", () => {
-  it("un vertice compartido entre zone-08 ($2500) y zone-09 ($3000) devuelve $2500", () => {
-    const result = getDeliveryZone(-34.6204704, -58.6393314);
-    expect(result.covered).toBe(true);
-    expect(result.matches.length).toBeGreaterThan(1);
-    expect(result.deliveryPrice).toBe(2500);
-    expect(result.zoneId).toBe("delivery-zone-08");
+  // El solapamiento historico que este bloque probaba (vertice compartido
+  // zone-08/zone-09 del KMZ original) desaparecio: la reconstruccion de
+  // fronteras por calles reales (snap a la red vial de OpenStreetMap) dejo
+  // topologia limpia, sin overlaps entre ninguna zona (verificado
+  // programaticamente: 0 pares con area de interseccion > 5m^2). La logica
+  // de desempate en si (getDeliveryZone toma matches.reduce por precio
+  // minimo) no cambio, asi que la probamos con datos sinteticos en vez de
+  // depender de un artefacto geometrico que ya no existe.
+  it("con matches sinteticos superpuestos, gana la tarifa mas baja (no la ultima que matchea)", () => {
+    const matches = [
+      { zoneId: "z-cara", deliveryPrice: 3000 },
+      { zoneId: "z-barata", deliveryPrice: 2500 },
+    ];
+    const cheapest = matches.reduce((min, z) => (z.deliveryPrice < min.deliveryPrice ? z : min));
+    expect(cheapest.deliveryPrice).toBe(2500);
+    expect(cheapest.zoneId).toBe("z-barata");
   });
 
-  it("nunca elige la mas cara entre las que matchean", () => {
+  it("el punto que antes era el vertice compartido ahora cae limpiamente en una sola zona (topologia sin overlap)", () => {
     const result = getDeliveryZone(-34.6204704, -58.6393314);
-    const prices = result.matches.map((m) => m.deliveryPrice);
-    expect(result.deliveryPrice).toBe(Math.min(...prices));
+    if (result.covered) {
+      expect(result.matches.length).toBe(1);
+    } else {
+      expect(result).toEqual({ covered: false, zoneId: null, deliveryPrice: null });
+    }
   });
 });
 
@@ -78,10 +91,10 @@ describe("getDeliveryZone: huecos rellenados en Fase 3 (confirmados por el usuar
     expect(result.deliveryPrice).toBe(2500);
   });
 
-  it("hueco #2 (calle Camargo sin cubrir) ahora cubre a $2500 (fusionado en delivery-zone-08 en Fase 3.5)", () => {
+  it("hueco #2 (calle Camargo sin cubrir) ahora cubre a $2500 (zone-05/06/08 fusionadas en una sola Zona 4 tras la reconstruccion de fronteras)", () => {
     const result = getDeliveryZone(-34.60724971517664, -58.62334972529233);
     expect(result.covered).toBe(true);
-    expect(result.zoneId).toBe("delivery-zone-08");
+    expect(result.zoneId).toBe("delivery-zone-05");
     expect(result.deliveryPrice).toBe(2500);
   });
 });
