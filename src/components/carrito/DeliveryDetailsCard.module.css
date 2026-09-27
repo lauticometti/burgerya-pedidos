@@ -10,6 +10,7 @@
 
 .fields {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
 }
 
@@ -30,9 +31,13 @@
   background: rgba(10, 8, 5, 0.9);
   color: var(--y);
   border-radius: 999px;
-  padding: 6px 14px;
-  font-size: 12px;
+  min-height: 44px;
+  max-width: 100%;
+  padding: 8px 16px;
+  font-size: 14px;
+  line-height: 1.2;
   font-weight: 800;
+  white-space: normal;
   cursor: pointer;
   transition:
     transform 0.06s ease,

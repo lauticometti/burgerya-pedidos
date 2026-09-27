@@ -1,6 +1,7 @@
 ﻿import { formatMoney } from "./formatMoney";
 import { getCategory } from "./itemGrouping";
 import { getArgentinaName } from "./argentinaNames";
+import { buildMapsLink } from "./checkoutTotals";
 import {
   getSizeLabel,
   // formatComboGroup, // sin uso: la seccion COMBOS C/ COCA nunca se imprime
@@ -20,6 +21,9 @@ function capitalize(text) {
   return text ? text.charAt(0).toUpperCase() + text.slice(1) : text;
 }
 
+// `totals` es el objeto de computeCheckoutTotals (utils/checkoutTotals): los
+// montos del mensaje son EXACTAMENTE los mismos que ve el cliente en pantalla.
+// `location` ({ lat, lng }) son las coordenadas confirmadas del delivery.
 export function buildWhatsAppText({
   name,
   address,
@@ -30,12 +34,11 @@ export function buildWhatsAppText({
   deliveryMode,
   notes,
   items,
-  total,
+  totals,
   couponCode,
-  discountAmount = 0,
-  totalBefore,
   whenMode,
   whenSlot,
+  location = null,
 }) {
   const lines = [];
   if (deliveryMode === "Retiro") {
@@ -149,22 +152,73 @@ export function buildWhatsAppText({
   }
 
   lines.push("");
-  if (deliveryMode !== "Retiro") {
-    lines.push(address);
-    if (cross && cross.trim()) {
-      lines.push(cross.trim());
-    }
-    lines.push("");
-  }
-  const subtotal = totalBefore || total;
-  if (discountAmount > 0 && couponCode) {
-    lines.push(`Subtotal: ${formatMoney(subtotal)}`);
-    lines.push(`Codigo ${couponCode}: -${formatMoney(discountAmount)}`);
-  }
-  if (pay === "Mixto" && payCashAmount != null && payTransferAmount != null) {
-    lines.push(`${formatMoney(total)} (Efectivo ${formatMoney(payCashAmount)} + Transferencia ${formatMoney(payTransferAmount)})`);
-  } else {
-    lines.push(`${formatMoney(total)} ${pay}`);
-  }
+  lines.push(...formatDeliveryBlock({ deliveryMode, address, cross, location }));
+  lines.push(
+    ...formatTotalsBlock({
+      deliveryMode,
+      totals,
+      couponCode,
+      pay,
+      payCashAmount,
+      payTransferAmount,
+    }),
+  );
   return encodeURIComponent(lines.join("\n"));
+}
+
+// "Calle A y Calle B" -> "Entre Calle A y Calle B" (si el cliente ya escribio
+// "entre ..." no se duplica).
+function formatCross(cross) {
+  const text = String(cross ?? "").trim();
+  if (!text) return null;
+  return /^entre\b/i.test(text) ? `Entre${text.slice(5)}` : `Entre ${text}`;
+}
+
+// Bloque de entrega (solo Delivery): direccion tal cual la eligio/escribio el
+// cliente, entrecalles si hay, y SIEMPRE el link con las coordenadas
+// confirmadas cuando existen. Si no hay calle (GPS / pin sin reverse), no se
+// inventa una direccion: el link del mapa es la ubicacion.
+function formatDeliveryBlock({ deliveryMode, address, cross, location }) {
+  if (deliveryMode !== "Delivery") return [];
+  const lines = [];
+  const mapsLink = buildMapsLink(location);
+  const addressText = String(address ?? "").trim();
+  if (addressText) {
+    lines.push(addressText);
+  } else if (mapsLink) {
+    lines.push("Sin calle/altura: ver mapa");
+  }
+  const crossText = formatCross(cross);
+  if (crossText) lines.push(crossText);
+  if (mapsLink) lines.push(`Mapa: ${mapsLink}`);
+  if (lines.length) lines.push("");
+  return lines;
+}
+
+function formatPayment(pay, grandTotal, payCashAmount, payTransferAmount) {
+  if (pay === "Mixto" && payCashAmount != null && payTransferAmount != null) {
+    return `${formatMoney(grandTotal)} (Efectivo ${formatMoney(payCashAmount)} + Transferencia ${formatMoney(payTransferAmount)})`;
+  }
+  return `${formatMoney(grandTotal)} ${pay}`;
+}
+
+// Resumen financiero en un solo bloque: Subtotal, [Descuento], [Envio], Total.
+// Retiro sin descuento queda como siempre: solo el total con la forma de pago.
+function formatTotalsBlock({ deliveryMode, totals, couponCode, pay, payCashAmount, payTransferAmount }) {
+  const { productsSubtotal, discountAmount, deliveryFee, grandTotal } = totals;
+  const isDelivery = deliveryMode === "Delivery";
+  const hasDiscount = discountAmount > 0;
+  const lines = [];
+  if (isDelivery || hasDiscount) {
+    lines.push(`Subtotal: ${formatMoney(productsSubtotal)}`);
+  }
+  if (hasDiscount) {
+    const label = couponCode ? `Descuento ${couponCode}` : "Descuento";
+    lines.push(`${label}: -${formatMoney(discountAmount)}`);
+  }
+  if (isDelivery) {
+    lines.push(`Envío: ${formatMoney(deliveryFee)}`);
+  }
+  lines.push(`Total: ${formatPayment(pay, grandTotal, payCashAmount, payTransferAmount)}`);
+  return lines;
 }

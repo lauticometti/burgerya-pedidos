@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { getDeliveryZone, listDeliveryZones } from "./deliveryZones";
+import { getDeliveryZone, listDeliveryZones, getCoverageBounds, SEAM_MAX_M } from "./deliveryZones";
+import { computeDeliveryQuote } from "../hooks/useDeliveryQuote";
 import rawGeoJSON from "../data/deliveryZones.geojson?raw";
 
 // Todas las coordenadas de este archivo fueron derivadas y verificadas
@@ -218,5 +219,96 @@ describe("regresion: reconstruccion de fronteras por calles (streetsnap)", () =>
     ];
     const cheapest = matches.reduce((min, z) => (z.deliveryPrice < min.deliveryPrice ? z : min));
     expect(cheapest.zoneId).toBe("z-barata");
+  });
+});
+
+describe("getCoverageBounds", () => {
+  it("devuelve una caja delimitadora valida (norte > sur, este > oeste)", () => {
+    const bounds = getCoverageBounds();
+    expect(Number.isFinite(bounds.north)).toBe(true);
+    expect(Number.isFinite(bounds.south)).toBe(true);
+    expect(Number.isFinite(bounds.east)).toBe(true);
+    expect(Number.isFinite(bounds.west)).toBe(true);
+    expect(bounds.north).toBeGreaterThan(bounds.south);
+    expect(bounds.east).toBeGreaterThan(bounds.west);
+  });
+
+  it("contiene puntos conocidos de zonas reales (sirve para centrar el mapa sin hardcodear un barrio)", () => {
+    const bounds = getCoverageBounds();
+    // Punto de Z1 ($1000) y punto de Z19 ($7000), usados arriba en los tests
+    // de getDeliveryZone — extremos opuestos de la cobertura real.
+    const puntos = [
+      { lat: -34.60181774705883, lng: -58.64558098823529 },
+      { lat: -34.579174720000005, lng: -58.60830494 },
+    ];
+    for (const p of puntos) {
+      expect(p.lat).toBeLessThanOrEqual(bounds.north);
+      expect(p.lat).toBeGreaterThanOrEqual(bounds.south);
+      expect(p.lng).toBeLessThanOrEqual(bounds.east);
+      expect(p.lng).toBeGreaterThanOrEqual(bounds.west);
+    }
+  });
+});
+
+describe("Z1-Z11: cada zona da su numero y su tarifa (lo que ve el cliente)", () => {
+  // Puntos interiores ya verificados arriba (misma fuente).
+  const cases = [
+    { label: "Zona 1", price: 1000, lat: -34.60181774705883, lng: -58.64558098823529 },
+    { label: "Zona 2", price: 1500, lat: -34.60904995421206, lng: -58.638436680948566 },
+    { label: "Zona 3", price: 2000, lat: -34.61584789803891, lng: -58.63581577560926 },
+    { label: "Zona 4", price: 2500, lat: -34.58169251428571, lng: -58.66104488571428 },
+    { label: "Zona 5", price: 3000, lat: -34.616548450049756, lng: -58.64678833237899 },
+    { label: "Zona 6", price: 3500, lat: -34.62457317857143, lng: -58.62583938571429 },
+    { label: "Zona 7", price: 4000, lat: -34.620013674999996, lng: -58.651485725 },
+    { label: "Zona 8", price: 4500, lat: -34.625408752173925, lng: -58.6211540347826 },
+    { label: "Zona 9", price: 6000, lat: -34.58314165263158, lng: -58.615104557894746 },
+    { label: "Zona 10", price: 6000, lat: -34.5984571101715, lng: -58.589511624777224 },
+    { label: "Zona 11", price: 7000, lat: -34.579174720000005, lng: -58.60830494 },
+  ];
+
+  for (const c of cases) {
+    it(`${c.label} -> $${c.price}`, () => {
+      const quote = computeDeliveryQuote({ lat: c.lat, lng: c.lng }, "Delivery");
+      expect(quote.status).toBe("covered");
+      expect(quote.zoneLabel).toBe(c.label);
+      expect(quote.deliveryPrice).toBe(c.price);
+    });
+  }
+});
+
+describe("costuras internas entre zonas (microgaps de la reconstruccion por calles)", () => {
+  it("regresion: Av. Gdor. Vergara 1799, Villa Tesei — lat/lng EXACTA de Google Places — cotiza (costura Z4/Z5, gana Z4 $2500)", () => {
+    // Coordenadas devueltas por Places (New) para "Avenida Gobernador Vergara
+    // 1799, Villa Tesei" el 2026-09-27. Caian en una franja sin zona de
+    // 10-30 m sobre la avenida, con Z4 ($2500) al norte y Z5 ($3000) al sur.
+    const lat = -34.621918400000006;
+    const lng = -58.633184;
+    const result = getDeliveryZone(lat, lng);
+    expect(result.covered).toBe(true);
+    expect(result.seam).toBe(true);
+    expect(result.zoneId).toBe("delivery-zone-05");
+    expect(result.deliveryPrice).toBe(2500);
+    const quote = computeDeliveryQuote({ lat, lng }, "Delivery");
+    expect(quote.zoneLabel).toBe("Zona 4");
+  });
+
+  it("otras costuras del barrido tambien cotizan con la tarifa mas baja de las zonas que las rodean", () => {
+    expect(getDeliveryZone(-34.615499, -58.625964)).toMatchObject({ covered: true, zoneId: "delivery-zone-05", deliveryPrice: 2500 }); // Z4/Z5
+    expect(getDeliveryZone(-34.60993, -58.627273)).toMatchObject({ covered: true, zoneId: "delivery-zone-03", deliveryPrice: 2000 }); // Z3/Z4
+    expect(getDeliveryZone(-34.624123, -58.63404)).toMatchObject({ covered: true, zoneId: "delivery-zone-09", deliveryPrice: 3000 }); // Z5/Z6
+    expect(getDeliveryZone(-34.62556, -58.622035)).toMatchObject({ covered: true, zoneId: "delivery-zone-10", deliveryPrice: 3500 }); // Z6/Z8
+  });
+
+  it("NO agranda el borde exterior: 15 m afuera del vertice mas al norte y del mas al oeste sigue sin cobertura", () => {
+    expect(getDeliveryZone(-34.568134753323754, -58.6475609).covered).toBe(false);
+    expect(getDeliveryZone(-34.586381, -58.674146072258495).covered).toBe(false);
+  });
+
+  it("NO tapa exclusiones reales anchas: el centro del cementerio sigue sin cobertura", () => {
+    expect(getDeliveryZone(-34.62482, -58.6475).covered).toBe(false);
+  });
+
+  it(`el umbral es chico y explicito (${SEAM_MAX_M} m por lado)`, () => {
+    expect(SEAM_MAX_M).toBe(25);
   });
 });

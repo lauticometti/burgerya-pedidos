@@ -1,0 +1,33 @@
+.attribution {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  padding: 2px 2px;
+  opacity: 0.85;
+}
+
+.prefix {
+  color: var(--muted);
+}
+
+.word {
+  font-weight: 700;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.blue {
+  color: #4285f4;
+}
+
+.red {
+  color: #ea4335;
+}
+
+.yellow {
+  color: #fbbc05;
+}
+
+.green {
+  color: #34a853;
+}

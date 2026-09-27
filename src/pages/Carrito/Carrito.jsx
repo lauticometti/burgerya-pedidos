@@ -13,10 +13,10 @@ import CarritoHeader from "../../components/carrito/CarritoHeader";
 import DeliveryDetailsCard from "../../components/carrito/DeliveryDetailsCard";
 import PaymentScheduleCard from "../../components/carrito/PaymentScheduleCard";
 import BebidasModal from "../../components/carrito/BebidasModal";
+import DeliveryMapLink from "../../components/delivery/DeliveryMapLink";
 import CartGroupsList from "../../components/carrito/CartGroupsList";
 import PageTitle from "../../components/ui/PageTitle";
 import BrandLogo from "../../components/brand/BrandLogo";
-import DeliveryMapLink from "../../components/delivery/DeliveryMapLink";
 import styles from "./Carrito.module.css";
 import {
   CART_GROUP_ORDER,
@@ -31,6 +31,8 @@ import FriesUpgradeQtyModal from "../../components/carrito/FriesUpgradeQtyModal"
 import { extras as extrasData } from "../../data/menu";
 import useCarritoCheckoutForm from "./useCarritoCheckoutForm";
 import useCheckoutValidation from "./useCheckoutValidation";
+import useDeliveryQuote from "../../hooks/useDeliveryQuote";
+import { computeCheckoutTotals } from "../../utils/checkoutTotals";
 import useCarritoTimeSlots from "./useCarritoTimeSlots";
 import useCouponCode from "./useCouponCode";
 import CartUpsellBanner, { shouldShowBebidaUpsell } from "./CartUpsellBanner";
@@ -43,6 +45,39 @@ import { toast } from "../../utils/toast";
 // Oculta temporalmente el banner de upsell de bebida en el carrito (queda
 // solo el del dip). No borra la lógica: para volver a mostrarlo, poner en true.
 const SHOW_BEBIDA_UPSELL_BANNER = false;
+
+// Resumen financiero: Subtotal, [Descuento], [Envío], Total. Solo aparece si
+// hay algo entre el subtotal y el total (si no, el total del sticky alcanza).
+// Todo sale de `totals` (computeCheckoutTotals): mismos numeros que el sticky,
+// el pago y el WhatsApp.
+function TotalsBreakdown({ totals, discountLabel }) {
+  const { productsSubtotal, discountAmount, deliveryFee, grandTotal } = totals;
+  if (discountAmount <= 0 && deliveryFee <= 0) return null;
+  return (
+    <div className={styles.totalBreakdown}>
+      <div className={styles.totalBreakdownRow}>
+        <span>Subtotal</span>
+        <span>{formatMoney(productsSubtotal)}</span>
+      </div>
+      {discountAmount > 0 ? (
+        <div className={styles.totalBreakdownRow}>
+          <span>{discountLabel}</span>
+          <span>-{formatMoney(discountAmount)}</span>
+        </div>
+      ) : null}
+      {deliveryFee > 0 ? (
+        <div className={styles.totalBreakdownRow}>
+          <span>Envío</span>
+          <span>{formatMoney(deliveryFee)}</span>
+        </div>
+      ) : null}
+      <div className={`${styles.totalBreakdownRow} ${styles.totalBreakdownFinal}`}>
+        <span>Total</span>
+        <span>{formatMoney(grandTotal)}</span>
+      </div>
+    </div>
+  );
+}
 
 export default function Carrito() {
   const cart = useCart();
@@ -84,14 +119,15 @@ export default function Carrito() {
     setName,
     address,
     setAddress,
+    setAddressLabel,
+    selectedLocation,
+    setSelectedLocation,
     cross,
     setCross,
     pay,
     setPay,
     payCashAmount,
     setPayCashAmount,
-    payTransferAmount,
-    setPayTransferAmount,
     notes,
     setNotes,
     whenMode,
@@ -117,7 +153,25 @@ export default function Carrito() {
     removeCoupon,
   } = useCouponCode(cart.items, cart.total, cart);
 
-  const totalWithDiscount = Math.max(0, cart.total - totalDiscount);
+  const deliveryQuote = useDeliveryQuote(selectedLocation, deliveryMode);
+  // UNICA fuente de montos: resumen, sticky, pago, validacion y WhatsApp usan
+  // este mismo objeto (grandTotal = productos - descuento + envio).
+  const totals = React.useMemo(
+    () =>
+      computeCheckoutTotals({
+        productsSubtotal: cart.total,
+        discountAmount: totalDiscount,
+        deliveryMode,
+        deliveryQuote,
+      }),
+    [cart.total, totalDiscount, deliveryMode, deliveryQuote],
+  );
+  const { grandTotal } = totals;
+  const discountLabel = giveawayTarget?.burgerName
+    ? `Premio — ${giveawayTarget.burgerName}`
+    : appliedCoupon
+      ? `Descuento ${appliedCoupon}`
+      : "Descuento";
 
   const canContinue = cart.items.length > 0;
   const couponApplied = Boolean(appliedCoupon);
@@ -128,15 +182,14 @@ export default function Carrito() {
     cross,
     pay,
     payCashAmount,
-    payTransferAmount,
     notes,
     whenMode,
     whenSlot,
     items: cart.items,
-    total: totalWithDiscount,
+    totals,
     couponCode: couponApplied ? appliedCoupon : "",
-    discountAmount: totalDiscount,
-    totalBefore: cart.total,
+    deliveryQuote,
+    location: selectedLocation,
   });
   const sendEnabled = !isClosed && canSend;
   React.useEffect(() => {
@@ -354,26 +407,8 @@ export default function Carrito() {
             </div>
           ) : null}
 
-          {totalDiscount > 0 ? (
-            <div className={styles.totalBreakdown}>
-              <div className={styles.totalBreakdownRow}>
-                <span>Subtotal</span>
-                <span>{formatMoney(cart.total)}</span>
-              </div>
-              <div className={styles.totalBreakdownRow}>
-                <span>
-                  {giveawayTarget?.burgerName
-                    ? `Premio — ${giveawayTarget.burgerName}`
-                    : "Descuento"}
-                </span>
-                <span>-{formatMoney(totalDiscount)}</span>
-              </div>
-              <div className={`${styles.totalBreakdownRow} ${styles.totalBreakdownFinal}`}>
-                <span>Total</span>
-                <span>{formatMoney(totalWithDiscount)}</span>
-              </div>
-            </div>
-          ) : null}
+          <TotalsBreakdown totals={totals} discountLabel={discountLabel} />
+
         </>
       ) : (
         <>
@@ -388,21 +423,25 @@ export default function Carrito() {
             cross={cross}
             onNameChange={setName}
             onAddressChange={setAddress}
+            onAddressLabel={setAddressLabel}
+            selectedLocation={selectedLocation}
+            onLocationChange={setSelectedLocation}
             onCrossChange={setCross}
+            deliveryQuote={deliveryQuote}
           />
+
+          <TotalsBreakdown totals={totals} discountLabel={discountLabel} />
 
           <PaymentScheduleCard
             pay={pay}
             payCashAmount={payCashAmount}
-            payTransferAmount={payTransferAmount}
-            total={totalWithDiscount}
+            total={grandTotal}
             whenMode={whenMode}
             whenSlot={whenSlot}
             availableSlots={slotOptions}
             notes={notes}
             onPayChange={setPay}
             onPayCashAmountChange={setPayCashAmount}
-            onPayTransferAmountChange={setPayTransferAmount}
             onWhenModeChange={setWhenMode}
             onWhenSlotChange={setWhenSlot}
             onNotesChange={setNotes}
@@ -423,7 +462,7 @@ export default function Carrito() {
       ) : null}
 
       <StickyBar>
-        <CartSummary total={totalWithDiscount} label="Total" />
+        <CartSummary total={grandTotal} label="Total" />
         {step === 1 ? (
           <div className={styles.stickyRight}>
             <Button

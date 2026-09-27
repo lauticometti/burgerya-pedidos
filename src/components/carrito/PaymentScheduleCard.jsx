@@ -1,5 +1,6 @@
 import Card from "../ui/Card";
 import { TextareaField, TextInput } from "../ui/FormFields";
+import { resolveMixedPayment } from "../../utils/checkoutTotals";
 import styles from "./PaymentScheduleCard.module.css";
 
 function digitsOnly(value) {
@@ -9,12 +10,10 @@ function digitsOnly(value) {
 export default function PaymentScheduleCard({
   pay,
   payCashAmount,
-  payTransferAmount,
   total = 0,
   notes,
   onPayChange,
   onPayCashAmountChange,
-  onPayTransferAmountChange,
   onNotesChange,
   whenMode,
   whenSlot,
@@ -23,29 +22,22 @@ export default function PaymentScheduleCard({
   onWhenSlotChange,
 }) {
   const isMixed = pay === "Mixto";
+  // Mixto: se guarda solo el efectivo; la transferencia es siempre
+  // total - efectivo. Si el total cambia (otra zona de envio, otro descuento)
+  // el efectivo se conserva y la transferencia se recalcula sola.
+  const mixed = resolveMixedPayment({ cashInput: payCashAmount, total });
 
   function selectMixed() {
     onPayChange("Mixto");
-    if (!payCashAmount && !payTransferAmount) {
-      onPayCashAmountChange(String(total));
-      onPayTransferAmountChange("0");
-    }
+    if (!mixed.valid) onPayCashAmountChange(String(total));
   }
 
   function handleCashChange(raw) {
-    const clean = digitsOnly(raw);
-    onPayCashAmountChange(clean);
-    if (clean === "") {
-      onPayTransferAmountChange("");
-      return;
-    }
-    const cashNum = Math.min(Number(clean), total);
-    onPayTransferAmountChange(String(Math.max(total - cashNum, 0)));
+    onPayCashAmountChange(digitsOnly(raw));
   }
 
   function handleTransferChange(raw) {
     const clean = digitsOnly(raw);
-    onPayTransferAmountChange(clean);
     if (clean === "") {
       onPayCashAmountChange("");
       return;
@@ -96,7 +88,7 @@ export default function PaymentScheduleCard({
                 type="text"
                 inputMode="numeric"
                 placeholder="$0"
-                value={payCashAmount}
+                value={mixed.cash == null ? payCashAmount : String(mixed.cash)}
                 onChange={(e) => handleCashChange(e.target.value)}
               />
             </div>
@@ -106,7 +98,7 @@ export default function PaymentScheduleCard({
                 type="text"
                 inputMode="numeric"
                 placeholder="$0"
-                value={payTransferAmount}
+                value={mixed.transfer == null ? "" : String(mixed.transfer)}
                 onChange={(e) => handleTransferChange(e.target.value)}
               />
             </div>

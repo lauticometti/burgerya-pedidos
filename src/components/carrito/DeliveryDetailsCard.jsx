@@ -1,6 +1,7 @@
-﻿import Card from "../ui/Card";
-import { TextInput } from "../ui/FormFields";
+import Card from "../ui/Card";
+import { AutoGrowTextField, TextInput } from "../ui/FormFields";
 import { DELIVERY_ENABLED } from "../../data/menu";
+import DeliveryLocationPicker from "./DeliveryLocationPicker";
 import styles from "./DeliveryDetailsCard.module.css";
 
 export default function DeliveryDetailsCard({
@@ -11,7 +12,11 @@ export default function DeliveryDetailsCard({
   cross,
   onNameChange,
   onAddressChange,
+  onAddressLabel,
+  selectedLocation,
+  onLocationChange,
   onCrossChange,
+  deliveryQuote,
 }) {
   const hasDeliveryMode = !!deliveryMode;
   const isDelivery = deliveryMode === "Delivery";
@@ -55,13 +60,15 @@ export default function DeliveryDetailsCard({
             />
             {isDelivery ? (
               <>
-                <TextInput
-                  placeholder="Calle y altura"
-                  value={address}
-                  autoComplete="street-address"
-                  onChange={(e) => onAddressChange(e.target.value)}
+                <DeliveryLocationPicker
+                  address={address}
+                  onAddressChange={onAddressChange}
+                  onAddressLabel={onAddressLabel}
+                  selectedLocation={selectedLocation}
+                  onLocationChange={onLocationChange}
+                  deliveryQuote={deliveryQuote}
                 />
-                <TextInput
+                <AutoGrowTextField
                   placeholder="Entre calles (opcional, pero ponelas)"
                   value={cross}
                   autoComplete="address-line2"

@@ -31,6 +31,14 @@ body,
   height: 100%;
 }
 
+/* iOS agranda el texto por su cuenta al girar a horizontal ("text inflation")
+   y rompe el layout. 100% lo desactiva SIN bloquear el zoom ni el tamaño de
+   texto que elija la persona (aA de Safari / pinch zoom siguen andando). */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   background: var(--bg);

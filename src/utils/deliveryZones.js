@@ -61,26 +61,78 @@ function pointInZone(lng, lat, zone) {
   return zone.parts.some((rings) => pointInPolygonRings(lng, lat, rings));
 }
 
+function zonesAt(lat, lng) {
+  return ZONES.filter((z) => pointInZone(lng, lat, z));
+}
+
+function cheapestOf(zones) {
+  return zones.reduce((min, z) => (z.deliveryPrice < min.deliveryPrice ? z : min));
+}
+
+// --- Costuras internas entre zonas -------------------------------------------
+// La reconstruccion de fronteras por calles dejo franjas finas SIN zona entre
+// dos zonas vecinas (ej. sobre Av. Gdor. Vergara, entre Z4 y Z5: 10-30 m de
+// ancho). Son errores de trazado, no exclusiones: un barrido de toda la
+// cobertura encontro ~290 franjas asi, todas de menos de 50 m de ancho.
+//
+// Regla: un punto sin zona que tiene zona cubierta en DOS direcciones opuestas
+// a <= SEAM_MAX_M cada una esta dentro de una costura interna, y se cotiza con
+// la tarifa mas baja de las zonas que lo rodean (misma politica que un
+// solapamiento). Como exige zona a ambos lados, NO agranda el borde exterior de
+// la cobertura ni tapa exclusiones reales anchas (el cementerio, ~550 m).
+// 25 m es el minimo que cierra el 100% de las costuras del barrido.
+export const SEAM_MAX_M = 25;
+const SEAM_STEP_M = 5;
+const METERS_PER_DEG_LAT = 111320;
+// 8 direcciones; la i y la i+4 son opuestas.
+const SEAM_DIRECTIONS = [
+  [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1],
+].map(([x, y]) => [x / Math.hypot(x, y), y / Math.hypot(x, y)]);
+
+function firstZoneAlong(lat, lng, [dx, dy]) {
+  const metersPerDegLng = METERS_PER_DEG_LAT * Math.cos((lat * Math.PI) / 180);
+  for (let d = SEAM_STEP_M; d <= SEAM_MAX_M; d += SEAM_STEP_M) {
+    const found = zonesAt(lat + (dy * d) / METERS_PER_DEG_LAT, lng + (dx * d) / metersPerDegLng);
+    if (found.length) return cheapestOf(found);
+  }
+  return null;
+}
+
+function seamZone(lat, lng) {
+  const hits = SEAM_DIRECTIONS.map((dir) => firstZoneAlong(lat, lng, dir));
+  const enclosed = [0, 1, 2, 3].some((i) => hits[i] && hits[i + 4]);
+  return enclosed ? cheapestOf(hits.filter(Boolean)) : null;
+}
+
 /**
  * Resuelve la zona de delivery para una coordenada.
  *
  * Si el punto cae dentro de mas de un poligono (solapamientos de bordes
  * dibujados a mano), gana la tarifa mas baja — nunca "el ultimo que matchea".
  *
- * No aplica ninguna heuristica de "zona mas cercana" para puntos que no
- * caen en ningun poligono: eso queda para una fase posterior, revisada
- * explicitamente antes de tocar geometria.
+ * Si no cae en ningun poligono pero esta en una costura interna entre zonas
+ * (ver SEAM_MAX_M), se cotiza con la zona mas barata que la rodea
+ * (`seam: true`). Fuera de eso no hay "zona mas cercana": un punto afuera de
+ * la cobertura es uncovered.
  */
 export function getDeliveryZone(lat, lng) {
-  const matches = ZONES.filter((z) => pointInZone(lng, lat, z));
+  const matches = zonesAt(lat, lng);
 
   if (matches.length === 0) {
+    const seam = seamZone(lat, lng);
+    if (seam) {
+      return {
+        covered: true,
+        zoneId: seam.id,
+        deliveryPrice: seam.deliveryPrice,
+        matches: [],
+        seam: true,
+      };
+    }
     return { covered: false, zoneId: null, deliveryPrice: null };
   }
 
-  const cheapest = matches.reduce((min, z) =>
-    z.deliveryPrice < min.deliveryPrice ? z : min,
-  );
+  const cheapest = cheapestOf(matches);
 
   return {
     covered: true,
@@ -93,4 +145,30 @@ export function getDeliveryZone(lat, lng) {
 
 export function listDeliveryZones() {
   return ZONES.map(({ id, name, deliveryPrice }) => ({ id, name, deliveryPrice }));
+}
+
+/**
+ * Caja delimitadora (lat/lng min y max) de TODAS las zonas de cobertura.
+ * Sirve para centrar el mapa (fitBounds) sin hardcodear un barrio a mano.
+ */
+export function getCoverageBounds() {
+  let north = -Infinity;
+  let south = Infinity;
+  let east = -Infinity;
+  let west = Infinity;
+
+  for (const zone of ZONES) {
+    for (const rings of zone.parts) {
+      for (const ring of rings) {
+        for (const [lng, lat] of ring) {
+          if (lat > north) north = lat;
+          if (lat < south) south = lat;
+          if (lng > east) east = lng;
+          if (lng < west) west = lng;
+        }
+      }
+    }
+  }
+
+  return { north, south, east, west };
 }

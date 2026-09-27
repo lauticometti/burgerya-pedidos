@@ -6,6 +6,7 @@
   transform: translateX(-50%);
   z-index: 9999;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
   width: min(360px, calc(100vw - 32px));
   pointer-events: none;

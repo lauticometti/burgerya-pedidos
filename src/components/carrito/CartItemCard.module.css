@@ -4,6 +4,7 @@
 
 .header {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 12px;
   align-items: flex-start;
@@ -11,6 +12,9 @@
 
 .titleRow {
   display: flex;
+  flex-wrap: wrap;
+  flex: 1 1 auto;
+  min-width: 0;
   gap: 10px;
   align-items: flex-start;
 }
@@ -30,10 +34,12 @@
 .nameBlock {
   display: grid;
   gap: 4px;
+  min-width: 0;
 }
 
 .name {
   font-weight: 700;
+  overflow-wrap: break-word;
 }
 
 .lockedTag {
@@ -110,6 +116,7 @@
 }
 
 .rightBlock {
+  margin-left: auto;
   display: flex;
   align-items: flex-start;
   gap: 8px;

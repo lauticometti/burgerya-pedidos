@@ -50,3 +50,12 @@
   }
 }
 
+/* Pantalla muy angosta (o zoom de texto al 200%): total arriba y el boton
+   abajo a todo el ancho, en vez de apretarlos en dos columnas. */
+@media (max-width: 300px) {
+  .inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+}
+
