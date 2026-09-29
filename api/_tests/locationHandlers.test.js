@@ -89,9 +89,9 @@ async function loadHandlers(env = {}) {
     if (val == null) delete process.env[key];
     else process.env[key] = String(val);
   }
-  const autocomplete = (await import("./autocomplete.js")).default;
-  const retrieve = (await import("./retrieve.js")).default;
-  const reverse = (await import("./reverse.js")).default;
+  const autocomplete = (await import("../location/autocomplete.js")).default;
+  const retrieve = (await import("../location/retrieve.js")).default;
+  const reverse = (await import("../location/reverse.js")).default;
   return { autocomplete, retrieve, reverse };
 }
 

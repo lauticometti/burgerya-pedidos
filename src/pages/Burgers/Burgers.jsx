@@ -5,7 +5,6 @@ import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
 import ArgentinaNamesNotice from "../../components/alerts/ArgentinaNamesNotice";
 import BrandLogo from "../../components/brand/BrandLogo";
 import CartSummary from "../../components/cart/CartSummary";
-import DeliveryMapLink from "../../components/delivery/DeliveryMapLink";
 import Page from "../../components/layout/Page";
 import StickyBar from "../../components/layout/StickyBar";
 import TopNav from "../../components/TopNav";
@@ -360,8 +359,6 @@ export default function Burgers() {
           </div>
         </section>
       ))}
-
-      <DeliveryMapLink className={styles.deliveryLinkBottom} />
 
       <BurgerModal
         open={modalOpen}

@@ -556,10 +556,6 @@
   height: 110%;
 }
 
-/* ── Delivery link ── */
-.deliveryLink {
-  margin: 32px 0 12px;
-}
 
 /* ── Desktop: más ancho para burgers ── */
 @media (min-width: 600px) {

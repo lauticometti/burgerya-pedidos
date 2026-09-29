@@ -1,6 +1,6 @@
 ﻿import React from "react";
 import { useCart } from "../../store/useCart";
-import { burgers, papas, DELIVERY_ENABLED } from "../../data/menu";
+import { burgers, papas } from "../../data/menu";
 import ModifyIngredientsModal from "../../components/carrito/ModifyIngredientsModal";
 import ModifyScopeDialog from "../../components/carrito/ModifyScopeDialog";
 import PromoPickModifiersModal from "../../components/carrito/PromoPickModifiersModal";
@@ -13,7 +13,6 @@ import CarritoHeader from "../../components/carrito/CarritoHeader";
 import DeliveryDetailsCard from "../../components/carrito/DeliveryDetailsCard";
 import PaymentScheduleCard from "../../components/carrito/PaymentScheduleCard";
 import BebidasModal from "../../components/carrito/BebidasModal";
-import DeliveryMapLink from "../../components/delivery/DeliveryMapLink";
 import CartGroupsList from "../../components/carrito/CartGroupsList";
 import PageTitle from "../../components/ui/PageTitle";
 import BrandLogo from "../../components/brand/BrandLogo";
@@ -412,9 +411,6 @@ export default function Carrito() {
         </>
       ) : (
         <>
-          {DELIVERY_ENABLED ? (
-            <DeliveryMapLink variant="compact" className={styles.deliveryLink} />
-          ) : null}
           <DeliveryDetailsCard
             deliveryMode={deliveryMode}
             onDeliveryModeChange={setDeliveryMode}

@@ -40,7 +40,10 @@ export function apiDevMiddlewarePlugin(env) {
         }
 
         const filePath = path.join(apiDir, `${relativePath}.js`);
-        if (!fs.existsSync(filePath)) {
+        // Igual que Vercel: lo que esta en carpetas/archivos con "_" o "."
+        // (helpers, tests) nunca es un endpoint.
+        const isPrivate = relativePath.split("/").some((seg) => seg.startsWith("_") || seg.startsWith("."));
+        if (isPrivate || !fs.existsSync(filePath)) {
           next();
           return;
         }
