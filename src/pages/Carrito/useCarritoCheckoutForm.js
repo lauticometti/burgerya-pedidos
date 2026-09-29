@@ -16,10 +16,16 @@ export default function useCarritoCheckoutForm() {
     deliveryMode: DELIVERY_ENABLED ? "" : "Retiro",
     name: "",
     address: "",
+    // Ubicacion resuelta: { lat, lng, source } donde source es "search",
+    // "geolocation" o "map". null hasta que se resuelve una ubicacion
+    // puntual por alguno de los tres metodos — nunca se infiere de texto
+    // libre para no cotizar sobre datos viejos.
+    selectedLocation: null,
     cross: "",
     pay: "Efectivo",
+    // Mixto: solo se guarda el efectivo; la transferencia se deriva del total
+    // (ver resolveMixedPayment en utils/checkoutTotals).
     payCashAmount: "",
-    payTransferAmount: "",
     notes: "",
     whenMode: "Ahora",
     whenSlot: "",
@@ -38,9 +44,17 @@ export default function useCarritoCheckoutForm() {
 
       if (!DELIVERY_ENABLED && saved.deliveryMode === "Delivery") {
         saved.deliveryMode = "Retiro";
-        saved.address = "";
         saved.cross = "";
       }
+
+      // La ubicacion (y su direccion) NO se restauran: hay que confirmarlas en
+      // cada visita. Restaurarlas dejaba una cotizacion vieja pegada y hacia
+      // que el mapa abriera en un pin de una prueba anterior. Tambien limpia
+      // lo que hayan guardado versiones anteriores.
+      delete saved.selectedLocation;
+      delete saved.addressCoords;
+      delete saved.address;
+      delete saved.payTransferAmount; // versiones viejas: ahora es derivado
 
       const resetVersion = window.localStorage.getItem(WHEN_MODE_RESET_KEY);
       if (resetVersion !== WHEN_MODE_RESET_VERSION) {
@@ -62,7 +76,9 @@ export default function useCarritoCheckoutForm() {
   React.useEffect(() => {
     if (typeof window === "undefined" || !window.localStorage) return;
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+      // Sin ubicacion ni direccion: se confirman en cada visita (ver arriba).
+      const { selectedLocation: _location, address: _address, ...persistable } = formData;
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(persistable));
     } catch {
       // ignore storage errors
     }
@@ -81,11 +97,17 @@ export default function useCarritoCheckoutForm() {
     updateField,
     setDeliveryMode: (val) => updateField("deliveryMode", val),
     setName: (val) => updateField("name", val),
-    setAddress: (val) => updateField("address", val),
+    // Editar el texto a mano invalida cualquier ubicacion resuelta antes —
+    // nunca dejamos una cotizacion vieja pegada a una direccion nueva.
+    setAddress: (val) =>
+      setFormData((prev) => ({ ...prev, address: val, selectedLocation: null })),
+    setSelectedLocation: (loc) => updateField("selectedLocation", loc),
+    // Escribe el texto de la direccion SIN invalidar la ubicacion (lo usa la
+    // direccion que se obtiene del pin / la ubicacion actual).
+    setAddressLabel: (val) => updateField("address", val),
     setCross: (val) => updateField("cross", val),
     setPay: (val) => updateField("pay", val),
     setPayCashAmount: (val) => updateField("payCashAmount", val),
-    setPayTransferAmount: (val) => updateField("payTransferAmount", val),
     setNotes: (val) => updateField("notes", val),
     setWhenMode: (val) => updateField("whenMode", val),
     setWhenSlot: (val) => updateField("whenSlot", val),

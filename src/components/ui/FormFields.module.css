@@ -2,6 +2,7 @@
 .select,
 .textarea {
   width: 100%;
+  min-width: 0;
   background: #0f0f0f;
   color: var(--text);
   border: 1px solid var(--line);
@@ -14,6 +15,15 @@
 
 .textarea {
   resize: none;
+}
+
+/* Direccion: textarea de una linea que crece para mostrar la direccion
+   completa (con la altura) en vez de cortarla como un input. */
+.autoGrow {
+  resize: none;
+  overflow: hidden;
+  line-height: 1.3;
+  display: block;
 }
 
 

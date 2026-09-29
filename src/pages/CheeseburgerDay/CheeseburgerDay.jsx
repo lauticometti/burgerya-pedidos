@@ -4,6 +4,7 @@ import { createBebidaItem, createDipItem } from "../../utils/cartItemBuilders";
 import { formatMoney } from "../../utils/formatMoney";
 import { useStoreStatus } from "../../utils/storeClosedMode";
 import useCheckoutValidation from "../Carrito/useCheckoutValidation";
+import { computeCheckoutTotals } from "../../utils/checkoutTotals";
 import {
   CHEESEBURGER_DAY_PRICE,
   CHEESEBURGER_DAY_SOLD_OUT,
@@ -95,13 +96,10 @@ export default function CheeseburgerDay() {
     cross,
     pay,
     payCashAmount,
-    payTransferAmount,
     notes,
     items,
-    total,
+    totals: computeCheckoutTotals({ productsSubtotal: total, deliveryMode: effectiveDeliveryMode }),
     couponCode: "",
-    discountAmount: 0,
-    totalBefore: total,
     whenMode: WHEN_MODE,
     whenSlot: WHEN_SLOT,
   });

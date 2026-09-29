@@ -16,13 +16,13 @@
 
 .stepButton {
   min-width: 0;
-  min-height: 28px;
-  padding: 5px 8px;
+  min-height: 36px;
+  padding: 6px 8px;
   border-radius: 10px;
-  font-size: 11px;
-  line-height: 1.05;
+  font-size: 12px;
+  line-height: 1.2;
   letter-spacing: -0.01em;
-  white-space: nowrap;
+  white-space: normal;
   background: rgba(255, 255, 255, 0.05) !important;
   border: 1px solid rgba(255, 255, 255, 0.10) !important;
   color: rgba(255, 255, 255, 0.45) !important;
@@ -44,14 +44,15 @@
   }
 
   .stepButton {
-    min-height: 26px;
-    padding: 4px 6px;
-    font-size: 10px;
+    min-height: 36px;
+    padding: 6px;
+    font-size: 11px;
     letter-spacing: -0.02em;
   }
 }
 .items {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
 }
 
@@ -337,24 +338,45 @@
   color: rgba(255, 255, 255, 0.85);
 }
 
+/* Resumen Subtotal / Descuento / Envío / Total: bloque propio con aire, para
+   que no quede pegado a la tarjeta de pago. Etiquetas pueden hacer wrap; los
+   montos nunca se cortan. */
 .totalBreakdown {
-  margin-top: 10px;
+  margin: 12px 0;
+  padding: 12px 14px;
   display: grid;
-  gap: 4px;
-  font-size: 13px;
+  gap: 6px;
+  font-size: 14px;
+  line-height: 1.3;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
 }
 
 .totalBreakdownRow {
   display: flex;
   justify-content: space-between;
+  align-items: baseline;
   gap: 12px;
-  opacity: 0.8;
+  opacity: 0.85;
+}
+
+.totalBreakdownRow > span:first-child {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.totalBreakdownRow > span:last-child {
+  flex: none;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .totalBreakdownFinal {
   margin-top: 2px;
-  padding-top: 6px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 16px;
   font-weight: 800;
   opacity: 1;
 }

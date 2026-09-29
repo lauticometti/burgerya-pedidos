@@ -1,0 +1,104 @@
+.wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+
+.methodRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
+  gap: 6px;
+}
+
+.methodButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  appearance: none;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 10px 6px;
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 700;
+  text-align: center;
+  overflow-wrap: break-word;
+  min-width: 0;
+  cursor: pointer;
+  min-height: 56px;
+}
+
+.methodButton:active {
+  transform: scale(0.98);
+}
+
+.methodButtonActive {
+  border-color: var(--y);
+  background: rgba(255, 198, 42, 0.12);
+  color: var(--y);
+}
+
+.methodPanel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+
+.labelField {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+}
+
+.labelTitle {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.labelHint {
+  font-size: 12px;
+  opacity: 0.65;
+}
+
+.labelHintWarn {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--y);
+}
+
+.geoNotice {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 198, 42, 0.45);
+  border-radius: 12px;
+  background: rgba(255, 198, 42, 0.08);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--y);
+}
+
+.geoConfirm {
+  appearance: none;
+  justify-self: start;
+  border: 1px solid var(--y);
+  border-radius: 10px;
+  background: var(--y);
+  color: #111;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.geoConfirm:active {
+  transform: scale(0.98);
+}

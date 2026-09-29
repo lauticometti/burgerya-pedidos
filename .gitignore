@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Secretos server-side (Google Places key, firma de sesion, Redis) — nunca commitear
+.env
+.env.*
+!.env.example
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
