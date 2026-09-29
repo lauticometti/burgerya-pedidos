@@ -17,6 +17,10 @@ const ENV_KEYS = [
   "MAX_REVERSE_LOOKUPS_PER_DAY",
   "RATE_LIMIT_REVERSE_BURST_MAX",
   "RATE_LIMIT_IP_NEW_SESSIONS_PER_HOUR",
+  "VERCEL_ENV",
+  "SESSION_SIGNING_SECRET",
+  "UPSTASH_REDIS_REST_URL",
+  "UPSTASH_REDIS_REST_TOKEN",
 ];
 
 function makeRes() {
@@ -526,5 +530,43 @@ describe("reverse: pin -> direccion, con costos acotados", () => {
     expect(res.statusCode).toBe(503);
     expect(res.body.error).toBe("provider_quota_exhausted");
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("produccion: configuracion obligatoria (falla cerrado, nunca 500)", () => {
+  const calls = async ({ autocomplete, retrieve, reverse }) => {
+    const out = [];
+    for (const [handler, body] of [
+      [autocomplete, { input: "Malaspina 1602", sessionToken: "tok-p" }],
+      [retrieve, { id: "id-1", sessionToken: "tok-p" }],
+      [reverse, { lat: Z1.lat, lng: Z1.lng }],
+    ]) {
+      const res = makeRes();
+      await handler(makeReq(body), res);
+      out.push(res);
+    }
+    return out;
+  };
+
+  it("sin SESSION_SIGNING_SECRET responde 503 seguro en los 3 endpoints y no llama a Google", async () => {
+    const handlers = await loadHandlers({
+      VERCEL_ENV: "production",
+      UPSTASH_REDIS_REST_URL: "https://redis.example",
+      UPSTASH_REDIS_REST_TOKEN: "t",
+    });
+    for (const res of await calls(handlers)) {
+      expect(res.statusCode).toBe(503);
+      expect(res.body.error).toBe("service_unavailable");
+    }
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("sin Upstash (UPSTASH_REDIS_REST_URL / _TOKEN) responde 503 seguro en los 3 endpoints y no llama a Google", async () => {
+    const handlers = await loadHandlers({ VERCEL_ENV: "production", SESSION_SIGNING_SECRET: "s" });
+    for (const res of await calls(handlers)) {
+      expect(res.statusCode).toBe(503);
+      expect(res.body.error).toBe("service_unavailable");
+    }
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

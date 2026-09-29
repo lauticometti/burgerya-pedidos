@@ -1,4 +1,4 @@
-import { readSessionId, createSessionId, buildSessionCookie, getClientIp, hashIp } from "../_lib/session.js";
+import { readSessionId, createSessionId, buildSessionCookie, getClientIp, hashIp, requireSecretConfigured } from "../_lib/session.js";
 import { registerNewSession, registerReverse } from "../_lib/rateLimit.js";
 import { limitedBody, logLimit } from "../_lib/limitResponse.js";
 import { reverse, isConfigured, GooglePlacesError } from "../_lib/googleLocation.js";
@@ -23,6 +23,13 @@ export default async function handler(req, res) {
   }
 
   if (isProductionWithoutRedis()) {
+    res.status(503).json({ error: "service_unavailable", message: SAFE_UNAVAILABLE_MESSAGE });
+    return;
+  }
+
+  // Sin SESSION_SIGNING_SECRET en produccion no se pueden firmar sesiones
+  // (crypto tiraria una excepcion -> 500): fallamos cerrado con un 503 seguro.
+  if (!requireSecretConfigured()) {
     res.status(503).json({ error: "service_unavailable", message: SAFE_UNAVAILABLE_MESSAGE });
     return;
   }
