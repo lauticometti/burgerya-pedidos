@@ -87,3 +87,44 @@ describe.each(["TEDEBEMOSUNA", "VOLVEYA"])("+1 carne con promo del dia: %s", (co
     expect(result.message).toBe("Promo aplicada: tu doble se convierte en triple gratis 🍔");
   });
 });
+
+describe("REGALITO", () => {
+  it("acepta el codigo sin importar mayusculas ni espacios", () => {
+    for (const input of ["REGALITO", "regalito", "  Regalito ", "rega lito"]) {
+      expect(evalCode(input, [DOBLE]).appliedCode).toBe("REGALITO");
+    }
+  });
+
+  it("1 carne por pedido sobre una doble normal, sin recargo, con su mensaje", () => {
+    const result = evalCode("REGALITO", [SIMPLE, DOBLE]);
+    expect(result.discount).toBe(0);
+    expect(result.surcharge).toBe(0);
+    expect(result.freeMeat).toMatchObject({ lineKey: DOBLE.key, burgerName: "Cheese", lineQty: 2 });
+    expect(result.message).toBe("Código aplicado: tu doble pasa a triple 🍔");
+  });
+
+  it("doble con promo del dia: vuelve a precio normal (1 unidad) y pasa a triple", () => {
+    const result = evalCode("REGALITO", [AMERICAN_PROMO_SIMPLE, AMERICAN_PROMO]);
+    expect(result.error).toBeUndefined();
+    expect(result.surcharge).toBe(1500);
+    expect(result.freeMeat.lineKey).toBe(AMERICAN_PROMO.key);
+    expect(result.message).toBe("Código aplicado: tu doble pasa a triple 🍔");
+  });
+
+  it("prioriza la doble a precio normal para no quitar la promo del dia", () => {
+    const result = evalCode("REGALITO", [AMERICAN_PROMO, CHEESE_NORMAL]);
+    expect(result.freeMeat.lineKey).toBe(CHEESE_NORMAL.key);
+    expect(result.surcharge).toBe(0);
+  });
+
+  it("sin doble pide agregar una", () => {
+    expect(evalCode("REGALITO", [SIMPLE, TRIPLE]).error).toBe(
+      "REGALITO es para hamburguesas dobles: agregá una doble al carrito",
+    );
+  });
+
+  it("vale hasta el jueves 01/10 23:59 y vence el viernes 02/10 00:00 (BA)", () => {
+    expect(evalCode("REGALITO", [DOBLE], new Date("2026-10-01T23:59:59-03:00")).appliedCode).toBe("REGALITO");
+    expect(evalCode("REGALITO", [DOBLE], new Date("2026-10-02T00:00:00-03:00")).error).toBe("La promo REGALITO finalizó");
+  });
+});

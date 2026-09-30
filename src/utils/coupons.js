@@ -28,6 +28,7 @@ export const COUPON_CODES = {
   jueves17: "JUEVES17",
   tedebemosuna: "TEDEBEMOSUNA",
   volveya: "VOLVEYA",
+  regalito: "REGALITO",
 };
 
 // Variantes toleradas para que los clientes puedan escribir "combo ya" con espacios o guiones.
@@ -42,6 +43,7 @@ const JUEVES17_COUPON_EXPIRY_TS = new Date(2026, 8, 18, 0, 0, 0).getTime(); // v
 // Offset -03:00 explícito: vence a las 00:00 de BA aunque el celular del cliente tenga otra zona horaria.
 const TEDEBEMOSUNA_COUPON_EXPIRY_TS = Date.parse("2026-10-02T00:00:00-03:00"); // viernes 02/10/2026 00:00 (BA) -> vale miércoles 30/9 y jueves 1/10
 const VOLVEYA_COUPON_EXPIRY_TS = Date.parse("2026-10-02T00:00:00-03:00"); // viernes 02/10/2026 00:00 (BA) -> vale miércoles 30/9 y jueves 1/10
+const REGALITO_COUPON_EXPIRY_TS = Date.parse("2026-10-02T00:00:00-03:00"); // viernes 02/10/2026 00:00 (BA) -> vale miércoles 30/9 y jueves 1/10
 const COMBO_TARGETS = { simple: 12990, doble: 15990 };
 const CHEESE_10_LUCAS_TARGET = 10000;
 
@@ -164,12 +166,19 @@ function isJueves17CouponActive(nowTs = Date.now()) {
 const FREE_MEAT_COUPON_EXPIRY = {
   [COUPON_CODES.tedebemosuna]: TEDEBEMOSUNA_COUPON_EXPIRY_TS,
   [COUPON_CODES.volveya]: VOLVEYA_COUPON_EXPIRY_TS,
+  [COUPON_CODES.regalito]: REGALITO_COUPON_EXPIRY_TS,
 };
 
 export const FREE_MEAT_PROMO_MESSAGE =
   "Promo aplicada: tu doble se convierte en triple gratis 🍔";
 // Cuando la doble elegida venía con precio promo (ej. promo del día).
 export const FREE_MEAT_REPRICED_MESSAGE = "Código aplicado: tu doble pasa a triple 🍔";
+
+// Mensaje fijo por código (opcional). Sin entrada: depende de si la doble
+// venía con precio promo.
+const FREE_MEAT_COUPON_MESSAGE = {
+  [COUPON_CODES.regalito]: FREE_MEAT_REPRICED_MESSAGE,
+};
 
 // 1 carne extra gratis por pedido sobre una burger doble. No descuenta plata:
 // el cliente paga la doble y la cocina la hace triple. Prefiere una doble a
@@ -447,7 +456,9 @@ if (normalized === COUPON_CODES.weekend20) {
       };
     }
     const surcharge = getOfferSurcharge(target);
-    const message = surcharge > 0 ? FREE_MEAT_REPRICED_MESSAGE : FREE_MEAT_PROMO_MESSAGE;
+    const message =
+      FREE_MEAT_COUPON_MESSAGE[normalized] ||
+      (surcharge > 0 ? FREE_MEAT_REPRICED_MESSAGE : FREE_MEAT_PROMO_MESSAGE);
     return {
       appliedCode: normalized,
       discount: 0,

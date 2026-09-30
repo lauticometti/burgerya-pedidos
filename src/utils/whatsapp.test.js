@@ -211,3 +211,17 @@ describe("WhatsApp: +1 carne sobre una doble con promo del dia", () => {
     expect(message).toContain("Total: $15.500 Transferencia");
   });
 });
+
+describe("WhatsApp: REGALITO", () => {
+  it("cocina ve solo el producto final", () => {
+    const items = [
+      { key: "burger:american:doble", name: "American", qty: 1, unitPrice: 14000, meta: { type: "burger", size: "doble", basePrice: 15500 } },
+    ];
+    const totals = computeCheckoutTotals({ productsSubtotal: 15500, deliveryMode: "Retiro" });
+    const kitchen = kitchenSection(
+      text({ deliveryMode: "Retiro", items, totals, freeMeatPromo: { code: "REGALITO", lineKey: "burger:american:doble" } }),
+    );
+    expect(kitchen).toBe(["BURGERS", "1 American triple"].join("\n"));
+    expect(kitchen).not.toMatch(/promo|gratis|regalito|🎁/i);
+  });
+});
