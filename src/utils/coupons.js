@@ -27,6 +27,7 @@ export const COUPON_CODES = {
   miercoles16: "MIERCOLES16",
   jueves17: "JUEVES17",
   tedebemosuna: "TEDEBEMOSUNA",
+  volveya: "VOLVEYA",
 };
 
 // Variantes toleradas para que los clientes puedan escribir "combo ya" con espacios o guiones.
@@ -40,6 +41,7 @@ const MIERCOLES16_COUPON_EXPIRY_TS = new Date(2026, 8, 17, 0, 0, 0).getTime(); /
 const JUEVES17_COUPON_EXPIRY_TS = new Date(2026, 8, 18, 0, 0, 0).getTime(); // viernes 18/09/2026 00:00 (BA) -> vence jueves 17/9 a las 00hs
 // Offset -03:00 explícito: vence a las 00:00 de BA aunque el celular del cliente tenga otra zona horaria.
 const TEDEBEMOSUNA_COUPON_EXPIRY_TS = Date.parse("2026-10-02T00:00:00-03:00"); // viernes 02/10/2026 00:00 (BA) -> vale miércoles 30/9 y jueves 1/10
+const VOLVEYA_COUPON_EXPIRY_TS = Date.parse("2026-10-02T00:00:00-03:00"); // viernes 02/10/2026 00:00 (BA) -> vale miércoles 30/9 y jueves 1/10
 const COMBO_TARGETS = { simple: 12990, doble: 15990 };
 const CHEESE_10_LUCAS_TARGET = 10000;
 
@@ -157,16 +159,19 @@ function isJueves17CouponActive(nowTs = Date.now()) {
   return nowTs < JUEVES17_COUPON_EXPIRY_TS;
 }
 
-function isTedebemosunaCouponActive(nowTs = Date.now()) {
-  return nowTs < TEDEBEMOSUNA_COUPON_EXPIRY_TS;
-}
+// Códigos "doble -> triple gratis" (código -> vencimiento). Para sumar otro
+// código con el mismo beneficio, agregarlo acá con su fecha.
+const FREE_MEAT_COUPON_EXPIRY = {
+  [COUPON_CODES.tedebemosuna]: TEDEBEMOSUNA_COUPON_EXPIRY_TS,
+  [COUPON_CODES.volveya]: VOLVEYA_COUPON_EXPIRY_TS,
+};
 
 export const FREE_MEAT_PROMO_MESSAGE =
   "Promo aplicada: tu doble se convierte en triple gratis 🍔";
 
-// TEDEBEMOSUNA: 1 carne extra gratis por pedido sobre una burger doble. No
-// descuenta plata: el cliente paga la doble y la cocina la hace triple. Va
-// sobre la primera línea doble del carrito (orden en que se agregó).
+// 1 carne extra gratis por pedido sobre una burger doble. No descuenta plata:
+// el cliente paga la doble y la cocina la hace triple. Va sobre la primera
+// línea doble del carrito (orden en que se agregó).
 function findFreeMeatTarget(cartItems = []) {
   return (
     cartItems.find(
@@ -418,22 +423,22 @@ if (normalized === COUPON_CODES.weekend20) {
     };
   }
 
-  if (normalized === COUPON_CODES.tedebemosuna) {
-    if (!isTedebemosunaCouponActive(nowTs)) {
+  if (Object.prototype.hasOwnProperty.call(FREE_MEAT_COUPON_EXPIRY, normalized)) {
+    if (nowTs >= FREE_MEAT_COUPON_EXPIRY[normalized]) {
       return {
-        error: `La promo ${COUPON_CODES.tedebemosuna} finalizó`,
+        error: `La promo ${normalized} finalizó`,
         discount: 0,
       };
     }
     const target = findFreeMeatTarget(cartItems);
     if (!target) {
       return {
-        error: `${COUPON_CODES.tedebemosuna} es para hamburguesas dobles: agregá una doble al carrito`,
+        error: `${normalized} es para hamburguesas dobles: agregá una doble al carrito`,
         discount: 0,
       };
     }
     return {
-      appliedCode: COUPON_CODES.tedebemosuna,
+      appliedCode: normalized,
       discount: 0,
       freeMeat: {
         lineKey: target.key,

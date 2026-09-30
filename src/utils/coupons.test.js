@@ -10,32 +10,38 @@ function evalCode(code, cartItems, now = VALID_NOW) {
   return evaluateCoupon({ code, cartItems, now });
 }
 
-describe("TEDEBEMOSUNA", () => {
+describe.each([
+  ["TEDEBEMOSUNA", ["tedebemosuna", "  TeDebemosUna ", "t edebemosuna"]],
+  ["VOLVEYA", ["volveya", "  VolveYa ", "volve ya", "VOLVE-YA"]],
+])("doble -> triple gratis: %s", (code, variants) => {
   it("acepta el codigo sin importar mayusculas ni espacios", () => {
-    for (const code of ["TEDEBEMOSUNA", "tedebemosuna", "  TeDebemosUna ", "t edebemosuna"]) {
-      expect(evalCode(code, [DOBLE]).appliedCode).toBe("TEDEBEMOSUNA");
+    for (const input of [code, ...variants]) {
+      expect(evalCode(input, [DOBLE]).appliedCode).toBe(code);
     }
   });
 
   it("es 1 carne por pedido sobre la primera doble, sin descuento de plata", () => {
-    const result = evalCode("TEDEBEMOSUNA", [SIMPLE, DOBLE]);
+    const result = evalCode(code, [SIMPLE, DOBLE]);
     expect(result.discount).toBe(0);
     expect(result.freeMeat).toEqual({ lineKey: DOBLE.key, burgerName: "Cheese", lineQty: 2 });
     expect(result.message).toBe("Promo aplicada: tu doble se convierte en triple gratis 🍔");
   });
 
-  it("sin doble en el carrito no aplica", () => {
-    const result = evalCode("TEDEBEMOSUNA", [SIMPLE, TRIPLE]);
+  it("sin doble en el carrito pide agregar una", () => {
+    const result = evalCode(code, [SIMPLE, TRIPLE]);
     expect(result.appliedCode).toBeUndefined();
-    expect(result.error).toMatch(/dobles/);
+    expect(result.error).toBe(`${code} es para hamburguesas dobles: agregá una doble al carrito`);
   });
 
-  it("vence el viernes 02/10 00:00 (BA)", () => {
-    const result = evalCode("TEDEBEMOSUNA", [DOBLE], new Date("2026-10-02T00:00:00-03:00"));
-    expect(result.error).toBe("La promo TEDEBEMOSUNA finalizó");
+  it("vale hasta el jueves 01/10 23:59 y vence el viernes 02/10 00:00 (BA)", () => {
+    expect(evalCode(code, [DOBLE], new Date("2026-10-01T23:59:59-03:00")).appliedCode).toBe(code);
+    expect(evalCode(code, [DOBLE], new Date("2026-10-02T00:00:00-03:00")).error).toBe(`La promo ${code} finalizó`);
   });
+});
 
+describe("codigos invalidos", () => {
   it("codigo inexistente", () => {
     expect(evalCode("TEDEBEMOSDOS", [DOBLE]).error).toBe("Código inválido");
+    expect(evalCode("VOLVEMOS", [DOBLE]).error).toBe("Código inválido");
   });
 });

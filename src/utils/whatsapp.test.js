@@ -160,3 +160,13 @@ describe("WhatsApp: promo TEDEBEMOSUNA", () => {
     expect(text()).not.toContain("carne GRATIS");
   });
 });
+
+describe("WhatsApp: promo VOLVEYA", () => {
+  it("misma comanda que TEDEBEMOSUNA con su propio codigo", () => {
+    const message = text({ deliveryMode: "Retiro", freeMeatPromo: { code: "VOLVEYA", lineKey: "burger:oklahoma:doble" } });
+    expect(message).toContain("2 Oklahoma dobles\n  🎁 +1 carne GRATIS: 1 de las 2 va TRIPLE\n");
+    expect(tail(message)).toBe(
+      ["", "🎁 Promo VOLVEYA: +1 carne GRATIS", "Total: $30.000 Transferencia"].join("\n"),
+    );
+  });
+});
