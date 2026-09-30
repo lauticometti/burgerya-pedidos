@@ -36,6 +36,9 @@ export function buildWhatsAppText({
   items,
   totals,
   couponCode,
+  // Promo TEDEBEMOSUNA ({ code, lineKey }): marca en la comanda cuál doble va
+  // triple sin cargo y suma la línea de promo en el bloque de totales.
+  freeMeatPromo = null,
   whenMode,
   whenSlot,
   location = null,
@@ -131,6 +134,13 @@ export function buildWhatsAppText({
         const sizeLabel = it.meta?.burgerId === "cheese_promo" ? null : getSizeLabel(it);
         const sizeSuffix = sizeLabel ? ` ${sizeLabel}` : "";
         lines.push(`${it.qty} ${capitalize(displayName(it.name).toLowerCase())}${sizeSuffix}`);
+        if (freeMeatPromo && it.key === freeMeatPromo.lineKey) {
+          lines.push(
+            it.qty > 1
+              ? `  🎁 +1 carne GRATIS: 1 de las ${it.qty} va TRIPLE`
+              : "  🎁 +1 carne GRATIS: va TRIPLE",
+          );
+        }
       }
 
       if (it.removedIngredients?.length) {
@@ -158,6 +168,7 @@ export function buildWhatsAppText({
       deliveryMode,
       totals,
       couponCode,
+      freeMeatPromo,
       pay,
       payCashAmount,
       payTransferAmount,
@@ -204,7 +215,7 @@ function formatPayment(pay, grandTotal, payCashAmount, payTransferAmount) {
 
 // Resumen financiero en un solo bloque: Subtotal, [Descuento], [Envio], Total.
 // Retiro sin descuento queda como siempre: solo el total con la forma de pago.
-function formatTotalsBlock({ deliveryMode, totals, couponCode, pay, payCashAmount, payTransferAmount }) {
+function formatTotalsBlock({ deliveryMode, totals, couponCode, freeMeatPromo, pay, payCashAmount, payTransferAmount }) {
   const { productsSubtotal, discountAmount, deliveryFee, grandTotal } = totals;
   const isDelivery = deliveryMode === "Delivery";
   const hasDiscount = discountAmount > 0;
@@ -215,6 +226,9 @@ function formatTotalsBlock({ deliveryMode, totals, couponCode, pay, payCashAmoun
   if (hasDiscount) {
     const label = couponCode ? `Descuento ${couponCode}` : "Descuento";
     lines.push(`${label}: -${formatMoney(discountAmount)}`);
+  }
+  if (freeMeatPromo) {
+    lines.push(`🎁 Promo ${freeMeatPromo.code}: +1 carne GRATIS`);
   }
   if (isDelivery) {
     lines.push(`Envío: ${formatMoney(deliveryFee)}`);

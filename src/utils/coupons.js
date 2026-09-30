@@ -26,6 +26,7 @@ export const COUPON_CODES = {
   cheese10Lucas: "CHEESE10LUCAS",
   miercoles16: "MIERCOLES16",
   jueves17: "JUEVES17",
+  tedebemosuna: "TEDEBEMOSUNA",
 };
 
 // Variantes toleradas para que los clientes puedan escribir "combo ya" con espacios o guiones.
@@ -37,6 +38,8 @@ const PRODE_COUPON_EXPIRY_TS = new Date(2026, 6, 17, 0, 1, 0).getTime(); // vier
 const MATI_AMERICAN_COUPON_EXPIRY_TS = new Date(2026, 7, 7, 21, 0, 0).getTime(); // viernes 07/08/2026 21:00 (BA)
 const MIERCOLES16_COUPON_EXPIRY_TS = new Date(2026, 8, 17, 0, 0, 0).getTime(); // jueves 17/09/2026 00:00 (BA) -> vence miércoles 16/9 a las 00hs
 const JUEVES17_COUPON_EXPIRY_TS = new Date(2026, 8, 18, 0, 0, 0).getTime(); // viernes 18/09/2026 00:00 (BA) -> vence jueves 17/9 a las 00hs
+// Offset -03:00 explícito: vence a las 00:00 de BA aunque el celular del cliente tenga otra zona horaria.
+const TEDEBEMOSUNA_COUPON_EXPIRY_TS = Date.parse("2026-10-02T00:00:00-03:00"); // viernes 02/10/2026 00:00 (BA) -> vale miércoles 30/9 y jueves 1/10
 const COMBO_TARGETS = { simple: 12990, doble: 15990 };
 const CHEESE_10_LUCAS_TARGET = 10000;
 
@@ -152,6 +155,25 @@ function isMiercoles16CouponActive(nowTs = Date.now()) {
 
 function isJueves17CouponActive(nowTs = Date.now()) {
   return nowTs < JUEVES17_COUPON_EXPIRY_TS;
+}
+
+function isTedebemosunaCouponActive(nowTs = Date.now()) {
+  return nowTs < TEDEBEMOSUNA_COUPON_EXPIRY_TS;
+}
+
+export const FREE_MEAT_PROMO_MESSAGE =
+  "Promo aplicada: tu doble se convierte en triple gratis 🍔";
+
+// TEDEBEMOSUNA: 1 carne extra gratis por pedido sobre una burger doble. No
+// descuenta plata: el cliente paga la doble y la cocina la hace triple. Va
+// sobre la primera línea doble del carrito (orden en que se agregó).
+function findFreeMeatTarget(cartItems = []) {
+  return (
+    cartItems.find(
+      (it) =>
+        it.meta?.type === "burger" && it.meta?.size === "doble" && it.qty > 0,
+    ) || null
+  );
 }
 
 function hasBurger(cartItems = []) {
@@ -393,6 +415,33 @@ if (normalized === COUPON_CODES.weekend20) {
       appliedCode: COUPON_CODES.jueves17,
       discount,
       message: `${COUPON_CODES.jueves17} aplicado: 10% off en burgers (no aplica a Smoklahoma) hasta hoy 00:00 (BA)`,
+    };
+  }
+
+  if (normalized === COUPON_CODES.tedebemosuna) {
+    if (!isTedebemosunaCouponActive(nowTs)) {
+      return {
+        error: `La promo ${COUPON_CODES.tedebemosuna} finalizó`,
+        discount: 0,
+      };
+    }
+    const target = findFreeMeatTarget(cartItems);
+    if (!target) {
+      return {
+        error: `${COUPON_CODES.tedebemosuna} es para hamburguesas dobles: agregá una doble al carrito`,
+        discount: 0,
+      };
+    }
+    return {
+      appliedCode: COUPON_CODES.tedebemosuna,
+      discount: 0,
+      freeMeat: {
+        lineKey: target.key,
+        burgerName:
+          burgersById[target.meta?.burgerId]?.name || target.name || "",
+        lineQty: target.qty,
+      },
+      message: FREE_MEAT_PROMO_MESSAGE,
     };
   }
 

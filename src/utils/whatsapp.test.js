@@ -144,3 +144,19 @@ describe("WhatsApp: Retiro", () => {
     );
   });
 });
+
+describe("WhatsApp: promo TEDEBEMOSUNA", () => {
+  const promo = { code: "TEDEBEMOSUNA", lineKey: "burger:oklahoma:doble" };
+
+  it("marca la doble que va triple y suma la linea de promo sin tocar montos", () => {
+    const message = text({ deliveryMode: "Retiro", freeMeatPromo: promo });
+    expect(message).toContain("2 Oklahoma dobles\n  🎁 +1 carne GRATIS: 1 de las 2 va TRIPLE\n");
+    expect(tail(message)).toBe(
+      ["", "🎁 Promo TEDEBEMOSUNA: +1 carne GRATIS", "Total: $30.000 Transferencia"].join("\n"),
+    );
+  });
+
+  it("sin promo no aparece nada", () => {
+    expect(text()).not.toContain("carne GRATIS");
+  });
+});

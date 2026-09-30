@@ -38,6 +38,13 @@ export default function useCouponCode(cartItems, cartTotal) {
         }),
       }
     : null;
+  const freeMeatPromo = React.useMemo(
+    () =>
+      appliedCoupon && discountResult?.freeMeat
+        ? { ...discountResult.freeMeat, code: appliedCoupon }
+        : null,
+    [appliedCoupon, discountResult],
+  );
 
   React.useEffect(() => {
     if (!appliedCoupon) return;
@@ -80,6 +87,28 @@ export default function useCouponCode(cartItems, cartTotal) {
     }
   }, [couponCode, cartItems, cartTotal]);
 
+  // Revalida el cupón aplicado con la hora actual, justo antes de enviar. El
+  // memo de arriba solo recalcula cuando cambia el carrito: si el cupón venció
+  // con el carrito abierto, se quita y se avisa para que el cliente vea el
+  // total/mensaje actualizado antes de volver a enviar.
+  const revalidateCoupon = React.useCallback(() => {
+    if (!appliedCoupon) return true;
+    const result = evaluateCoupon({
+      code: appliedCoupon,
+      cartItems,
+      cartTotal,
+      now: new Date(),
+      storage: couponStorage,
+      allowUsed: true,
+      markUsed: false,
+    });
+    if (!result.error?.trim()) return true;
+    setAppliedCoupon("");
+    setCouponCode("");
+    toast.error(`${result.error}. Revisá tu pedido y volvé a enviarlo.`);
+    return false;
+  }, [appliedCoupon, cartItems, cartTotal]);
+
   const removeCoupon = React.useCallback(() => {
     setAppliedCoupon("");
     setCouponCode("");
@@ -91,7 +120,9 @@ export default function useCouponCode(cartItems, cartTotal) {
     appliedCoupon,
     totalDiscount,
     giveawayTarget,
+    freeMeatPromo,
     applyCoupon,
+    revalidateCoupon,
     removeCoupon,
   };
 }

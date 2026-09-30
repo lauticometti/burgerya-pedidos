@@ -34,6 +34,7 @@ import useDeliveryQuote from "../../hooks/useDeliveryQuote";
 import { computeCheckoutTotals } from "../../utils/checkoutTotals";
 import useCarritoTimeSlots from "./useCarritoTimeSlots";
 import useCouponCode from "./useCouponCode";
+import { FREE_MEAT_PROMO_MESSAGE } from "../../utils/coupons";
 import CartUpsellBanner, { shouldShowBebidaUpsell } from "./CartUpsellBanner";
 import CartDipUpsellBanner from "./CartDipUpsellBanner";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
@@ -148,7 +149,9 @@ export default function Carrito() {
     appliedCoupon,
     totalDiscount,
     giveawayTarget,
+    freeMeatPromo,
     applyCoupon,
+    revalidateCoupon,
     removeCoupon,
   } = useCouponCode(cart.items, cart.total, cart);
 
@@ -187,6 +190,7 @@ export default function Carrito() {
     items: cart.items,
     totals,
     couponCode: couponApplied ? appliedCoupon : "",
+    freeMeatPromo,
     deliveryQuote,
     location: selectedLocation,
   });
@@ -406,6 +410,27 @@ export default function Carrito() {
             </div>
           ) : null}
 
+          {freeMeatPromo ? (
+            <div className={styles.couponAppliedBlock}>
+              <div className={styles.couponAppliedHeader}>
+                {FREE_MEAT_PROMO_MESSAGE}
+              </div>
+              <div className={styles.couponAppliedCode}>{freeMeatPromo.code}</div>
+              <div className={styles.couponAppliedBenefit}>
+                {freeMeatPromo.burgerName} doble → triple
+              </div>
+              <div className={styles.couponAppliedDiscount}>
+                +1 carne: {formatMoney(0)}
+              </div>
+              <button
+                type="button"
+                className={styles.couponAppliedRemove}
+                onClick={removeCoupon}>
+                Quitar código
+              </button>
+            </div>
+          ) : null}
+
           <TotalsBreakdown totals={totals} discountLabel={discountLabel} />
 
         </>
@@ -486,6 +511,10 @@ export default function Carrito() {
                 if (isClosed || !sendEnabled) {
                   event.preventDefault();
                   return;
+                }
+                // Cupón vencido con el carrito abierto: no se envía la promo.
+                if (!revalidateCoupon()) {
+                  event.preventDefault();
                 }
               }}>
               <Button variant="primary" disabled={!sendEnabled}>
