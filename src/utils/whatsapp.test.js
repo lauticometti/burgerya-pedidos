@@ -199,3 +199,15 @@ describe("WhatsApp: sin promo doble -> triple", () => {
     expect(message).not.toContain("carne GRATIS");
   });
 });
+
+describe("WhatsApp: +1 carne sobre una doble con promo del dia", () => {
+  it("cocina ve solo la triple y el total cobra esa doble a precio normal", () => {
+    const items = [
+      { key: "burger:american:doble", name: "American", qty: 1, unitPrice: 14000, meta: { type: "burger", size: "doble", basePrice: 15500 } },
+    ];
+    const totals = computeCheckoutTotals({ productsSubtotal: 14000 + 1500, deliveryMode: "Retiro" });
+    const message = text({ deliveryMode: "Retiro", items, totals, freeMeatPromo: { code: "VOLVEYA", lineKey: "burger:american:doble" } });
+    expect(kitchenSection(message)).toBe(["BURGERS", "1 American triple"].join("\n"));
+    expect(message).toContain("Total: $15.500 Transferencia");
+  });
+});

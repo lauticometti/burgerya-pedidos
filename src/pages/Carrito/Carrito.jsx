@@ -34,7 +34,6 @@ import useDeliveryQuote from "../../hooks/useDeliveryQuote";
 import { computeCheckoutTotals } from "../../utils/checkoutTotals";
 import useCarritoTimeSlots from "./useCarritoTimeSlots";
 import useCouponCode from "./useCouponCode";
-import { FREE_MEAT_PROMO_MESSAGE } from "../../utils/coupons";
 import CartUpsellBanner, { shouldShowBebidaUpsell } from "./CartUpsellBanner";
 import CartDipUpsellBanner from "./CartDipUpsellBanner";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
@@ -148,6 +147,7 @@ export default function Carrito() {
     setCouponCode,
     appliedCoupon,
     totalDiscount,
+    totalSurcharge,
     giveawayTarget,
     freeMeatPromo,
     applyCoupon,
@@ -161,12 +161,12 @@ export default function Carrito() {
   const totals = React.useMemo(
     () =>
       computeCheckoutTotals({
-        productsSubtotal: cart.total,
+        productsSubtotal: cart.total + totalSurcharge,
         discountAmount: totalDiscount,
         deliveryMode,
         deliveryQuote,
       }),
-    [cart.total, totalDiscount, deliveryMode, deliveryQuote],
+    [cart.total, totalSurcharge, totalDiscount, deliveryMode, deliveryQuote],
   );
   const { grandTotal } = totals;
   const discountLabel = giveawayTarget?.burgerName
@@ -413,15 +413,20 @@ export default function Carrito() {
           {freeMeatPromo ? (
             <div className={styles.couponAppliedBlock}>
               <div className={styles.couponAppliedHeader}>
-                {FREE_MEAT_PROMO_MESSAGE}
+                {freeMeatPromo.message}
               </div>
-              <div className={styles.couponAppliedCode}>{freeMeatPromo.code}</div>
-              <div className={styles.couponAppliedBenefit}>
-                {freeMeatPromo.burgerName} doble → triple
-              </div>
-              <div className={styles.couponAppliedDiscount}>
-                +1 carne: {formatMoney(0)}
-              </div>
+              {/* Doble que venía con precio promo: solo el mensaje, sin detalle. */}
+              {!freeMeatPromo.surcharge ? (
+                <>
+                  <div className={styles.couponAppliedCode}>{freeMeatPromo.code}</div>
+                  <div className={styles.couponAppliedBenefit}>
+                    {freeMeatPromo.burgerName} doble → triple
+                  </div>
+                  <div className={styles.couponAppliedDiscount}>
+                    +1 carne: {formatMoney(0)}
+                  </div>
+                </>
+              ) : null}
               <button
                 type="button"
                 className={styles.couponAppliedRemove}

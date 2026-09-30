@@ -168,17 +168,26 @@ const FREE_MEAT_COUPON_EXPIRY = {
 
 export const FREE_MEAT_PROMO_MESSAGE =
   "Promo aplicada: tu doble se convierte en triple gratis 🍔";
+// Cuando la doble elegida venía con precio promo (ej. promo del día).
+export const FREE_MEAT_REPRICED_MESSAGE = "Código aplicado: tu doble pasa a triple 🍔";
 
 // 1 carne extra gratis por pedido sobre una burger doble. No descuenta plata:
-// el cliente paga la doble y la cocina la hace triple. Va sobre la primera
-// línea doble del carrito (orden en que se agregó).
+// el cliente paga la doble y la cocina la hace triple. Prefiere una doble a
+// precio normal; si todas tienen precio promo, usa la primera.
 function findFreeMeatTarget(cartItems = []) {
-  return (
-    cartItems.find(
-      (it) =>
-        it.meta?.type === "burger" && it.meta?.size === "doble" && it.qty > 0,
-    ) || null
+  const dobles = cartItems.filter(
+    (it) => it.meta?.type === "burger" && it.meta?.size === "doble" && it.qty > 0,
   );
+  return dobles.find((it) => getOfferSurcharge(it) === 0) || dobles[0] || null;
+}
+
+// Lo que le falta a 1 unidad para volver a su precio normal (0 si no tiene
+// oferta). Los beneficios no se acumulan: la doble que pasa a triple se
+// cobra a precio normal; el resto de la línea conserva su oferta.
+function getOfferSurcharge(item) {
+  const basePrice = item.meta?.basePrice;
+  if (typeof basePrice !== "number") return 0;
+  return Math.max(0, Math.round(basePrice - (item.unitPrice || 0)));
 }
 
 function hasBurger(cartItems = []) {
@@ -437,16 +446,21 @@ if (normalized === COUPON_CODES.weekend20) {
         discount: 0,
       };
     }
+    const surcharge = getOfferSurcharge(target);
+    const message = surcharge > 0 ? FREE_MEAT_REPRICED_MESSAGE : FREE_MEAT_PROMO_MESSAGE;
     return {
       appliedCode: normalized,
       discount: 0,
+      surcharge,
       freeMeat: {
         lineKey: target.key,
         burgerName:
           burgersById[target.meta?.burgerId]?.name || target.name || "",
         lineQty: target.qty,
+        surcharge,
+        message,
       },
-      message: FREE_MEAT_PROMO_MESSAGE,
+      message,
     };
   }
 

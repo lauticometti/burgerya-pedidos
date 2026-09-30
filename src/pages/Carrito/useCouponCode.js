@@ -25,6 +25,8 @@ export default function useCouponCode(cartItems, cartTotal) {
   }, [appliedCoupon, cartItems, cartTotal]);
 
   const totalDiscount = discountResult?.discount || 0;
+  // Recargo del cupón (ej. la doble que pasa a triple vuelve a precio normal).
+  const totalSurcharge = discountResult?.surcharge || 0;
   const giveawayTarget = appliedCoupon && discountResult?.targetLineKey
     ? {
         lineKey: discountResult.targetLineKey,
@@ -119,6 +121,7 @@ export default function useCouponCode(cartItems, cartTotal) {
     setCouponCode,
     appliedCoupon,
     totalDiscount,
+    totalSurcharge,
     giveawayTarget,
     freeMeatPromo,
     applyCoupon,
