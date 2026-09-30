@@ -21,6 +21,21 @@ function capitalize(text) {
   return text ? text.charAt(0).toUpperCase() + text.slice(1) : text;
 }
 
+// Promos doble -> triple (TEDEBEMOSUNA, VOLVEYA, ...): cocina ve solo el
+// producto final. De la línea marcada, 1 unidad sale como triple y el resto
+// sigue doble, con los mismos agregados/aclaraciones. Solo cambia el texto de
+// la comanda: los montos vienen de `totals`.
+function applyFreeMeatUpgrade(items, freeMeatPromo) {
+  if (!freeMeatPromo?.lineKey) return items;
+  return items.flatMap((it) => {
+    if (it.key !== freeMeatPromo.lineKey || it.meta?.size !== "doble" || !(it.qty > 0)) {
+      return [it];
+    }
+    const triple = { ...it, key: `${it.key}:triple`, qty: 1, meta: { ...it.meta, size: "triple" } };
+    return it.qty > 1 ? [triple, { ...it, qty: it.qty - 1 }] : [triple];
+  });
+}
+
 // `totals` es el objeto de computeCheckoutTotals (utils/checkoutTotals): los
 // montos del mensaje son EXACTAMENTE los mismos que ve el cliente en pantalla.
 // `location` ({ lat, lng }) son las coordenadas confirmadas del delivery.
@@ -36,8 +51,8 @@ export function buildWhatsAppText({
   items,
   totals,
   couponCode,
-  // Promo TEDEBEMOSUNA ({ code, lineKey }): marca en la comanda cuál doble va
-  // triple sin cargo y suma la línea de promo en el bloque de totales.
+  // Promo doble -> triple ({ code, lineKey }): la comanda muestra la triple
+  // directo y la línea de control del cupón va en el bloque de totales.
   freeMeatPromo = null,
   whenMode,
   whenSlot,
@@ -84,8 +99,9 @@ export function buildWhatsAppText({
 
   let hasGroup = false;
   const separator = "--------";
+  const kitchenItems = applyFreeMeatUpgrade(items, freeMeatPromo);
   for (const group of groupOrder) {
-    const groupItems = items.filter((item) => getCategory(item) === group.key);
+    const groupItems = kitchenItems.filter((item) => getCategory(item) === group.key);
     if (!groupItems.length) continue;
 
     if (hasGroup) lines.push(separator);
@@ -134,13 +150,6 @@ export function buildWhatsAppText({
         const sizeLabel = it.meta?.burgerId === "cheese_promo" ? null : getSizeLabel(it);
         const sizeSuffix = sizeLabel ? ` ${sizeLabel}` : "";
         lines.push(`${it.qty} ${capitalize(displayName(it.name).toLowerCase())}${sizeSuffix}`);
-        if (freeMeatPromo && it.key === freeMeatPromo.lineKey) {
-          lines.push(
-            it.qty > 1
-              ? `  🎁 +1 carne GRATIS: 1 de las ${it.qty} va TRIPLE`
-              : "  🎁 +1 carne GRATIS: va TRIPLE",
-          );
-        }
       }
 
       if (it.removedIngredients?.length) {

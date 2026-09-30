@@ -145,28 +145,57 @@ describe("WhatsApp: Retiro", () => {
   });
 });
 
-describe("WhatsApp: promo TEDEBEMOSUNA", () => {
-  const promo = { code: "TEDEBEMOSUNA", lineKey: "burger:oklahoma:doble" };
+// Seccion de productos (la que lee cocina): desde BURGERS hasta la linea en blanco.
+function kitchenSection(message) {
+  const start = message.indexOf("BURGERS");
+  return message.slice(start, message.indexOf("\n\n", start));
+}
 
-  it("marca la doble que va triple y suma la linea de promo sin tocar montos", () => {
-    const message = text({ deliveryMode: "Retiro", freeMeatPromo: promo });
-    expect(message).toContain("2 Oklahoma dobles\n  🎁 +1 carne GRATIS: 1 de las 2 va TRIPLE\n");
-    expect(tail(message)).toBe(
-      ["", "🎁 Promo TEDEBEMOSUNA: +1 carne GRATIS", "Total: $30.000 Transferencia"].join("\n"),
+describe.each(["TEDEBEMOSUNA", "VOLVEYA"])("WhatsApp: promo doble -> triple (%s)", (code) => {
+  const promo = { code, lineKey: "burger:oklahoma:doble" };
+
+  it("cocina ve el producto final: 1 triple + el resto dobles, sin promo ni cupon", () => {
+    const kitchen = kitchenSection(text({ deliveryMode: "Retiro", freeMeatPromo: promo }));
+    expect(kitchen).toBe(
+      ["BURGERS", "1 Oklahoma triple", "1 Oklahoma doble", "--------", "BEBIDAS", "1 Coca-cola 500ml"].join("\n"),
+    );
+    expect(kitchen).not.toMatch(/promo|gratis|cobra|🎁/i);
+    expect(kitchen).not.toContain(code);
+  });
+
+  it("la linea de control del cupon queda en el bloque de totales, montos intactos", () => {
+    expect(tail(text({ deliveryMode: "Retiro", freeMeatPromo: promo }))).toBe(
+      ["", `🎁 Promo ${code}: +1 carne GRATIS`, "Total: $30.000 Transferencia"].join("\n"),
     );
   });
 
-  it("sin promo no aparece nada", () => {
-    expect(text()).not.toContain("carne GRATIS");
+  it("una sola doble pasa entera a triple y conserva agregados y aclaraciones", () => {
+    const items = [
+      {
+        key: "burger:cheese:doble",
+        name: "Cheese",
+        qty: 1,
+        extras: [{ name: "Bacon" }],
+        removedIngredients: [{ label: "Cheddar" }],
+        note: "bien cocida",
+        meta: { type: "burger", size: "doble" },
+      },
+    ];
+    const kitchen = kitchenSection(
+      text({ deliveryMode: "Retiro", items, freeMeatPromo: { code, lineKey: "burger:cheese:doble" } }),
+    );
+    expect(kitchen).toBe(
+      ["BURGERS", "1 Cheese triple", "- Sin Cheddar", "  Agregados: Bacon", "  Aclaracion: bien cocida"].join("\n"),
+    );
   });
 });
 
-describe("WhatsApp: promo VOLVEYA", () => {
-  it("misma comanda que TEDEBEMOSUNA con su propio codigo", () => {
-    const message = text({ deliveryMode: "Retiro", freeMeatPromo: { code: "VOLVEYA", lineKey: "burger:oklahoma:doble" } });
-    expect(message).toContain("2 Oklahoma dobles\n  🎁 +1 carne GRATIS: 1 de las 2 va TRIPLE\n");
-    expect(tail(message)).toBe(
-      ["", "🎁 Promo VOLVEYA: +1 carne GRATIS", "Total: $30.000 Transferencia"].join("\n"),
+describe("WhatsApp: sin promo doble -> triple", () => {
+  it("la comanda queda igual que siempre", () => {
+    const message = text();
+    expect(kitchenSection(message)).toBe(
+      ["BURGERS", "2 Oklahoma dobles", "--------", "BEBIDAS", "1 Coca-cola 500ml"].join("\n"),
     );
+    expect(message).not.toContain("carne GRATIS");
   });
 });
