@@ -38,8 +38,8 @@ export const burgers = [
     tier: "PREMIUM",
     prices: { simple: 12000, doble: 15500, triple: 19000 },
     desc: "Cebolla caramelizada · Salsa especial",
-    notice: "Sin ceb. caramelizada",
-    noticeSince: "2026-09-25",
+    notice: "Sin mil islas",
+    noticeSince: "2026-10-01",
     noticeShift: "noche",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
@@ -55,8 +55,8 @@ export const burgers = [
     tier: "PREMIUM",
     prices: { simple: 12000, doble: 15500, triple: 19000 },
     desc: "Lechuga · Tomate · Cebolla · Pepinos · Salsa especial",
-    notice: "Sin lechuga",
-    noticeSince: "2026-09-03",
+    notice: "Sin mil islas",
+    noticeSince: "2026-10-01",
     noticeShift: "noche",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
@@ -109,6 +109,9 @@ export const burgers = [
     tier: "DELUXE",
     prices: { simple: 12500, doble: 16000, triple: 19500 },
     desc: "Carne con cebolla ultrafina · Bacon · Salsa especial",
+    notice: "Sin mil islas",
+    noticeSince: "2026-10-01",
+    noticeShift: "noche",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
       { id: "onion", label: "Cebolla" },
