@@ -40,7 +40,7 @@ export const burgers = [
     id: "american",
     name: "American",
     tier: "PREMIUM",
-    prices: { simple: 12000, doble: 15500, triple: 19000 },
+    prices: { simple: 12500, doble: 16500, triple: 20500 },
     desc: "Lechuga · Tomate · Cebolla · Pepinos · Salsa especial",
     notice: "Sin mil islas",
     noticeSince: "2026-10-01",
@@ -60,7 +60,7 @@ export const burgers = [
     id: "bacon",
     name: "Bacon",
     tier: "PREMIUM",
-    prices: { simple: 12000, doble: 15500, triple: 19000 },
+    prices: { simple: 12500, doble: 16500, triple: 20500 },
     desc: "Doble cheddar · Bacon crocante",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
@@ -94,7 +94,7 @@ export const burgers = [
     id: "smoklahoma",
     name: "Smoklahoma",
     tier: "DELUXE",
-    prices: { simple: 12500, doble: 16000, triple: 19500 },
+    prices: { simple: 13000, doble: 17000, triple: 21000 },
     desc: "Carne con cebolla ultrafina · Bacon · Salsa especial",
     notice: "Sin mil islas",
     noticeSince: "2026-10-01",
@@ -113,16 +113,16 @@ export const burgers = [
 // Precios de promos (flyers)
 export const promoPrices = {
   BASICA: {
-    doble: { 2: 31000, 3: 46000, 4: 61000 },
-    triple: { 2: 40000, 3: 59000, 4: 78000 },
+    doble: { 2: 29000, 3: 43000, 4: 57000 },
+    triple: { 2: 37000, 3: 54500, 4: 72000 },
   },
   PREMIUM: {
-    doble: { 2: 29000, 3: 43000, 4: 57000 },
+    doble: { 2: 31000, 3: 46000, 4: 61000 },
     triple: { 2: 39000, 3: 57500, 4: 76000 },
   },
   DELUXE: {
     doble: { 2: 32000, 3: 47000, 4: 62000 },
-    triple: { 2: 37000, 3: 54500, 4: 72000 },
+    triple: { 2: 40000, 3: 59000, 4: 78000 },
   },
 };
 
