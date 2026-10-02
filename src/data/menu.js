@@ -217,7 +217,10 @@ export const bebidas = [
     name: "Coca Cola 1.75L",
     orderName: "Coca 1.75",
     price: 4200,
-    isAvailable: 1,
+    isAvailable: 0,
+    unavailableReason: "Sin stock",
+    unavailableSince: "2026-10-01",
+    unavailableShift: "noche",
     img: "/bebidas/coca-cola-175l.webp",
   },
   {
