@@ -6,25 +6,12 @@ export const DELIVERY_ENABLED = true;
 
 // Burgers con precios
 export const burgers = [
-  // ESPECIAL DEL DIA
-  {
-    id: "cheese_promo",
-    name: "Cheese simple sin papas",
-    shortName: "Cheese simple",
-    tier: "ESPECIAL",
-    prices: { simple: 7000 },
-    desc: "pan de papa, carne smash, doble cheddar. sin papas.",
-    removableIngredients: [{ id: "cheddar", label: "Cheddar" }],
-    img: "/burgers/cheese-simple-promo.png",
-    isAvailable: 1,
-  },
-
   // BASICAS
   {
     id: "cheese",
     name: "Cheese",
     tier: "BASICA",
-    prices: { simple: 11000, doble: 14500, triple: 18000 },
+    prices: { simple: 11500, doble: 15500, triple: 19500 },
     desc: "Pan de papa, carne smash, cheddar",
     removableIngredients: [{ id: "cheddar", label: "Cheddar" }],
     img: "/burgers/cheese.svg",
@@ -36,7 +23,7 @@ export const burgers = [
     id: "lautiboom",
     name: "Lautiboom",
     tier: "PREMIUM",
-    prices: { simple: 12000, doble: 15500, triple: 19000 },
+    prices: { simple: 12500, doble: 16500, triple: 20500 },
     desc: "Cebolla caramelizada · Salsa especial",
     notice: "Sin mil islas",
     noticeSince: "2026-10-01",
@@ -88,7 +75,7 @@ export const burgers = [
     id: "bbqueen",
     name: "BBQueen",
     tier: "DELUXE",
-    prices: { simple: 12500, doble: 16000, triple: 19500 },
+    prices: { simple: 13000, doble: 17000, triple: 21000 },
     desc: "Bacon · Cebolla caramelizada · Tomate · Salsa barbacoa",
     notice: "Sin ceb. caramelizada",
     noticeSince: "2026-09-25",
@@ -126,15 +113,15 @@ export const burgers = [
 // Precios de promos (flyers)
 export const promoPrices = {
   BASICA: {
-    doble: { 2: 27000, 3: 40000, 4: 53000 },
-    triple: { 2: 34000, 3: 50000, 4: 66000 },
+    doble: { 2: 31000, 3: 46000, 4: 61000 },
+    triple: { 2: 40000, 3: 59000, 4: 78000 },
   },
   PREMIUM: {
     doble: { 2: 29000, 3: 43000, 4: 57000 },
-    triple: { 2: 36000, 3: 53000, 4: 70000 },
+    triple: { 2: 39000, 3: 57500, 4: 76000 },
   },
   DELUXE: {
-    doble: { 2: 30000, 3: 44000, 4: 58000 },
+    doble: { 2: 32000, 3: 47000, 4: 62000 },
     triple: { 2: 37000, 3: 54500, 4: 72000 },
   },
 };
@@ -150,7 +137,7 @@ export const extras = [
   {
     id: "carne_cheddar",
     name: "Carne c/cheddar",
-    price: 3500,
+    price: 4000,
     isAvailable: 1,
   },
   { id: "bacon_crocante", name: "Bacon", price: 1500, isAvailable: 1 },
