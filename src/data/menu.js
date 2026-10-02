@@ -165,7 +165,15 @@ export const extras = [
   { id: "lechuga", name: "Lechuga", price: 500, isAvailable: 1 },
   { id: "tomate", name: "Tomate", price: 500, isAvailable: 1 },
   { id: "cebolla", name: "Cebolla", price: 500, isAvailable: 1 },
-  { id: "salsa_mil_islas", name: "Mil Islas", price: 500, isAvailable: 1 },
+  {
+    id: "salsa_mil_islas",
+    name: "Mil Islas",
+    price: 500,
+    isAvailable: 0,
+    unavailableReason: "Sin stock",
+    unavailableSince: "2026-10-01",
+    unavailableShift: "noche",
+  },
   { id: "salsa_bbq", name: "Barbacoa", price: 500, isAvailable: 1 },
 ];
 
