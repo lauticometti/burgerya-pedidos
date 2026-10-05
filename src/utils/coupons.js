@@ -29,6 +29,7 @@ export const COUPON_CODES = {
   tedebemosuna: "TEDEBEMOSUNA",
   volveya: "VOLVEYA",
   regalito: "REGALITO",
+  charly5: "CHARLY5",
 };
 
 // Variantes toleradas para que los clientes puedan escribir "combo ya" con espacios o guiones.
@@ -44,6 +45,7 @@ const JUEVES17_COUPON_EXPIRY_TS = new Date(2026, 8, 18, 0, 0, 0).getTime(); // v
 const TEDEBEMOSUNA_COUPON_EXPIRY_TS = Date.parse("2026-10-02T00:00:00-03:00"); // viernes 02/10/2026 00:00 (BA) -> vale miércoles 30/9 y jueves 1/10
 const VOLVEYA_COUPON_EXPIRY_TS = Date.parse("2026-10-02T00:00:00-03:00"); // viernes 02/10/2026 00:00 (BA) -> vale miércoles 30/9 y jueves 1/10
 const REGALITO_COUPON_EXPIRY_TS = Date.parse("2026-10-02T00:00:00-03:00"); // viernes 02/10/2026 00:00 (BA) -> vale miércoles 30/9 y jueves 1/10
+const CHARLY5_COUPON_EXPIRY_TS = Date.parse("2026-10-05T00:00:00-03:00"); // lunes 05/10/2026 00:00 (BA) -> vale solo domingo 4/10
 const COMBO_TARGETS = { simple: 12990, doble: 15990 };
 const CHEESE_10_LUCAS_TARGET = 10000;
 
@@ -159,6 +161,10 @@ function isMiercoles16CouponActive(nowTs = Date.now()) {
 
 function isJueves17CouponActive(nowTs = Date.now()) {
   return nowTs < JUEVES17_COUPON_EXPIRY_TS;
+}
+
+function isCharly5CouponActive(nowTs = Date.now()) {
+  return nowTs < CHARLY5_COUPON_EXPIRY_TS;
 }
 
 // Códigos "doble -> triple gratis" (código -> vencimiento). Para sumar otro
@@ -337,6 +343,21 @@ if (normalized === COUPON_CODES.weekend20) {
       appliedCode: COUPON_CODES.weekend20,
       discount,
       message: `${COUPON_CODES.weekend20} aplicado: 20% off hasta sábado 21 (BA)`,
+    };
+  }
+
+  if (normalized === COUPON_CODES.charly5) {
+    if (!isCharly5CouponActive(nowTs)) {
+      return {
+        error: `${COUPON_CODES.charly5} venció: era 5% off, válido solo el domingo 4/10 (BA)`,
+        discount: 0,
+      };
+    }
+    const discount = computePercentDiscount(cartTotal, 0.05);
+    return {
+      appliedCode: COUPON_CODES.charly5,
+      discount,
+      message: `${COUPON_CODES.charly5} aplicado: 5% off`,
     };
   }
 
