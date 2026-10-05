@@ -217,7 +217,7 @@ export const bebidas = [
     price: 4500,
     isAvailable: 0,
     unavailableReason: "Sin stock",
-    unavailableSince: "2026-10-01",
+    unavailableSince: "2026-10-04",
     unavailableShift: "noche",
     img: "/bebidas/coca-cola-175l.webp",
   },
