@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#171717">
+  <meta name="referrer" content="no-referrer">
+  <title>Enviar CV | Burger Ya</title>
+  <meta name="description" content="Sumate a la plancha de Burger Ya. Enviá tu CV, experiencia y disponibilidad.">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; min-height: 100svh; padding: 32px 22px; display: grid; place-items: center; background: #171717; color: #fff9ed; font-family: Arial, Helvetica, sans-serif; }
+    main { width: 100%; max-width: 440px; }
+    .brand { margin: 0 0 38px; font-weight: 900; font-size: 20px; letter-spacing: .02em; }
+    .label { margin: 0; color: #ead39b; font-size: 12px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+    h1 { margin: 14px 0 18px; font-size: clamp(38px, 10vw, 50px); line-height: 1.05; letter-spacing: -.04em; }
+    p { color: #d6d1c8; font-size: 17px; line-height: 1.5; }
+    .button { display: flex; width: 100%; min-height: 56px; padding: 16px; justify-content: center; align-items: center; border: 0; border-radius: 10px; background: #f5d990; color: #171717; font: 700 16px Arial, Helvetica, sans-serif; text-align: center; text-decoration: none; cursor: pointer; margin-top: 24px; }
+    .secondary { background: transparent; border: 1px solid #797265; color: #fff9ed; margin-top: 12px; }
+    .small { color: #c0bbb1; font-size: 14px; }
+    .address { width: 100%; padding: 14px 10px; margin: 0; border: 1px solid #615b51; border-radius: 8px; background: #242321; color: #fff9ed; font: 16px Arial, Helvetica, sans-serif; }
+    a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+    hr { border: 0; border-top: 1px solid #49443c; margin: 28px 0 22px; }
+    #status { min-height: 21px; margin: 8px 0; }
+    label { display: block; margin-bottom: 9px; font-size: 14px; color: #c0bbb1; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="brand">BURGER YA</div>
+    <p class="label">Búsqueda de planchero/a</p>
+    <h1>Sumate a<br>la plancha.</h1>
+    <p>Mandanos tu <strong>CV, experiencia y disponibilidad</strong> para trabajar con nosotros.</p>
+    <a class="button" href="mailto:lautaro@burgerya.com.ar?subject=CV%20Planchero%20-%20Burger%20Ya&amp;body=Hola%2C%20quiero%20postularme%20para%20el%20puesto%20de%20planchero%2Fa.%0A%0ANombre%3A%20%0AExperiencia%3A%20%0ADisponibilidad%3A%20%0ATel%C3%A9fono%20de%20contacto%3A%20%0A">ENVIAR MI CV</a>
+    <p class="small">Abre la aplicación de correo que tengas configurada. Adjuntá tu CV y revisá el mensaje antes de enviarlo.</p>
+    <hr>
+    <p class="small">¿No se abrió el correo? Abrí esta página en el navegador de tu celular o copiá la dirección para escribirnos desde tu app habitual.</p>
+    <label for="email">Correo para postularte</label>
+    <input class="address" id="email" type="text" value="lautaro@burgerya.com.ar" readonly spellcheck="false">
+    <button class="button secondary" id="copy" type="button">Copiar correo</button>
+    <p class="small" id="status" aria-live="polite"></p>
+    <p class="small">Asunto: <strong>CV Planchero - Burger Ya</strong></p>
+  </main>
+  <script>
+    const field = document.getElementById('email');
+    const status = document.getElementById('status');
+    field.addEventListener('click', function () { field.select(); });
+    document.getElementById('copy').addEventListener('click', async function () {
+      try {
+        if (!navigator.clipboard) throw new Error('Clipboard unavailable');
+        await navigator.clipboard.writeText(field.value);
+        status.textContent = 'Correo copiado.';
+      } catch (error) {
+        field.focus();
+        field.select();
+        field.setSelectionRange(0, field.value.length);
+        status.textContent = 'Dirección seleccionada. Mantené presionado y tocá Copiar.';
+      }
+    });
+  </script>
+</body>
+</html>
