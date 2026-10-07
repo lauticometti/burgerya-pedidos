@@ -128,3 +128,37 @@ describe("REGALITO", () => {
     expect(evalCode("REGALITO", [DOBLE], new Date("2026-10-02T00:00:00-03:00")).error).toBe("La promo REGALITO finalizó");
   });
 });
+
+describe("TRIPLE", () => {
+  const NOW = new Date("2026-10-07T20:00:00-03:00"); // miercoles 7/10
+
+  it("acepta el codigo sin importar mayusculas ni espacios", () => {
+    for (const input of ["TRIPLE", "triple", "  Triple "]) {
+      expect(evalCode(input, [DOBLE], NOW).appliedCode).toBe("TRIPLE");
+    }
+  });
+
+  it("pasa una doble a triple, 1 carne por pedido, sin recargo", () => {
+    const result = evalCode("TRIPLE", [SIMPLE, DOBLE], NOW);
+    expect(result.discount).toBe(0);
+    expect(result.surcharge).toBe(0);
+    expect(result.freeMeat).toMatchObject({ lineKey: DOBLE.key, lineQty: 2 });
+    expect(result.message).toBe("Código aplicado: tu doble pasa a triple 🍔");
+  });
+
+  it("doble con promo del dia: vuelve a precio normal y pasa a triple; prioriza la doble normal", () => {
+    expect(evalCode("TRIPLE", [AMERICAN_PROMO], NOW).surcharge).toBe(1500);
+    expect(evalCode("TRIPLE", [AMERICAN_PROMO, CHEESE_NORMAL], NOW).freeMeat.lineKey).toBe(CHEESE_NORMAL.key);
+  });
+
+  it("sin doble pide agregar una", () => {
+    expect(evalCode("TRIPLE", [SIMPLE, TRIPLE], NOW).error).toBe(
+      "TRIPLE es para hamburguesas dobles: agregá una doble al carrito",
+    );
+  });
+
+  it("vale hasta el jueves 08/10 23:59 y vence el viernes 09/10 00:00 (BA)", () => {
+    expect(evalCode("TRIPLE", [DOBLE], new Date("2026-10-08T23:59:59-03:00")).appliedCode).toBe("TRIPLE");
+    expect(evalCode("TRIPLE", [DOBLE], new Date("2026-10-09T00:00:00-03:00")).error).toBe("La promo TRIPLE finalizó");
+  });
+});

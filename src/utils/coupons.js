@@ -29,6 +29,7 @@ export const COUPON_CODES = {
   tedebemosuna: "TEDEBEMOSUNA",
   volveya: "VOLVEYA",
   regalito: "REGALITO",
+  triple: "TRIPLE",
   charly5: "CHARLY5",
 };
 
@@ -45,6 +46,7 @@ const JUEVES17_COUPON_EXPIRY_TS = new Date(2026, 8, 18, 0, 0, 0).getTime(); // v
 const TEDEBEMOSUNA_COUPON_EXPIRY_TS = Date.parse("2026-10-02T00:00:00-03:00"); // viernes 02/10/2026 00:00 (BA) -> vale miércoles 30/9 y jueves 1/10
 const VOLVEYA_COUPON_EXPIRY_TS = Date.parse("2026-10-02T00:00:00-03:00"); // viernes 02/10/2026 00:00 (BA) -> vale miércoles 30/9 y jueves 1/10
 const REGALITO_COUPON_EXPIRY_TS = Date.parse("2026-10-02T00:00:00-03:00"); // viernes 02/10/2026 00:00 (BA) -> vale miércoles 30/9 y jueves 1/10
+const TRIPLE_COUPON_EXPIRY_TS = Date.parse("2026-10-09T00:00:00-03:00"); // viernes 09/10/2026 00:00 (BA) -> vale miércoles 7/10 y jueves 8/10
 const CHARLY5_COUPON_EXPIRY_TS = Date.parse("2026-10-05T00:00:00-03:00"); // lunes 05/10/2026 00:00 (BA) -> vale solo domingo 4/10
 const COMBO_TARGETS = { simple: 12990, doble: 15990 };
 const CHEESE_10_LUCAS_TARGET = 10000;
@@ -173,6 +175,7 @@ const FREE_MEAT_COUPON_EXPIRY = {
   [COUPON_CODES.tedebemosuna]: TEDEBEMOSUNA_COUPON_EXPIRY_TS,
   [COUPON_CODES.volveya]: VOLVEYA_COUPON_EXPIRY_TS,
   [COUPON_CODES.regalito]: REGALITO_COUPON_EXPIRY_TS,
+  [COUPON_CODES.triple]: TRIPLE_COUPON_EXPIRY_TS,
 };
 
 export const FREE_MEAT_PROMO_MESSAGE =
@@ -184,6 +187,7 @@ export const FREE_MEAT_REPRICED_MESSAGE = "Código aplicado: tu doble pasa a tri
 // venía con precio promo.
 const FREE_MEAT_COUPON_MESSAGE = {
   [COUPON_CODES.regalito]: FREE_MEAT_REPRICED_MESSAGE,
+  [COUPON_CODES.triple]: FREE_MEAT_REPRICED_MESSAGE,
 };
 
 // 1 carne extra gratis por pedido sobre una burger doble. No descuenta plata:
