@@ -61,7 +61,10 @@ export const burgers = [
       { id: "bacon", label: "Bacon" },
     ],
     img: "/burgers/bacon.svg",
-    isAvailable: 1,
+    isAvailable: 0,
+    unavailableReason: "Sin stock",
+    unavailableSince: "2026-10-11",
+    unavailableShift: "noche",
   },
 
   // DELUXE
@@ -71,6 +74,9 @@ export const burgers = [
     tier: "DELUXE",
     prices: { simple: 13000, doble: 17000, triple: 21000 },
     desc: "Bacon · Cebolla caramelizada · Tomate · Salsa barbacoa",
+    notice: "Sin bacon",
+    noticeSince: "2026-10-11",
+    noticeShift: "noche",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
       { id: "bacon", label: "Bacon" },
@@ -87,6 +93,9 @@ export const burgers = [
     tier: "DELUXE",
     prices: { simple: 13000, doble: 17000, triple: 21000 },
     desc: "Carne con cebolla ultrafina · Bacon · Salsa especial",
+    notice: "Sin bacon",
+    noticeSince: "2026-10-11",
+    noticeShift: "noche",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
       { id: "onion", label: "Cebolla" },
@@ -128,7 +137,15 @@ export const extras = [
     price: 4000,
     isAvailable: 1,
   },
-  { id: "bacon_crocante", name: "Bacon", price: 1500, isAvailable: 1 },
+  {
+    id: "bacon_crocante",
+    name: "Bacon",
+    price: 1500,
+    isAvailable: 0,
+    unavailableReason: "Sin stock",
+    unavailableSince: "2026-10-11",
+    unavailableShift: "noche",
+  },
   { id: "cheddar", name: "Extra cheddar", price: 500, isAvailable: 1 },
   {
     id: "cebolla_caram",
@@ -176,7 +193,10 @@ export const bebidas = [
     id: "coca_600",
     name: "Coca Cola 600ml",
     price: 2500,
-    isAvailable: 1,
+    isAvailable: 0,
+    unavailableReason: "Sin stock",
+    unavailableSince: "2026-10-11",
+    unavailableShift: "noche",
     img: "/bebidas/coca-cola-600ml.webp",
   },
   {
