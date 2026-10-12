@@ -18,6 +18,7 @@ import { indexById } from "../../utils/indexing";
 import { useStoreStatus } from "../../utils/storeClosedMode";
 import { toast } from "../../utils/toast";
 import { createDipItem } from "../../utils/cartItemBuilders";
+import ComboPremiumBanner from "./ComboPremiumBanner";
 import { useListingPageActions } from "../../hooks/useListingPageActions";
 import { useScrollProgress } from "../../hooks/useScrollProgress";
 import { useCarouselControls } from "../../hooks/useCarouselControls";
@@ -343,7 +344,14 @@ export default function Menu() {
               }
             />
           </div>
-        ) : null}
+        ) : (
+          <ComboPremiumBanner
+            burgersById={burgersById}
+            bebidas={bebidas}
+            cart={cart}
+            onAdd={(text) => toast.added(text)}
+          />
+        )}
 
         {/* TEMP ARGENTINA MATCH DAY: cinta temática entre el hero y el listado. Quitar (o MATCH_DAY_CAMPAIGN=false) para revertir. */}
         {MATCH_DAY_CAMPAIGN ? (
