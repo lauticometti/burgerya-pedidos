@@ -53,18 +53,24 @@ export default function ComboPremiumBanner({
     onAdd(`${burger.name} doble + Coca Zero 600`);
   }
 
+  // Las 3 premium salen al mismo precio doble, así que el combo tiene un
+  // único precio total. Si en algún momento divergen, acá se vería distinto
+  // por burger: por ahora mostramos uno solo, grande, en vez de repetirlo.
+  const comboTotal =
+    getBurgerPriceInfo(options[0], COMBO_PREMIUM_SIZE).finalPrice +
+    COMBO_COCA_PRICE;
+
   return (
     <div className={styles.wrapper}>
       <p className={styles.eyebrow}>TU COMBO</p>
 
-      <h2 className={styles.title}>Burger + papas + Coca</h2>
+      <h2 className={styles.title}>Burger + papas + Coca Zero 600</h2>
+      <p className={styles.price}>{formatMoney(comboTotal)}</p>
       <p className={styles.sub}>Tocá tu premium doble favorita</p>
 
       <div className={styles.options}>
         {options.map((burger) => {
           const unavailable = isItemUnavailable(burger);
-          const priceInfo = getBurgerPriceInfo(burger, COMBO_PREMIUM_SIZE);
-          const total = priceInfo.finalPrice + COMBO_COCA_PRICE;
           return (
             <button
               key={burger.id}
@@ -82,9 +88,9 @@ export default function ComboPremiumBanner({
                 className={styles.optionName}
                 name={burger.name}
               />
-              <span className={styles.optionPrice}>
-                {unavailable ? "Sin stock" : formatMoney(total)}
-              </span>
+              {unavailable ? (
+                <span className={styles.optionPrice}>Sin stock</span>
+              ) : null}
             </button>
           );
         })}
