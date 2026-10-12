@@ -3,6 +3,7 @@ import { formatMoney } from "../../utils/formatMoney";
 import { createBebidaItem } from "../../utils/cartItemBuilders";
 import { getBurgerPriceInfo } from "../../utils/burgerPricing";
 import { isItemUnavailable } from "../../utils/availability";
+import ProductName from "../../components/ui/ProductName";
 import styles from "./ComboPremiumBanner.module.css";
 
 // PREVIEW: combo del día armado mientras la recomendada normal está apagada
@@ -53,15 +54,16 @@ export default function ComboPremiumBanner({
   }
 
   return (
-    <div className={styles.banner}>
-      <p className={styles.eyebrow}>COMBO DE HOY</p>
-      <p className={styles.title}>Premium + Coca Zero 600</p>
+    <div className={styles.wrapper}>
+      <p className={styles.eyebrow}>TU COMBO</p>
+
+      <h2 className={styles.title}>Burger + papas + Coca</h2>
       <p className={styles.sub}>
-        Sumá una Coca Zero 600 por {formatMoney(COMBO_COCA_PRICE)} en vez de{" "}
-        {formatMoney(cocaZero.price)}
+        Elegí una premium doble y sumá una Coca Zero 600 por{" "}
+        {formatMoney(COMBO_COCA_PRICE)}
       </p>
 
-      <div className={styles.row}>
+      <div className={styles.options}>
         {options.map((burger) => {
           const unavailable = isItemUnavailable(burger);
           return (
@@ -76,20 +78,25 @@ export default function ComboPremiumBanner({
                 alt={burger.name}
                 className={styles.optionImg}
               />
-              <span className={styles.optionName}>{burger.name}</span>
+              <ProductName
+                as="span"
+                className={styles.optionName}
+                name={burger.name}
+              />
             </button>
           );
         })}
-        <div className={styles.plus} aria-hidden="true">
-          +
-        </div>
-        <div className={styles.cocaWrap}>
-          <img
-            src={resolvePublicPath(cocaZero.img)}
-            alt={cocaZero.name}
-            className={styles.cocaImg}
-          />
-        </div>
+      </div>
+
+      <div className={styles.cocaRow}>
+        <img
+          src={resolvePublicPath(cocaZero.img)}
+          alt={cocaZero.name}
+          className={styles.cocaImg}
+        />
+        <span className={styles.cocaText}>
+          + Coca Zero 600 por {formatMoney(COMBO_COCA_PRICE)}
+        </span>
       </div>
     </div>
   );
