@@ -193,10 +193,7 @@ export const bebidas = [
     id: "coca_600",
     name: "Coca Cola 600ml",
     price: 2500,
-    isAvailable: 0,
-    unavailableReason: "Sin stock",
-    unavailableSince: "2026-10-11",
-    unavailableShift: "noche",
+    isAvailable: 1,
     img: "/bebidas/coca-cola-600ml.webp",
   },
   {
@@ -212,10 +209,7 @@ export const bebidas = [
     name: "Coca Cola 1.75L",
     orderName: "Coca 1.75",
     price: 4500,
-    isAvailable: 0,
-    unavailableReason: "Sin stock",
-    unavailableSince: "2026-10-11",
-    unavailableShift: "noche",
+    isAvailable: 1,
     img: "/bebidas/coca-cola-175l.webp",
   },
   {
