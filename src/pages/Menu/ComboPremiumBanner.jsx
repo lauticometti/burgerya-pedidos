@@ -50,7 +50,7 @@ export default function ComboPremiumBanner({
 
     cart.add(burgerItem);
     cart.add(cocaItem);
-    onAdd(`${burger.name} doble + Coca 0600`);
+    onAdd(`${burger.name} doble + Coca Cero 600`);
   }
 
   // Las 3 premium salen al mismo precio doble, así que el combo tiene un
@@ -64,7 +64,7 @@ export default function ComboPremiumBanner({
     <div className={styles.wrapper}>
       <p className={styles.eyebrow}>TU COMBO</p>
 
-      <h2 className={styles.title}>Burger + papas + Coca 0600</h2>
+      <h2 className={styles.title}>Burger + papas + Coca Cero 600</h2>
       <p className={styles.price}>{formatMoney(comboTotal)}</p>
       <p className={styles.sub}>Tocá tu premium doble favorita</p>
 
