@@ -58,14 +58,13 @@ export default function ComboPremiumBanner({
       <p className={styles.eyebrow}>TU COMBO</p>
 
       <h2 className={styles.title}>Burger + papas + Coca</h2>
-      <p className={styles.sub}>
-        Elegí una premium doble y sumá una Coca Zero 600 por{" "}
-        {formatMoney(COMBO_COCA_PRICE)}
-      </p>
+      <p className={styles.sub}>Tocá tu premium doble favorita</p>
 
       <div className={styles.options}>
         {options.map((burger) => {
           const unavailable = isItemUnavailable(burger);
+          const priceInfo = getBurgerPriceInfo(burger, COMBO_PREMIUM_SIZE);
+          const total = priceInfo.finalPrice + COMBO_COCA_PRICE;
           return (
             <button
               key={burger.id}
@@ -83,20 +82,12 @@ export default function ComboPremiumBanner({
                 className={styles.optionName}
                 name={burger.name}
               />
+              <span className={styles.optionPrice}>
+                {unavailable ? "Sin stock" : formatMoney(total)}
+              </span>
             </button>
           );
         })}
-      </div>
-
-      <div className={styles.cocaRow}>
-        <img
-          src={resolvePublicPath(cocaZero.img)}
-          alt={cocaZero.name}
-          className={styles.cocaImg}
-        />
-        <span className={styles.cocaText}>
-          + Coca Zero 600 por {formatMoney(COMBO_COCA_PRICE)}
-        </span>
       </div>
     </div>
   );
