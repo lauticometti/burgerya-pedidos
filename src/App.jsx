@@ -13,11 +13,13 @@ import Papas from "./pages/Papas/Papas";
 import Admin from "./pages/Admin/Admin";
 import Envios from "./pages/Envios/Envios";
 import CheeseburgerDay from "./pages/CheeseburgerDay/CheeseburgerDay";
+import SoldOut from "./pages/SoldOut/SoldOut";
 import { getArgentinaTimeParts } from "./utils/storeClosedMode";
 import {
   CHEESEBURGER_DAY_ENABLED,
   CHEESEBURGER_DAY_DATE,
 } from "./pages/CheeseburgerDay/cheeseburgerDayConfig";
+import { SOLD_OUT_ENABLED } from "./pages/SoldOut/soldOutConfig";
 
 // Para reactivar el sitio: cambiar MAINTENANCE_MODE a false
 const MAINTENANCE_MODE = false;
@@ -321,6 +323,17 @@ function MaintenancePage() {
 }
 
 export default function App() {
+  // Sold out: tapa toda la web con el aviso, pero /dbadmin sigue andando.
+  // Para desactivar: SOLD_OUT_ENABLED = false en pages/SoldOut/soldOutConfig.js.
+  if (SOLD_OUT_ENABLED) {
+    return (
+      <Routes>
+        <Route path="/dbadmin" element={<Admin />} />
+        <Route path="*" element={<SoldOut />} />
+      </Routes>
+    );
+  }
+
   if (ARGENTINA_TAKEOVER_MODE) return <ArgentinaTakeoverPage />;
   if (MAINTENANCE_MODE) return <MaintenancePage />;
   if (EVENT_MODE_ACTIVE) return <EventPage />;
