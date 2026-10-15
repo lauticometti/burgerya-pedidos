@@ -4,7 +4,8 @@ import { CAMPAIGN, QUESTIONS, validateApplication } from "../src/recruitment/sch
 
 function settings() {
   const env = process.env;
-  const end = env.RECRUITMENT_SHIFT_END || "";
+  // Horario confirmado por Lautaro el 15/10/2026, incluido el cierre.
+  const end = env.RECRUITMENT_SHIFT_END || "01:30";
   const origin = env.RECRUITMENT_ORIGIN || "";
   const webhook = env.RECRUITMENT_SHEETS_URL || "";
   const secret = env.RECRUITMENT_SECRET || "";
