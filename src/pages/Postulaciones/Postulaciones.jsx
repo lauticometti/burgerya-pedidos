@@ -4,7 +4,8 @@ import { CAMPAIGN, QUESTIONS, classify } from "../../recruitment/schema";
 import styles from "./Postulaciones.module.css";
 
 export default function Postulaciones() {
-  const [config, setConfig] = useState(null);
+  const [demo] = useState(() => new URLSearchParams(window.location.search).get("vista") === "demo");
+  const [config, setConfig] = useState(() => demo ? { open: true, shiftEnd: "01:30" } : null);
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [contact, setContact] = useState({ name: "", phone: "", locality: "", notes: "", website: "" });
@@ -15,12 +16,13 @@ export default function Postulaciones() {
   const id = useRef(null);
   const heading = useRef(null);
   useEffect(() => {
+    if (demo) return;
     const controller = new AbortController();
     fetch("/api/postulaciones", { signal: controller.signal, cache: "no-store" })
       .then(r => { if (!r.ok) throw new Error(); return r.json(); })
       .then(setConfig).catch(e => { if (e.name !== "AbortError") setConfig({ open: false }); });
     return () => controller.abort();
-  }, []);
+  }, [demo]);
   useEffect(() => { heading.current?.focus(); }, [step, receipt]);
   useEffect(() => { id.current = null; }, [answers, contact, consent]);
   const screening = classify(answers);
@@ -29,6 +31,7 @@ export default function Postulaciones() {
     event.preventDefault();
     if (sending) return;
     if (step < 2) { move(step + 1); return; }
+    if (demo) { setError("Esta es una demostración: no se enviaron ni guardaron tus datos."); return; }
     setSending(true); setError("");
     try {
       id.current ||= crypto.randomUUID();
@@ -45,6 +48,7 @@ export default function Postulaciones() {
   }
   return <main className={styles.page}>
     <header className={styles.header}><Link to="/" aria-label="Burger Ya, ir al menú"><img src={`${import.meta.env.BASE_URL}logo.png`} alt="Burger Ya" /></Link><span>TRABAJÁ CON NOSOTROS</span></header>
+    {demo && <aside className={styles.notice} role="status"><strong>Vista previa · no recibe postulaciones</strong><p>Podés recorrer el formulario con datos ficticios. Nada se envía ni se guarda.</p></aside>}
     <p className={styles.eyebrow}>COCINA · HURLINGHAM</p>
     <h1>Tu próxima<br /><span>plancha.</span></h1>
     <p className={styles.intro}>Buscamos planchero/a para sostener la producción con orden, cuidado y autonomía.</p>
@@ -64,7 +68,7 @@ export default function Postulaciones() {
           <label className={styles.option}><input type="checkbox" required checked={consent} onChange={e => setConsent(e.target.checked)} /><span>Leí el uso de datos y autorizo a Burger Ya a revisar mi postulación y contactarme por esta búsqueda.</span></label>
         </>}
         {error && <p role="alert" className={styles.error}>{error}</p>}
-        <div className={styles.actions}>{step > 0 && <button type="button" disabled={sending} onClick={() => move(step - 1)}>Atrás</button>}<button type="submit" className={styles.primary} disabled={sending}>{sending ? "Enviando…" : step < 2 ? "Continuar" : "Enviar postulación"}</button></div>
+        <div className={styles.actions}>{step > 0 && <button type="button" disabled={sending} onClick={() => move(step - 1)}>Atrás</button>}<button type="submit" className={styles.primary} disabled={sending}>{sending ? "Enviando…" : step < 2 ? "Continuar" : demo ? "Probar formulario (sin enviar)" : "Enviar postulación"}</button></div>
         <p className={styles.small}>Tus respuestas no se guardan en este dispositivo. Si cerrás o recargás la página antes de enviar, se pierden.</p>
         </fieldset>
       </form>
