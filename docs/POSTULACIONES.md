@@ -7,7 +7,7 @@ Ruta prevista: `/trabaja` (también acepta `/trabaja/`). La ruta funciona indepe
 
 Tres pasos: disponibilidad, experiencia y contacto. Nombre, teléfono, localidad sin domicilio y aclaración opcional; sin CV, foto, DNI, edad, género, estado civil, nacionalidad o salud. No guarda datos en localStorage/sessionStorage ni en URLs. El recibo se muestra solo al confirmar una escritura durable.
 
-Condiciones obligatorias: presencial Hurlingham; miércoles-domingo y feriados operativos; cambiado y listo 19:30; turno completo con cierre; continuidad. La hora de salida NO fue confirmada y debe definirse antes de abrir; se muestra desde configuración de servidor y se registra con la respuesta.
+Condiciones obligatorias: presencial Hurlingham; miércoles-domingo y feriados operativos; cambiado y listo 19:30; turno completo con cierre; continuidad. Salida confirmada por Lautaro el 15/10/2026: **01:30 del día siguiente, incluido el cierre**. Turno: **19:30–01:30**. El servidor usa 01:30 por defecto; se muestra en el formulario habilitado y se registra con la respuesta.
 
 Clasificación de servidor (el cliente no puede definirla):
 - Algún `no`: **No cumple requisitos operativos**, con claves de motivos.
@@ -28,7 +28,7 @@ El portal de referencia de Sabores Express presentó una verificación antirrobo
 
 ## Activación (pendiente; no hay credenciales inventadas)
 
-1. Confirmar horario exacto de salida con los responsables, incluidas las tareas de cierre; no prometer salida a medianoche si continúa limpieza. Confirmar los días festivos aplicables y condiciones de la oferta antes de entrevistas.
+1. Horario confirmado: 19:30–01:30, incluido el cierre; a las 19:30 debe estar cambiado y listo. Configurar `RECRUITMENT_SHIFT_END=01:30` y comprobar que no haya un valor anterior distinto en Vercel. Confirmar los días festivos aplicables y condiciones de la oferta antes de entrevistas.
 2. Crear Google Sheet **Burger Ya – Postulaciones** con acceso **Restringido** en la cuenta del negocio. No habilitar “cualquiera con enlace”, ni publicar en la web. Dar acceso únicamente a responsables de selección con su cuenta individual; no compartir credenciales.
 3. Abrir Extensiones → Apps Script. Copiar `integrations/recruitment/Code.gs` y el manifiesto `appsscript.json`. En propiedades de script configurar `SPREADSHEET_ID` y `RECRUITMENT_SECRET` (32 bytes aleatorios o más; generar por ejemplo `openssl rand -hex 32`, no pegar en GitHub ni chats).
 4. Ejecutar `setupRecruitment` como propietario y autorizar. Crea pestaña, filtro y tarea diaria de eliminación a 90 días. Revisar el historial de ejecuciones y alertas de fallos del propietario. La eliminación abarca filas operativas; revisar además historial de versiones, copias y políticas de retención de Workspace: borrar una fila no promete eliminar todos los backups del proveedor.
@@ -40,7 +40,7 @@ Variables (configuración de ejemplo, valores reales pendientes):
 ```
 RECRUITMENT_ENABLED=false
 RECRUITMENT_ORIGIN=https://burgerya.com.ar
-RECRUITMENT_SHIFT_END=        # HH:MM confirmado; p.ej. 01:00 SOLO si corresponde
+RECRUITMENT_SHIFT_END=01:30   # confirmado; incluye cierre
 RECRUITMENT_SHEETS_URL=      # URL de Apps Script terminada en /exec
 RECRUITMENT_SECRET=          # secreto aleatorio compartido con Apps Script
 UPSTASH_REDIS_REST_URL=      # reutilizar instancia existente
