@@ -473,7 +473,7 @@ export default function Menu() {
                             type="button"
                             className={styles.priceBtn}
                             disabled={isUnavailable}
-                            aria-label={`Agregar ${burger.name} ${label} por ${formatMoney(showRegaloPrices ? getRegaloPrice(info.basePrice) : info.finalPrice)}`}
+                            aria-label={`Agregar ${burger.name} ${label} por ${formatMoney(showRegaloPrices && size !== "triple" ? getRegaloPrice(info.basePrice) : info.finalPrice)}`}
                             onClick={(evt) => {
                               evt.stopPropagation();
                               if (isUnavailable) {
@@ -483,7 +483,7 @@ export default function Menu() {
                               addBurgerToCart(burger, size, {}, { skipScroll: true });
                             }}>
                             <span className={styles.priceBtnLabel}>{label}</span>
-                            {showRegaloPrices ? (
+                            {showRegaloPrices && size !== "triple" ? (
                               <>
                                 <span className={styles.priceBtnOriginal}>
                                   {formatMoney(info.basePrice)}

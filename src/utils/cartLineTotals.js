@@ -33,13 +33,13 @@ export function getCartItemsTotal(items) {
   return items.reduce((sum, it) => sum + it.qty * getCartLineUnitTotal(it), 0);
 }
 
-// Descuento "Regalo 40%": SOLO burgers, sobre el precio habitual de la burger
+// Descuento "Regalo 40%": SOLO burgers simples y dobles (triples a precio normal), sobre el precio habitual de la burger
 // (sin agregados, papas extra, dips ni bebidas). Coincide exacto con el
 // precio que muestran las tarjetas (precio - 40% del precio).
 export function getRegaloCartDiscount(items) {
   return items.reduce(
     (sum, it) =>
-      it.meta?.type === "burger" ? sum + it.qty * getRegaloDiscount(it.unitPrice) : sum,
+      it.meta?.type === "burger" && it.meta?.size !== "triple" ? sum + it.qty * getRegaloDiscount(it.unitPrice) : sum,
     0,
   );
 }

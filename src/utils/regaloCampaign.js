@@ -28,7 +28,7 @@ export const REGALO_CAMPAIGN = {
 export const REGALO_TITLE = "TU REGALO: 40% OFF";
 export const REGALO_SUBTITLE =
   "Hoy de 20 a 21 h, para pedidos con entrega o retiro hasta las 21 h.";
-export const REGALO_FOOTNOTE = "Descuento automático. No acumulable. Envío aparte.";
+export const REGALO_FOOTNOTE = "Descuento automático en simples y dobles. No acumulable. Envío aparte.";
 export const REGALO_BADGE = "40% OFF";
 export const REGALO_DISCOUNT_LABEL = "Regalo 40%";
 export const REGALO_INELIGIBLE_MESSAGE =
