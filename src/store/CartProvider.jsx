@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useReducer } from "react";
-import { burgers } from "../data/menu";
+import { bebidas, burgers } from "../data/menu";
 import { isItemUnavailable } from "../utils/availability";
 import { CartContext } from "./cartContext";
 import { getBurgerPriceInfo } from "../utils/burgerPricing";
-import { getPapasUpgradePrice } from "../utils/papasPricing";
+import { getCartItemsTotal } from "../utils/cartLineTotals";
+import { COMBO_COCA_PRICE } from "../pages/Menu/ComboPremiumBanner";
 import { toast } from "../utils/toast";
 import { useStoreStatus } from "../utils/storeClosedMode";
 import { buildBurgerVariantDraft } from "../utils/cartKeys";
@@ -230,7 +231,7 @@ export function CartProvider({ children }) {
     { items: {}, lastAdded: null },
     loadPersistedState,
   );
-  const { dateKey, minutes } = useStoreStatus();
+  const { dateKey, minutes, isRegaloActive } = useStoreStatus();
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.__cartHadRemovedItems) {
@@ -267,6 +268,16 @@ export function CartProvider({ children }) {
 
   useEffect(() => {
     const updates = Object.values(state.items).reduce((acc, item) => {
+      // Coca del combo premium: durante TU REGALO 40% vuelve a su precio
+      // habitual (el 40% no se suma al precio combo) y al terminar la
+      // campaña recupera el precio combo.
+      if (item.meta?.type === "bebida" && item.key?.endsWith(":combo")) {
+        const bebidaId = item.key.split(":")[1];
+        const regular = bebidas.find((b) => b.id === bebidaId)?.price;
+        const nextPrice = isRegaloActive && typeof regular === "number" ? regular : COMBO_COCA_PRICE;
+        if (item.unitPrice !== nextPrice) acc.push({ key: item.key, unitPrice: nextPrice, meta: {} });
+        return acc;
+      }
       if (item.meta?.type !== "burger") return acc;
 
       const burger = burgersById[item.meta?.burgerId];
@@ -301,34 +312,11 @@ export function CartProvider({ children }) {
     if (updates.length > 0) {
       dispatch({ type: "REPRICE_ITEMS", updates });
     }
-  }, [burgersById, dateKey, minutes, state.items]);
+  }, [burgersById, dateKey, minutes, isRegaloActive, state.items]);
 
   const api = useMemo(() => {
     const items = Object.values(state.items);
-    const total = items.reduce((sum, it) => {
-      const papasContext = { size: it.meta?.size, itemType: it.meta?.type };
-      const extrasTotal = (it.extras || []).reduce(
-        (extrasSum, extra) => extrasSum + extra.price,
-        0,
-      );
-      const papasTotal = (it.papas || []).reduce(
-        (papasSum, extra) => papasSum + getPapasUpgradePrice(extra, papasContext),
-        0,
-      );
-      const picksExtrasTotal = (it.meta?.picks || []).reduce((picksSum, pick) => {
-        const pickExtras = (pick.extras || []).reduce(
-          (pickSum, extra) => pickSum + extra.price,
-          0,
-        );
-        const pickPapas = (pick.papas || []).reduce(
-          (pickSum, extra) => pickSum + getPapasUpgradePrice(extra, papasContext),
-          0,
-        );
-        return picksSum + pickExtras + pickPapas;
-      }, 0);
-
-      return sum + it.qty * (it.unitPrice + extrasTotal + papasTotal + picksExtrasTotal);
-    }, 0);
+    const total = getCartItemsTotal(items);
     return {
       items,
       total,

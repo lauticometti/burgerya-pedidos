@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { getDailyFeature } from "./dailyFeaturePromo";
+import { isRegaloWindowActive } from "./regaloCampaign";
 import {
   WEEKLY_SCHEDULE,
   DATE_OVERRIDES,
@@ -83,10 +84,45 @@ let hasBrowserListeners = false;
 let currentSnapshot = null;
 let currentSnapshotKey = "";
 
+// SOLO DESARROLLO (import.meta.env.DEV): reloj simulado para probar
+// horarios/campañas en localhost. ?clock=2026-10-17T20:58:00-03:00 adelanta
+// o atrasa el reloj (y sigue corriendo); ?clock=off lo apaga. En el build de
+// produccion este bloque no existe y el offset es siempre 0.
+const DEV_CLOCK_KEY = "burgerya:devClockOffsetMs";
+function readDevClockOffset() {
+  if (!import.meta.env.DEV || typeof window === "undefined") return 0;
+  try {
+    const param = new URLSearchParams(window.location.search).get("clock");
+    if (param === "off") {
+      window.sessionStorage.removeItem(DEV_CLOCK_KEY);
+      return 0;
+    }
+    if (param) {
+      const target = new Date(param).getTime();
+      if (Number.isFinite(target)) {
+        const offset = target - Date.now();
+        window.sessionStorage.setItem(DEV_CLOCK_KEY, String(offset));
+        return offset;
+      }
+    }
+    const saved = Number(window.sessionStorage.getItem(DEV_CLOCK_KEY));
+    return Number.isFinite(saved) ? saved : 0;
+  } catch {
+    return 0;
+  }
+}
+const devClockOffsetMs = readDevClockOffset();
+
 function getNowDate() {
   return MANUAL_STORE_STATUS_DATE
     ? new Date(MANUAL_STORE_STATUS_DATE)
-    : new Date();
+    : new Date(Date.now() + devClockOffsetMs);
+}
+
+// Hora "actual" de la web (la misma que usa el banner de estado). Usar esta
+// en vez de new Date() para cualquier regla horaria.
+export function getStoreNow() {
+  return getNowDate();
 }
 
 function emitChange() {
@@ -127,7 +163,7 @@ function startClock() {
   if (typeof window === "undefined" || tickTimeoutId != null) return;
 
   const scheduleNextTick = () => {
-    const now = Date.now();
+    const now = getNowDate().getTime();
     const msUntilNextMinute = 60_000 - (now % 60_000);
     tickTimeoutId = window.setTimeout(() => {
       tickTimeoutId = null;
@@ -532,7 +568,10 @@ export function getStoreStatus(date = null) {
     (FORCE_OPEN ||
       getActiveShift(parts.day, parts.minutes, parts.dateKey) !== null);
 
-  const baseStatus = promoStatus || buildStatusState();
+  // TU REGALO 40% OFF: mientras la ventana esta activa, ninguna otra promo
+  // (recomendada del dia, triple=doble) compite ni se acumula con el 40%.
+  const isRegaloActive = isRegaloWindowActive(parts);
+  const baseStatus = (!isRegaloActive && promoStatus) || buildStatusState();
   const closedOverrides = isOpenNow
     ? {}
     : {
@@ -551,9 +590,10 @@ export function getStoreStatus(date = null) {
     ...parts,
     ...baseStatus,
     ...closedOverrides,
+    isRegaloActive,
     isDailyFeaturePromoActive:
-      dailyFeature !== null && dailyFeature.prices !== null,
-    dailyFeatureBurgerId: dailyFeature?.burgerId || null,
+      !isRegaloActive && dailyFeature !== null && dailyFeature.prices !== null,
+    dailyFeatureBurgerId: isRegaloActive ? null : dailyFeature?.burgerId || null,
     dailyFeatureWeekdayLabel: dailyFeature?.weekdayLabel || "",
     dailyFeatureEyebrow: dailyFeature?.eyebrow || null,
     nextOpenText,

@@ -51,6 +51,7 @@ export function buildWhatsAppText({
   items,
   totals,
   couponCode,
+  discountLabel = null,
   // Promo doble -> triple ({ code, lineKey }): la comanda muestra la triple
   // directo y la línea de control del cupón va en el bloque de totales.
   freeMeatPromo = null,
@@ -177,6 +178,7 @@ export function buildWhatsAppText({
       deliveryMode,
       totals,
       couponCode,
+      discountLabel,
       freeMeatPromo,
       pay,
       payCashAmount,
@@ -224,7 +226,7 @@ function formatPayment(pay, grandTotal, payCashAmount, payTransferAmount) {
 
 // Resumen financiero en un solo bloque: Subtotal, [Descuento], [Envio], Total.
 // Retiro sin descuento queda como siempre: solo el total con la forma de pago.
-function formatTotalsBlock({ deliveryMode, totals, couponCode, freeMeatPromo, pay, payCashAmount, payTransferAmount }) {
+function formatTotalsBlock({ deliveryMode, totals, couponCode, discountLabel, freeMeatPromo, pay, payCashAmount, payTransferAmount }) {
   const { productsSubtotal, discountAmount, deliveryFee, grandTotal } = totals;
   const isDelivery = deliveryMode === "Delivery";
   const hasDiscount = discountAmount > 0;
@@ -233,7 +235,7 @@ function formatTotalsBlock({ deliveryMode, totals, couponCode, freeMeatPromo, pa
     lines.push(`Subtotal: ${formatMoney(productsSubtotal)}`);
   }
   if (hasDiscount) {
-    const label = couponCode ? `Descuento ${couponCode}` : "Descuento";
+    const label = discountLabel || (couponCode ? `Descuento ${couponCode}` : "Descuento");
     lines.push(`${label}: -${formatMoney(discountAmount)}`);
   }
   if (freeMeatPromo) {

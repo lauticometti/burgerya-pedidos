@@ -1,19 +1,16 @@
 import React from "react";
 import { getAvailableSlotsMin30, minutesToHHMM } from "../../utils/timeSlots";
+import { useStoreStatus } from "../../utils/storeClosedMode";
 
 export default function useCarritoTimeSlots(whenMode, whenSlot, setWhenSlot) {
-  const [availableSlots, setAvailableSlots] = React.useState(
-    getAvailableSlotsMin30(),
+  // Mismo reloj que el resto de la web: se recalcula en cada minuto y al
+  // volver a la pestaña (useStoreStatus), asi nunca ofrece horarios pasados.
+  const { dateKey, minutes } = useStoreStatus();
+  const availableSlots = React.useMemo(
+    () => getAvailableSlotsMin30(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dateKey, minutes],
   );
-
-  // Refresh available slots every minute
-  React.useEffect(() => {
-    const id = setInterval(
-      () => setAvailableSlots(getAvailableSlotsMin30()),
-      60 * 1000,
-    );
-    return () => clearInterval(id);
-  }, []);
 
   // Auto-select first available slot when "Más tarde" is chosen
   React.useEffect(() => {

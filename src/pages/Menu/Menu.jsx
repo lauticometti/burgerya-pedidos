@@ -36,7 +36,11 @@ import useCokePromoChoice from "../Carrito/useCokePromoChoice";
 import SectionNav from "./SectionNav";
 import { MATCH_DAY_CAMPAIGN } from "../../utils/dailyFeaturePromo";
 import { isCokePromoAvailable, canOfferLautiboomboomPromo, isLautiboomboomPromoActive } from "../../utils/cokePromo";
+import RegaloBanner from "../../components/promos/RegaloBanner";
+import { REGALO_BADGE, getRegaloPrice, useRegaloState } from "../../utils/regaloCampaign";
+import { getRegaloCartDiscount } from "../../utils/cartLineTotals";
 import styles from "./Menu.module.css";
+
 
 // TEMP ARGENTINA MATCH DAY: chip temático por sección. Quitar (o MATCH_DAY_CAMPAIGN=false) para revertir.
 function MatchDayBadge({ children }) {
@@ -92,6 +96,8 @@ export default function Menu() {
   const { canAddItem, showUnavailableError } = useListingPageActions();
   const cokePromo = useCokePromoModal();
   const cokePromoChoice = useCokePromoChoice();
+  const regalo = useRegaloState();
+  const showRegaloPrices = regalo.showPromoPrices;
 
   // Burger modal state
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -327,7 +333,13 @@ export default function Menu() {
         ref={burgersRef}
         id="section-burgers"
         className={styles.section}>
-        {featuredBurger ? (
+        {/* TU REGALO 40% OFF: reemplaza a la recomendada / combo mientras dura. */}
+        {regalo.campaignActive ? (
+          <RegaloBanner
+            message={regalo.message}
+            tone={regalo.status === "ineligible" ? "warn" : "info"}
+          />
+        ) : featuredBurger ? (
           <div className={styles.featuredWrap}>
             <BurgerDelDia
               burger={featuredBurger}
@@ -365,7 +377,7 @@ export default function Menu() {
         ) : null}
 
         {/* Promo: Lautiboom triple con Coca gratis (solo hoy) */}
-        {isLautiboomboomPromoActive() ? (
+        {regalo.campaignActive ? null : isLautiboomboomPromoActive() ? (
           <div className={styles.cokePromoRibbon}>
             <div className={styles.cokePromoRibbonTitle}>LAUTIBOOM TRIPLE + COCA 600 ML DE REGALO</div>
             <div className={styles.cokePromoRibbonSub}>Elegí Coca o Coca Zero · Hasta agotar stock</div>
@@ -421,7 +433,9 @@ export default function Menu() {
                     openBurger(burger, evt);
                   }
                 }}>
-                {entry.badge ? (
+                {showRegaloPrices ? (
+                  <span className={`${styles.badge} ${styles.regaloBadge}`}>{REGALO_BADGE}</span>
+                ) : entry.badge ? (
                   <span className={styles.badge}>{entry.badge}</span>
                 ) : null}
                 <div className={styles.burgerImgWrap}>
@@ -459,7 +473,7 @@ export default function Menu() {
                             type="button"
                             className={styles.priceBtn}
                             disabled={isUnavailable}
-                            aria-label={`Agregar ${burger.name} ${label} por ${formatMoney(info.finalPrice)}`}
+                            aria-label={`Agregar ${burger.name} ${label} por ${formatMoney(showRegaloPrices ? getRegaloPrice(info.basePrice) : info.finalPrice)}`}
                             onClick={(evt) => {
                               evt.stopPropagation();
                               if (isUnavailable) {
@@ -469,6 +483,17 @@ export default function Menu() {
                               addBurgerToCart(burger, size, {}, { skipScroll: true });
                             }}>
                             <span className={styles.priceBtnLabel}>{label}</span>
+                            {showRegaloPrices ? (
+                              <>
+                                <span className={styles.priceBtnOriginal}>
+                                  {formatMoney(info.basePrice)}
+                                </span>
+                                <span className={`${styles.priceBtnValue} ${styles.regaloValue}`}>
+                                  {formatMoney(getRegaloPrice(info.basePrice))}
+                                </span>
+                              </>
+                            ) : (
+                            <>
                             {info.hasDiscount ? (
                               <span className={styles.priceBtnOriginal}>
                                 {formatMoney(info.basePrice)}
@@ -477,6 +502,8 @@ export default function Menu() {
                             <span className={styles.priceBtnValue}>
                               {formatMoney(info.finalPrice)}
                             </span>
+                            </>
+                            )}
                           </button>
                           {size === "triple" && isCokePromoAvailable() ? (
                             <div className={styles.cokePromoLabel}>+Coquita</div>
@@ -527,9 +554,7 @@ export default function Menu() {
                 <>
                   <div className={styles.bebidaInfo}>
                     <span className={styles.bebidaName}>{item.label}</span>
-                    <span className={styles.bebidaPrice}>
-                      {formatMoney(item.basePrice)}
-                    </span>
+                    <span className={styles.bebidaPrice}>{formatMoney(item.basePrice)}</span>
                   </div>
                   <div className={styles.bebidaImgWrap}>
                     <img
@@ -542,9 +567,7 @@ export default function Menu() {
               ) : (
                 <>
                   <span className={styles.papasName}>{item.label}</span>
-                  <span className={styles.papasPrice}>
-                    {formatMoney(item.basePrice)}
-                  </span>
+                  <span className={styles.papasPrice}>{formatMoney(item.basePrice)}</span>
                 </>
               )}
             </button>
@@ -598,11 +621,13 @@ export default function Menu() {
                   {item.ingredients ? (
                     <span className={styles.dipIngredients}>{item.ingredients}</span>
                   ) : null}
-                  <span className={styles.bebidaPrice}>
-                    {unavailable
-                      ? item.unavailableReason || "no disponible"
-                      : formatMoney(item.price)}
-                  </span>
+                  {unavailable ? (
+                    <span className={styles.bebidaPrice}>
+                      {item.unavailableReason || "no disponible"}
+                    </span>
+                  ) : (
+                    <span className={styles.bebidaPrice}>{formatMoney(item.price)}</span>
+                  )}
                 </div>
                 {item.img && (
                   <div className={styles.bebidaImgWrap}>
@@ -673,11 +698,13 @@ export default function Menu() {
                   {item.subtitle ? (
                     <span className={styles.bebidaPrice} style={{ opacity: 0.4, fontSize: "11px" }}>{item.subtitle}</span>
                   ) : null}
-                  <span className={styles.bebidaPrice}>
-                    {unavailable
-                      ? getUnavailableReason(item)
-                      : formatMoney(item.price)}
-                  </span>
+                  {unavailable ? (
+                    <span className={styles.bebidaPrice}>
+                      {getUnavailableReason(item)}
+                    </span>
+                  ) : (
+                    <span className={styles.bebidaPrice}>{formatMoney(item.price)}</span>
+                  )}
                 </div>
                 {item.img && (
                   <div className={styles.bebidaImgWrap}>
@@ -782,7 +809,7 @@ export default function Menu() {
       />
 
       <FloatingCartPill
-        total={cart.total}
+        total={regalo.applies ? cart.total - getRegaloCartDiscount(cart.items) : cart.total}
         itemCount={cart.items.reduce((sum, i) => sum + (i.qty ?? 1), 0)}
         visible={cart.items.length > 0 && !modalOpen}
       />

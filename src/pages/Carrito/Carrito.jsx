@@ -38,8 +38,15 @@ import CartUpsellBanner, { shouldShowBebidaUpsell } from "./CartUpsellBanner";
 import CartDipUpsellBanner from "./CartDipUpsellBanner";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
 import { buildPapasMejoras } from "../../utils/papasUpgradeOptions";
-import { useStoreStatus } from "../../utils/storeClosedMode";
+import { getStoreNow, useStoreStatus } from "../../utils/storeClosedMode";
 import { toast } from "../../utils/toast";
+import {
+  REGALO_DISCOUNT_LABEL,
+  getRegaloState,
+  setRegaloWhen,
+} from "../../utils/regaloCampaign";
+import { getRegaloCartDiscount } from "../../utils/cartLineTotals";
+import RegaloBanner from "../../components/promos/RegaloBanner";
 
 // Oculta temporalmente el banner de upsell de bebida en el carrito (queda
 // solo el del dip). No borra la lógica: para volver a mostrarlo, poner en true.
@@ -49,13 +56,13 @@ const SHOW_BEBIDA_UPSELL_BANNER = false;
 // hay algo entre el subtotal y el total (si no, el total del sticky alcanza).
 // Todo sale de `totals` (computeCheckoutTotals): mismos numeros que el sticky,
 // el pago y el WhatsApp.
-function TotalsBreakdown({ totals, discountLabel }) {
+function TotalsBreakdown({ totals, discountLabel, subtotalLabel = "Subtotal" }) {
   const { productsSubtotal, discountAmount, deliveryFee, grandTotal } = totals;
   if (discountAmount <= 0 && deliveryFee <= 0) return null;
   return (
     <div className={styles.totalBreakdown}>
       <div className={styles.totalBreakdownRow}>
-        <span>Subtotal</span>
+        <span>{subtotalLabel}</span>
         <span>{formatMoney(productsSubtotal)}</span>
       </div>
       {discountAmount > 0 ? (
@@ -80,7 +87,7 @@ function TotalsBreakdown({ totals, discountLabel }) {
 
 export default function Carrito() {
   const cart = useCart();
-  const { closedActionLabel, isClosed } = useStoreStatus();
+  const { closedActionLabel, isClosed, dateKey, minutes } = useStoreStatus();
 
   React.useEffect(() => {
     const metaRobots = document.querySelector('meta[name="robots"]');
@@ -155,28 +162,59 @@ export default function Carrito() {
     removeCoupon,
   } = useCouponCode(cart.items, cart.total, cart);
 
+  // TU REGALO 40% OFF: estado segun la hora actual y el horario elegido. Se
+  // recalcula en cada minuto (y al volver a la pestaña) via useStoreStatus.
+  // regaloNonce: lo sube la revalidacion previa al envio para forzar el
+  // recalculo con la hora de ese instante.
+  const [regaloNonce, forceRegaloRefresh] = React.useReducer((n) => n + 1, 0);
+  const regalo = React.useMemo(
+    () => getRegaloState({ whenMode, whenSlot }),
+    // dateKey/minutes/regaloNonce: re-evaluar en cada tick del reloj de la web.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [whenMode, whenSlot, dateKey, minutes, regaloNonce],
+  );
+  React.useEffect(() => {
+    setRegaloWhen(whenMode, whenSlot);
+  }, [whenMode, whenSlot]);
+  // No acumulable: mientras la campaña esta activa no hay cupones.
+  const couponsBlocked = regalo.campaignActive;
+  React.useEffect(() => {
+    if (couponsBlocked && appliedCoupon) removeCoupon();
+  }, [couponsBlocked, appliedCoupon, removeCoupon]);
+  const regaloDiscount = React.useMemo(
+    () => (regalo.applies ? getRegaloCartDiscount(cart.items) : 0),
+    [regalo.applies, cart.items],
+  );
+
   const deliveryQuote = useDeliveryQuote(selectedLocation, deliveryMode);
   // UNICA fuente de montos: resumen, sticky, pago, validacion y WhatsApp usan
   // este mismo objeto (grandTotal = productos - descuento + envio).
   const totals = React.useMemo(
     () =>
       computeCheckoutTotals({
-        productsSubtotal: cart.total + totalSurcharge,
-        discountAmount: totalDiscount,
+        productsSubtotal: cart.total + (couponsBlocked ? 0 : totalSurcharge),
+        discountAmount: regalo.applies
+          ? regaloDiscount
+          : couponsBlocked
+            ? 0
+            : totalDiscount,
         deliveryMode,
         deliveryQuote,
       }),
-    [cart.total, totalSurcharge, totalDiscount, deliveryMode, deliveryQuote],
+    [cart.total, couponsBlocked, totalSurcharge, regalo.applies, regaloDiscount, totalDiscount, deliveryMode, deliveryQuote],
   );
   const { grandTotal } = totals;
-  const discountLabel = giveawayTarget?.burgerName
-    ? `Premio — ${giveawayTarget.burgerName}`
-    : appliedCoupon
-      ? `Descuento ${appliedCoupon}`
-      : "Descuento";
+  const discountLabel = regalo.applies
+    ? REGALO_DISCOUNT_LABEL
+    : giveawayTarget?.burgerName
+      ? `Premio — ${giveawayTarget.burgerName}`
+      : appliedCoupon
+        ? `Descuento ${appliedCoupon}`
+        : "Descuento";
+  const subtotalLabel = regalo.applies ? "Subtotal habitual de productos" : "Subtotal";
 
   const canContinue = cart.items.length > 0;
-  const couponApplied = Boolean(appliedCoupon);
+  const couponApplied = Boolean(appliedCoupon) && !couponsBlocked;
   const { canSend, missingFields, waHref } = useCheckoutValidation({
     deliveryMode,
     name,
@@ -190,11 +228,31 @@ export default function Carrito() {
     items: cart.items,
     totals,
     couponCode: couponApplied ? appliedCoupon : "",
-    freeMeatPromo,
+    discountLabel: regalo.applies ? REGALO_DISCOUNT_LABEL : null,
+    freeMeatPromo: couponsBlocked ? null : freeMeatPromo,
     deliveryQuote,
     location: selectedLocation,
   });
   const sendEnabled = !isClosed && canSend;
+
+  // Revalida la campaña con la hora de este instante, justo antes de abrir
+  // WhatsApp: una pestaña abierta desde antes de las 21:00 (o con un horario
+  // que ya paso) no puede mandar el 40% si ya no corresponde. Si el estado
+  // cambio, se frena el envio y se re-renderiza con los montos correctos.
+  const revalidateRegalo = React.useCallback(() => {
+    const fresh = getRegaloState({ whenMode, whenSlot, date: getStoreNow() });
+    if (fresh.applies === regalo.applies && fresh.campaignActive === regalo.campaignActive) {
+      return true;
+    }
+    forceRegaloRefresh();
+    toast.error(
+      fresh.campaignActive
+        ? `${fresh.message || "Cambió el descuento de tu pedido."} Revisá el total y volvé a enviarlo.`
+        : "Terminó TU REGALO 40% OFF. Actualizamos tu pedido al precio habitual: revisá el total y volvé a enviarlo.",
+      { key: "regalo-revalidate", ms: 6000 },
+    );
+    return false;
+  }, [whenMode, whenSlot, regalo.applies, regalo.campaignActive]);
   React.useEffect(() => {
     if (!canContinue && step !== 1) {
       setStep(1);
@@ -273,6 +331,14 @@ export default function Carrito() {
 
       <PageTitle>Carrito</PageTitle>
       <ClosedInlineNotice />
+
+      {regalo.campaignActive ? (
+        <RegaloBanner
+          compact
+          message={regalo.applies ? "40% OFF aplicado a tu pedido." : regalo.message}
+          tone={regalo.status === "ineligible" ? "warn" : "info"}
+        />
+      ) : null}
 
       {upsellMessages.length ? (
         <div className={styles.upsellCard}>
@@ -357,7 +423,7 @@ export default function Carrito() {
                 ) : null}
               </div>
               <div className={styles.addRight}>
-                {!appliedCoupon ? (
+                {!appliedCoupon && !couponsBlocked ? (
                   <>
                     <input
                       className={styles.couponInput}
@@ -391,7 +457,7 @@ export default function Carrito() {
             </div>
           ) : null}
 
-          {appliedCoupon && giveawayTarget ? (
+          {couponApplied && giveawayTarget ? (
             <div className={styles.couponAppliedBlock}>
               <div className={styles.couponAppliedHeader}>✓ PREMIO APLICADO</div>
               <div className={styles.couponAppliedCode}>{appliedCoupon}</div>
@@ -410,7 +476,7 @@ export default function Carrito() {
             </div>
           ) : null}
 
-          {freeMeatPromo ? (
+          {freeMeatPromo && !couponsBlocked ? (
             <div className={styles.couponAppliedBlock}>
               <div className={styles.couponAppliedHeader}>
                 {freeMeatPromo.message}
@@ -436,7 +502,7 @@ export default function Carrito() {
             </div>
           ) : null}
 
-          <TotalsBreakdown totals={totals} discountLabel={discountLabel} />
+          <TotalsBreakdown totals={totals} discountLabel={discountLabel} subtotalLabel={subtotalLabel} />
 
         </>
       ) : (
@@ -456,7 +522,7 @@ export default function Carrito() {
             deliveryQuote={deliveryQuote}
           />
 
-          <TotalsBreakdown totals={totals} discountLabel={discountLabel} />
+          <TotalsBreakdown totals={totals} discountLabel={discountLabel} subtotalLabel={subtotalLabel} />
 
           <PaymentScheduleCard
             pay={pay}
@@ -472,6 +538,13 @@ export default function Carrito() {
             onWhenSlotChange={setWhenSlot}
             onNotesChange={setNotes}
           />
+          {regalo.campaignActive && !regalo.applies && regalo.message ? (
+            <div
+              className={`${styles.regaloScheduleNotice}${regalo.status === "ineligible" ? ` ${styles.regaloScheduleNoticeWarn}` : ""}`}
+              role="status">
+              {regalo.message}
+            </div>
+          ) : null}
         </>
       )}
       {step === 2 ? (
@@ -517,8 +590,13 @@ export default function Carrito() {
                   event.preventDefault();
                   return;
                 }
+                // TU REGALO 40%: revalidar hora y horario en este instante.
+                if (!revalidateRegalo()) {
+                  event.preventDefault();
+                  return;
+                }
                 // Cupón vencido con el carrito abierto: no se envía la promo.
-                if (!revalidateCoupon()) {
+                if (!couponsBlocked && !revalidateCoupon()) {
                   event.preventDefault();
                 }
               }}>

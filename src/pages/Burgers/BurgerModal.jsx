@@ -11,6 +11,7 @@ import { resolvePublicPath } from "../../utils/assetPath";
 import { getEffectiveNotice } from "../../utils/availability";
 import { getBurgerPriceInfo } from "../../utils/burgerPricing";
 import { formatMoney } from "../../utils/formatMoney";
+import { REGALO_BADGE, getRegaloPrice, useRegaloState } from "../../utils/regaloCampaign";
 import { buildPapasMejoras } from "../../utils/papasUpgradeOptions";
 import styles from "./BurgerModal.module.css";
 
@@ -18,6 +19,7 @@ const SIZE_ORDER = ["simple", "doble", "triple"];
 const SIZE_LABEL = { simple: "Simple", doble: "Doble", triple: "Triple" };
 
 export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
+  const regalo = useRegaloState();
   const [show, setShow] = React.useState(false);
 
   // Consolidated customization state
@@ -216,7 +218,16 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
               </div>
             ) : null}
 
-            {selectedPrice ? (
+            {selectedPrice && regalo.showPromoPrices ? (
+              <div className={styles.pricePanel}>
+                <div className={styles.priceBase}>
+                  {formatMoney(selectedPrice.basePrice)}
+                </div>
+                <div className={styles.priceValue}>
+                  {formatMoney(getRegaloPrice(selectedPrice.basePrice))} · {REGALO_BADGE}
+                </div>
+              </div>
+            ) : selectedPrice ? (
               <div className={styles.pricePanel}>
                 {selectedPrice.hasDiscount ? (
                   <div className={styles.priceBase}>
