@@ -104,6 +104,52 @@ function seamZone(lat, lng) {
   return enclosed ? cheapestOf(hits.filter(Boolean)) : null;
 }
 
+// --- Borde exterior: calles que sobresalen un poco del contorno dibujado ---
+// El KMZ se trazo a mano sobre el borde visible de la cobertura (limite de un
+// campo/club, una via, etc.), y en varios puntos de Hurlingham ese trazo
+// corta la ultima cuadra de alguna calle real antes de su final (caso
+// reportado: calles cerca de Morris Club, ej. Poeta Risso, que siguen un
+// poco mas alla del borde dibujado). Esto NO es una costura entre dos zonas
+// (ver SEAM_MAX_M arriba): es directamente afuera de toda zona, un solo lado
+// cubierto. Un punto sin zona a <= OUTER_EDGE_BUFFER_M del borde de alguna
+// zona se cotiza con la tarifa de la zona mas barata entre las que esten a
+// esa distancia (`extended: true`). 100 m deja margen de sobra (~120 m)
+// antes de tocar la exclusion real mas cercana (el cementerio, a ~220 m del
+// borde mas proximo) y alcanza para una cuadra tipica de la zona.
+export const OUTER_EDGE_BUFFER_M = 100;
+
+function distancePointToSegmentM(lat, lng, [ax, ay], [bx, by]) {
+  const metersPerDegLng = METERS_PER_DEG_LAT * Math.cos((lat * Math.PI) / 180);
+  const px = lng * metersPerDegLng, py = lat * METERS_PER_DEG_LAT;
+  const axm = ax * metersPerDegLng, aym = ay * METERS_PER_DEG_LAT;
+  const bxm = bx * metersPerDegLng, bym = by * METERS_PER_DEG_LAT;
+  const dx = bxm - axm, dy = bym - aym;
+  if (dx === 0 && dy === 0) return Math.hypot(px - axm, py - aym);
+  const t = Math.max(0, Math.min(1, ((px - axm) * dx + (py - aym) * dy) / (dx * dx + dy * dy)));
+  return Math.hypot(px - (axm + t * dx), py - (aym + t * dy));
+}
+
+function distanceToZoneM(lat, lng, zone) {
+  let min = Infinity;
+  for (const rings of zone.parts) {
+    for (const ring of rings) {
+      for (let i = 1; i < ring.length; i++) {
+        const d = distancePointToSegmentM(lat, lng, ring[i - 1], ring[i]);
+        if (d < min) min = d;
+      }
+    }
+  }
+  return min;
+}
+
+function nearestZoneWithinBuffer(lat, lng) {
+  const near = ZONES.map((z) => ({ zone: z, distM: distanceToZoneM(lat, lng, z) })).filter(
+    (hit) => hit.distM <= OUTER_EDGE_BUFFER_M,
+  );
+  if (near.length === 0) return null;
+  return cheapestOf(near.map((hit) => hit.zone));
+}
+
 /**
  * Resuelve la zona de delivery para una coordenada.
  *
@@ -112,8 +158,10 @@ function seamZone(lat, lng) {
  *
  * Si no cae en ningun poligono pero esta en una costura interna entre zonas
  * (ver SEAM_MAX_M), se cotiza con la zona mas barata que la rodea
- * (`seam: true`). Fuera de eso no hay "zona mas cercana": un punto afuera de
- * la cobertura es uncovered.
+ * (`seam: true`). Si tampoco es una costura pero esta cerca del borde
+ * exterior de alguna zona (ver OUTER_EDGE_BUFFER_M), se cotiza con esa zona
+ * (`extended: true`). Mas alla de eso no hay "zona mas cercana": un punto
+ * afuera de la cobertura es uncovered.
  */
 export function getDeliveryZone(lat, lng) {
   const matches = zonesAt(lat, lng);
@@ -127,6 +175,16 @@ export function getDeliveryZone(lat, lng) {
         deliveryPrice: seam.deliveryPrice,
         matches: [],
         seam: true,
+      };
+    }
+    const extended = nearestZoneWithinBuffer(lat, lng);
+    if (extended) {
+      return {
+        covered: true,
+        zoneId: extended.id,
+        deliveryPrice: extended.deliveryPrice,
+        matches: [],
+        extended: true,
       };
     }
     return { covered: false, zoneId: null, deliveryPrice: null };

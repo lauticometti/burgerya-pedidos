@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getDeliveryZone, listDeliveryZones, getCoverageBounds, SEAM_MAX_M } from "./deliveryZones";
+import { getDeliveryZone, listDeliveryZones, getCoverageBounds, SEAM_MAX_M, OUTER_EDGE_BUFFER_M } from "./deliveryZones";
 import { computeDeliveryQuote } from "../hooks/useDeliveryQuote";
 import rawGeoJSON from "../data/deliveryZones.geojson?raw";
 
@@ -299,16 +299,43 @@ describe("costuras internas entre zonas (microgaps de la reconstruccion por call
     expect(getDeliveryZone(-34.62556, -58.622035)).toMatchObject({ covered: true, zoneId: "delivery-zone-10", deliveryPrice: 3500 }); // Z6/Z8
   });
 
-  it("NO agranda el borde exterior: 15 m afuera del vertice mas al norte y del mas al oeste sigue sin cobertura", () => {
-    expect(getDeliveryZone(-34.568134753323754, -58.6475609).covered).toBe(false);
-    expect(getDeliveryZone(-34.586381, -58.674146072258495).covered).toBe(false);
-  });
-
-  it("NO tapa exclusiones reales anchas: el centro del cementerio sigue sin cobertura", () => {
+  it("NO tapa exclusiones reales anchas: el centro del cementerio sigue sin cobertura (a ~220 m del borde mas proximo, bien afuera del buffer de 100 m)", () => {
     expect(getDeliveryZone(-34.62482, -58.6475).covered).toBe(false);
   });
 
-  it(`el umbral es chico y explicito (${SEAM_MAX_M} m por lado)`, () => {
+  it(`el umbral de costura es chico y explicito (${SEAM_MAX_M} m por lado)`, () => {
     expect(SEAM_MAX_M).toBe(25);
+  });
+});
+
+describe("getDeliveryZone: borde exterior (calles que sobresalen del contorno dibujado)", () => {
+  // Reportado: direcciones cerca de Morris Club (zona de Poeta Risso / Jose de
+  // Andonaegui) que el poligono no tomaba porque el trazo del KMZ corta la
+  // calle antes de su final real. Puntos derivados del vertice mas al norte y
+  // del mas al oeste de la cobertura (los mismos que antes probaban "no se
+  // agranda el borde"), desplazados una distancia exacta en metros.
+  it(`un punto a 60 m afuera del vertice mas al norte (dentro del buffer de ${OUTER_EDGE_BUFFER_M} m) ahora cubre, con la tarifa de la zona mas cercana`, () => {
+    const result = getDeliveryZone(-34.567730513295004, -58.6475609);
+    expect(result).toMatchObject({ covered: true, zoneId: "delivery-zone-05", deliveryPrice: 2500, extended: true });
+  });
+
+  it(`un punto a 99 m (justo adentro del buffer) cubre; a 110 m (afuera del buffer) sigue sin cobertura`, () => {
+    expect(getDeliveryZone(-34.56738017193676, -58.6475609)).toMatchObject({ covered: true, extended: true });
+    expect(getDeliveryZone(-34.56728135770751, -58.6475609).covered).toBe(false);
+  });
+
+  it(`lo mismo del lado oeste: 60 m y 99 m afuera del vertice mas al oeste cubren, 110 m no`, () => {
+    expect(getDeliveryZone(-34.586381, -58.674637089033986)).toMatchObject({
+      covered: true,
+      zoneId: "delivery-zone-05",
+      deliveryPrice: 2500,
+      extended: true,
+    });
+    expect(getDeliveryZone(-34.586381, -58.67506263690608)).toMatchObject({ covered: true, extended: true });
+    expect(getDeliveryZone(-34.586381, -58.67518266322897).covered).toBe(false);
+  });
+
+  it(`el buffer es chico y explicito (${OUTER_EDGE_BUFFER_M} m), con margen de sobra bajo la exclusion real mas cercana (cementerio, ~220 m)`, () => {
+    expect(OUTER_EDGE_BUFFER_M).toBe(100);
   });
 });
