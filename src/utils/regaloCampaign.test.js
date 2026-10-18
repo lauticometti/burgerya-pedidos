@@ -7,11 +7,11 @@ import { formatMoney } from "./formatMoney";
 import { getStoreStatus } from "./storeClosedMode";
 
 // Hora Buenos Aires (UTC-3).
-const at = (hhmm, day = "2026-10-17") => new Date(`${day}T${hhmm}:00-03:00`);
+const at = (hhmm, day = "2026-10-18") => new Date(`${day}T${hhmm}:00-03:00`);
 const state = (hhmm, whenMode, whenSlot, day) =>
   getRegaloState({ whenMode, whenSlot, date: at(hhmm, day) });
 
-describe("TU REGALO 40% OFF — ventana y horario", () => {
+describe("campaña regalo (hoy 30% OFF) — ventana y horario", () => {
   it("antes de las 20:00: precios habituales", () => {
     const s = state("19:59", "Mas tarde", "20:30");
     expect(s.campaignActive).toBe(false);
@@ -50,9 +50,9 @@ describe("TU REGALO 40% OFF — ventana y horario", () => {
     expect(s.applies).toBe(false);
   });
 
-  it("otro dia a la misma hora: no aplica", () => {
-    expect(state("20:15", "Mas tarde", "21:00", "2026-10-18").campaignActive).toBe(false);
-    expect(state("20:15", "Mas tarde", "21:00", "2026-10-16").campaignActive).toBe(false);
+  it("otro dia a la misma hora: no aplica (incluye el 2026-10-17, la edicion de ayer, ya inerte)", () => {
+    expect(state("20:15", "Mas tarde", "21:00", "2026-10-19").campaignActive).toBe(false);
+    expect(state("20:15", "Mas tarde", "21:00", "2026-10-17").campaignActive).toBe(false);
   });
 
   it("apaga la recomendada del dia solo durante la ventana", () => {
@@ -63,7 +63,10 @@ describe("TU REGALO 40% OFF — ventana y horario", () => {
   });
 });
 
-describe("TU REGALO 40% OFF — montos", () => {
+describe("campaña regalo (hoy 30% OFF) — montos", () => {
+  // A diferencia de la edicion de ayer (40%, solo burgers simples/dobles),
+  // hoy el descuento aplica sobre TODO: productos de cualquier tamaño
+  // (incluidas triples) y sus adicionales (extras, papas, dips, bebidas).
   const items = [
     {
       key: "burger:bacon:doble::",
@@ -74,13 +77,29 @@ describe("TU REGALO 40% OFF — montos", () => {
       papas: [],
       meta: { type: "burger", burgerId: "bacon", size: "doble" },
     },
+    {
+      key: "burger:bacon:triple::",
+      name: "Bacon",
+      qty: 1,
+      unitPrice: 20500,
+      extras: [],
+      papas: [],
+      meta: { type: "burger", burgerId: "bacon", size: "triple" },
+    },
     { key: "bebida:coca_600", name: "Coca 600", qty: 1, unitPrice: 3000, meta: { type: "bebida" } },
   ];
 
-  it("40% solo sobre el precio de las burgers, igual al precio de tarjeta", () => {
-    expect(getCartItemsTotal(items)).toBe(2 * 18000 + 3000);
-    expect(getRegaloCartDiscount(items)).toBe(2 * 6600);
-    expect(getRegaloPrice(16500)).toBe(9900);
+  it("30% sobre el precio de cada linea completa (burger + extras), incluidas las triples y las bebidas", () => {
+    expect(getCartItemsTotal(items)).toBe(2 * 18000 + 20500 + 3000);
+    // doble+cheddar: 30% de 18000 = 5400, x2 = 10800
+    // triple sin extras: 30% de 20500 = 6150
+    // bebida: 30% de 3000 = 900
+    expect(getRegaloCartDiscount(items)).toBe(2 * 5400 + 6150 + 900);
+  });
+
+  it("el precio de tarjeta (solo la burger, sin agregados) coincide con getRegaloPrice sobre el precio base", () => {
+    expect(getRegaloPrice(16500)).toBe(11550);
+    expect(getRegaloPrice(20500)).toBe(14350);
   });
 
   it("envio aparte, sin descuento (delivery) y retiro sin envio", () => {
@@ -101,14 +120,23 @@ describe("TU REGALO 40% OFF — montos", () => {
     const text = decodeURIComponent(
       buildWhatsAppText({
         name: "Juan", address: "Calle 1", cross: "", pay: "Efectivo", deliveryMode: "Delivery",
-        notes: "", items, totals, couponCode: "", discountLabel: "Regalo 40%",
+        notes: "", items, totals, couponCode: "", discountLabel: "Regalo 30%",
         whenMode: "Mas tarde", whenSlot: "21:00",
       }),
     );
     expect(text).toContain("Juan (PARA 21:00)");
     expect(text).toContain(`Subtotal: ${formatMoney(subtotal)}`);
-    expect(text).toContain(`Regalo 40%: -${formatMoney(discount)}`);
+    expect(text).toContain(`Regalo 30%: -${formatMoney(discount)}`);
     expect(text).toContain(`Envío: ${formatMoney(2500)}`);
     expect(text).toContain(`Total: ${formatMoney(subtotal - discount + 2500)} Efectivo`);
+  });
+
+  it("papas extra y dips tambien entran en el descuento (son 'productos', no solo burgers)", () => {
+    const papasYDip = [
+      { key: "papas:grande_sola", name: "Papas grandes", qty: 1, unitPrice: 9000, meta: { type: "papas" } },
+      { key: "dip:dip_mil_islas", name: "Dip secreta", qty: 2, unitPrice: 1000, meta: { type: "dip" } },
+    ];
+    // papas: 30% de 9000 = 2700. dip: 30% de 1000 = 300, x2 = 600.
+    expect(getRegaloCartDiscount(papasYDip)).toBe(2700 + 600);
   });
 });

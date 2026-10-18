@@ -54,6 +54,22 @@ function MatchDayBadge({ children }) {
   if (!MATCH_DAY_CAMPAIGN) return null;
   return <span className={styles.matchDayBadge}>{children}</span>;
 }
+
+// Precio habitual tachado + precio con el regalo aplicado, para papas
+// extra / dips / bebidas (los botones de burger tienen su propio markup
+// inline, ver burgerPrices más abajo). `priceClassName` es la clase de
+// precio normal del producto (bebidaPrice, papasPrice, ...), reusada para
+// que el precio final quede con la misma tipografía.
+function RegaloPriceTag({ amount, priceClassName }) {
+  return (
+    <span className={styles.regaloPriceWrap}>
+      <span className={styles.regaloOriginal}>{formatMoney(amount)}</span>
+      <span className={`${priceClassName} ${styles.regaloValue}`}>
+        {formatMoney(getRegaloPrice(amount))}
+      </span>
+    </span>
+  );
+}
 import {
   buildBurgerAddedToastText,
   buildBurgerCartItem,
@@ -343,14 +359,14 @@ export default function Menu() {
         ref={burgersRef}
         id="section-burgers"
         className={styles.section}>
-        {/* TU REGALO 40% OFF: reemplaza a la recomendada / combo mientras dura. */}
+        {/* Campaña regalo: reemplaza a la recomendada / combo mientras dura. */}
         {regalo.campaignActive ? (
           <RegaloBanner
             message={regalo.message}
             tone={regalo.status === "ineligible" ? "warn" : "info"}
           />
         ) : null}
-        {/* Cierre de TU REGALO 40%: cuenta lo que paso, hasta el fin del dia. */}
+        {/* Cierre de la campaña regalo: cuenta lo que paso, hasta el fin del dia. */}
         {!regalo.campaignActive && isRegaloRecapActive(storeParts) ? (
           <div className={styles.recapStrip}>
             <strong>{REGALO_RECAP_TITLE}</strong> {REGALO_RECAP_SUBTITLE}
@@ -490,7 +506,7 @@ export default function Menu() {
                             type="button"
                             className={styles.priceBtn}
                             disabled={isUnavailable}
-                            aria-label={`Agregar ${burger.name} ${label} por ${formatMoney(showRegaloPrices && size !== "triple" ? getRegaloPrice(info.basePrice) : info.finalPrice)}`}
+                            aria-label={`Agregar ${burger.name} ${label} por ${formatMoney(showRegaloPrices ? getRegaloPrice(info.basePrice) : info.finalPrice)}`}
                             onClick={(evt) => {
                               evt.stopPropagation();
                               if (isUnavailable) {
@@ -500,7 +516,7 @@ export default function Menu() {
                               addBurgerToCart(burger, size, {}, { skipScroll: true });
                             }}>
                             <span className={styles.priceBtnLabel}>{label}</span>
-                            {showRegaloPrices && size !== "triple" ? (
+                            {showRegaloPrices ? (
                               <>
                                 <span className={styles.priceBtnOriginal}>
                                   {formatMoney(info.basePrice)}
@@ -571,7 +587,11 @@ export default function Menu() {
                 <>
                   <div className={styles.bebidaInfo}>
                     <span className={styles.bebidaName}>{item.label}</span>
-                    <span className={styles.bebidaPrice}>{formatMoney(item.basePrice)}</span>
+                    {showRegaloPrices ? (
+                      <RegaloPriceTag amount={item.basePrice} priceClassName={styles.bebidaPrice} />
+                    ) : (
+                      <span className={styles.bebidaPrice}>{formatMoney(item.basePrice)}</span>
+                    )}
                   </div>
                   <div className={styles.bebidaImgWrap}>
                     <img
@@ -584,7 +604,11 @@ export default function Menu() {
               ) : (
                 <>
                   <span className={styles.papasName}>{item.label}</span>
-                  <span className={styles.papasPrice}>{formatMoney(item.basePrice)}</span>
+                  {showRegaloPrices ? (
+                    <RegaloPriceTag amount={item.basePrice} priceClassName={styles.papasPrice} />
+                  ) : (
+                    <span className={styles.papasPrice}>{formatMoney(item.basePrice)}</span>
+                  )}
                 </>
               )}
             </button>
@@ -642,6 +666,8 @@ export default function Menu() {
                     <span className={styles.bebidaPrice}>
                       {item.unavailableReason || "no disponible"}
                     </span>
+                  ) : showRegaloPrices ? (
+                    <RegaloPriceTag amount={item.price} priceClassName={styles.bebidaPrice} />
                   ) : (
                     <span className={styles.bebidaPrice}>{formatMoney(item.price)}</span>
                   )}
@@ -719,6 +745,8 @@ export default function Menu() {
                     <span className={styles.bebidaPrice}>
                       {getUnavailableReason(item)}
                     </span>
+                  ) : showRegaloPrices ? (
+                    <RegaloPriceTag amount={item.price} priceClassName={styles.bebidaPrice} />
                   ) : (
                     <span className={styles.bebidaPrice}>{formatMoney(item.price)}</span>
                   )}

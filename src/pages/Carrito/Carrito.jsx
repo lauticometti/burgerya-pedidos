@@ -41,6 +41,7 @@ import { buildPapasMejoras } from "../../utils/papasUpgradeOptions";
 import { getStoreNow, useStoreStatus } from "../../utils/storeClosedMode";
 import { toast } from "../../utils/toast";
 import {
+  REGALO_BADGE,
   REGALO_DISCOUNT_LABEL,
   getRegaloState,
   setRegaloWhen,
@@ -162,7 +163,7 @@ export default function Carrito() {
     removeCoupon,
   } = useCouponCode(cart.items, cart.total, cart);
 
-  // TU REGALO 40% OFF: estado segun la hora actual y el horario elegido. Se
+  // Campaña regalo (hoy 30% OFF): estado segun la hora actual y el horario elegido. Se
   // recalcula en cada minuto (y al volver a la pestaña) via useStoreStatus.
   // regaloNonce: lo sube la revalidacion previa al envio para forzar el
   // recalculo con la hora de ese instante.
@@ -237,7 +238,7 @@ export default function Carrito() {
 
   // Revalida la campaña con la hora de este instante, justo antes de abrir
   // WhatsApp: una pestaña abierta desde antes de las 21:00 (o con un horario
-  // que ya paso) no puede mandar el 40% si ya no corresponde. Si el estado
+  // que ya paso) no puede mandar el descuento si ya no corresponde. Si el estado
   // cambio, se frena el envio y se re-renderiza con los montos correctos.
   const revalidateRegalo = React.useCallback(() => {
     const fresh = getRegaloState({ whenMode, whenSlot, date: getStoreNow() });
@@ -248,7 +249,7 @@ export default function Carrito() {
     toast.error(
       fresh.campaignActive
         ? `${fresh.message || "Cambió el descuento de tu pedido."} Revisá el total y volvé a enviarlo.`
-        : "Terminó TU REGALO 40% OFF. Actualizamos tu pedido al precio habitual: revisá el total y volvé a enviarlo.",
+        : `Terminó el ${REGALO_BADGE}. Actualizamos tu pedido al precio habitual: revisá el total y volvé a enviarlo.`,
       { key: "regalo-revalidate", ms: 6000 },
     );
     return false;
@@ -335,7 +336,7 @@ export default function Carrito() {
       {regalo.campaignActive ? (
         <RegaloBanner
           compact
-          message={regalo.applies ? "40% OFF aplicado a tu pedido." : regalo.message}
+          message={regalo.applies ? `${REGALO_BADGE} aplicado a tu pedido.` : regalo.message}
           tone={regalo.status === "ineligible" ? "warn" : "info"}
         />
       ) : null}
@@ -590,7 +591,7 @@ export default function Carrito() {
                   event.preventDefault();
                   return;
                 }
-                // TU REGALO 40%: revalidar hora y horario en este instante.
+                // Campaña regalo: revalidar hora y horario en este instante.
                 if (!revalidateRegalo()) {
                   event.preventDefault();
                   return;

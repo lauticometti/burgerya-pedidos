@@ -568,8 +568,8 @@ export function getStoreStatus(date = null) {
     (FORCE_OPEN ||
       getActiveShift(parts.day, parts.minutes, parts.dateKey) !== null);
 
-  // TU REGALO 40% OFF: mientras la ventana esta activa, ninguna otra promo
-  // (recomendada del dia, triple=doble) compite ni se acumula con el 40%.
+  // Campaña regalo: mientras la ventana esta activa, ninguna otra promo
+  // (recomendada del dia, triple=doble) compite ni se acumula con el descuento.
   const isRegaloActive = isRegaloWindowActive(parts);
   const baseStatus = (!isRegaloActive && promoStatus) || buildStatusState();
   const closedOverrides = isOpenNow

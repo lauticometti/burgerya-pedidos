@@ -269,8 +269,8 @@ export function CartProvider({ children }) {
 
   useEffect(() => {
     const updates = Object.values(state.items).reduce((acc, item) => {
-      // Coca del combo premium: durante TU REGALO 40% vuelve a su precio
-      // habitual (el 40% no se suma al precio combo) y al terminar la
+      // Coca del combo premium: durante la campaña regalo vuelve a su precio
+      // habitual (el descuento no se suma al precio combo) y al terminar la
       // campaña recupera el precio combo.
       if (item.meta?.type === "bebida" && item.key?.endsWith(":combo")) {
         const bebidaId = item.key.split(":")[1];

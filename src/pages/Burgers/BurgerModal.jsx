@@ -218,7 +218,7 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
               </div>
             ) : null}
 
-            {selectedPrice && regalo.showPromoPrices && selectedSize !== "triple" ? (
+            {selectedPrice && regalo.showPromoPrices ? (
               <div className={styles.pricePanel}>
                 <div className={styles.priceBase}>
                   {formatMoney(selectedPrice.basePrice)}

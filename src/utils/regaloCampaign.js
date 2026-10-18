@@ -2,7 +2,9 @@ import { useSyncExternalStore } from "react";
 import { getArgentinaTimeParts, getStoreNow, useStoreStatus } from "./storeClosedMode";
 
 // ============================================================================
-// CAMPAÑA TEMPORAL "TU REGALO: 40% OFF" — sábado 2026-10-17, 20:00 a 21:00.
+// CAMPAÑA TEMPORAL "hoy el regalo lo ponemos nosotros" — domingo 2026-10-18,
+// 20:00 a 21:00. Segunda edición: reusa la lógica de la campaña de ayer
+// (sábado 2026-10-17, 40% OFF) con 30% y alcance más amplio (ver abajo).
 // ============================================================================
 // Fuente UNICA de la campaña: tarjetas, carrito, totales, WhatsApp y la
 // revalidacion antes de enviar leen todo de aca.
@@ -11,32 +13,34 @@ import { getArgentinaTimeParts, getStoreNow, useStoreStatus } from "./storeClose
 //    Aires). Otro dia no hace nada: no hace falta otro despliegue.
 //  - Mientras la ventana esta activa se apagan las demas promos (recomendada
 //    del dia, triple=doble, combo premium, cupones) para que no se acumulen.
-//  - Los precios del catalogo NO se tocan: el 40% se calcula al vuelo sobre
-//    el precio habitual.
+//  - Los precios del catalogo NO se tocan: el 30% se calcula al vuelo sobre
+//    el precio habitual de cada producto y adicional (ver cartLineTotals.js:
+//    a diferencia de ayer, hoy SI incluye triples, extras, papas, dips y
+//    bebidas — no solo burgers simples/dobles).
 //
 // Para revertir: REGALO_CAMPAIGN.enabled = false (o borrar este archivo y sus
 // usos, ver commit).
 export const REGALO_CAMPAIGN = {
   enabled: true,
-  dateKey: "2026-10-17",
+  dateKey: "2026-10-18",
   startMinutes: 20 * 60, // 20:00 inclusive
   endMinutes: 21 * 60, // 21:00 exclusive
   maxSlotMinutes: 21 * 60, // entrega/retiro a mas tardar 21:00
-  percent: 40,
+  percent: 30,
 };
 
-export const REGALO_TITLE = "TU REGALO: 40% OFF";
-export const REGALO_SUBTITLE =
-  "Hoy de 20 a 21 h, para pedidos con entrega o retiro hasta las 21 h.";
-export const REGALO_FOOTNOTE = "Descuento automático en simples y dobles. No acumulable. Envío aparte.";
-export const REGALO_BADGE = "40% OFF";
-export const REGALO_DISCOUNT_LABEL = "Regalo 40%";
+export const REGALO_TITLE = "hoy el regalo lo ponemos nosotros";
+export const REGALO_SUBTITLE = "30% off hasta las 21";
+export const REGALO_FOOTNOTE =
+  "Hoy 18/10, de 20 a 21 h. Para pedidos con entrega o retiro hasta las 21 h. Descuento automático. No acumulable. Envío aparte.";
+export const REGALO_BADGE = "30% OFF";
+export const REGALO_DISCOUNT_LABEL = "Regalo 30%";
 export const REGALO_INELIGIBLE_MESSAGE =
-  "El 40% OFF aplica a pedidos para hoy hasta las 21:00. Para el horario elegido se aplica el precio habitual.";
+  "El 30% OFF aplica a pedidos para hoy hasta las 21:00. Para el horario elegido se aplica el precio habitual.";
 
 // Cartel de cierre: desde las 21:00 hasta el fin del dia cuenta lo que paso.
 // Solo texto, no cambia ningun precio.
-export const REGALO_RECAP_TITLE = "HOY HUBO 40% OFF";
+export const REGALO_RECAP_TITLE = "HOY HUBO 30% OFF";
 export const REGALO_RECAP_SUBTITLE =
   "de 20 a 21 h";
 
@@ -56,7 +60,7 @@ export function isRegaloWindowActive(parts) {
 }
 
 // Precio con el regalo aplicado. Todos los precios del menu son multiplos
-// de 5, asi que el 40% da siempre un entero exacto.
+// de 50, asi que el 30% da siempre un entero exacto.
 export function getRegaloDiscount(amount) {
   const n = Number(amount);
   if (!Number.isFinite(n) || n <= 0) return 0;
@@ -85,7 +89,7 @@ function hhmmToMinutes(value) {
  *  - "noSlots":    ya no quedan horarios <= 21:00 en el selector.
  *
  * applies          → el descuento entra en los totales y en el WhatsApp.
- * showPromoPrices  → las tarjetas muestran tachado + 40% OFF.
+ * showPromoPrices  → las tarjetas muestran tachado + 30% OFF.
  */
 export function getRegaloState({ whenMode, whenSlot, date = null } = {}) {
   const now = date instanceof Date ? date : getStoreNow();

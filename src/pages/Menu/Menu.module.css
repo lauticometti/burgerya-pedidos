@@ -583,7 +583,7 @@
   }
 }
 
-/* TU REGALO 40% OFF: etiqueta, precio habitual tachado y precio promo. */
+/* Campaña regalo: etiqueta, precio habitual tachado y precio promo. */
 .regaloBadge {
   background: var(--y, #ffc62a);
   color: #0b0b0b;
@@ -626,7 +626,7 @@
   opacity: 1 !important;
 }
 
-/* Cierre de TU REGALO 40%: franja finita, no compite con la recomendada. */
+/* Cierre de la campaña regalo: franja finita, no compite con la recomendada. */
 .recapStrip {
   margin: 0 0 12px;
   padding: 7px 12px;

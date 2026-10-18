@@ -5,7 +5,7 @@ import {
 } from "../../utils/regaloCampaign";
 import styles from "./RegaloBanner.module.css";
 
-// Bloque de la campaña TU REGALO 40% OFF. Solo se renderiza mientras la
+// Bloque de la campaña regalo (ver utils/regaloCampaign.js). Solo se renderiza mientras la
 // ventana esta activa (lo decide quien lo usa con getRegaloState).
 // `message` = aviso segun el horario elegido (precio habitual, falta horario).
 export default function RegaloBanner({
