@@ -336,6 +336,8 @@ export default function Carrito() {
       {regalo.campaignActive ? (
         <RegaloBanner
           compact
+          title={null}
+          subtitle={null}
           message={regalo.applies ? `${REGALO_BADGE} aplicado a tu pedido.` : regalo.message}
           tone={regalo.status === "ineligible" ? "warn" : "info"}
         />

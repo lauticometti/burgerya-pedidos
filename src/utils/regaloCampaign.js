@@ -2,7 +2,7 @@ import { useSyncExternalStore } from "react";
 import { getArgentinaTimeParts, getStoreNow, useStoreStatus } from "./storeClosedMode";
 
 // ============================================================================
-// CAMPAÑA TEMPORAL "hoy el regalo lo ponemos nosotros" — domingo 2026-10-18,
+// CAMPAÑA TEMPORAL "Hoy el regalo lo ponemos nosotros" — domingo 2026-10-18,
 // 20:00 a 21:00. Segunda edición: reusa la lógica de la campaña de ayer
 // (sábado 2026-10-17, 40% OFF) con 30% y alcance más amplio (ver abajo).
 // ============================================================================
@@ -33,10 +33,8 @@ export const REGALO_CAMPAIGN = {
   percent: 30,
 };
 
-export const REGALO_TITLE = "hoy el regalo lo ponemos nosotros";
+export const REGALO_TITLE = "Hoy el regalo lo ponemos nosotros";
 export const REGALO_SUBTITLE = "30% off hasta las 21";
-export const REGALO_FOOTNOTE =
-  "Hoy 18/10, de 20 a 21 h. Para pedidos con entrega o retiro hasta las 21 h. Descuento automático. No acumulable. Envío aparte.";
 export const REGALO_BADGE = "30% OFF";
 export const REGALO_DISCOUNT_LABEL = "Regalo 30%";
 export const REGALO_INELIGIBLE_MESSAGE =
