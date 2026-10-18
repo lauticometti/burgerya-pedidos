@@ -23,7 +23,7 @@ import { getArgentinaTimeParts, getStoreNow, useStoreStatus } from "./storeClose
 export const REGALO_CAMPAIGN = {
   enabled: true,
   dateKey: "2026-10-18",
-  startMinutes: 20 * 60, // 20:00 inclusive
+  startMinutes: 19 * 60, // 19:00 inclusive — activada antes, a pedido
   endMinutes: 21 * 60, // 21:00 exclusive
   maxSlotMinutes: 21 * 60, // entrega/retiro a mas tardar 21:00
   percent: 30,

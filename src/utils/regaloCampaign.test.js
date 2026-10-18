@@ -12,21 +12,23 @@ const state = (hhmm, whenMode, whenSlot, day) =>
   getRegaloState({ whenMode, whenSlot, date: at(hhmm, day) });
 
 describe("campaña regalo (hoy 30% OFF) — ventana y horario", () => {
-  it("antes de las 20:00: precios habituales", () => {
-    const s = state("19:59", "Mas tarde", "20:30");
+  // Ventana adelantada a pedido: arranca a las 19:00 (no a las 20:00),
+  // sigue cerrando a las 21:00.
+  it("antes de las 19:00: precios habituales", () => {
+    const s = state("18:59", "Mas tarde", "20:30");
     expect(s.campaignActive).toBe(false);
     expect(s.applies).toBe(false);
     expect(s.showPromoPrices).toBe(false);
   });
 
-  it("20:00 con horario hasta las 21:00: aplica", () => {
-    expect(state("20:00", "Mas tarde", "20:30").applies).toBe(true);
-    expect(state("20:00", "Mas tarde", "21:00").applies).toBe(true);
+  it("19:00 con horario hasta las 21:00: aplica", () => {
+    expect(state("19:00", "Mas tarde", "20:30").applies).toBe(true);
+    expect(state("19:00", "Mas tarde", "21:00").applies).toBe(true);
     expect(state("20:29", "Mas tarde", "21:00").applies).toBe(true);
   });
 
   it("horario 21:30: se quita con el mensaje pedido", () => {
-    const s = state("20:05", "Mas tarde", "21:30");
+    const s = state("19:05", "Mas tarde", "21:30");
     expect(s.applies).toBe(false);
     expect(s.showPromoPrices).toBe(false);
     expect(s.status).toBe("ineligible");
@@ -34,12 +36,12 @@ describe("campaña regalo (hoy 30% OFF) — ventana y horario", () => {
   });
 
   it("volver a un horario valido lo reaplica", () => {
-    expect(state("20:05", "Mas tarde", "21:30").applies).toBe(false);
-    expect(state("20:05", "Mas tarde", "21:00").applies).toBe(true);
+    expect(state("19:05", "Mas tarde", "21:30").applies).toBe(false);
+    expect(state("19:05", "Mas tarde", "21:00").applies).toBe(true);
   });
 
   it("'Ahora' aplica por defecto", () => {
-    expect(state("20:05", "Ahora", "").applies).toBe(true);
+    expect(state("19:05", "Ahora", "").applies).toBe(true);
     expect(state("20:45", "Ahora", "").applies).toBe(true);
     expect(state("20:59", "Ahora", "").applies).toBe(true);
   });
@@ -59,7 +61,7 @@ describe("campaña regalo (hoy 30% OFF) — ventana y horario", () => {
     expect(getStoreStatus(at("20:15")).isDailyFeaturePromoActive).toBe(false);
     expect(getStoreStatus(at("20:15")).dailyFeatureBurgerId).toBe(null);
     expect(getStoreStatus(at("21:00")).dailyFeatureBurgerId).not.toBe(null);
-    expect(getStoreStatus(at("19:59")).dailyFeatureBurgerId).not.toBe(null);
+    expect(getStoreStatus(at("18:59")).dailyFeatureBurgerId).not.toBe(null);
   });
 });
 
