@@ -20,16 +20,12 @@ import { getArgentinaTimeParts, getStoreNow, useStoreStatus } from "./storeClose
 //
 // Para revertir: REGALO_CAMPAIGN.enabled = false (o borrar este archivo y sus
 // usos, ver commit).
-// TEMP SOLO PREVIEW: startMinutes adelantado para que se pueda revisar esta
-// rama sin esperar a las 20:00 real (el ?clock= de desarrollo no funciona en
-// un build de Vercel, solo en `npm run dev`). ANTES DE MERGEAR A MAIN volver
-// startMinutes a 20 * 60.
 export const REGALO_CAMPAIGN = {
   enabled: true,
   dateKey: "2026-10-18",
-  startMinutes: 19 * 60, // TEMP preview: 19:00 — volver a 20*60 antes de mergear
-  endMinutes: 23 * 60 + 59, // TEMP preview: 23:59 — volver a 21*60 antes de mergear
-  maxSlotMinutes: 21 * 60, // entrega/retiro a mas tardar 21:00 (sin cambios)
+  startMinutes: 20 * 60, // 20:00 inclusive
+  endMinutes: 21 * 60, // 21:00 exclusive
+  maxSlotMinutes: 21 * 60, // entrega/retiro a mas tardar 21:00
   percent: 30,
 };
 
