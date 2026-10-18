@@ -34,6 +34,17 @@ export const REGALO_DISCOUNT_LABEL = "Regalo 40%";
 export const REGALO_INELIGIBLE_MESSAGE =
   "El 40% OFF aplica a pedidos para hoy hasta las 21:00. Para el horario elegido se aplica el precio habitual.";
 
+// Cartel de cierre: desde las 21:00 hasta el fin del dia cuenta lo que paso.
+// Solo texto, no cambia ningun precio.
+export const REGALO_RECAP_TITLE = "HOY HUBO 40% OFF";
+export const REGALO_RECAP_SUBTITLE =
+  "de 20 a 21 h";
+
+export function isRegaloRecapActive(parts) {
+  if (!REGALO_CAMPAIGN.enabled || !parts) return false;
+  return parts.dateKey === REGALO_CAMPAIGN.dateKey && parts.minutes >= REGALO_CAMPAIGN.endMinutes;
+}
+
 // La ventana de la campaña (condicion A: el pedido se confirma ahora).
 export function isRegaloWindowActive(parts) {
   if (!REGALO_CAMPAIGN.enabled || !parts) return false;

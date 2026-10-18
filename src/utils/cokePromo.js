@@ -13,18 +13,24 @@
  * La Coca gratis NO es un producto aparte: viaja asociada a la triple
  * en item.meta.cokePromo, asi que entra en la comanda correctamente.
  */
+import { getArgentinaTimeParts, getStoreNow } from "./storeClosedMode";
 
 /**
  * Interruptor: poner en true para activar la promo.
  * Poner en false para desactivarla completamente.
  */
-export const COKE_PROMO_ENABLED = false;
+export const COKE_PROMO_ENABLED = true;
 
 /**
- * Hora de inicio: 19:30 hora de Buenos Aires.
- * Se chequea en el componente Menu usando el horario local del usuario.
+ * Dia de la promo (hora Buenos Aires). Otro dia no se activa aunque
+ * COKE_PROMO_ENABLED quede en true: se apaga sola a las 00:00.
  */
-export const COKE_PROMO_START_TIME = "19:30"; // HH:mm en timezone America/Argentina/Buenos_Aires
+export const COKE_PROMO_DATE = "2026-10-17";
+
+/**
+ * Hora de inicio en hora de Buenos Aires (mismo reloj que el resto de la web).
+ */
+export const COKE_PROMO_START_TIME = "21:00"; // HH:mm en timezone America/Argentina/Buenos_Aires
 
 /**
  * Stock disponible de cada variedad.
@@ -134,6 +140,8 @@ export function canOfferCokePromo(item) {
   if (item.meta?.type !== "burger") return false;
   if (item.meta?.size !== "triple") return false;
   if (item.meta?.locked) return false;
+  // No se combina con la promo del dia (ni ninguna otra oferta de precio).
+  if (item.meta?.offerId) return false;
   // Ya tiene Coca de promo (aunque no debería pasar, pero por seguridad)
   if (hasCokePromo(item)) return false;
   return true;
@@ -162,22 +170,9 @@ export function incrementCokePromoStock(varietyId) {
  * Función de tiempo independiente, sin checks de COKE_PROMO_ENABLED.
  */
 function isPromoTimeWindow() {
-  const now = new Date();
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Argentina/Buenos_Aires",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  });
-
-  const formatted = formatter.format(now);
-  const [hour, minute] = formatted.split(":").map(Number);
-  const currentMinutes = hour * 60 + minute;
-
+  const { dateKey, minutes } = getArgentinaTimeParts(getStoreNow());
   const [startHour, startMinute] = COKE_PROMO_START_TIME.split(":").map(Number);
-  const startMinutes = startHour * 60 + startMinute;
-
-  return currentMinutes >= startMinutes;
+  return dateKey === COKE_PROMO_DATE && minutes >= startHour * 60 + startMinute;
 }
 
 /**

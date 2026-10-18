@@ -35,9 +35,16 @@ import useCokePromoModal from "../Carrito/useCokePromoModal";
 import useCokePromoChoice from "../Carrito/useCokePromoChoice";
 import SectionNav from "./SectionNav";
 import { MATCH_DAY_CAMPAIGN } from "../../utils/dailyFeaturePromo";
-import { isCokePromoAvailable, canOfferLautiboomboomPromo, isLautiboomboomPromoActive } from "../../utils/cokePromo";
+import { isCokePromoAvailable, canOfferCokePromo, canOfferLautiboomboomPromo, isLautiboomboomPromoActive } from "../../utils/cokePromo";
 import RegaloBanner from "../../components/promos/RegaloBanner";
-import { REGALO_BADGE, getRegaloPrice, useRegaloState } from "../../utils/regaloCampaign";
+import {
+  REGALO_BADGE,
+  REGALO_RECAP_SUBTITLE,
+  REGALO_RECAP_TITLE,
+  getRegaloPrice,
+  isRegaloRecapActive,
+  useRegaloState,
+} from "../../utils/regaloCampaign";
 import { getRegaloCartDiscount } from "../../utils/cartLineTotals";
 import styles from "./Menu.module.css";
 
@@ -92,7 +99,10 @@ export default function Menu() {
     dailyFeatureBurgerId,
     dailyFeatureWeekdayLabel,
     dailyFeatureEyebrow,
+    dateKey: storeDateKey,
+    minutes: storeMinutes,
   } = useStoreStatus();
+  const storeParts = { dateKey: storeDateKey, minutes: storeMinutes };
   const { canAddItem, showUnavailableError } = useListingPageActions();
   const cokePromo = useCokePromoModal();
   const cokePromoChoice = useCokePromoChoice();
@@ -271,7 +281,7 @@ export default function Menu() {
     }
 
     // Detectar si es una triple con promo activa - todas llevan Coca
-    if (size === "triple" && isCokePromoAvailable()) {
+    if (size === "triple" && isCokePromoAvailable() && canOfferCokePromo(cartItem)) {
       cokePromo.openCokeModal(cartItem);
       return;
     }
@@ -339,7 +349,26 @@ export default function Menu() {
             message={regalo.message}
             tone={regalo.status === "ineligible" ? "warn" : "info"}
           />
-        ) : featuredBurger ? (
+        ) : null}
+        {/* Cierre de TU REGALO 40%: cuenta lo que paso, hasta el fin del dia. */}
+        {!regalo.campaignActive && isRegaloRecapActive(storeParts) ? (
+          <div className={styles.recapStrip}>
+            <strong>{REGALO_RECAP_TITLE}</strong> {REGALO_RECAP_SUBTITLE}
+          </div>
+        ) : null}
+        {/* Promo: Lautiboom triple con Coca gratis (solo hoy) */}
+        {regalo.campaignActive ? null : isLautiboomboomPromoActive() ? (
+          <div className={styles.cokePromoRibbon}>
+            <div className={styles.cokePromoRibbonTitle}>LAUTIBOOM TRIPLE + COCA 600 ML DE REGALO</div>
+            <div className={styles.cokePromoRibbonSub}>Elegí Coca o Coca Zero · Hasta agotar stock</div>
+          </div>
+        ) : isCokePromoAvailable() ? (
+          <div className={styles.cokePromoRibbon}>
+            <div className={styles.cokePromoRibbonTitle}>TRIPLES + COCA 600 ML DE REGALO</div>
+            <div className={styles.cokePromoRibbonSub}>Elegí Coca o Coca Zero · No incluye la promo del día · Hasta agotar stock</div>
+          </div>
+        ) : null}
+        {regalo.campaignActive ? null : featuredBurger ? (
           <div className={styles.featuredWrap}>
             <BurgerDelDia
               burger={featuredBurger}
@@ -376,18 +405,6 @@ export default function Menu() {
           </div>
         ) : null}
 
-        {/* Promo: Lautiboom triple con Coca gratis (solo hoy) */}
-        {regalo.campaignActive ? null : isLautiboomboomPromoActive() ? (
-          <div className={styles.cokePromoRibbon}>
-            <div className={styles.cokePromoRibbonTitle}>LAUTIBOOM TRIPLE + COCA 600 ML DE REGALO</div>
-            <div className={styles.cokePromoRibbonSub}>Elegí Coca o Coca Zero · Hasta agotar stock</div>
-          </div>
-        ) : isCokePromoAvailable() ? (
-          <div className={styles.cokePromoRibbon}>
-            <div className={styles.cokePromoRibbonTitle}>TRIPLES + COCA 600 ML DE REGALO</div>
-            <div className={styles.cokePromoRibbonSub}>Elegí Coca o Coca Zero · Hasta agotar stock</div>
-          </div>
-        ) : null}
 
         <div className={styles.sectionHead}>
           <h2 className={styles.sectionTitle}>
@@ -505,8 +522,8 @@ export default function Menu() {
                             </>
                             )}
                           </button>
-                          {size === "triple" && isCokePromoAvailable() ? (
-                            <div className={styles.cokePromoLabel}>+Coquita</div>
+                          {size === "triple" && isCokePromoAvailable() && !info.hasDiscount ? (
+                            <div className={styles.cokePromoLabel}>+ COCA GRATIS</div>
                           ) : null}
                         </div>
                       ))}

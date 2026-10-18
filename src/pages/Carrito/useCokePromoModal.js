@@ -56,6 +56,10 @@ export default function useCokePromoModal() {
         1,
       );
 
+      // Clave propia: si el cliente ya tenia una Coca paga, no se fusionan
+      // (antes la paga pasaba a $0 al sumarse la de regalo).
+      bebidaItem.key = `${bebidaItem.key}:promo`;
+
       // Marcar la Coca como regalo promo y vincularla a esta triple
       bebidaItem.meta = {
         ...bebidaItem.meta,

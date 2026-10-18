@@ -6,6 +6,7 @@ import { getBurgerPriceInfo } from "../utils/burgerPricing";
 import { getCartItemsTotal } from "../utils/cartLineTotals";
 import { COMBO_COCA_PRICE } from "../pages/Menu/ComboPremiumBanner";
 import { toast } from "../utils/toast";
+import { isCokePromoAvailable } from "../utils/cokePromo";
 import { useStoreStatus } from "../utils/storeClosedMode";
 import { buildBurgerVariantDraft } from "../utils/cartKeys";
 import {
@@ -313,6 +314,29 @@ export function CartProvider({ children }) {
       dispatch({ type: "REPRICE_ITEMS", updates });
     }
   }, [burgersById, dateKey, minutes, isRegaloActive, state.items]);
+
+  // Coca 600 de regalo: nunca mas Cocas gratis que triples que participan
+  // (borrar una triple saca su Coca) y, mientras la promo esta activa, cada
+  // triple sumada con "+" en el carrito suma su Coca a la que ya habia.
+  useEffect(() => {
+    const items = Object.values(state.items);
+    const cokes = items.filter((it) => it.meta?.isCokePromo);
+    if (!cokes.length) return;
+    const triples = items
+      .filter((it) => it.meta?.type === "burger" && it.meta?.size === "triple" && !it.meta?.offerId)
+      .reduce((sum, it) => sum + (it.qty || 0), 0);
+    let free = cokes.reduce((sum, it) => sum + (it.qty || 0), 0);
+    if (free < triples && isCokePromoAvailable()) {
+      dispatch({ type: "SET_QTY", key: cokes[0].key, qty: (cokes[0].qty || 0) + (triples - free) });
+      return;
+    }
+    for (const coke of cokes) {
+      if (free <= triples) break;
+      const drop = Math.min(coke.qty || 0, free - triples);
+      dispatch({ type: "SET_QTY", key: coke.key, qty: (coke.qty || 0) - drop });
+      free -= drop;
+    }
+  }, [state.items]);
 
   const api = useMemo(() => {
     const items = Object.values(state.items);

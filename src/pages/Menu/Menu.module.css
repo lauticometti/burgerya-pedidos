@@ -625,3 +625,50 @@
   font-weight: 900;
   opacity: 1 !important;
 }
+
+/* Cierre de TU REGALO 40%: franja finita, no compite con la recomendada. */
+.recapStrip {
+  margin: 0 0 12px;
+  padding: 7px 12px;
+  color: rgba(245, 245, 245, 0.85);
+  font-size: 12px;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.recapStrip strong {
+  color: #ffc62a;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+}
+
+/* Coca de regalo en triples: aviso mas visible. */
+.cokePromoRibbon {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 2px solid #ffc62a;
+  border-radius: 12px;
+  background: rgba(255, 198, 42, 0.1);
+}
+
+.cokePromoRibbonTitle {
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.cokePromoRibbonSub {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.cokePromoLabel {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: #ffc62a;
+  color: #0b0b0b;
+  font-size: 9px;
+  font-weight: 900;
+}
