@@ -64,9 +64,8 @@ describe("campaña regalo (hoy 30% OFF) — ventana y horario", () => {
 });
 
 describe("campaña regalo (hoy 30% OFF) — montos", () => {
-  // A diferencia de la edicion de ayer (40%, solo burgers simples/dobles),
-  // hoy el descuento aplica sobre TODO: productos de cualquier tamaño
-  // (incluidas triples) y sus adicionales (extras, papas, dips, bebidas).
+  // Mismo alcance que ayer: SOLO burgers simples y dobles. Triples, extras,
+  // papas, dips y bebidas quedan a precio normal (sin descuento).
   const items = [
     {
       key: "burger:bacon:doble::",
@@ -89,17 +88,15 @@ describe("campaña regalo (hoy 30% OFF) — montos", () => {
     { key: "bebida:coca_600", name: "Coca 600", qty: 1, unitPrice: 3000, meta: { type: "bebida" } },
   ];
 
-  it("30% sobre el precio de cada linea completa (burger + extras), incluidas las triples y las bebidas", () => {
+  it("30% solo sobre el precio de las burgers simples/dobles, igual al precio de tarjeta", () => {
     expect(getCartItemsTotal(items)).toBe(2 * 18000 + 20500 + 3000);
-    // doble+cheddar: 30% de 18000 = 5400, x2 = 10800
-    // triple sin extras: 30% de 20500 = 6150
-    // bebida: 30% de 3000 = 900
-    expect(getRegaloCartDiscount(items)).toBe(2 * 5400 + 6150 + 900);
+    expect(getRegaloCartDiscount(items)).toBe(2 * 4950);
+    expect(getRegaloPrice(16500)).toBe(11550);
   });
 
-  it("el precio de tarjeta (solo la burger, sin agregados) coincide con getRegaloPrice sobre el precio base", () => {
-    expect(getRegaloPrice(16500)).toBe(11550);
-    expect(getRegaloPrice(20500)).toBe(14350);
+  it("las triples y las bebidas NO llevan descuento", () => {
+    const soloTripleYBebida = [items[1], items[2]];
+    expect(getRegaloCartDiscount(soloTripleYBebida)).toBe(0);
   });
 
   it("envio aparte, sin descuento (delivery) y retiro sin envio", () => {
@@ -131,12 +128,11 @@ describe("campaña regalo (hoy 30% OFF) — montos", () => {
     expect(text).toContain(`Total: ${formatMoney(subtotal - discount + 2500)} Efectivo`);
   });
 
-  it("papas extra y dips tambien entran en el descuento (son 'productos', no solo burgers)", () => {
+  it("papas extra y dips NO entran en el descuento (solo burgers simples/dobles)", () => {
     const papasYDip = [
       { key: "papas:grande_sola", name: "Papas grandes", qty: 1, unitPrice: 9000, meta: { type: "papas" } },
       { key: "dip:dip_mil_islas", name: "Dip secreta", qty: 2, unitPrice: 1000, meta: { type: "dip" } },
     ];
-    // papas: 30% de 9000 = 2700. dip: 30% de 1000 = 300, x2 = 600.
-    expect(getRegaloCartDiscount(papasYDip)).toBe(2700 + 600);
+    expect(getRegaloCartDiscount(papasYDip)).toBe(0);
   });
 });

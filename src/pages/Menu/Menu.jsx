@@ -55,21 +55,6 @@ function MatchDayBadge({ children }) {
   return <span className={styles.matchDayBadge}>{children}</span>;
 }
 
-// Precio habitual tachado + precio con el regalo aplicado, para papas
-// extra / dips / bebidas (los botones de burger tienen su propio markup
-// inline, ver burgerPrices más abajo). `priceClassName` es la clase de
-// precio normal del producto (bebidaPrice, papasPrice, ...), reusada para
-// que el precio final quede con la misma tipografía.
-function RegaloPriceTag({ amount, priceClassName }) {
-  return (
-    <span className={styles.regaloPriceWrap}>
-      <span className={styles.regaloOriginal}>{formatMoney(amount)}</span>
-      <span className={`${priceClassName} ${styles.regaloValue}`}>
-        {formatMoney(getRegaloPrice(amount))}
-      </span>
-    </span>
-  );
-}
 import {
   buildBurgerAddedToastText,
   buildBurgerCartItem,
@@ -506,7 +491,7 @@ export default function Menu() {
                             type="button"
                             className={styles.priceBtn}
                             disabled={isUnavailable}
-                            aria-label={`Agregar ${burger.name} ${label} por ${formatMoney(showRegaloPrices ? getRegaloPrice(info.basePrice) : info.finalPrice)}`}
+                            aria-label={`Agregar ${burger.name} ${label} por ${formatMoney(showRegaloPrices && size !== "triple" ? getRegaloPrice(info.basePrice) : info.finalPrice)}`}
                             onClick={(evt) => {
                               evt.stopPropagation();
                               if (isUnavailable) {
@@ -516,7 +501,7 @@ export default function Menu() {
                               addBurgerToCart(burger, size, {}, { skipScroll: true });
                             }}>
                             <span className={styles.priceBtnLabel}>{label}</span>
-                            {showRegaloPrices ? (
+                            {showRegaloPrices && size !== "triple" ? (
                               <>
                                 <span className={styles.priceBtnOriginal}>
                                   {formatMoney(info.basePrice)}
@@ -587,11 +572,7 @@ export default function Menu() {
                 <>
                   <div className={styles.bebidaInfo}>
                     <span className={styles.bebidaName}>{item.label}</span>
-                    {showRegaloPrices ? (
-                      <RegaloPriceTag amount={item.basePrice} priceClassName={styles.bebidaPrice} />
-                    ) : (
-                      <span className={styles.bebidaPrice}>{formatMoney(item.basePrice)}</span>
-                    )}
+                    <span className={styles.bebidaPrice}>{formatMoney(item.basePrice)}</span>
                   </div>
                   <div className={styles.bebidaImgWrap}>
                     <img
@@ -604,11 +585,7 @@ export default function Menu() {
               ) : (
                 <>
                   <span className={styles.papasName}>{item.label}</span>
-                  {showRegaloPrices ? (
-                    <RegaloPriceTag amount={item.basePrice} priceClassName={styles.papasPrice} />
-                  ) : (
-                    <span className={styles.papasPrice}>{formatMoney(item.basePrice)}</span>
-                  )}
+                  <span className={styles.papasPrice}>{formatMoney(item.basePrice)}</span>
                 </>
               )}
             </button>
@@ -666,8 +643,6 @@ export default function Menu() {
                     <span className={styles.bebidaPrice}>
                       {item.unavailableReason || "no disponible"}
                     </span>
-                  ) : showRegaloPrices ? (
-                    <RegaloPriceTag amount={item.price} priceClassName={styles.bebidaPrice} />
                   ) : (
                     <span className={styles.bebidaPrice}>{formatMoney(item.price)}</span>
                   )}
@@ -745,8 +720,6 @@ export default function Menu() {
                     <span className={styles.bebidaPrice}>
                       {getUnavailableReason(item)}
                     </span>
-                  ) : showRegaloPrices ? (
-                    <RegaloPriceTag amount={item.price} priceClassName={styles.bebidaPrice} />
                   ) : (
                     <span className={styles.bebidaPrice}>{formatMoney(item.price)}</span>
                   )}

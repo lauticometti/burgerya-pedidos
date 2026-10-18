@@ -4,7 +4,7 @@ import { getArgentinaTimeParts, getStoreNow, useStoreStatus } from "./storeClose
 // ============================================================================
 // CAMPAÑA TEMPORAL "Hoy el regalo lo ponemos nosotros" — domingo 2026-10-18,
 // 20:00 a 21:00. Segunda edición: reusa la lógica de la campaña de ayer
-// (sábado 2026-10-17, 40% OFF) con 30% y alcance más amplio (ver abajo).
+// (sábado 2026-10-17, 40% OFF) con 30%, mismo alcance que ayer.
 // ============================================================================
 // Fuente UNICA de la campaña: tarjetas, carrito, totales, WhatsApp y la
 // revalidacion antes de enviar leen todo de aca.
@@ -14,9 +14,9 @@ import { getArgentinaTimeParts, getStoreNow, useStoreStatus } from "./storeClose
 //  - Mientras la ventana esta activa se apagan las demas promos (recomendada
 //    del dia, triple=doble, combo premium, cupones) para que no se acumulen.
 //  - Los precios del catalogo NO se tocan: el 30% se calcula al vuelo sobre
-//    el precio habitual de cada producto y adicional (ver cartLineTotals.js:
-//    a diferencia de ayer, hoy SI incluye triples, extras, papas, dips y
-//    bebidas — no solo burgers simples/dobles).
+//    el precio habitual, SOLO en burgers simples y dobles (ver
+//    cartLineTotals.js): triples, extras, papas, dips y bebidas quedan a
+//    precio normal.
 //
 // Para revertir: REGALO_CAMPAIGN.enabled = false (o borrar este archivo y sus
 // usos, ver commit).

@@ -33,12 +33,13 @@ export function getCartItemsTotal(items) {
   return items.reduce((sum, it) => sum + it.qty * getCartLineUnitTotal(it), 0);
 }
 
-// Descuento "Regalo 30%": sobre el precio habitual de TODO el carrito —
-// productos (burgers de cualquier tamaño, papas extra, dips, bebidas) y sus
-// adicionales (extras, mejora de papas, picks de promos). Envío aparte: no
-// entra en getCartLineUnitTotal. Mismo total de linea que usa el carrito
-// (getCartLineUnitTotal), asi que el descuento nunca se desincroniza del
-// subtotal que ve el cliente.
+// Descuento "Regalo 30%": SOLO burgers simples y dobles (triples a precio normal), sobre el precio habitual de la burger
+// (sin agregados, papas extra, dips ni bebidas). Coincide exacto con el
+// precio que muestran las tarjetas (precio - 30% del precio).
 export function getRegaloCartDiscount(items) {
-  return items.reduce((sum, it) => sum + it.qty * getRegaloDiscount(getCartLineUnitTotal(it)), 0);
+  return items.reduce(
+    (sum, it) =>
+      it.meta?.type === "burger" && it.meta?.size !== "triple" ? sum + it.qty * getRegaloDiscount(it.unitPrice) : sum,
+    0,
+  );
 }
