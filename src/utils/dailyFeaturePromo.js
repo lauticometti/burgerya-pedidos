@@ -40,7 +40,7 @@ const PRICES_CHEESE  = { simple: 11000, doble: 14000, triple: 19000 }; // normal
 
 // día (0=Dom..6=Sáb) → burger destacada + precios promo del día.
 const DAILY_FEATURE_BY_WEEKDAY = {
-  0: { burgerId: "bacon",      prices: PRICES_PREMIUM }, // Domingo
+  0: { burgerId: "lautiboom",  prices: PRICES_PREMIUM }, // Domingo
   1: { burgerId: "cheese",     prices: PRICES_CHEESE  }, // Lunes
   2: { burgerId: "smoklahoma", prices: PRICES_DELUXE  }, // Martes
   3: { burgerId: "american",   prices: PRICES_PREMIUM }, // Miércoles
