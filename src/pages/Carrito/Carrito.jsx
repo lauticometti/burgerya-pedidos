@@ -615,6 +615,8 @@ export default function Carrito() {
         extras={extrasModal.modalItems || []}
         selectedExtraIds={extrasModal.modalSelectedIds}
         onToggleExtra={extrasModal.toggleModalSelection}
+        quantityCaps={extrasModal.quantityCaps}
+        onAdjustQuantity={extrasModal.adjustQuantity}
         onApplyExtras={() => { extrasModal.applyModalSelection(); closeModifyModal(); }}
         onClearExtras={extrasModal.clearHandler}
         disableApplyExtras={extrasModal.disableApply}
@@ -651,6 +653,7 @@ export default function Carrito() {
         title="Personalizar burger"
         extras={burgerCustomize.extras}
         removableIngredients={burgerCustomize.removableIngredients}
+        quantityCaps={burgerCustomize.quantityCaps}
         initialExtraIds={(burgerCustomize.modalItem?.extras || []).map((e) => e.id)}
         initialRemovedIds={(burgerCustomize.modalItem?.removedIngredients || []).map((i) => i.id)}
         initialNote={burgerCustomize.modalItem?.note || ""}

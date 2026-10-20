@@ -5,6 +5,7 @@
 
 import styles from "./CartItemCard.module.css";
 import { FRIES_UPGRADE_LABELS } from "../../utils/friesUpgrade";
+import { formatExtrasNames } from "../../utils/extrasFormatting";
 
 /**
  * Display removed ingredients list
@@ -27,7 +28,7 @@ export function ExtrasList({ items, joiner = " + " }) {
 
   return (
     <div className={styles.metaSmall}>
-      Agregados: {items.map((extra) => extra.name).join(joiner)}
+      Agregados: {formatExtrasNames(items, joiner)}
     </div>
   );
 }

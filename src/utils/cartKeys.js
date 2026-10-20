@@ -5,8 +5,13 @@ export function normalizeNote(note) {
     .toLowerCase();
 }
 
-function dedupeSorted(ids = []) {
-  return Array.from(new Set((ids || []).filter(Boolean))).sort();
+// Ordena SIN deduplicar: un id repetido (ej. 2 vs 5 "carne_cheddar") tiene
+// que dar una clave distinta, si no el carrito mergearia cantidades de
+// agregados distintas en la misma linea. El orden no importa para el
+// fingerprint (dos mismos ids en cualquier orden son la misma variante), por
+// eso igual se ordena.
+function sortedIds(ids = []) {
+  return (ids || []).filter(Boolean).sort();
 }
 
 function toIds(list = []) {
@@ -32,9 +37,9 @@ export function buildBurgerLineKey({
   papasIds = [],
   note = "",
 }) {
-  const sortedRemoved = dedupeSorted(removedIds);
-  const sortedExtras = dedupeSorted(extrasIds);
-  const sortedPapas = dedupeSorted(papasIds);
+  const sortedRemoved = sortedIds(removedIds);
+  const sortedExtras = sortedIds(extrasIds);
+  const sortedPapas = sortedIds(papasIds);
   const normalizedNote = normalizeNote(note);
 
   if (kind === "combo") {

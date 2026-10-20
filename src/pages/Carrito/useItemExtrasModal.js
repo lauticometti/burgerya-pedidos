@@ -7,6 +7,7 @@ import {
 import {
   getPapasUpgradePrice,
 } from "../../utils/papasPricing";
+import { EXTRA_MEAT_ID, getMaxExtraMeat } from "../../utils/extraMeat";
 
 export default function useItemExtrasModal({ cart, papasMejoras, extraItems }) {
   const [modalItemKey, setModalItemKey] = React.useState(null);
@@ -34,6 +35,17 @@ export default function useItemExtrasModal({ cart, papasMejoras, extraItems }) {
     }
     return extraItems;
   }, [modalMode, papasMejoras, extraItems, papasContext]);
+
+  // Tope de "Carne c/cheddar" segun el talle de la burger (o del pick, en una
+  // promo). Vacio en modo papas: ese id no aparece en esa lista.
+  const quantityCaps = React.useMemo(() => {
+    if (modalMode === "papas" || !modalItem) return {};
+    const size =
+      modalTarget === "pick"
+        ? modalItem.meta?.picks?.[modalPickIndex]?.size
+        : modalItem.meta?.size;
+    return { [EXTRA_MEAT_ID]: getMaxExtraMeat(size) };
+  }, [modalMode, modalItem, modalTarget, modalPickIndex]);
 
   const resetModalState = React.useCallback(() => {
     setModalItemKey(null);
@@ -86,12 +98,34 @@ export default function useItemExtrasModal({ cart, papasMejoras, extraItems }) {
     [modalItems, modalMode],
   );
 
+  // Para agregados con tope (ej. "Carne c/cheddar"): suma o saca UNA unidad,
+  // a diferencia de toggleModalSelection que prende/apaga del todo.
+  const adjustQuantity = React.useCallback(
+    (id, delta) => {
+      setModalSelectedIds((prev) => {
+        if (delta > 0) {
+          const count = prev.filter((x) => x === id).length;
+          if (count >= (quantityCaps[id] ?? 0)) return prev;
+          return [...prev, id];
+        }
+        const idx = prev.lastIndexOf(id);
+        if (idx === -1) return prev;
+        const next = [...prev];
+        next.splice(idx, 1);
+        return next;
+      });
+    },
+    [quantityCaps],
+  );
+
   const applyModalSelection = React.useCallback(() => {
     if (!modalItem) return;
 
-    const selectedExtras = modalItems.filter(
-      (item) => modalSelectedIds.includes(item.id) && !isItemUnavailable(item),
-    );
+    // .map sobre modalSelectedIds (no .filter del catalogo) para conservar
+    // agregados repetidos, ej. varias "Carne c/cheddar".
+    const selectedExtras = modalSelectedIds
+      .map((id) => modalItems.find((item) => item.id === id))
+      .filter((item) => item && !isItemUnavailable(item));
 
     if (modalTarget === "item") {
       if (modalMode === "papas") {
@@ -183,8 +217,10 @@ export default function useItemExtrasModal({ cart, papasMejoras, extraItems }) {
     modalMode,
     modalItems,
     modalSelectedIds,
+    quantityCaps,
     openExtrasModal,
     toggleModalSelection,
+    adjustQuantity,
     applyModalSelection,
     closeExtrasModal: resetModalState,
     disableApply,

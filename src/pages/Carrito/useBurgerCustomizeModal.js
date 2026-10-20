@@ -1,5 +1,6 @@
 import React from "react";
 import { toast } from "../../utils/toast";
+import { EXTRA_MEAT_ID, getMaxExtraMeat } from "../../utils/extraMeat";
 
 export default function useBurgerCustomizeModal({ cart, burgersById, extraItems }) {
   const [scopeItemKey, setScopeItemKey] = React.useState(null);
@@ -20,6 +21,13 @@ export default function useBurgerCustomizeModal({ cart, burgersById, extraItems 
     const burgerId = modalItem?.meta?.burgerId || scopeItem?.meta?.burgerId;
     return burgerId ? burgersById[burgerId] : null;
   }, [modalItem, scopeItem, burgersById]);
+
+  // Tope de "Carne c/cheddar" segun el talle de la linea que se esta
+  // personalizando (ver utils/extraMeat.js).
+  const quantityCaps = React.useMemo(
+    () => ({ [EXTRA_MEAT_ID]: getMaxExtraMeat(modalItem?.meta?.size) }),
+    [modalItem],
+  );
 
   const openCustomize = React.useCallback((item) => {
     if (item.qty > 1) {
@@ -69,6 +77,7 @@ export default function useBurgerCustomizeModal({ cart, burgersById, extraItems 
     scope,
     extras: extraItems,
     removableIngredients: burgerConfig?.removableIngredients || [],
+    quantityCaps,
     openCustomize,
     applyChanges,
     closeModal,

@@ -6,6 +6,41 @@ import styles from "./ModifyIngredientsModal.module.css";
 import useEscapeToClose from "../../hooks/useEscapeToClose";
 import { getUnavailableReason, isItemUnavailable } from "../../utils/availability";
 
+// Fila con stepper (-, cantidad, +) en vez de checkbox: para agregados que
+// se pueden sumar varias veces (ej. "Carne c/cheddar"), acotados por
+// `quantityCaps[item.id]`. El resto de los agregados sigue siendo on/off.
+function QuantityRow({ item, count, max, onAdjust }) {
+  return (
+    <div className={`${styles.row} ${styles.rowQty}`}>
+      <span className={styles.rowNameWrap}>
+        <span className={styles.rowName}>{item.name}</span>
+        <span className={styles.rowPriceEach}>
+          +${item.price.toLocaleString("es-AR")} c/u
+        </span>
+      </span>
+      <div className={styles.stepper}>
+        <button
+          type="button"
+          className={styles.stepperBtn}
+          disabled={count <= 0}
+          aria-label={`Sacar una unidad de ${item.name}`}
+          onClick={() => onAdjust(item.id, -1)}>
+          −
+        </button>
+        <span className={styles.stepperCount}>{count}</span>
+        <button
+          type="button"
+          className={styles.stepperBtn}
+          disabled={count >= max}
+          aria-label={`Sumar una unidad de ${item.name}`}
+          onClick={() => onAdjust(item.id, 1)}>
+          +
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function ModifyIngredientsModal({
   open,
   title,
@@ -15,6 +50,9 @@ export default function ModifyIngredientsModal({
   initialRemovedIds = [],
   initialNote = "",
   showNote = true,
+  // { [itemId]: maxCantidad } — items con una entrada acá se muestran con
+  // stepper en vez de checkbox.
+  quantityCaps = {},
   onApply,
   onClose,
 }) {
@@ -48,6 +86,21 @@ export default function ModifyIngredientsModal({
     );
   }
 
+  function adjustExtraQuantity(id, delta) {
+    setExtraIds((prev) => {
+      if (delta > 0) {
+        const count = prev.filter((x) => x === id).length;
+        if (count >= (quantityCaps[id] ?? 0)) return prev;
+        return [...prev, id];
+      }
+      const idx = prev.lastIndexOf(id);
+      if (idx === -1) return prev;
+      const next = [...prev];
+      next.splice(idx, 1);
+      return next;
+    });
+  }
+
   function toggleRemove(id) {
     setRemovedIds((prev) =>
       prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id],
@@ -55,9 +108,11 @@ export default function ModifyIngredientsModal({
   }
 
   function handleApply() {
-    const selectedExtras = extras.filter(
-      (item) => extraIds.includes(item.id) && !isItemUnavailable(item),
-    );
+    // .map sobre extraIds (no .filter del catalogo) para conservar
+    // agregados repetidos, ej. varias "Carne c/cheddar".
+    const selectedExtras = extraIds
+      .map((id) => extras.find((item) => item.id === id))
+      .filter((item) => item && !isItemUnavailable(item));
     const selectedRemoved = removableIngredients.filter((ing) =>
       removedIds.includes(ing.id),
     );
@@ -105,6 +160,20 @@ export default function ModifyIngredientsModal({
             ) : null}
             <div className={styles.list}>
               {extras.map((item) => {
+                const hasQuantityCap = Object.prototype.hasOwnProperty.call(quantityCaps, item.id);
+                if (hasQuantityCap) {
+                  const count = extraIds.filter((id) => id === item.id).length;
+                  return (
+                    <QuantityRow
+                      key={item.id}
+                      item={item}
+                      count={count}
+                      max={quantityCaps[item.id]}
+                      onAdjust={adjustExtraQuantity}
+                    />
+                  );
+                }
+
                 const checked = extraIds.includes(item.id);
                 const unavailable = isItemUnavailable(item);
                 const reason = getUnavailableReason(item);

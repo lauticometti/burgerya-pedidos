@@ -4,6 +4,7 @@
  */
 
 import { getArgentinaName } from "./argentinaNames";
+import { formatExtrasNames } from "./extrasFormatting";
 import {
   FRIES_UPGRADE_TICKET_LINE,
   hasFriesUpgrade,
@@ -173,11 +174,7 @@ export function formatPromoPicks(picks, itemType) {
       });
     }
     if (samplePick.extras?.length) {
-      lines.push(
-        `  Agregados: ${samplePick.extras
-          .map((extra) => extra.name)
-          .join(joiner)}`,
-      );
+      lines.push(`  Agregados: ${formatExtrasNames(samplePick.extras, joiner)}`);
     }
     if (samplePick.papas?.length) {
       lines.push(
@@ -210,7 +207,7 @@ export function formatItemModifiers(item) {
   const isPapasItem = item.meta?.type === "papas";
 
   if (item.extras?.length) {
-    lines.push(`  Agregados: ${item.extras.map((extra) => extra.name).join(joiner)}`);
+    lines.push(`  Agregados: ${formatExtrasNames(item.extras, joiner)}`);
   }
   if (!isPapasItem) {
     if (hasFriesUpgrade(item)) {

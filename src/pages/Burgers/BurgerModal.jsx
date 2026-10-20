@@ -13,6 +13,8 @@ import { getBurgerPriceInfo } from "../../utils/burgerPricing";
 import { formatMoney } from "../../utils/formatMoney";
 import { REGALO_BADGE, getRegaloPrice, useRegaloState } from "../../utils/regaloCampaign";
 import { buildPapasMejoras } from "../../utils/papasUpgradeOptions";
+import { EXTRA_MEAT_ID, getMaxExtraMeat } from "../../utils/extraMeat";
+import { formatExtrasNames } from "../../utils/extrasFormatting";
 import styles from "./BurgerModal.module.css";
 
 const SIZE_ORDER = ["simple", "doble", "triple"];
@@ -127,6 +129,27 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
     }));
   };
 
+  // Tope de "Carne c/cheddar" segun el talle elegido (ver utils/extraMeat.js).
+  // Si el cliente ya habia sumado mas carnes que el nuevo tope permite (ej.
+  // tenia 5 en una simple y pasa a triple, tope 3), se recortan solas.
+  const selectedSizeForCap = burger?.id === "titanica" ? "triple" : customizations.size;
+  const maxExtraMeat = getMaxExtraMeat(selectedSizeForCap);
+  React.useEffect(() => {
+    setCustomizations((prev) => {
+      const meatCount = prev.extrasIds.filter((id) => id === EXTRA_MEAT_ID).length;
+      if (meatCount <= maxExtraMeat) return prev;
+      let toRemove = meatCount - maxExtraMeat;
+      const trimmed = prev.extrasIds.filter((id) => {
+        if (id === EXTRA_MEAT_ID && toRemove > 0) {
+          toRemove--;
+          return false;
+        }
+        return true;
+      });
+      return { ...prev, extrasIds: trimmed };
+    });
+  }, [maxExtraMeat]);
+
   if (!open || !burger) return null;
 
   const isTitanica = burger.id === "titanica";
@@ -139,12 +162,15 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
   const selectedRemovals = removableIngredients.filter((ingredient) =>
     customizations.removedIds.includes(ingredient.id),
   );
-  const selectedExtras = extrasItems.filter((item) =>
-    customizations.extrasIds.includes(item.id),
-  );
+  // .map (no .filter unico) para conservar agregados repetidos, ej. varias
+  // "Carne c/cheddar" — ver utils/extraMeat.js.
+  const selectedExtras = customizations.extrasIds
+    .map((id) => extrasItems.find((item) => item.id === id))
+    .filter(Boolean);
   const selectedPapas = papasMejoras.filter((item) =>
     customizations.papasIds.includes(item.id),
   );
+  const extrasQuantityCaps = { [EXTRA_MEAT_ID]: maxExtraMeat };
   const customizationCount =
     selectedRemovals.length + selectedExtras.length + selectedPapas.length;
   const originStyle = origin
@@ -312,7 +338,7 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
                 <div className={styles.customizerSummary}>
                   {selectedExtras.length ? (
                     <div className={styles.customizerMeta}>
-                      Agregados: {selectedExtras.map((item) => item.name).join(" + ")}
+                      Agregados: {formatExtrasNames(selectedExtras, " + ")}
                     </div>
                   ) : null}
                   {selectedPapas.length ? (
@@ -361,6 +387,21 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
         description="Suma extras a esta burger."
         items={extrasItems}
         selectedIds={modals.extrasDraftIds}
+        quantityCaps={extrasQuantityCaps}
+        onAdjustQuantity={(id, delta) =>
+          setModals((prev) => {
+            if (delta > 0) {
+              const count = prev.extrasDraftIds.filter((x) => x === id).length;
+              if (count >= (extrasQuantityCaps[id] ?? 0)) return prev;
+              return { ...prev, extrasDraftIds: [...prev.extrasDraftIds, id] };
+            }
+            const idx = prev.extrasDraftIds.lastIndexOf(id);
+            if (idx === -1) return prev;
+            const next = [...prev.extrasDraftIds];
+            next.splice(idx, 1);
+            return { ...prev, extrasDraftIds: next };
+          })
+        }
         onToggle={(id) =>
           setModals((prev) => ({
             ...prev,

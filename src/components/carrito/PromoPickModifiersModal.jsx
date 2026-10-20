@@ -5,6 +5,41 @@ import styles from "./ModifyIngredientsModal.module.css";
 import useEscapeToClose from "../../hooks/useEscapeToClose";
 import { getUnavailableReason, isItemUnavailable } from "../../utils/availability";
 
+// Fila con stepper (-, cantidad, +) en vez de checkbox: para agregados que
+// se pueden sumar varias veces (ej. "Carne c/cheddar"), acotados por
+// `quantityCaps[item.id]`. El resto de los agregados sigue siendo on/off.
+function QuantityRow({ item, count, max, onAdjust }) {
+  return (
+    <div className={`${styles.row} ${styles.rowQty}`}>
+      <span className={styles.rowNameWrap}>
+        <span className={styles.rowName}>{item.name}</span>
+        <span className={styles.rowPriceEach}>
+          +${item.price.toLocaleString("es-AR")} c/u
+        </span>
+      </span>
+      <div className={styles.stepper}>
+        <button
+          type="button"
+          className={styles.stepperBtn}
+          disabled={count <= 0}
+          aria-label={`Sacar una unidad de ${item.name}`}
+          onClick={() => onAdjust(item.id, -1)}>
+          −
+        </button>
+        <span className={styles.stepperCount}>{count}</span>
+        <button
+          type="button"
+          className={styles.stepperBtn}
+          disabled={count >= max}
+          aria-label={`Sumar una unidad de ${item.name}`}
+          onClick={() => onAdjust(item.id, 1)}>
+          +
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function PromoPickModifiersModal({
   open,
   title,
@@ -14,6 +49,10 @@ export default function PromoPickModifiersModal({
   onApplyExtras,
   onClearExtras,
   disableApplyExtras,
+  // { [itemId]: maxCantidad } — items con una entrada acá se muestran con
+  // stepper en vez de checkbox. onAdjustQuantity(id, +1 | -1).
+  quantityCaps = {},
+  onAdjustQuantity,
   removableIngredients = [],
   removedIds = [],
   onToggleRemove,
@@ -69,6 +108,20 @@ export default function PromoPickModifiersModal({
             ) : null}
             <div className={styles.list}>
               {extras.map((item) => {
+                const hasQuantityCap = Object.prototype.hasOwnProperty.call(quantityCaps, item.id);
+                if (hasQuantityCap) {
+                  const count = selectedExtraIds.filter((id) => id === item.id).length;
+                  return (
+                    <QuantityRow
+                      key={item.id}
+                      item={item}
+                      count={count}
+                      max={quantityCaps[item.id]}
+                      onAdjust={onAdjustQuantity}
+                    />
+                  );
+                }
+
                 const checked = selectedExtraIds.includes(item.id);
                 const unavailable = isItemUnavailable(item);
                 const reason = getUnavailableReason(item);
