@@ -162,3 +162,47 @@ describe("TRIPLE", () => {
     expect(evalCode("TRIPLE", [DOBLE], new Date("2026-10-09T00:00:00-03:00")).error).toBe("La promo TRIPLE finalizó");
   });
 });
+
+describe("BURGER10", () => {
+  const WEDNESDAY = new Date("2026-10-21T20:00:00-03:00");
+  const THURSDAY = new Date("2026-10-22T20:00:00-03:00");
+  const SIMPLE_CON_CEBOLLA = {
+    ...SIMPLE,
+    key: "burger:cheese:simple:cebolla",
+    extras: [{ id: "cebolla", name: "Cebolla", price: 500 }],
+  };
+
+  it("acepta el codigo sin importar mayusculas ni espacios", () => {
+    for (const input of ["BURGER10", "burger10", "  Burger10 "]) {
+      expect(evalCode(input, [DOBLE], WEDNESDAY).appliedCode).toBe("BURGER10");
+    }
+  });
+
+  it("10% off sobre todas las burgers del carrito", () => {
+    const result = evalCode("BURGER10", [SIMPLE, DOBLE], WEDNESDAY);
+    expect(result.discount).toBe(1100 + 2900); // 10% de 11000 y de 2x14500
+    expect(result.message).toBe("BURGER10 aplicado: 10% off en todas las burgers y sus agregados");
+  });
+
+  it("el 10% tambien se aplica sobre los agregados de la burger (ej. cebolla)", () => {
+    const result = evalCode("BURGER10", [SIMPLE_CON_CEBOLLA], WEDNESDAY);
+    expect(result.discount).toBe(1150); // 10% de (11000 + 500 de cebolla)
+  });
+
+  it("sin burgers en el carrito pide agregar una", () => {
+    expect(evalCode("BURGER10", [], WEDNESDAY).error).toBe(
+      "BURGER10 es 10% off en burgers (incluye agregados): agregá una burger al carrito",
+    );
+  });
+
+  it("vale miercoles 21/10 y jueves 22/10, no antes ni despues (BA)", () => {
+    expect(evalCode("BURGER10", [DOBLE], WEDNESDAY).appliedCode).toBe("BURGER10");
+    expect(evalCode("BURGER10", [DOBLE], THURSDAY).appliedCode).toBe("BURGER10");
+    expect(evalCode("BURGER10", [DOBLE], new Date("2026-10-20T23:59:59-03:00")).error).toBe(
+      "BURGER10 es válido miércoles 21/10 y jueves 22/10 (BA)",
+    );
+    expect(evalCode("BURGER10", [DOBLE], new Date("2026-10-23T00:00:00-03:00")).error).toBe(
+      "BURGER10 es válido miércoles 21/10 y jueves 22/10 (BA)",
+    );
+  });
+});

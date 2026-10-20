@@ -31,6 +31,7 @@ export const COUPON_CODES = {
   regalito: "REGALITO",
   triple: "TRIPLE",
   charly5: "CHARLY5",
+  burger10: "BURGER10",
 };
 
 // Variantes toleradas para que los clientes puedan escribir "combo ya" con espacios o guiones.
@@ -48,6 +49,8 @@ const VOLVEYA_COUPON_EXPIRY_TS = Date.parse("2026-10-02T00:00:00-03:00"); // vie
 const REGALITO_COUPON_EXPIRY_TS = Date.parse("2026-10-02T00:00:00-03:00"); // viernes 02/10/2026 00:00 (BA) -> vale miércoles 30/9 y jueves 1/10
 const TRIPLE_COUPON_EXPIRY_TS = Date.parse("2026-10-09T00:00:00-03:00"); // viernes 09/10/2026 00:00 (BA) -> vale miércoles 7/10 y jueves 8/10
 const CHARLY5_COUPON_EXPIRY_TS = Date.parse("2026-10-05T00:00:00-03:00"); // lunes 05/10/2026 00:00 (BA) -> vale solo domingo 4/10
+const BURGER10_COUPON_START_TS = Date.parse("2026-10-21T00:00:00-03:00"); // miércoles 21/10/2026 00:00 (BA)
+const BURGER10_COUPON_EXPIRY_TS = Date.parse("2026-10-23T00:00:00-03:00"); // vence viernes 23/10/2026 00:00 (BA) -> vale miércoles 21/10 y jueves 22/10
 const COMBO_TARGETS = { simple: 12990, doble: 15990 };
 const CHEESE_10_LUCAS_TARGET = 10000;
 
@@ -167,6 +170,10 @@ function isJueves17CouponActive(nowTs = Date.now()) {
 
 function isCharly5CouponActive(nowTs = Date.now()) {
   return nowTs < CHARLY5_COUPON_EXPIRY_TS;
+}
+
+function isBurger10CouponActive(nowTs = Date.now()) {
+  return nowTs >= BURGER10_COUPON_START_TS && nowTs < BURGER10_COUPON_EXPIRY_TS;
 }
 
 // Códigos "doble -> triple gratis" (código -> vencimiento). Para sumar otro
@@ -463,6 +470,27 @@ if (normalized === COUPON_CODES.weekend20) {
       appliedCode: COUPON_CODES.jueves17,
       discount,
       message: `${COUPON_CODES.jueves17} aplicado: 10% off en burgers (no aplica a Smoklahoma) hasta hoy 00:00 (BA)`,
+    };
+  }
+
+  if (normalized === COUPON_CODES.burger10) {
+    if (!isBurger10CouponActive(nowTs)) {
+      return {
+        error: `${COUPON_CODES.burger10} es válido miércoles 21/10 y jueves 22/10 (BA)`,
+        discount: 0,
+      };
+    }
+    const discount = computeBurgerPercentDiscount(cartItems, null, 0.1);
+    if (discount <= 0) {
+      return {
+        error: `${COUPON_CODES.burger10} es 10% off en burgers (incluye agregados): agregá una burger al carrito`,
+        discount: 0,
+      };
+    }
+    return {
+      appliedCode: COUPON_CODES.burger10,
+      discount,
+      message: `${COUPON_CODES.burger10} aplicado: 10% off en todas las burgers y sus agregados`,
     };
   }
 
