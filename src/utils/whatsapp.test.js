@@ -225,3 +225,32 @@ describe("WhatsApp: REGALITO", () => {
     expect(kitchen).not.toMatch(/promo|gratis|regalito|🎁/i);
   });
 });
+
+describe("WhatsApp: UNAMAS muestra la carne regalada como descuento", () => {
+  const items = [
+    { key: "burger:smoklahoma:doble", name: "Smoklahoma", qty: 1, unitPrice: 17000, meta: { type: "burger", size: "doble" } },
+  ];
+  const promo = { code: "UNAMAS", lineKey: "burger:smoklahoma:doble", meatValue: 4000 };
+
+  it("comanda: triple y punto", () => {
+    const totals = computeCheckoutTotals({ productsSubtotal: 17000, deliveryMode: "Retiro" });
+    const message = text({ deliveryMode: "Retiro", items, totals, freeMeatPromo: promo });
+    expect(kitchenSection(message)).toBe(["BURGERS", "1 Smoklahoma triple"].join("\n"));
+  });
+
+  it("Retiro: Subtotal a precio triple, descuento y total de la doble", () => {
+    const totals = computeCheckoutTotals({ productsSubtotal: 17000, deliveryMode: "Retiro" });
+    expect(text({ deliveryMode: "Retiro", items, totals, freeMeatPromo: promo })).toContain(
+      ["1 Smoklahoma triple", "", "Subtotal: $21.000", "Descuento UNAMAS: -$4.000", "Total: $17.000 Transferencia"].join("\n"),
+    );
+  });
+
+  it("Delivery: el descuento va antes del envio", () => {
+    const totals = computeCheckoutTotals({ productsSubtotal: 17000, deliveryMode: "Delivery", deliveryQuote: COVERED_Z2 });
+    const message = text({ items, totals, freeMeatPromo: promo });
+    expect(message).toContain(
+      ["Subtotal: $21.000", "Descuento UNAMAS: -$4.000", "Envío: $1.500", "Total: $18.500 Transferencia"].join("\n"),
+    );
+    expect(message).not.toContain("GRATIS");
+  });
+});

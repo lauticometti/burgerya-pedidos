@@ -238,3 +238,11 @@ describe("UNAMAS", () => {
     expect(evalCode("UNAMAS", [DOBLE], new Date("2026-10-21T23:50:00-03:00")).error).toBe("La promo UNAMAS finalizó");
   });
 });
+
+describe("UNAMAS: valor de la carne regalada", () => {
+  it("es triple - doble a precio habitual de esa burger", () => {
+    const smo = { key: "burger:smoklahoma:doble", name: "Smoklahoma", qty: 1, unitPrice: 17000, meta: { type: "burger", burgerId: "smoklahoma", size: "doble" } };
+    const r = evalCode("UNAMAS", [smo], new Date("2026-10-21T20:00:00-03:00"));
+    expect(r.freeMeat.meatValue).toBe(4000);
+  });
+});

@@ -513,6 +513,13 @@ if (normalized === COUPON_CODES.weekend20) {
       };
     }
     const surcharge = getOfferSurcharge(target);
+    // Valor de la carne regalada = triple - doble a precio habitual. El
+    // mensaje de WhatsApp lo muestra como descuento entre Subtotal y Total.
+    const targetPrices = burgersById[target.meta?.burgerId]?.prices || {};
+    const meatValue =
+      typeof targetPrices.triple === "number" && typeof targetPrices.doble === "number"
+        ? Math.max(0, targetPrices.triple - targetPrices.doble)
+        : 0;
     const message =
       FREE_MEAT_COUPON_MESSAGE[normalized] ||
       (surcharge > 0 ? FREE_MEAT_REPRICED_MESSAGE : FREE_MEAT_PROMO_MESSAGE);
@@ -526,6 +533,7 @@ if (normalized === COUPON_CODES.weekend20) {
           burgersById[target.meta?.burgerId]?.name || target.name || "",
         lineQty: target.qty,
         surcharge,
+        meatValue,
         message,
       },
       message,

@@ -230,15 +230,22 @@ function formatTotalsBlock({ deliveryMode, totals, couponCode, discountLabel, fr
   const { productsSubtotal, discountAmount, deliveryFee, grandTotal } = totals;
   const isDelivery = deliveryMode === "Delivery";
   const hasDiscount = discountAmount > 0;
+  // Doble -> triple: la comanda ya dice "triple", así que el subtotal se
+  // muestra con la triple a precio habitual y la carne regalada sale como
+  // descuento. El total no cambia (es el que ve el cliente en pantalla).
+  const meatValue = freeMeatPromo?.meatValue > 0 ? freeMeatPromo.meatValue : 0;
   const lines = [];
-  if (isDelivery || hasDiscount) {
-    lines.push(`Subtotal: ${formatMoney(productsSubtotal)}`);
+  if (isDelivery || hasDiscount || meatValue) {
+    lines.push(`Subtotal: ${formatMoney(productsSubtotal + meatValue)}`);
+  }
+  if (meatValue) {
+    lines.push(`Descuento ${freeMeatPromo.code}: -${formatMoney(meatValue)}`);
   }
   if (hasDiscount) {
     const label = discountLabel || (couponCode ? `Descuento ${couponCode}` : "Descuento");
     lines.push(`${label}: -${formatMoney(discountAmount)}`);
   }
-  if (freeMeatPromo) {
+  if (freeMeatPromo && !meatValue) {
     lines.push(`🎁 Promo ${freeMeatPromo.code}: +1 carne GRATIS`);
   }
   if (isDelivery) {
