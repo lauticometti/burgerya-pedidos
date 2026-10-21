@@ -206,3 +206,35 @@ describe("BURGER10", () => {
     );
   });
 });
+
+describe("UNAMAS", () => {
+  const NOW = new Date("2026-10-21T20:00:00-03:00"); // miercoles 21/10
+
+  it("acepta el codigo sin importar mayusculas ni espacios", () => {
+    for (const input of ["UNAMAS", "unamas", " Una Mas ", "UNAMÁS"]) {
+      expect(evalCode(input, [DOBLE], NOW).appliedCode).toBe("UNAMAS");
+    }
+  });
+
+  it("pasa una doble a triple, 1 carne por pedido, sin recargo", () => {
+    const result = evalCode("UNAMAS", [SIMPLE, DOBLE], NOW);
+    expect(result.discount).toBe(0);
+    expect(result.surcharge).toBe(0);
+    expect(result.freeMeat).toMatchObject({ lineKey: DOBLE.key, lineQty: 2 });
+  });
+
+  it("doble con promo del dia: se cobra a precio habitual (no acumulable)", () => {
+    expect(evalCode("UNAMAS", [AMERICAN_PROMO], NOW).surcharge).toBe(1500);
+  });
+
+  it("sin doble pide agregar una", () => {
+    expect(evalCode("UNAMAS", [SIMPLE, TRIPLE], NOW).error).toBe(
+      "UNAMAS es para hamburguesas dobles: agregá una doble al carrito",
+    );
+  });
+
+  it("vale hasta el miercoles 21/10 23:49 y vence a las 23:50 (BA)", () => {
+    expect(evalCode("UNAMAS", [DOBLE], new Date("2026-10-21T23:49:59-03:00")).appliedCode).toBe("UNAMAS");
+    expect(evalCode("UNAMAS", [DOBLE], new Date("2026-10-21T23:50:00-03:00")).error).toBe("La promo UNAMAS finalizó");
+  });
+});
