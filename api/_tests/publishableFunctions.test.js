@@ -22,11 +22,12 @@ function publishableFiles(dir, rel = "") {
 }
 
 describe("funciones publicables en api/", () => {
-  it("son exactamente los 3 endpoints de ubicacion (ningun test ni helper queda publicado)", () => {
+  it("son los endpoints de ubicacion y postulaciones (ningun test ni helper queda publicado)", () => {
     expect(publishableFiles(apiDir).sort()).toEqual([
       "location/autocomplete.js",
       "location/retrieve.js",
       "location/reverse.js",
+      "postulaciones.js",
     ]);
   });
 });
