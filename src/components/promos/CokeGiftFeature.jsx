@@ -42,10 +42,7 @@ export default function CokeGiftFeature({ onCta }) {
             Doble o triple
             <span className={styles.titleAccent}>+ Coca 600 de regalo</span>
           </h2>
-          <p className={styles.desc}>
-            Cada doble o triple suma una Coca-Cola 600 ml, Original o Zero.
-            Mismo precio de siempre.
-          </p>
+          <p className={styles.desc}>Va con todas las burgers.</p>
           <button type="button" className={styles.cta} onClick={onCta}>
             Elegí tu burger
           </button>
