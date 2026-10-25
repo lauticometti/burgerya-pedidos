@@ -7,7 +7,7 @@ export default function CokeGiftFeature({ onCta }) {
   return (
     <section className={styles.wrapper} aria-labelledby="coke-gift-title">
       <p className={styles.eyebrow}>
-        Promo de hoy <span className={styles.dot} aria-hidden="true">·</span>{" "}
+        Domingo <span className={styles.dot} aria-hidden="true">·</span>{" "}
         <span className={styles.until}>Hasta las 21</span>
       </p>
 
