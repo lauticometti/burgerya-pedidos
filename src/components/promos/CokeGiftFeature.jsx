@@ -46,10 +46,6 @@ export default function CokeGiftFeature({ onCta }) {
             Cada doble o triple suma una Coca-Cola 600 ml, Original o Zero.
             Mismo precio de siempre.
           </p>
-          <ul className={styles.facts}>
-            <li>Una Coca por burger</li>
-            <li>Elegís Original o Zero</li>
-          </ul>
           <button type="button" className={styles.cta} onClick={onCta}>
             Elegí tu burger
           </button>

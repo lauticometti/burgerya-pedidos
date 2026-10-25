@@ -136,36 +136,8 @@
   color: rgba(255, 255, 255, 0.72);
 }
 
-.facts {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
-  margin: 12px 0 0;
-  padding: 0;
-  list-style: none;
-}
 
-.facts li {
-  padding: 4px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.05);
-  font-size: 12px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.85);
-}
 
-.facts li::before {
-  content: "";
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  margin-right: 6px;
-  border-radius: 50%;
-  background: var(--gift-red);
-  vertical-align: 1px;
-}
 
 .cta {
   margin-top: 14px;
@@ -235,9 +207,6 @@
     text-align: left;
   }
 
-  .facts {
-    justify-content: flex-start;
-  }
 
   .cta {
     width: auto;
