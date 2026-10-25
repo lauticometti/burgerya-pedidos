@@ -1,64 +1,43 @@
 /**
- * Promoción: Todas las TRIPLES incluyen Coca gratis
+ * Promoción: DOBLES y TRIPLES + Coca-Cola 600 ml de regalo.
  *
- * Desde 19:30 (hora de Buenos Aires), cada hamburguesa TRIPLE incluye
- * una Coca-Cola 600ml gratis (Original o Zero), hasta agotar stock.
+ * Domingo 2026-10-25, desde que se publica hasta las 21:00 (hora de Buenos
+ * Aires). Cada burger doble o triple que participa suma una Coca 600 de
+ * regalo (Original o Zero, a elección), a $0 y con el precio habitual de la
+ * burger. Las simples no participan. Otro día no hace nada: se apaga sola.
  *
  * ESTE ES EL UNICO LUGAR donde se define:
- * - si la promo está activa
- * - horario de inicio
- * - stock disponible
- * - qué se agrega, cuanto cuesta, como sale impreso
+ * - si la promo está activa (día, hora de fin, tamaños)
+ * - qué variedades se ofrecen y cómo salen impresas
+ * - cómo se reparten los regalos entre las burgers del carrito
  *
- * La Coca gratis NO es un producto aparte: viaja asociada a la triple
- * en item.meta.cokePromo, asi que entra en la comanda correctamente.
+ * Cómo viaja el regalo: cada línea de burger guarda en meta.cokeGifts la
+ * variedad elegida para cada unidad (["coca_600", "coca_zero_600", ...]).
+ * Las líneas "Coca de regalo" del carrito se derivan de ahí (ver
+ * syncCokeGiftItems), así que borrar o modificar una burger nunca le quita
+ * el regalo a otra, y nunca hay más regalos que burgers participantes.
  */
+import { bebidas } from "../data/menu";
+import { isItemUnavailable } from "./availability";
 import { getArgentinaTimeParts, getStoreNow } from "./storeClosedMode";
 
-/**
- * Interruptor: poner en true para activar la promo.
- * Poner en false para desactivarla completamente.
- */
+/** Interruptor general. false = promo apagada aunque sea el día. */
 export const COKE_PROMO_ENABLED = true;
 
-/**
- * Dia de la promo (hora Buenos Aires). Otro dia no se activa aunque
- * COKE_PROMO_ENABLED quede en true: se apaga sola a las 00:00.
- */
-export const COKE_PROMO_DATE = "2026-10-17";
+/** Día de la promo (hora Buenos Aires). Otro día no se activa. */
+export const COKE_PROMO_DATE = "2026-10-25";
+
+/** Ventana en minutos del día (hora Buenos Aires): desde 00:00 hasta 21:00 exclusive. */
+export const COKE_PROMO_START_MINUTES = 0;
+export const COKE_PROMO_END_MINUTES = 21 * 60;
+
+/** Tamaños que participan. */
+export const COKE_PROMO_SIZES = ["doble", "triple"];
 
 /**
- * Hora de inicio en hora de Buenos Aires (mismo reloj que el resto de la web).
- */
-export const COKE_PROMO_START_TIME = "21:00"; // HH:mm en timezone America/Argentina/Buenos_Aires
-
-/**
- * Stock disponible de cada variedad.
- * Cuando llega a 0, esa variedad se deshabilita en el modal.
- * Si ambas están en 0, no se muestra el modal.
- *
- * Cambiar estos números para controlar el stock manualmente.
- */
-export const COKE_PROMO_STOCK = {
-  coca_600: 50, // Original 600ml
-  coca_zero_600: 50, // Zero 600ml
-};
-
-/**
- * Validar que el stock sea consistente.
- */
-function validateStock() {
-  for (const variety of ["coca_600", "coca_zero_600"]) {
-    if (!(variety in COKE_PROMO_STOCK)) {
-      console.warn(`[cokePromo] Falta stock para ${variety}`);
-    }
-  }
-}
-validateStock();
-
-/**
- * Bebidas que participan en la promo (gratis cuando se agrega un triple).
- * Incluye id, nombre para mostrar en modal, y label para impresión.
+ * Bebidas que se ofrecen de regalo. El stock es el mismo del menú: para
+ * marcar una variedad agotada, ponerle isAvailable: 0 en src/data/menu.js
+ * (igual que cualquier producto). En el selector aparece como "Agotada".
  */
 export const COKE_PROMO_VARIETIES = {
   coca_600: {
@@ -73,35 +52,48 @@ export const COKE_PROMO_VARIETIES = {
   },
 };
 
+const COKE_GIFT_KEY_SUFFIX = ":promo";
+
+export function getCokeGiftKey(varietyId) {
+  return `bebida:${varietyId}${COKE_GIFT_KEY_SUFFIX}`;
+}
+
 /** ¿La promo está totalmente habilitada en el sistema? */
 export function isCokePromoEnabled() {
   return COKE_PROMO_ENABLED;
 }
 
-/**
- * ¿Hay stock disponible de al menos una variedad?
- * Si ambas están en 0, la promo no se ofrece.
- * Función independiente sin check de COKE_PROMO_ENABLED.
- */
-export function hasCokePromoStock() {
-  const totalStock = Object.values(COKE_PROMO_STOCK).reduce((sum, qty) => sum + qty, 0);
-  return totalStock > 0;
+/** ¿Este tamaño participa? */
+export function isCokePromoEligibleSize(size) {
+  return COKE_PROMO_SIZES.includes(size);
 }
 
 /**
- * ¿Hay stock disponible de una variedad específica?
- * @param {string} varietyId - "coca_600" o "coca_zero_600"
- * Función independiente sin check de COKE_PROMO_ENABLED.
+ * ¿La ventana está abierta para estas partes de fecha/hora (Buenos Aires)?
+ * Pura: la usa getStoreStatus para suspender la recomendada del día.
  */
+export function isCokePromoWindowActive(parts) {
+  if (!COKE_PROMO_ENABLED || !parts) return false;
+  return (
+    parts.dateKey === COKE_PROMO_DATE &&
+    parts.minutes >= COKE_PROMO_START_MINUTES &&
+    parts.minutes < COKE_PROMO_END_MINUTES
+  );
+}
+
+/** ¿Hay stock de esta variedad? Lee la disponibilidad del menú. */
 export function hasCokePromoVarietyStock(varietyId) {
-  return COKE_PROMO_STOCK[varietyId] > 0;
+  if (!COKE_PROMO_VARIETIES[varietyId]) return false;
+  const bebida = bebidas.find((b) => b.id === varietyId);
+  return Boolean(bebida) && !isItemUnavailable(bebida);
 }
 
-/**
- * Generar entrada de Coca gratis para item.meta.cokePromo.
- * Asegura que siempre tenga los datos necesarios.
- * @param {string} varietyId - "coca_600" o "coca_zero_600"
- */
+/** ¿Hay stock de al menos una variedad? */
+export function hasCokePromoStock() {
+  return Object.keys(COKE_PROMO_VARIETIES).some(hasCokePromoVarietyStock);
+}
+
+/** Datos de la Coca de regalo para una variedad. */
 export function createCokePromoEntry(varietyId) {
   const variety = COKE_PROMO_VARIETIES[varietyId];
   if (!variety) return null;
@@ -113,116 +105,165 @@ export function createCokePromoEntry(varietyId) {
   };
 }
 
-/**
- * ¿Este item lleva una Coca de promo?
- * @param {Object} item - Item del carrito
- */
-export function hasCokePromo(item) {
-  return Boolean(item?.meta?.cokePromo);
-}
-
-/**
- * Obtener la Coca gratis asociada a una triple (si la tiene).
- * @param {Object} item - Item del carrito
- */
-export function getCokePromoEntry(item) {
-  return item?.meta?.cokePromo || null;
+/** Línea de carrito "Coca de regalo" para una variedad, a $0. */
+export function createCokeGiftItem(varietyId, qty) {
+  const entry = createCokePromoEntry(varietyId);
+  if (!entry) return null;
+  return {
+    key: getCokeGiftKey(varietyId),
+    name: entry.name,
+    qty,
+    unitPrice: 0,
+    meta: {
+      type: "bebida",
+      isCokePromo: true,
+      cokePromoLabel: entry.ticketLabel,
+    },
+  };
 }
 
 /**
  * ¿Se puede ofrecer la promo a este item?
- * Solo para burgers tamaño "triple" sin bloqueos.
+ * Burgers doble/triple sin bloqueos y sin otra oferta de precio.
  */
 export function canOfferCokePromo(item) {
   if (!isCokePromoEnabled()) return false;
   if (!hasCokePromoStock()) return false;
   if (!item) return false;
   if (item.meta?.type !== "burger") return false;
-  if (item.meta?.size !== "triple") return false;
+  if (!isCokePromoEligibleSize(item.meta?.size)) return false;
   if (item.meta?.locked) return false;
   // No se combina con la promo del dia (ni ninguna otra oferta de precio).
   if (item.meta?.offerId) return false;
-  // Ya tiene Coca de promo (aunque no debería pasar, pero por seguridad)
-  if (hasCokePromo(item)) return false;
   return true;
 }
 
+/** ¿La ventana de hoy está abierta ahora mismo (reloj de la web)? */
+export function isCokePromoTimeActive(date = null) {
+  const resolved = date instanceof Date ? date : getStoreNow();
+  return isCokePromoWindowActive(getArgentinaTimeParts(resolved));
+}
+
+/** ¿La promo está completamente activa? (habilitada + en horario + hay stock) */
+export function isCokePromoAvailable(date = null) {
+  return isCokePromoEnabled() && isCokePromoTimeActive(date) && hasCokePromoStock();
+}
+
+// ---------------------------------------------------------------------------
+// Regalos por burger (meta.cokeGifts)
+// ---------------------------------------------------------------------------
+
 /**
- * Disminuir el stock de una variedad.
- * NOTA: Esta función solo modifica la const. Para persistencia real,
- * se necesaría un backend. Como no lo hay, cada recarga reinicia el stock.
+ * Variedades de regalo de una línea de burger, una por unidad. Si la línea
+ * tiene más unidades que elecciones (sumó con "+"), las nuevas repiten la
+ * última variedad elegida; si tiene menos, se recorta desde el final.
  */
-export function decrementCokePromoStock(varietyId) {
-  if (COKE_PROMO_STOCK[varietyId] > 0) {
-    COKE_PROMO_STOCK[varietyId]--;
+export function getLineCokeGifts(item) {
+  const gifts = Array.isArray(item?.meta?.cokeGifts)
+    ? item.meta.cokeGifts.filter((id) => COKE_PROMO_VARIETIES[id])
+    : [];
+  const qty = Math.max(0, Math.floor(item?.qty || 0));
+  if (!gifts.length || qty === 0) return [];
+  if (gifts.length >= qty) return gifts.slice(0, qty);
+  const last = gifts[gifts.length - 1];
+  return [...gifts, ...Array(qty - gifts.length).fill(last)];
+}
+
+/** Junta los regalos de una línea existente con los de una que se suma. */
+export function mergeCokeGifts(existing, incoming) {
+  const a = getLineCokeGifts(existing);
+  const b = getLineCokeGifts(incoming);
+  if (!a.length && !b.length) return undefined;
+  return [...a, ...b];
+}
+
+/**
+ * Parte los regalos de una línea al mover `moving` unidades a otra variante
+ * (personalizar / mejorar papas): las unidades que se mueven se llevan las
+ * últimas elecciones, las que quedan conservan las primeras.
+ */
+export function splitCokeGifts(item, moving) {
+  const gifts = getLineCokeGifts(item);
+  const keep = Math.max(0, (item?.qty || 0) - moving);
+  return { kept: gifts.slice(0, keep), moved: gifts.slice(keep) };
+}
+
+/** ¿Esta línea de burger cuenta para regalos ahora? */
+function lineParticipates(item) {
+  return (
+    item?.meta?.type === "burger" &&
+    isCokePromoEligibleSize(item.meta?.size) &&
+    !item.meta?.offerId &&
+    !item.meta?.locked
+  );
+}
+
+/** Cantidad de Cocas de regalo que corresponden, por variedad. */
+export function getCokeGiftCounts(items, active) {
+  const counts = {};
+  if (!active) return counts;
+  for (const item of Object.values(items || {})) {
+    if (!lineParticipates(item)) continue;
+    for (const varietyId of getLineCokeGifts(item)) {
+      if (!hasCokePromoVarietyStock(varietyId)) continue;
+      counts[varietyId] = (counts[varietyId] || 0) + 1;
+    }
   }
+  return counts;
 }
 
 /**
- * Incrementar el stock (cuando se elimina una triple con Coca de promo).
+ * Devuelve el mapa de items con las líneas "Coca de regalo" alineadas a las
+ * burgers participantes (o sin ninguna si la promo no está activa). Si no
+ * hay nada que cambiar devuelve el mismo objeto, para no re-renderizar.
  */
-export function incrementCokePromoStock(varietyId) {
-  COKE_PROMO_STOCK[varietyId]++;
+export function syncCokeGiftItems(items, active) {
+  const counts = getCokeGiftCounts(items, active);
+  let next = items;
+  const ensureCopy = () => {
+    if (next === items) next = { ...items };
+  };
+
+  for (const [key, item] of Object.entries(items)) {
+    if (!item?.meta?.isCokePromo) continue;
+    const varietyId = Object.keys(COKE_PROMO_VARIETIES).find(
+      (id) => getCokeGiftKey(id) === key,
+    );
+    const wanted = varietyId ? counts[varietyId] || 0 : 0;
+    if (wanted <= 0) {
+      ensureCopy();
+      delete next[key];
+    } else if (item.qty !== wanted || item.unitPrice !== 0) {
+      ensureCopy();
+      next[key] = { ...item, qty: wanted, unitPrice: 0 };
+    }
+  }
+
+  for (const [varietyId, qty] of Object.entries(counts)) {
+    const key = getCokeGiftKey(varietyId);
+    if (items[key]?.meta?.isCokePromo) continue;
+    ensureCopy();
+    next[key] = createCokeGiftItem(varietyId, qty);
+  }
+
+  return next;
+}
+
+/** ¿El carrito tiene Cocas de regalo? */
+export function hasCokeGiftItems(items) {
+  return (items || []).some((it) => it?.meta?.isCokePromo);
 }
 
 /**
- * ¿Ya pasó el horario de inicio (19:30 Argentina)?
- * Función de tiempo independiente, sin checks de COKE_PROMO_ENABLED.
- */
-function isPromoTimeWindow() {
-  const { dateKey, minutes } = getArgentinaTimeParts(getStoreNow());
-  const [startHour, startMinute] = COKE_PROMO_START_TIME.split(":").map(Number);
-  return dateKey === COKE_PROMO_DATE && minutes >= startHour * 60 + startMinute;
-}
-
-/**
- * ¿La hora actual (Argentina) ya pasó el horario de inicio de la promo?
- * Chequea si es >= 19:30 (o la hora configurada en COKE_PROMO_START_TIME).
- */
-export function isCokePromoTimeActive() {
-  if (!isCokePromoEnabled()) return false;
-  return isPromoTimeWindow();
-}
-
-/**
- * ¿La promo está completamente activa? (habilitada + pasó la hora + hay stock)
- */
-export function isCokePromoAvailable() {
-  return isCokePromoEnabled() && isCokePromoTimeActive() && hasCokePromoStock();
-}
-
-/**
- * PROMO LAUTIBOOM TRIPLE (solo hoy domingo)
- * Usa el mismo mecanismo de Coca gratis pero solo para lautiboom cuando es burger del día.
+ * PROMO LAUTIBOOM TRIPLE (histórica, apagada).
+ * Se deja el switch para no romper imports; no se usa hoy.
  */
 export const LAUTIBOOM_TRIPLE_PROMO_ENABLED = false;
 
-/**
- * ¿La promo de lautiboom triple está activa?
- * Solo hoy (domingo) y en horario de promo (19:30+)
- */
 export function isLautiboomboomPromoActive() {
-  if (!LAUTIBOOM_TRIPLE_PROMO_ENABLED) return false;
-  if (!isPromoTimeWindow()) return false;
-
-  const now = new Date();
-  const today = now.getDay();
-  const isSunday = today === 0;
-
-  return isSunday;
+  return false;
 }
 
-/**
- * ¿Se puede ofrecer la promo de lautiboom a este item?
- * Solo para "lautiboom" tamaño "triple" en domingo.
- */
-export function canOfferLautiboomboomPromo(item, burgerId) {
-  if (!isLautiboomboomPromoActive()) return false;
-  if (!hasCokePromoStock()) return false;
-  if (!item) return false;
-  if (item.meta?.type !== "burger") return false;
-  if (item.meta?.size !== "triple") return false;
-  if (item.meta?.locked) return false;
-  if (burgerId !== "lautiboom") return false;
-  return true;
+export function canOfferLautiboomboomPromo() {
+  return false;
 }

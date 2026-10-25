@@ -30,12 +30,11 @@ import BurgerModal from "../Burgers/BurgerModal";
 import BurgerNotice from "../../components/burgers/BurgerNotice";
 import PapasOptionModal from "../../components/papas/PapasOptionModal";
 import CokePromoModal from "../../components/carrito/CokePromoModal";
-import CokePromoChoiceModal from "../../components/carrito/CokePromoChoiceModal";
 import useCokePromoModal from "../Carrito/useCokePromoModal";
-import useCokePromoChoice from "../Carrito/useCokePromoChoice";
 import SectionNav from "./SectionNav";
 import { MATCH_DAY_CAMPAIGN } from "../../utils/dailyFeaturePromo";
-import { isCokePromoAvailable, canOfferCokePromo, canOfferLautiboomboomPromo, isLautiboomboomPromoActive } from "../../utils/cokePromo";
+import { isCokePromoAvailable, canOfferCokePromo, isCokePromoEligibleSize } from "../../utils/cokePromo";
+import CokeGiftFeature from "../../components/promos/CokeGiftFeature";
 import RegaloBanner from "../../components/promos/RegaloBanner";
 import {
   REGALO_BADGE,
@@ -102,11 +101,13 @@ export default function Menu() {
     dailyFeatureEyebrow,
     dateKey: storeDateKey,
     minutes: storeMinutes,
+    isCokeGiftActive,
   } = useStoreStatus();
   const storeParts = { dateKey: storeDateKey, minutes: storeMinutes };
   const { canAddItem, showUnavailableError } = useListingPageActions();
   const cokePromo = useCokePromoModal();
-  const cokePromoChoice = useCokePromoChoice();
+  // Re-render por minuto via useStoreStatus: a las 21 la promo se apaga sola.
+  const cokeGiftOn = isCokeGiftActive && isCokePromoAvailable();
   const regalo = useRegaloState();
   const showRegaloPrices = regalo.showPromoPrices;
 
@@ -130,6 +131,7 @@ export default function Menu() {
 
   // Scroll row refs (progress bar + nudge)
   const burgersScrollRef = React.useRef(null);
+  const burgersListRef = React.useRef(null);
   const papasScrollRef = React.useRef(null);
   const dipsScrollRef = React.useRef(null);
   const bebidasScrollRef = React.useRef(null);
@@ -275,14 +277,8 @@ export default function Menu() {
     const price = getBurgerPriceInfo(burger, size);
     const cartItem = buildBurgerCartItem(burger, size, price, removedIngredients, extras, papas);
 
-    // Detectar si es lautiboom triple con promo activa (solo hoy domingo)
-    if (canOfferLautiboomboomPromo(cartItem, burger.id)) {
-      cokePromo.openCokeModal(cartItem);
-      return;
-    }
-
-    // Detectar si es una triple con promo activa - todas llevan Coca
-    if (size === "triple" && isCokePromoAvailable() && canOfferCokePromo(cartItem)) {
+    // Doble o triple con la promo activa: elegir la Coca de regalo.
+    if (isCokePromoEligibleSize(size) && isCokePromoAvailable() && canOfferCokePromo(cartItem)) {
       cokePromo.openCokeModal(cartItem);
       return;
     }
@@ -357,19 +353,14 @@ export default function Menu() {
             <strong>{REGALO_RECAP_TITLE}</strong> {REGALO_RECAP_SUBTITLE}
           </div>
         ) : null}
-        {/* Promo: Lautiboom triple con Coca gratis (solo hoy) */}
-        {regalo.campaignActive ? null : isLautiboomboomPromoActive() ? (
-          <div className={styles.cokePromoRibbon}>
-            <div className={styles.cokePromoRibbonTitle}>LAUTIBOOM TRIPLE + COCA 600 ML DE REGALO</div>
-            <div className={styles.cokePromoRibbonSub}>Elegí Coca o Coca Zero · Hasta agotar stock</div>
-          </div>
-        ) : isCokePromoAvailable() ? (
-          <div className={styles.cokePromoRibbon}>
-            <div className={styles.cokePromoRibbonTitle}>TRIPLES + COCA 600 ML DE REGALO</div>
-            <div className={styles.cokePromoRibbonSub}>Elegí Coca o Coca Zero · No incluye la promo del día · Hasta agotar stock</div>
-          </div>
-        ) : null}
-        {regalo.campaignActive ? null : featuredBurger ? (
+        {/* Promo Coca de regalo (dobles y triples): reemplaza a la recomendada mientras dura. */}
+        {regalo.campaignActive ? null : cokeGiftOn ? (
+          <CokeGiftFeature
+            onCta={() =>
+              burgersListRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
+            }
+          />
+        ) : featuredBurger ? (
           <div className={styles.featuredWrap}>
             <BurgerDelDia
               burger={featuredBurger}
@@ -416,7 +407,7 @@ export default function Menu() {
           <MatchDayBadge>Las titulares</MatchDayBadge>
         </div>
 
-        <div className={styles.carouselWrap}>
+        <div className={styles.carouselWrap} ref={burgersListRef}>
           <ChevronBtn dir="left" disabled={!burgersControls.canScrollLeft} onClick={burgersControls.scrollPrev} />
           <ChevronBtn dir="right" disabled={!burgersControls.canScrollRight} onClick={burgersControls.scrollNext} />
         <div
@@ -523,7 +514,7 @@ export default function Menu() {
                             </>
                             )}
                           </button>
-                          {size === "triple" && isCokePromoAvailable() && !info.hasDiscount ? (
+                          {cokeGiftOn && isCokePromoEligibleSize(size) && !info.hasDiscount ? (
                             <div className={styles.cokePromoLabel}>+ COCA GRATIS</div>
                           ) : null}
                         </div>
@@ -800,30 +791,22 @@ export default function Menu() {
 
       <CokePromoModal
         open={cokePromo.modalOpen}
+        burgerName={cokePromo.pendingBurger?.name}
+        size={cokePromo.pendingBurger?.meta?.size}
+        expired={cokePromo.expired || (cokePromo.modalOpen && !cokeGiftOn)}
         selectedVariety={cokePromo.selectedVariety}
         onSelectVariety={cokePromo.selectVariety}
         onConfirm={() => {
-          cokePromo.confirmAndAdd(cart);
-          toast.added("Triple + Coca gratis agregados");
+          const sizeLabel = cokePromo.pendingBurger?.meta?.size === "triple" ? "Triple" : "Doble";
+          if (cokePromo.confirmAndAdd(cart) === "added") {
+            toast.added(`${sizeLabel} + Coca de regalo agregados`);
+          }
+        }}
+        onAddWithoutGift={() => {
+          const name = cokePromo.pendingBurger?.name;
+          if (cokePromo.addWithoutGift(cart)) toast.added(name || "Burger agregada");
         }}
         onClose={cokePromo.cancel}
-      />
-
-      <CokePromoChoiceModal
-        open={cokePromoChoice.modalOpen}
-        dailyPriceTriple={cokePromoChoice.priceInfo.daily}
-        normalPriceTriple={cokePromoChoice.priceInfo.normal}
-        selectedVariety={cokePromoChoice.selectedVariety}
-        onSelectVariety={cokePromoChoice.selectVariety}
-        onChooseDiscounted={() => {
-          cokePromoChoice.chooseDiscountedPrice(cart);
-          toast.added("Triple agregado");
-        }}
-        onChooseNormalWithCoke={() => {
-          cokePromoChoice.chooseNormalPriceWithCoke(cart, cokePromoChoice.priceInfo.normal);
-          toast.added("Triple + Coca gratis agregados");
-        }}
-        onClose={cokePromoChoice.cancel}
       />
 
       <FloatingCartPill

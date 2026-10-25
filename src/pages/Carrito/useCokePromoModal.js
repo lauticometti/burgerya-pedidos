@@ -1,29 +1,31 @@
 import React from "react";
-import { createBebidaItem } from "../../utils/cartItemBuilders";
-import { createCokePromoEntry } from "../../utils/cokePromo";
+import {
+  canOfferCokePromo,
+  hasCokePromoVarietyStock,
+  isCokePromoAvailable,
+} from "../../utils/cokePromo";
 
 /**
- * Hook para manejar el modal de selección de Coca gratis en promo triple.
+ * Hook para el selector de Coca de regalo (Original / Zero) al agregar una
+ * burger doble o triple.
  *
- * Estado:
- * - modalOpen: boolean - si el modal está abierto
- * - pendingTriple: Object - la triple que espera confirmación de Coca
- * - selectedVariety: string - "coca_600" o "coca_zero_600" seleccionada
+ * La variedad elegida viaja en meta.cokeGifts de la burger: el carrito arma
+ * la linea "Coca de regalo" a partir de ahi (ver syncCokeGiftItems).
  *
- * Callbacks:
- * - openCokeModal(triple) - abrir modal con una triple pendiente
- * - selectVariety(varietyId) - seleccionar una variedad
- * - confirmAndAdd(cart) - agregar triple + Coca al carrito
- * - cancel() - cerrar sin agregar
+ * Al confirmar se revalida la promo con la hora de ese instante. Si ya
+ * termino, NO se agrega nada: el modal pasa a "expired" y el cliente decide
+ * si agrega la burger igual (sin regalo, precio habitual) o cancela.
  */
 export default function useCokePromoModal() {
   const [modalOpen, setModalOpen] = React.useState(false);
-  const [pendingTriple, setPendingTriple] = React.useState(null);
+  const [pendingBurger, setPendingBurger] = React.useState(null);
   const [selectedVariety, setSelectedVariety] = React.useState(null);
+  const [expired, setExpired] = React.useState(false);
 
-  const openCokeModal = React.useCallback((tripleItem) => {
-    setPendingTriple(tripleItem);
+  const openCokeModal = React.useCallback((burgerItem) => {
+    setPendingBurger(burgerItem);
     setSelectedVariety(null);
+    setExpired(false);
     setModalOpen(true);
   }, []);
 
@@ -33,69 +35,55 @@ export default function useCokePromoModal() {
 
   const cancel = React.useCallback(() => {
     setModalOpen(false);
-    setPendingTriple(null);
+    setPendingBurger(null);
     setSelectedVariety(null);
+    setExpired(false);
   }, []);
 
+  /** Agrega burger + regalo. Devuelve "added", "expired" o false. */
   const confirmAndAdd = React.useCallback(
     (cart) => {
-      if (!pendingTriple || !selectedVariety) return false;
+      if (!pendingBurger || !selectedVariety) return false;
 
-      // Agregar la triple al carrito
-      cart.add(pendingTriple);
-
-      // Crear y agregar la Coca gratis
-      const cokeEntry = createCokePromoEntry(selectedVariety);
-      const bebidaItem = createBebidaItem(
-        {
-          id: selectedVariety,
-          name: cokeEntry.name,
-          orderName: cokeEntry.name,
-          price: 0,
-        },
-        1,
-      );
-
-      // Clave propia: si el cliente ya tenia una Coca paga, no se fusionan
-      // (antes la paga pasaba a $0 al sumarse la de regalo).
-      bebidaItem.key = `${bebidaItem.key}:promo`;
-
-      // Marcar la Coca como regalo promo y vincularla a esta triple
-      bebidaItem.meta = {
-        ...bebidaItem.meta,
-        isCokePromo: true,
-        cokePromoLabel: cokeEntry.ticketLabel,
-        linkedTripleKey: pendingTriple.key,
-      };
-
-      // Buscar si ya existe una Coca de promo del mismo tipo y agregar a su cantidad
-      const existingCoke = cart.items.find(
-        (i) => i.meta?.isCokePromo && i.key === bebidaItem.key
-      );
-
-      if (existingCoke) {
-        // Incrementar cantidad
-        cart.setQty(bebidaItem.key, (existingCoke.qty || 1) + 1);
-      } else {
-        // Agregar nueva
-        cart.add(bebidaItem);
+      if (
+        !isCokePromoAvailable() ||
+        !canOfferCokePromo(pendingBurger) ||
+        !hasCokePromoVarietyStock(selectedVariety)
+      ) {
+        setExpired(true);
+        return "expired";
       }
 
-      // Cerrar modal
+      cart.add({
+        ...pendingBurger,
+        meta: { ...pendingBurger.meta, cokeGifts: [selectedVariety] },
+      });
       cancel();
+      return "added";
+    },
+    [pendingBurger, selectedVariety, cancel],
+  );
 
+  /** Promo vencida: el cliente confirma la burger sola, sin regalo. */
+  const addWithoutGift = React.useCallback(
+    (cart) => {
+      if (!pendingBurger) return false;
+      cart.add(pendingBurger);
+      cancel();
       return true;
     },
-    [pendingTriple, selectedVariety, cancel],
+    [pendingBurger, cancel],
   );
 
   return {
     modalOpen,
-    pendingTriple,
+    pendingBurger,
     selectedVariety,
+    expired,
     openCokeModal,
     selectVariety,
     confirmAndAdd,
+    addWithoutGift,
     cancel,
   };
 }

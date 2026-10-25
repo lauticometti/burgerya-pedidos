@@ -254,3 +254,17 @@ describe("WhatsApp: UNAMAS muestra la carne regalada como descuento", () => {
     expect(message).not.toContain("GRATIS");
   });
 });
+
+describe("WhatsApp: Coca de regalo", () => {
+  it("el regalo sale identificado y separado de una Coca paga", () => {
+    const message = text({
+      items: [
+        { key: "burger:cheese:doble", name: "Cheese", qty: 1, meta: { type: "burger", size: "doble", cokeGifts: ["coca_600"] } },
+        { key: "bebida:coca_600", name: "Coca Cola 600ml", qty: 1, unitPrice: 2500, meta: { type: "bebida" } },
+        { key: "bebida:coca_600:promo", name: "Coca-Cola Original 600 ml", qty: 1, unitPrice: 0, meta: { type: "bebida", isCokePromo: true, cokePromoLabel: "COCA 600ML (REGALO)" } },
+      ],
+    });
+    expect(message).toContain("1 COCA 600ML (REGALO)");
+    expect(message).toContain("1 Coca cola 600ml");
+  });
+});

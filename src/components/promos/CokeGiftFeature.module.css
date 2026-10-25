@@ -1,0 +1,245 @@
+/* Mismo lenguaje que la card de la recomendada (BurgerDelDia): fondo negro,
+   amarillo Burger Ya y Archivo Black. El rojo Coca queda solo como acento. */
+.wrapper {
+  --gift-yellow: #ffc62a;
+  --gift-red: #e41e2b;
+  position: relative;
+  overflow: hidden;
+  width: min(100%, 620px);
+  margin: 0 auto 26px;
+  padding: 14px 16px 18px;
+  border-radius: var(--radius, 14px);
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(255, 198, 42, 0.12), transparent 60%),
+    #0d0d0d;
+  border: 1px solid rgba(255, 198, 42, 0.28);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.eyebrow {
+  margin: 0;
+  text-align: center;
+  font-family: "Archivo Black", sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.16em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: rgba(255, 198, 42, 0.75);
+}
+
+.dot {
+  opacity: 0.6;
+}
+
+.until {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--gift-yellow);
+  color: #0b0b0b;
+  letter-spacing: 0.06em;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.visual {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.burger {
+  flex: 1 1 0;
+  min-width: 0;
+  width: 100%;
+  max-width: 190px;
+  height: auto;
+  filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.55));
+}
+
+.plus {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--gift-yellow);
+  color: #0b0b0b;
+  font-family: "Archivo Black", sans-serif;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.bottles {
+  flex: none;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+}
+
+.bottle {
+  position: relative;
+  z-index: 1;
+  height: 132px;
+  width: 60px;
+  object-fit: cover;
+  filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.5));
+}
+
+.bottleBack {
+  z-index: 0;
+  margin-left: -14px;
+  transform: translateY(-8px) rotate(6deg);
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-family: "Archivo Black", sans-serif;
+  font-size: clamp(22px, 6.4vw, 30px);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: #f5f5f5;
+}
+
+.titleAccent {
+  display: block;
+  margin-top: 4px;
+  color: var(--gift-yellow);
+}
+
+.desc {
+  margin: 10px 0 0;
+  max-width: 34ch;
+  font-size: 14px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.facts li {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.facts li::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--gift-red);
+  vertical-align: 1px;
+}
+
+.cta {
+  margin-top: 14px;
+  width: min(100%, 280px);
+  min-height: 46px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--gift-yellow);
+  color: #0b0b0b;
+  font-family: "Archivo Black", sans-serif;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.08s ease, filter 0.12s ease;
+}
+
+.cta:hover {
+  filter: brightness(1.06);
+}
+
+.cta:active {
+  transform: translateY(1px);
+}
+
+.cta:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.footnote {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+@media (min-width: 560px) {
+  .wrapper {
+    padding: 18px 22px 20px;
+  }
+
+  .body {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+    margin-top: 14px;
+  }
+
+  .visual {
+    flex: 0 0 48%;
+    max-width: none;
+  }
+
+  .burger {
+    max-width: 230px;
+  }
+
+  .bottle {
+    height: 140px;
+    width: 64px;
+  }
+
+  .info {
+    flex: 1;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .facts {
+    justify-content: flex-start;
+  }
+
+  .cta {
+    width: auto;
+  }
+}

@@ -1,5 +1,6 @@
 import React from "react";
 import { toast } from "../../utils/toast";
+import { getStoreNow } from "../../utils/storeClosedMode";
 import {
   couponStorage,
   evaluateCoupon,
@@ -17,7 +18,7 @@ export default function useCouponCode(cartItems, cartTotal) {
       code: appliedCoupon,
       cartItems,
       cartTotal,
-      now: new Date(),
+      now: getStoreNow(),
       storage: couponStorage,
       allowUsed: true,
       markUsed: false,
@@ -61,7 +62,7 @@ export default function useCouponCode(cartItems, cartTotal) {
       code: couponCode,
       cartItems,
       cartTotal,
-      now: new Date(),
+      now: getStoreNow(),
       storage: couponStorage,
       allowUsed: false,
       markUsed: true,
@@ -99,7 +100,7 @@ export default function useCouponCode(cartItems, cartTotal) {
       code: appliedCoupon,
       cartItems,
       cartTotal,
-      now: new Date(),
+      now: getStoreNow(),
       storage: couponStorage,
       allowUsed: true,
       markUsed: false,

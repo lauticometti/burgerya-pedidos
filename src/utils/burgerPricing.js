@@ -3,6 +3,7 @@ import {
   FRIDAY_TRIPLE_PROMO_DATE_KEY,
   FRIDAY_TRIPLE_PROMO_OFFER_ID,
   DAILY_FEATURE_PROMO_OFFER_ID,
+  getStoreNow,
   getStoreStatus,
 } from "./storeClosedMode";
 import { getDailyFeaturePrices } from "./dailyFeaturePromo";
@@ -10,7 +11,7 @@ import { getDailyFeaturePrices } from "./dailyFeaturePromo";
 // Configurable manual offers remain empty unless explicitly activated.
 export const BURGER_PRICE_OFFERS = [];
 
-function getAutomaticOffer(burger, size, date = new Date()) {
+function getAutomaticOffer(burger, size, date = getStoreNow()) {
   const status = getStoreStatus(date);
   const doublePrice = burger?.prices?.doble;
   const triplePrice = burger?.prices?.triple;
@@ -33,7 +34,7 @@ function getAutomaticOffer(burger, size, date = new Date()) {
   };
 }
 
-function getDailyFeatureOffer(burger, size, date = new Date()) {
+function getDailyFeatureOffer(burger, size, date = getStoreNow()) {
   const status = getStoreStatus(date);
   if (!status.isDailyFeaturePromoActive) return null;
   if (burger?.id !== status.dailyFeatureBurgerId) return null;
@@ -68,7 +69,7 @@ function matchesOffer(offer, burger, size) {
   return true;
 }
 
-function getActiveOffer(burger, size, date = new Date()) {
+function getActiveOffer(burger, size, date = getStoreNow()) {
   let best = null;
   const basePrice = burger?.prices?.[size];
   const offers = [
@@ -107,7 +108,7 @@ function getActiveOffer(burger, size, date = new Date()) {
   return best;
 }
 
-export function getBurgerPriceInfo(burger, size, date = new Date()) {
+export function getBurgerPriceInfo(burger, size, date = getStoreNow()) {
   const basePrice = burger?.prices?.[size];
   if (typeof basePrice !== "number") {
     return {
@@ -140,6 +141,6 @@ export function getBurgerPriceInfo(burger, size, date = new Date()) {
   };
 }
 
-export function getBurgerPrice(burger, size, date = new Date()) {
+export function getBurgerPrice(burger, size, date = getStoreNow()) {
   return getBurgerPriceInfo(burger, size, date).finalPrice;
 }

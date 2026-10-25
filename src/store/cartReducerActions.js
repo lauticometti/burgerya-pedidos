@@ -1,3 +1,5 @@
+import { mergeCokeGifts, splitCokeGifts } from "../utils/cokePromo";
+
 /**
  * Cart reducer helper functions
  * Extracted from CartProvider to reduce duplication and complexity
@@ -74,10 +76,17 @@ export function updateBurgerLineUnits(items, baseKey, draft, count) {
 
   const next = { ...items };
 
+  // Coca de regalo: las unidades que se mueven se llevan su variedad elegida
+  // y las que quedan conservan la suya.
+  const hasGifts = Array.isArray(base.meta?.cokeGifts);
+  const gifts = hasGifts ? splitCokeGifts(base, moving) : null;
+  const withGifts = (line, list) =>
+    hasGifts ? { ...line, meta: { ...line.meta, cokeGifts: list } } : line;
+
   // 1. Sacar de la linea original las unidades que se mueven. Si se mueven
   //    todas, la linea desaparece: nunca queda una linea en qty 0.
   const remaining = base.qty - moving;
-  if (remaining > 0) next[baseKey] = { ...base, qty: remaining };
+  if (remaining > 0) next[baseKey] = withGifts({ ...base, qty: remaining }, gifts?.kept);
   else delete next[baseKey];
 
   // 2. Mergear en la variante destino si ya existe; si no, crearla.
@@ -85,9 +94,18 @@ export function updateBurgerLineUnits(items, baseKey, draft, count) {
   //    las unidades vuelven a la misma linea sin perderse.
   const existing = next[draft.key];
   if (existing) {
-    next[draft.key] = { ...existing, qty: existing.qty + moving };
+    const merged = { ...existing, qty: existing.qty + moving };
+    if (hasGifts || existing.meta?.cokeGifts) {
+      const mergedGifts = mergeCokeGifts(existing, {
+        qty: moving,
+        meta: { cokeGifts: gifts?.moved || [] },
+      });
+      next[draft.key] = { ...merged, meta: { ...merged.meta, cokeGifts: mergedGifts } };
+    } else {
+      next[draft.key] = merged;
+    }
   } else {
-    next[draft.key] = { ...base, ...draft, qty: moving };
+    next[draft.key] = withGifts({ ...base, ...draft, qty: moving }, gifts?.moved);
   }
 
   return next;

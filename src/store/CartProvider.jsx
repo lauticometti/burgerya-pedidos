@@ -6,7 +6,11 @@ import { getBurgerPriceInfo } from "../utils/burgerPricing";
 import { getCartItemsTotal } from "../utils/cartLineTotals";
 import { COMBO_COCA_PRICE } from "../pages/Menu/ComboPremiumBanner";
 import { toast } from "../utils/toast";
-import { isCokePromoAvailable } from "../utils/cokePromo";
+import {
+  isCokePromoAvailable,
+  mergeCokeGifts,
+  syncCokeGiftItems,
+} from "../utils/cokePromo";
 import { useStoreStatus } from "../utils/storeClosedMode";
 import { buildBurgerVariantDraft } from "../utils/cartKeys";
 import {
@@ -48,6 +52,10 @@ function reducer(state, action) {
       const existing = state.items[item.key];
       const qty = (existing?.qty || 0) + (item.qty || 1);
       const mergedMeta = { ...existing?.meta, ...item.meta };
+      // Coca de regalo: cada unidad conserva su variedad al fusionar lineas.
+      if (existing?.meta?.cokeGifts || item.meta?.cokeGifts) {
+        mergedMeta.cokeGifts = mergeCokeGifts(existing, item);
+      }
       if (!mergedMeta.removedIngredientIds) {
         mergedMeta.removedIngredientIds =
           item.meta?.removedIngredientIds ||
@@ -133,6 +141,11 @@ function reducer(state, action) {
           meta: { ...state.items[action.key]?.meta, picks: action.picks },
         }),
       };
+
+    case "SYNC_COKE_GIFTS": {
+      const items = syncCokeGiftItems(state.items, action.active);
+      return items === state.items ? state : { ...state, items };
+    }
 
     case "REPRICE_ITEMS": {
       const items = { ...state.items };
@@ -315,28 +328,13 @@ export function CartProvider({ children }) {
     }
   }, [burgersById, dateKey, minutes, isRegaloActive, state.items]);
 
-  // Coca 600 de regalo: nunca mas Cocas gratis que triples que participan
-  // (borrar una triple saca su Coca) y, mientras la promo esta activa, cada
-  // triple sumada con "+" en el carrito suma su Coca a la que ya habia.
+  // Coca 600 de regalo: las lineas de regalo se derivan de meta.cokeGifts de
+  // cada burger doble/triple (una por unidad). Borrar o bajar una burger saca
+  // solo sus regalos; al cerrar la ventana (21:00) se van todos solos, aunque
+  // la pagina siga abierta (dateKey/minutes cambian cada minuto).
   useEffect(() => {
-    const items = Object.values(state.items);
-    const cokes = items.filter((it) => it.meta?.isCokePromo);
-    if (!cokes.length) return;
-    const triples = items
-      .filter((it) => it.meta?.type === "burger" && it.meta?.size === "triple" && !it.meta?.offerId)
-      .reduce((sum, it) => sum + (it.qty || 0), 0);
-    let free = cokes.reduce((sum, it) => sum + (it.qty || 0), 0);
-    if (free < triples && isCokePromoAvailable()) {
-      dispatch({ type: "SET_QTY", key: cokes[0].key, qty: (cokes[0].qty || 0) + (triples - free) });
-      return;
-    }
-    for (const coke of cokes) {
-      if (free <= triples) break;
-      const drop = Math.min(coke.qty || 0, free - triples);
-      dispatch({ type: "SET_QTY", key: coke.key, qty: (coke.qty || 0) - drop });
-      free -= drop;
-    }
-  }, [state.items]);
+    dispatch({ type: "SYNC_COKE_GIFTS", active: isCokePromoAvailable() });
+  }, [state.items, dateKey, minutes]);
 
   const api = useMemo(() => {
     const items = Object.values(state.items);

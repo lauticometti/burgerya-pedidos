@@ -39,6 +39,7 @@ import CartDipUpsellBanner from "./CartDipUpsellBanner";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
 import { buildPapasMejoras } from "../../utils/papasUpgradeOptions";
 import { getStoreNow, useStoreStatus } from "../../utils/storeClosedMode";
+import { isCokePromoAvailable } from "../../utils/cokePromo";
 import { toast } from "../../utils/toast";
 import {
   REGALO_BADGE,
@@ -254,6 +255,20 @@ export default function Carrito() {
     );
     return false;
   }, [whenMode, whenSlot, regalo.applies, regalo.campaignActive]);
+
+  // Coca de regalo: revalidar con la hora de este instante antes de abrir
+  // WhatsApp. Si la promo ya termino (21:00) se sacan los regalos del carrito
+  // (nunca se cobran) y se frena el envio para que el cliente vea el pedido.
+  const revalidateCokeGift = React.useCallback(() => {
+    const gifts = cart.items.filter((it) => it.meta?.isCokePromo);
+    if (!gifts.length || isCokePromoAvailable(getStoreNow())) return true;
+    gifts.forEach((it) => cart.remove(it.key));
+    toast.error(
+      "La promo de Coca de regalo terminó a las 21. Sacamos las Cocas de regalo: revisá tu pedido y volvé a enviarlo.",
+      { key: "coke-gift-revalidate", ms: 6000 },
+    );
+    return false;
+  }, [cart]);
   React.useEffect(() => {
     if (!canContinue && step !== 1) {
       setStep(1);
@@ -593,6 +608,11 @@ export default function Carrito() {
                 }
                 // Campaña regalo: revalidar hora y horario en este instante.
                 if (!revalidateRegalo()) {
+                  event.preventDefault();
+                  return;
+                }
+                // Coca de regalo vencida: no se envía el regalo.
+                if (!revalidateCokeGift()) {
                   event.preventDefault();
                   return;
                 }

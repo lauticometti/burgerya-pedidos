@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { getDailyFeature } from "./dailyFeaturePromo";
 import { isRegaloWindowActive } from "./regaloCampaign";
+import { isCokePromoWindowActive } from "./cokePromo";
 import {
   WEEKLY_SCHEDULE,
   DATE_OVERRIDES,
@@ -571,6 +572,10 @@ export function getStoreStatus(date = null) {
   // Campaña regalo: mientras la ventana esta activa, ninguna otra promo
   // (recomendada del dia, triple=doble) compite ni se acumula con el descuento.
   const isRegaloActive = isRegaloWindowActive(parts);
+  // Coca de regalo con dobles y triples: mientras dura reemplaza a la
+  // recomendada del dia (card y precio promo) para no acumular promos.
+  const isCokeGiftActive = isCokePromoWindowActive(parts);
+  const suspendDailyFeature = isRegaloActive || isCokeGiftActive;
   const baseStatus = (!isRegaloActive && promoStatus) || buildStatusState();
   const closedOverrides = isOpenNow
     ? {}
@@ -591,9 +596,10 @@ export function getStoreStatus(date = null) {
     ...baseStatus,
     ...closedOverrides,
     isRegaloActive,
+    isCokeGiftActive,
     isDailyFeaturePromoActive:
-      !isRegaloActive && dailyFeature !== null && dailyFeature.prices !== null,
-    dailyFeatureBurgerId: isRegaloActive ? null : dailyFeature?.burgerId || null,
+      !suspendDailyFeature && dailyFeature !== null && dailyFeature.prices !== null,
+    dailyFeatureBurgerId: suspendDailyFeature ? null : dailyFeature?.burgerId || null,
     dailyFeatureWeekdayLabel: dailyFeature?.weekdayLabel || "",
     dailyFeatureEyebrow: dailyFeature?.eyebrow || null,
     nextOpenText,
