@@ -149,6 +149,16 @@ export function isCokePromoAvailable(date = null) {
   return isCokePromoEnabled() && isCokePromoTimeActive(date) && hasCokePromoStock();
 }
 
+/**
+ * Cierre de la promo: desde que termina la ventana (21:00) hasta el fin del
+ * día de hoy. Solo texto/imagen, no cambia ningún precio ni reparte más
+ * regalos. Misma idea que isRegaloRecapActive en regaloCampaign.js.
+ */
+export function isCokeGiftRecapActive(parts) {
+  if (!COKE_PROMO_ENABLED || !parts) return false;
+  return parts.dateKey === COKE_PROMO_DATE && parts.minutes >= COKE_PROMO_END_MINUTES;
+}
+
 // ---------------------------------------------------------------------------
 // Regalos por burger (meta.cokeGifts)
 // ---------------------------------------------------------------------------

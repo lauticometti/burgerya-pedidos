@@ -33,8 +33,9 @@ import CokePromoModal from "../../components/carrito/CokePromoModal";
 import useCokePromoModal from "../Carrito/useCokePromoModal";
 import SectionNav from "./SectionNav";
 import { MATCH_DAY_CAMPAIGN } from "../../utils/dailyFeaturePromo";
-import { isCokePromoAvailable, canOfferCokePromo, isCokePromoEligibleSize } from "../../utils/cokePromo";
+import { isCokePromoAvailable, canOfferCokePromo, isCokePromoEligibleSize, isCokeGiftRecapActive } from "../../utils/cokePromo";
 import CokeGiftFeature from "../../components/promos/CokeGiftFeature";
+import CokeGiftRecap from "../../components/promos/CokeGiftRecap";
 import RegaloBanner from "../../components/promos/RegaloBanner";
 import {
   REGALO_BADGE,
@@ -360,6 +361,9 @@ export default function Menu() {
               burgersListRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
             }
           />
+        ) : /* Cierre de la promo Coca de regalo: resumen hasta el fin del dia. */
+        !regalo.campaignActive && isCokeGiftRecapActive(storeParts) ? (
+          <CokeGiftRecap />
         ) : featuredBurger ? (
           <div className={styles.featuredWrap}>
             <BurgerDelDia
