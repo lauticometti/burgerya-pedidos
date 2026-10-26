@@ -58,6 +58,10 @@ export function buildWhatsAppText({
   whenMode,
   whenSlot,
   location = null,
+  // Catalogo de burgers ({ id: burger }), para el aviso de "sin tal
+  // ingrediente" vigente en formatItemModifiers. Opcional: sin esto, la
+  // comanda sale igual pero sin ese aviso.
+  burgersById = {},
 }) {
   const lines = [];
   if (deliveryMode === "Retiro") {
@@ -163,7 +167,7 @@ export function buildWhatsAppText({
       if (it.meta?.picks?.length) {
         lines.push(...formatPromoPicks(it.meta.picks, it.meta?.type));
       } else {
-        lines.push(...formatItemModifiers(it));
+        lines.push(...formatItemModifiers(it, burgersById));
       }
       if (it.note?.trim()) {
         lines.push(`  Aclaracion: ${it.note.trim()}`);

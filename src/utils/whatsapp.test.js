@@ -268,3 +268,35 @@ describe("WhatsApp: Coca de regalo", () => {
     expect(message).toContain("1 Coca cola 600ml");
   });
 });
+
+describe("WhatsApp: aviso de ingrediente sin stock (ej. 'Sin lechuga')", () => {
+  // Sin noticeSince/noticeShift el aviso no vence nunca (ver availability.js):
+  // a proposito, para que este test no dependa de la hora real.
+  const americanSinLechuga = {
+    id: "american",
+    notice: "Sin lechuga",
+  };
+
+  it("burger con aviso vigente: la comanda lo muestra como 'Aviso: ...'", () => {
+    const message = text({
+      items: [{ key: "burger:american:doble", name: "American", qty: 1, meta: { type: "burger", size: "doble", burgerId: "american" } }],
+      burgersById: { american: americanSinLechuga },
+    });
+    expect(message).toContain(["1 American doble", "  Aviso: Sin lechuga"].join("\n"));
+  });
+
+  it("sin burgersById (no se paso el catalogo), la comanda sale igual pero sin el aviso", () => {
+    const message = text({
+      items: [{ key: "burger:american:doble", name: "American", qty: 1, meta: { type: "burger", size: "doble", burgerId: "american" } }],
+    });
+    expect(message).not.toContain("Aviso:");
+  });
+
+  it("otra burger sin aviso activo no muestra nada", () => {
+    const message = text({
+      items: [{ key: "burger:cheese:doble", name: "Cheese", qty: 1, meta: { type: "burger", size: "doble", burgerId: "cheese" } }],
+      burgersById: { american: americanSinLechuga, cheese: { id: "cheese" } },
+    });
+    expect(message).not.toContain("Aviso:");
+  });
+});

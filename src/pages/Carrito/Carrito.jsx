@@ -234,6 +234,7 @@ export default function Carrito() {
     freeMeatPromo: couponsBlocked ? null : freeMeatPromo,
     deliveryQuote,
     location: selectedLocation,
+    burgersById,
   });
   const sendEnabled = !isClosed && canSend;
 

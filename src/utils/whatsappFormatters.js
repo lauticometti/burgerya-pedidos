@@ -5,6 +5,7 @@
 
 import { getArgentinaName } from "./argentinaNames";
 import { formatExtrasNames } from "./extrasFormatting";
+import { getEffectiveNotice } from "./availability";
 import {
   FRIES_UPGRADE_TICKET_LINE,
   hasFriesUpgrade,
@@ -200,11 +201,21 @@ export function formatPromoPicks(picks, itemType) {
  * especiales, y las que no aparecen con esa linea van normales. Es la unica
  * linea en mayuscula debajo de una burger, para que en cocina no haya que
  * leer el pedido entero para encontrarlas.
+ *
+ * `burgersById` (opcional) deja mostrar el aviso de ingrediente sin stock
+ * vigente (ej. "Sin lechuga") en la comanda: mismo aviso que ya ve el
+ * cliente al elegir la burger (ver utils/availability.js), para que no se
+ * pierda al llegar a cocina.
  */
-export function formatItemModifiers(item) {
+export function formatItemModifiers(item, burgersById = {}) {
   const lines = [];
   const joiner = item.meta?.type === "promo" ? " / " : " + ";
   const isPapasItem = item.meta?.type === "papas";
+
+  if (item.meta?.type === "burger") {
+    const notice = getEffectiveNotice(burgersById[item.meta?.burgerId]);
+    if (notice) lines.push(`  Aviso: ${notice}`);
+  }
 
   if (item.extras?.length) {
     lines.push(`  Agregados: ${formatExtrasNames(item.extras, joiner)}`);

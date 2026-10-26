@@ -27,6 +27,7 @@ export function computeCheckoutValidation({
   whenSlot,
   deliveryQuote,
   location = null,
+  burgersById = {},
 }) {
   const hasDeliveryMode = !!deliveryMode;
   const isDelivery = deliveryMode === "Delivery";
@@ -93,6 +94,7 @@ export function computeCheckoutValidation({
     whenMode,
     whenSlot,
     location: isDelivery ? location : null,
+    burgersById,
   })}`;
 
   return { canSend, missingFields, waHref };
@@ -115,6 +117,7 @@ export default function useCheckoutValidation({
   whenSlot,
   deliveryQuote,
   location = null,
+  burgersById = {},
 }) {
   return React.useMemo(
     () =>
@@ -135,6 +138,7 @@ export default function useCheckoutValidation({
         whenSlot,
         deliveryQuote,
         location,
+        burgersById,
       }),
     [
       deliveryMode,
@@ -153,6 +157,7 @@ export default function useCheckoutValidation({
       whenSlot,
       deliveryQuote,
       location,
+      burgersById,
     ],
   );
 }
