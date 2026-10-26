@@ -20,7 +20,8 @@ export const DAILY_FEATURE_OVERRIDE_ID = "bacon";
 export const DAILY_FEATURE_OVERRIDE_DATE = "2026-10-25";
 
 // Texto del eyebrow cuando usás override manual. null = muestra "RECOMENDADA DEL <DÍA>" normal.
-export const DAILY_FEATURE_OVERRIDE_LABEL = null;
+// Mismo motivo que el cartel de la tele: avisa por qué cambió antes de mostrar la nueva burger.
+export const DAILY_FEATURE_OVERRIDE_LABEL = "SE ACABÓ LA CEBOLLA · RECOMENDADA DEL DOMINGO";
 
 // Día del Amigo: fecha puntual con label especial en vez de DAILY_FEATURE_OVERRIDE_LABEL.
 const FRIENDS_DAY_DATE_KEY = "2026-07-20";
