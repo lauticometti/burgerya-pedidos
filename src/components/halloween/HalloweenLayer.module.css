@@ -1,0 +1,191 @@
+/* Todo es decorativo: no captura toques ni tapa nada clickeable. */
+.layer {
+  pointer-events: none;
+}
+
+/* Brasa naranja abajo + niebla violeta arriba, detras del contenido. */
+.glow {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(90% 45% at 50% 108%, rgba(255, 106, 0, 0.17), transparent 70%),
+    radial-gradient(80% 40% at 50% -6%, rgba(120, 60, 190, 0.13), transparent 70%),
+    radial-gradient(140% 100% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.55));
+  animation: breathe 7s ease-in-out infinite;
+}
+
+.fog {
+  position: fixed;
+  left: -30%;
+  right: -30%;
+  bottom: -10%;
+  height: 45%;
+  z-index: -1;
+  background:
+    radial-gradient(40% 50% at 25% 70%, rgba(200, 200, 220, 0.05), transparent 70%),
+    radial-gradient(35% 45% at 70% 80%, rgba(200, 200, 220, 0.045), transparent 70%);
+  filter: blur(18px);
+  animation: drift 26s ease-in-out infinite alternate;
+}
+
+/* Arañita colgando arriba a la derecha (scrollea con la pagina). */
+.spider {
+  position: absolute;
+  top: 0;
+  right: 18px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #3b3b3b;
+  transform-origin: top center;
+  animation: dangle 5.5s ease-in-out infinite;
+}
+
+.thread {
+  width: 1px;
+  height: 92px;
+  background: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.35));
+}
+
+.spiderBody {
+  width: 26px;
+  height: 26px;
+  margin-top: -6px;
+  filter: drop-shadow(0 0 6px rgba(255, 140, 26, 0.35));
+}
+
+/* Murcielagos: cruzan cada tanto, chiquitos y transparentes. */
+.bat {
+  position: fixed;
+  left: 0;
+  width: 30px;
+  height: 14px;
+  z-index: 40;
+  color: #000;
+  opacity: 0;
+  fill: #050505;
+  filter: drop-shadow(0 0 3px rgba(255, 140, 26, 0.45));
+}
+
+.batA {
+  top: 18%;
+  animation: fly 19s linear infinite;
+  animation-delay: 3s;
+}
+
+.batB {
+  top: 30%;
+  width: 22px;
+  height: 10px;
+  animation: flyBack 23s linear infinite;
+  animation-delay: 11s;
+}
+
+.wings {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: flap 0.28s ease-in-out infinite alternate;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: translateX(-6%);
+  }
+  to {
+    transform: translateX(6%);
+  }
+}
+
+@keyframes dangle {
+  0%,
+  100% {
+    transform: rotate(-3deg) translateY(0);
+  }
+  50% {
+    transform: rotate(3deg) translateY(10px);
+  }
+}
+
+@keyframes flap {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0.45);
+  }
+}
+
+@keyframes fly {
+  0% {
+    transform: translate(-40px, 0);
+    opacity: 0;
+  }
+  2% {
+    opacity: 0.75;
+  }
+  10% {
+    transform: translate(35vw, -30px);
+  }
+  20% {
+    transform: translate(70vw, 10px);
+    opacity: 0.75;
+  }
+  28% {
+    transform: translate(calc(100vw + 40px), -20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(calc(100vw + 40px), -20px);
+    opacity: 0;
+  }
+}
+
+@keyframes flyBack {
+  0% {
+    transform: translate(calc(100vw + 40px), 0) scaleX(-1);
+    opacity: 0;
+  }
+  2% {
+    opacity: 0.6;
+  }
+  12% {
+    transform: translate(60vw, 24px) scaleX(-1);
+  }
+  22% {
+    transform: translate(20vw, -10px) scaleX(-1);
+    opacity: 0.6;
+  }
+  30% {
+    transform: translate(-40px, 10px) scaleX(-1);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-40px, 10px) scaleX(-1);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow,
+  .fog,
+  .spider,
+  .wings {
+    animation: none;
+  }
+
+  .bat {
+    display: none;
+  }
+}

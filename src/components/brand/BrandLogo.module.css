@@ -12,6 +12,8 @@
 
 .wrap {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
   margin: 4px 0 10px;
 }
@@ -33,4 +35,46 @@
 
 .accent {
   color: var(--y);
+}
+
+/* ── Halloween (ver components/halloween/halloweenConfig.js) ── */
+.seasonTag {
+  margin-top: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(255, 140, 26, 0.75);
+}
+
+:global(html.halloween) .text {
+  color: #ff8c1a;
+  text-shadow:
+    0 0 18px rgba(255, 106, 0, 0.45),
+    0 0 42px rgba(255, 106, 0, 0.2);
+  animation: flicker 7s linear infinite;
+}
+
+@keyframes flicker {
+  0%,
+  88%,
+  91%,
+  95%,
+  100% {
+    opacity: 1;
+  }
+  89%,
+  93% {
+    opacity: 0.35;
+  }
+  90%,
+  94% {
+    opacity: 0.8;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(html.halloween) .text {
+    animation: none;
+  }
 }
