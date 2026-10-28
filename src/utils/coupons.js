@@ -33,6 +33,7 @@ export const COUPON_CODES = {
   charly5: "CHARLY5",
   burger10: "BURGER10",
   unamas: "UNAMAS",
+  cortasemana10: "CORTASEMANA10",
 };
 
 // Variantes toleradas para que los clientes puedan escribir "combo ya" con espacios o guiones.
@@ -53,6 +54,8 @@ const CHARLY5_COUPON_EXPIRY_TS = Date.parse("2026-10-05T00:00:00-03:00"); // lun
 const BURGER10_COUPON_START_TS = Date.parse("2026-10-21T00:00:00-03:00"); // miércoles 21/10/2026 00:00 (BA)
 const BURGER10_COUPON_EXPIRY_TS = Date.parse("2026-10-23T00:00:00-03:00"); // vence viernes 23/10/2026 00:00 (BA) -> vale miércoles 21/10 y jueves 22/10
 const UNAMAS_COUPON_EXPIRY_TS = Date.parse("2026-10-21T23:50:00-03:00"); // vale solo miércoles 21/10/2026 hasta las 23:50 (BA)
+const CORTASEMANA10_COUPON_START_TS = Date.parse("2026-10-28T00:00:00-03:00"); // miércoles 28/10/2026 00:00 (BA)
+const CORTASEMANA10_COUPON_EXPIRY_TS = Date.parse("2026-10-30T00:00:00-03:00"); // vence viernes 30/10/2026 00:00 (BA) -> vale miércoles 28/10 y jueves 29/10
 const COMBO_TARGETS = { simple: 12990, doble: 15990 };
 const CHEESE_10_LUCAS_TARGET = 10000;
 
@@ -178,6 +181,13 @@ function isBurger10CouponActive(nowTs = Date.now()) {
   return nowTs >= BURGER10_COUPON_START_TS && nowTs < BURGER10_COUPON_EXPIRY_TS;
 }
 
+function isCortasemana10CouponActive(nowTs = Date.now()) {
+  return (
+    nowTs >= CORTASEMANA10_COUPON_START_TS &&
+    nowTs < CORTASEMANA10_COUPON_EXPIRY_TS
+  );
+}
+
 // Códigos "doble -> triple gratis" (código -> vencimiento). Para sumar otro
 // código con el mismo beneficio, agregarlo acá con su fecha.
 const FREE_MEAT_COUPON_EXPIRY = {
@@ -226,11 +236,15 @@ function hasBurger(cartItems = []) {
 
 // burgerId null/undefined = aplica a cualquier burger, no a una en particular.
 // excludeBurgerIds: ids que quedan afuera aunque matcheen burgerId (o "cualquiera").
+// includeExtras: false deja afuera los agregados (ej. carne extra) de la base
+// del descuento; las papas (parte de la burger, no un "agregado" aparte para
+// el cliente) siempre entran.
 function computeBurgerPercentDiscount(
   cartItems = [],
   burgerId,
   percent,
   excludeBurgerIds = [],
+  includeExtras = true,
 ) {
   return cartItems.reduce((sum, it) => {
     if (it.meta?.type !== "burger") return sum;
@@ -239,10 +253,12 @@ function computeBurgerPercentDiscount(
     if (excludeBurgerIds.includes(itemBurgerId)) return sum;
 
     const papasContext = { size: it.meta?.size, itemType: it.meta?.type };
-    const extrasTotal = (it.extras || []).reduce(
-      (extrasSum, extra) => extrasSum + extra.price,
-      0,
-    );
+    const extrasTotal = includeExtras
+      ? (it.extras || []).reduce(
+          (extrasSum, extra) => extrasSum + extra.price,
+          0,
+        )
+      : 0;
     const papasTotal = (it.papas || []).reduce(
       (papasSum, extra) => papasSum + getPapasUpgradePrice(extra, papasContext),
       0,
@@ -495,6 +511,33 @@ if (normalized === COUPON_CODES.weekend20) {
       appliedCode: COUPON_CODES.burger10,
       discount,
       message: `${COUPON_CODES.burger10} aplicado: 10% off en todas las burgers y sus agregados`,
+    };
+  }
+
+  if (normalized === COUPON_CODES.cortasemana10) {
+    if (!isCortasemana10CouponActive(nowTs)) {
+      return {
+        error: `${COUPON_CODES.cortasemana10} es válido miércoles 28/10 y jueves 29/10 (BA)`,
+        discount: 0,
+      };
+    }
+    const discount = computeBurgerPercentDiscount(
+      cartItems,
+      null,
+      0.1,
+      [],
+      false,
+    );
+    if (discount <= 0) {
+      return {
+        error: `${COUPON_CODES.cortasemana10} es 10% off en burgers: agregá una burger al carrito`,
+        discount: 0,
+      };
+    }
+    return {
+      appliedCode: COUPON_CODES.cortasemana10,
+      discount,
+      message: `${COUPON_CODES.cortasemana10} aplicado: 10% off en todas las burgers`,
     };
   }
 
