@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import ToastHost from "./components/ToastHost/ToastHost";
 import WhatsAppFab from "./components/ui/WhatsAppFab";
+import HalloweenLayer from "./components/halloween/HalloweenLayer";
 import Menu from "./pages/Menu/Menu";
 // PROMOS DADAS DE BAJA (2026-08-14). La pagina seguia viva: no habia link en la
 // home, pero se llegaba por /envios -> TopNav -> "Promos", o entrando a /promos
@@ -349,6 +350,7 @@ export default function App() {
 
   return (
     <>
+      <HalloweenLayer />
       <ToastHost />
       <Routes>
         {/* /dbadmin siempre disponible, incluso durante el evento */}
