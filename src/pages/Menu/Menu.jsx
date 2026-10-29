@@ -15,7 +15,7 @@ import {
 import { getBurgerPriceInfo } from "../../utils/burgerPricing";
 import { formatMoney } from "../../utils/formatMoney";
 import { indexById } from "../../utils/indexing";
-import { useStoreStatus } from "../../utils/storeClosedMode";
+import { useStoreStatus, FLASH_15_OFFER_ID } from "../../utils/storeClosedMode";
 import { toast } from "../../utils/toast";
 import { createDipItem } from "../../utils/cartItemBuilders";
 import ComboPremiumBanner from "./ComboPremiumBanner";
@@ -36,6 +36,7 @@ import { MATCH_DAY_CAMPAIGN } from "../../utils/dailyFeaturePromo";
 import { isCokePromoAvailable, canOfferCokePromo, isCokePromoEligibleSize } from "../../utils/cokePromo";
 import CokeGiftFeature from "../../components/promos/CokeGiftFeature";
 import RegaloBanner from "../../components/promos/RegaloBanner";
+import Flash15Banner from "../../components/promos/Flash15Banner";
 import {
   REGALO_BADGE,
   REGALO_RECAP_SUBTITLE,
@@ -102,6 +103,8 @@ export default function Menu() {
     dateKey: storeDateKey,
     minutes: storeMinutes,
     isCokeGiftActive,
+    isFlash15Active,
+    flash15RemainingMinutes,
   } = useStoreStatus();
   const storeParts = { dateKey: storeDateKey, minutes: storeMinutes };
   const { canAddItem, showUnavailableError } = useListingPageActions();
@@ -340,6 +343,11 @@ export default function Menu() {
         ref={burgersRef}
         id="section-burgers"
         className={styles.section}>
+        {/* Flash 15% off en simples/dobles: independiente del resto de las
+            promos, se muestra siempre que esté activa (ver storeClosedMode). */}
+        {isFlash15Active ? (
+          <Flash15Banner remainingMinutes={flash15RemainingMinutes} />
+        ) : null}
         {/* Campaña regalo: reemplaza a la recomendada / combo mientras dura. */}
         {regalo.campaignActive ? (
           <RegaloBanner
@@ -516,6 +524,8 @@ export default function Menu() {
                           </button>
                           {cokeGiftOn && isCokePromoEligibleSize(size) && !info.hasDiscount ? (
                             <div className={styles.cokePromoLabel}>+ COCA GRATIS</div>
+                          ) : info.offerId === FLASH_15_OFFER_ID ? (
+                            <div className={styles.flash15Tag}>-15%</div>
                           ) : null}
                         </div>
                       ))}

@@ -3,6 +3,9 @@ import {
   FRIDAY_TRIPLE_PROMO_DATE_KEY,
   FRIDAY_TRIPLE_PROMO_OFFER_ID,
   DAILY_FEATURE_PROMO_OFFER_ID,
+  FLASH_15_OFFER_ID,
+  FLASH_15_DATE_KEY,
+  FLASH_15_END_MINUTES,
   getStoreNow,
   getStoreStatus,
   getArgentinaTimeParts,
@@ -12,15 +15,12 @@ import { getDailyFeaturePrices } from "./dailyFeaturePromo";
 // Configurable manual offers remain empty unless explicitly activated.
 export const BURGER_PRICE_OFFERS = [];
 
-// FLASH 15% OFF — solo hoy 29/10 hasta las 21:00 (BA), simples y dobles de
-// CUALQUIER burger (no solo la recomendada del día). Triple: no participa,
-// mantiene el precio reco de siempre. Si una burger es además la recomendada
-// del día, getActiveOffer ya elige el precio más bajo entre esta oferta y
-// la del día, así que nunca se pisan ni se acumulan.
-const FLASH_15_OFFER_ID = "flash_15_simple_doble";
-const FLASH_15_DATE_KEY = "2026-10-29";
-const FLASH_15_END_MINUTES = 21 * 60; // 21:00
-
+// FLASH 15% OFF — simples y dobles de CUALQUIER burger (no solo la
+// recomendada del día). Triple: no participa, mantiene el precio reco de
+// siempre. Si una burger es además la recomendada del día, getActiveOffer ya
+// elige el precio más bajo entre esta oferta y la del día, así que nunca se
+// pisan ni se acumulan. Ventana (fecha/hora) definida en storeClosedMode.js,
+// única fuente de verdad también para el banner con cuenta regresiva.
 function getFlash15Offer(burger, size, date = getStoreNow()) {
   if (size === "triple") return null;
   const parts = getArgentinaTimeParts(date);

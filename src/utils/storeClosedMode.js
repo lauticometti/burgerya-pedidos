@@ -15,6 +15,13 @@ export const FRIDAY_TRIPLE_PROMO_OFFER_ID = "friday_triple_same_as_double";
 export const FRIDAY_TRIPLE_PROMO_BADGE_TEXT = "TRIPLE = DOBLE";
 export const DAILY_FEATURE_PROMO_OFFER_ID = "daily_feature";
 
+// Flash 15% off en simples y dobles de cualquier burger, solo hoy hasta las
+// 21hs (BA). Única fuente de verdad de la ventana: utils/burgerPricing.js
+// (precios) y acá (banner + cuenta regresiva) la leen de aquí.
+export const FLASH_15_OFFER_ID = "flash_15_simple_doble";
+export const FLASH_15_DATE_KEY = "2026-10-29";
+export const FLASH_15_END_MINUTES = 21 * 60; // 21:00
+
 const MANUAL_STORE_STATUS_DATE = null;
 export const FORCE_OPEN = false; // override manual: forzar apertura fuera de horario
 export const FORCE_CLOSED = false; // override manual: cierre manual, ignora el horario. Poner en true para cerrar la web entera.
@@ -591,12 +598,17 @@ export function getStoreStatus(date = null) {
 
   const bannerState = getBannerState(parts);
 
+  const isFlash15Active =
+    parts.dateKey === FLASH_15_DATE_KEY && parts.minutes < FLASH_15_END_MINUTES;
+
   return {
     ...parts,
     ...baseStatus,
     ...closedOverrides,
     isRegaloActive,
     isCokeGiftActive,
+    isFlash15Active,
+    flash15RemainingMinutes: isFlash15Active ? FLASH_15_END_MINUTES - parts.minutes : 0,
     isDailyFeaturePromoActive:
       !suspendDailyFeature && dailyFeature !== null && dailyFeature.prices !== null,
     dailyFeatureBurgerId: suspendDailyFeature ? null : dailyFeature?.burgerId || null,
