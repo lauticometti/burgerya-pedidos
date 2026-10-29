@@ -5,11 +5,37 @@ import {
   DAILY_FEATURE_PROMO_OFFER_ID,
   getStoreNow,
   getStoreStatus,
+  getArgentinaTimeParts,
 } from "./storeClosedMode";
 import { getDailyFeaturePrices } from "./dailyFeaturePromo";
 
 // Configurable manual offers remain empty unless explicitly activated.
 export const BURGER_PRICE_OFFERS = [];
+
+// FLASH 15% OFF — solo hoy 29/10 hasta las 21:00 (BA), simples y dobles de
+// CUALQUIER burger (no solo la recomendada del día). Triple: no participa,
+// mantiene el precio reco de siempre. Si una burger es además la recomendada
+// del día, getActiveOffer ya elige el precio más bajo entre esta oferta y
+// la del día, así que nunca se pisan ni se acumulan.
+const FLASH_15_OFFER_ID = "flash_15_simple_doble";
+const FLASH_15_DATE_KEY = "2026-10-29";
+const FLASH_15_END_MINUTES = 21 * 60; // 21:00
+
+function getFlash15Offer(burger, size, date = getStoreNow()) {
+  if (size === "triple") return null;
+  const parts = getArgentinaTimeParts(date);
+  if (parts.dateKey !== FLASH_15_DATE_KEY || parts.minutes >= FLASH_15_END_MINUTES) {
+    return null;
+  }
+  const basePrice = burger?.prices?.[size];
+  if (typeof basePrice !== "number") return null;
+  return {
+    id: FLASH_15_OFFER_ID,
+    finalPrice: Math.round(basePrice * 0.85),
+    label: "15% OFF",
+    badgeText: "15% OFF HOY",
+  };
+}
 
 function getAutomaticOffer(burger, size, date = getStoreNow()) {
   const status = getStoreStatus(date);
@@ -75,6 +101,7 @@ function getActiveOffer(burger, size, date = getStoreNow()) {
   const offers = [
     getAutomaticOffer(burger, size, date),
     getDailyFeatureOffer(burger, size, date),
+    getFlash15Offer(burger, size, date),
     ...BURGER_PRICE_OFFERS,
   ].filter(Boolean);
 
