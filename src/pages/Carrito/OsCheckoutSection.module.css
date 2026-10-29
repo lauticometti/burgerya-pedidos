@@ -1,0 +1,26 @@
+.card {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.title {
+  font-weight: 800;
+}
+
+.consent {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.note {
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.error {
+  color: #c62828;
+  font-weight: 600;
+}

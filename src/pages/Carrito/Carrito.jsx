@@ -49,6 +49,8 @@ import {
 } from "../../utils/regaloCampaign";
 import { getRegaloCartDiscount } from "../../utils/cartLineTotals";
 import RegaloBanner from "../../components/promos/RegaloBanner";
+import OsCheckoutSection from "./OsCheckoutSection";
+import { isOsCheckoutEnabled } from "../../utils/osCheckout";
 
 // Oculta temporalmente el banner de upsell de bebida en el carrito (queda
 // solo el del dip). No borra la lógica: para volver a mostrarlo, poner en true.
@@ -564,6 +566,17 @@ export default function Carrito() {
           ) : null}
         </>
       )}
+      {step === 2 && isOsCheckoutEnabled() ? (
+        // Prueba local de Burger Ya OS (apagado sin VITE_OS_FUNCTIONS_URL).
+        <OsCheckoutSection
+          form={{ deliveryMode, name, address, selectedLocation, cross, pay, payCashAmount, notes, whenMode, whenSlot }}
+          items={cart.items}
+          totals={totals}
+          hasPromo={totals.discountAmount > 0 || couponApplied || regalo.applies}
+          canSend={sendEnabled}
+          isClosed={isClosed}
+        />
+      ) : null}
       {step === 2 ? (
         <div className={styles.sendInfo}>
           <div className={styles.stickyHint}>
