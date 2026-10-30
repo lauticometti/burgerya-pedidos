@@ -1,4 +1,6 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
+import { lazy, Suspense } from "react";
+const Postulaciones = lazy(() => import("./pages/Postulaciones/Postulaciones"));
 import ToastHost from "./components/ToastHost/ToastHost";
 import WhatsAppFab from "./components/ui/WhatsAppFab";
 import HalloweenLayer from "./components/halloween/HalloweenLayer";
@@ -324,6 +326,12 @@ function MaintenancePage() {
 }
 
 export default function App() {
+  const { pathname } = useLocation();
+  // Recruitment remains accessible during menu-only takeovers and sold-out mode.
+  if (pathname.replace(/\/+$/, "") === "/trabaja") {
+    return <Suspense fallback={<p role="status">Cargando postulaciones…</p>}><Postulaciones /></Suspense>;
+  }
+
   // Sold out: tapa toda la web con el aviso, pero /dbadmin sigue andando.
   // Para desactivar: SOLD_OUT_ENABLED = false en pages/SoldOut/soldOutConfig.js.
   if (SOLD_OUT_ENABLED) {
