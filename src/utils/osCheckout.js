@@ -10,8 +10,14 @@
 // WhatsApp (contingencia del piloto). El servidor ademas compara el total que
 // vio el cliente con el suyo y rechaza si no coinciden.
 
-export const OS_FUNCTIONS_URL = import.meta.env.VITE_OS_FUNCTIONS_URL || "";
-export const OS_TRACKING_ORIGIN = import.meta.env.VITE_OS_TRACKING_ORIGIN || "";
+import { safeRandomUUID } from "./uuid";
+
+// "{host}" en la variable = la misma PC desde la que se abrió la web (así anda
+// igual en http://localhost y desde el iPhone en http://192.168.x.x).
+const withHost = (url) =>
+  String(url || "").replace("{host}", typeof window === "undefined" ? "localhost" : window.location.hostname);
+export const OS_FUNCTIONS_URL = withHost(import.meta.env.VITE_OS_FUNCTIONS_URL);
+export const OS_TRACKING_ORIGIN = withHost(import.meta.env.VITE_OS_TRACKING_ORIGIN);
 
 export function isOsCheckoutEnabled() {
   return Boolean(OS_FUNCTIONS_URL && OS_TRACKING_ORIGIN);
@@ -116,11 +122,11 @@ export function idempotencyKeyFor(payloadWithoutKey) {
   try {
     const saved = JSON.parse(window.sessionStorage.getItem(KEY_STORAGE) || "null");
     if (saved?.fingerprint === fingerprint) return saved.key;
-    const key = crypto.randomUUID();
+    const key = safeRandomUUID();
     window.sessionStorage.setItem(KEY_STORAGE, JSON.stringify({ fingerprint, key }));
     return key;
   } catch {
-    return crypto.randomUUID();
+    return safeRandomUUID();
   }
 }
 

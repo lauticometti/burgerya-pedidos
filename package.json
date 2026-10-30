@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "dev:os": "vite --mode os --port 5175 --strictPort"
+    "dev:os": "vite --mode os --port 5175 --strictPort --host"
   },
   "dependencies": {
     "mapbox-gl": "^3.31.0",
