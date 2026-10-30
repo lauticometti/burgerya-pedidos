@@ -14,7 +14,7 @@ export default function useCarritoTimeSlots(whenMode, whenSlot, setWhenSlot) {
 
   // Auto-select first available slot when "Más tarde" is chosen
   React.useEffect(() => {
-    if (whenMode === "Más tarde" && !whenSlot && availableSlots.length) {
+    if (whenMode === "Mas tarde" && !whenSlot && availableSlots.length) {
       setWhenSlot(minutesToHHMM(availableSlots[0]));
     }
   }, [whenMode, whenSlot, availableSlots, setWhenSlot]);

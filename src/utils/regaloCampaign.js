@@ -125,14 +125,14 @@ function readSavedWhen() {
   }
 }
 
-function getWhenSnapshot() {
+export function getWhenSnapshot() {
   if (!currentWhen) {
     currentWhen = typeof window === "undefined" ? { whenMode: "Ahora", whenSlot: "" } : readSavedWhen();
   }
   return currentWhen;
 }
 
-function subscribeWhen(listener) {
+export function subscribeWhen(listener) {
   listeners.add(listener);
   return () => listeners.delete(listener);
 }
@@ -148,9 +148,17 @@ export function setRegaloWhen(whenMode, whenSlot) {
 // a la pestaña, via useStoreStatus) y cuando cambia el horario elegido.
 export function useRegaloState() {
   const { dateKey, minutes } = useStoreStatus();
-  const when = useSyncExternalStore(subscribeWhen, getWhenSnapshot, getWhenSnapshot);
+  const when = useWhenSelection();
   // dateKey/minutes solo fuerzan el re-render en cada tick del reloj.
   void dateKey;
   void minutes;
   return getRegaloState(when);
+}
+
+// Horario elegido ({ whenMode, whenSlot }), genérico: lo usa cualquier promo
+// que necesite saber "para cuándo es el pedido" fuera del carrito (ej. el
+// flash 15% al armar el precio en CartProvider/Menu). No calcula nada de
+// regalo, solo expone el valor sincronizado.
+export function useWhenSelection() {
+  return useSyncExternalStore(subscribeWhen, getWhenSnapshot, getWhenSnapshot);
 }

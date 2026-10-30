@@ -11,7 +11,8 @@ import {
   mergeCokeGifts,
   syncCokeGiftItems,
 } from "../utils/cokePromo";
-import { useStoreStatus } from "../utils/storeClosedMode";
+import { useStoreStatus, getPricingDateForWhen } from "../utils/storeClosedMode";
+import { useWhenSelection } from "../utils/regaloCampaign";
 import { buildBurgerVariantDraft } from "../utils/cartKeys";
 import {
   createFriesUpgradeEntry,
@@ -246,6 +247,7 @@ export function CartProvider({ children }) {
     loadPersistedState,
   );
   const { dateKey, minutes, isRegaloActive } = useStoreStatus();
+  const { whenMode, whenSlot } = useWhenSelection();
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.__cartHadRemovedItems) {
@@ -298,7 +300,11 @@ export function CartProvider({ children }) {
       const size = item.meta?.size;
       if (!burger || !size) return acc;
 
-      const priceInfo = getBurgerPriceInfo(burger, size);
+      // "Más tarde" para un horario después del cierre del flash 15% no debe
+      // cobrar el precio de la promo, aunque "ahora" sí esté dentro de la
+      // ventana (ver getPricingDateForWhen).
+      const pricingDate = getPricingDateForWhen({ whenMode, whenSlot });
+      const priceInfo = getBurgerPriceInfo(burger, size, pricingDate);
       const nextMeta = {
         basePrice: priceInfo.basePrice,
         discountAmount: priceInfo.discountAmount,
@@ -326,7 +332,7 @@ export function CartProvider({ children }) {
     if (updates.length > 0) {
       dispatch({ type: "REPRICE_ITEMS", updates });
     }
-  }, [burgersById, dateKey, minutes, isRegaloActive, state.items]);
+  }, [burgersById, dateKey, minutes, isRegaloActive, whenMode, whenSlot, state.items]);
 
   // Coca 600 de regalo: las lineas de regalo se derivan de meta.cokeGifts de
   // cada burger doble/triple (una por unidad). Borrar o bajar una burger saca

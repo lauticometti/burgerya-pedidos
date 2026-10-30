@@ -15,7 +15,11 @@ import {
 import { getBurgerPriceInfo } from "../../utils/burgerPricing";
 import { formatMoney } from "../../utils/formatMoney";
 import { indexById } from "../../utils/indexing";
-import { useStoreStatus, FLASH_15_OFFER_ID } from "../../utils/storeClosedMode";
+import {
+  useStoreStatus,
+  getPricingDateForWhen,
+  FLASH_15_OFFER_ID,
+} from "../../utils/storeClosedMode";
 import { toast } from "../../utils/toast";
 import { createDipItem } from "../../utils/cartItemBuilders";
 import ComboPremiumBanner from "./ComboPremiumBanner";
@@ -44,6 +48,7 @@ import {
   getRegaloPrice,
   isRegaloRecapActive,
   useRegaloState,
+  useWhenSelection,
 } from "../../utils/regaloCampaign";
 import { getRegaloCartDiscount } from "../../utils/cartLineTotals";
 import styles from "./Menu.module.css";
@@ -113,6 +118,10 @@ export default function Menu() {
   const cokeGiftOn = isCokeGiftActive && isCokePromoAvailable();
   const regalo = useRegaloState();
   const showRegaloPrices = regalo.showPromoPrices;
+  // "Más tarde" para un horario después de las 21 no debe mostrar/cobrar el
+  // precio del flash 15% (ver getPricingDateForWhen).
+  const { whenMode, whenSlot } = useWhenSelection();
+  const flash15PricingDate = getPricingDateForWhen({ whenMode, whenSlot });
 
   // Burger modal state
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -277,7 +286,7 @@ export default function Menu() {
       return;
     }
 
-    const price = getBurgerPriceInfo(burger, size);
+    const price = getBurgerPriceInfo(burger, size, flash15PricingDate);
     const cartItem = buildBurgerCartItem(burger, size, price, removedIngredients, extras, papas);
 
     // Doble o triple con la promo activa: elegir la Coca de regalo.
@@ -431,9 +440,9 @@ export default function Menu() {
             const isUnavailable = isItemUnavailable(burger);
             const unavailableReason = getUnavailableReason(burger);
 
-            const simplePrice = getBurgerPriceInfo(burger, "simple");
-            const doublePrice = getBurgerPriceInfo(burger, "doble");
-            const triplePrice = getBurgerPriceInfo(burger, "triple");
+            const simplePrice = getBurgerPriceInfo(burger, "simple", flash15PricingDate);
+            const doublePrice = getBurgerPriceInfo(burger, "doble", flash15PricingDate);
+            const triplePrice = getBurgerPriceInfo(burger, "triple", flash15PricingDate);
 
             return (
               <article

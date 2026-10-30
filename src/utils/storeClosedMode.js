@@ -255,6 +255,30 @@ export function getArgentinaTimeParts(date = null) {
   };
 }
 
+// Precio del flash 15% atado al HORARIO DEL PEDIDO, no al momento en que se
+// agrega al carrito: si eligen "Más tarde" para un horario que cae a partir
+// de FLASH_15_END_MINUTES, el precio se calcula como si ya hubiera pasado
+// esa hora (sin promo), aunque "ahora" sí esté dentro de la ventana. Así no
+// se puede agendar un pedido para después de las 21 y pagar igual el 15% off.
+// Devuelve el Date a pasarle a getBurgerPriceInfo/getBurgerPrice.
+export function getPricingDateForWhen({ whenMode, whenSlot, now = null } = {}) {
+  const resolvedNow = now instanceof Date ? now : getNowDate();
+  if (whenMode !== "Mas tarde" || !whenSlot) return resolvedNow;
+
+  const match = /^(\d{2}):(\d{2})$/.exec(String(whenSlot));
+  if (!match) return resolvedNow;
+  const slotMinutes = Number(match[1]) * 60 + Number(match[2]);
+  if (slotMinutes < FLASH_15_END_MINUTES) return resolvedNow;
+
+  const parts = getArgentinaTimeParts(resolvedNow);
+  if (parts.dateKey !== FLASH_15_DATE_KEY) return resolvedNow;
+
+  // Empuja el "ahora" usado para precios a un minuto después del cierre del
+  // flash, sin tocar nada más: mismo día, misma recomendada del día, etc.
+  const minutesPastEnd = FLASH_15_END_MINUTES + 1 - parts.minutes;
+  return new Date(resolvedNow.getTime() + minutesPastEnd * 60_000);
+}
+
 function buildStatusState(overrides = {}) {
   return {
     stateId: "alwaysOpen",
