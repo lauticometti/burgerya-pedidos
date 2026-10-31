@@ -26,7 +26,7 @@ export const burgers = [
     prices: { simple: 12500, doble: 16500, triple: 20500 },
     desc: "Cebolla caramelizada · Salsa especial",
     notice: "Sin ceb. caramelizada",
-    noticeSince: "2026-10-25",
+    noticeSince: "2026-10-30",
     noticeShift: "noche",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
@@ -78,7 +78,7 @@ export const burgers = [
     prices: { simple: 13000, doble: 17000, triple: 21000 },
     desc: "Bacon · Cebolla caramelizada · Tomate · Salsa barbacoa",
     notice: "Sin ceb. caramelizada",
-    noticeSince: "2026-10-25",
+    noticeSince: "2026-10-30",
     noticeShift: "noche",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
@@ -150,7 +150,7 @@ export const extras = [
     price: 500,
     isAvailable: 0,
     unavailableReason: "Sin stock",
-    unavailableSince: "2026-10-25",
+    unavailableSince: "2026-10-30",
     unavailableShift: "noche",
   },
   { id: "pepinos", name: "Pepinos", price: 500, isAvailable: 1 },
