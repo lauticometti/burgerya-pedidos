@@ -25,6 +25,14 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+        env:
+          # El sitio se sirve en burgerya.com.ar (dominio propio, raíz "/"),
+          # no en lauticometti.github.io/burgerya-pedidos/. Sin esto,
+          # vite.config.js arma el build para ese subpath ("/burgerya-pedidos/")
+          # por estar en GitHub Actions, y en burgerya.com.ar los assets
+          # (JS/CSS) tiran 404: la página queda en blanco porque React nunca
+          # llega a cargar.
+          VITE_BASE: /
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -6,12 +6,13 @@
     <title>Redirecting...</title>
     <script type="text/javascript">
       (function () {
+        // El sitio se sirve en la raiz del dominio (burgerya.com.ar), no en
+        // un subpath de GitHub Pages: no hay que adivinar/recortar ningun
+        // segmento de proyecto, solo redirigir la ruta tal cual.
         var l = window.location;
-        var segments = l.pathname.split("/");
-        var base = "/" + (segments[1] || "") + "/";
-        var path = l.pathname.replace(base, "");
+        var path = l.pathname.slice(1);
         var search = l.search ? l.search.replace(/&/g, "~and~") : "";
-        var redirect = base + "?/" + path + search + l.hash;
+        var redirect = "/?/" + path + search + l.hash;
         l.replace(redirect);
       })();
     </script>
