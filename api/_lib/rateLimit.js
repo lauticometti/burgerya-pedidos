@@ -46,7 +46,13 @@ const cfg = {
   maxReversePerDay: Number(process.env.MAX_REVERSE_LOOKUPS_PER_DAY ?? 2000),
   maxReversePerMonth: Number(process.env.MAX_REVERSE_LOOKUPS_PER_MONTH ?? 30000),
   // --- Sesiones nuevas (fusibles globales + por IP): sin cambios. ---
-  ipNewSessionsPerHour: Number(process.env.RATE_LIMIT_IP_NEW_SESSIONS_PER_HOUR ?? 20),
+  // Subido de 20 a 60: muchos operadores moviles en Argentina comparten una
+  // misma IP publica entre un monton de clientes (NAT de operador), y el
+  // navegador interno de Instagram no suele persistir cookies entre visitas
+  // (cada entrada cuenta como sesion nueva). Un viernes a la noche con varios
+  // pedidos simultaneos desde el mismo barrio/operador alcanzaba las 20 y
+  // bloqueaba a clientes reales que no hicieron nada raro ("se bloqueo").
+  ipNewSessionsPerHour: Number(process.env.RATE_LIMIT_IP_NEW_SESSIONS_PER_HOUR ?? 60),
   maxSessionsPerDay: Number(process.env.MAX_ADDRESS_SEARCH_SESSIONS_PER_DAY ?? 300),
   maxSessionsPerMonth: Number(process.env.MAX_ADDRESS_SEARCH_SESSIONS_PER_MONTH ?? 5000),
 };
