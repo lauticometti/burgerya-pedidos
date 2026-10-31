@@ -75,16 +75,46 @@ const WEEKDAY_KEY_BY_INDEX = [
   "sabado",
 ];
 
-const argentinaDateTimeFormatter = new Intl.DateTimeFormat("en-US", {
-  timeZone: ARGENTINA_TIME_ZONE,
-  weekday: "short",
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-  hourCycle: "h23",
-});
+// Algunos navegadores/WebViews viejos (ej. el navegador interno de
+// Instagram en celulares Android desactualizados) no traen datos de zona
+// horaria con nombre y Intl.DateTimeFormat tira RangeError apenas se crea,
+// ANTES de que React llegue a pintar nada: la página queda en blanco sin
+// ningún aviso. Como esto corre a nivel de módulo (se ejecuta al cargar la
+// app en cualquier pantalla), un fallo acá rompe la web entera para ese
+// dispositivo puntual, aunque funcione perfecto en otros.
+//
+// Fallback: Argentina tiene UTC-3 fijo, sin horario de verano desde 2009, así
+// que calcular la hora a mano (sin Intl) da exactamente el mismo resultado.
+let argentinaDateTimeFormatter = null;
+try {
+  argentinaDateTimeFormatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: ARGENTINA_TIME_ZONE,
+    weekday: "short",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  });
+} catch {
+  argentinaDateTimeFormatter = null;
+}
+
+const ARGENTINA_OFFSET_MS = 3 * 60 * 60 * 1000; // UTC-3 fijo
+const UTC_WEEKDAY_ABBR = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+function getArgentinaPartsManual(date) {
+  const shifted = new Date(date.getTime() - ARGENTINA_OFFSET_MS);
+  return {
+    weekday: UTC_WEEKDAY_ABBR[shifted.getUTCDay()],
+    year: String(shifted.getUTCFullYear()),
+    month: String(shifted.getUTCMonth() + 1).padStart(2, "0"),
+    day: String(shifted.getUTCDate()).padStart(2, "0"),
+    hour: String(shifted.getUTCHours()).padStart(2, "0"),
+    minute: String(shifted.getUTCMinutes()).padStart(2, "0"),
+  };
+}
 
 const subscribers = new Set();
 let tickTimeoutId = null;
@@ -231,14 +261,20 @@ function subscribe(listener) {
 
 export function getArgentinaTimeParts(date = null) {
   const resolvedDate = date instanceof Date ? date : getNowDate();
-  const parts = argentinaDateTimeFormatter
-    .formatToParts(resolvedDate)
-    .reduce((acc, part) => {
-      if (part.type !== "literal") {
-        acc[part.type] = part.value;
-      }
-      return acc;
-    }, {});
+  let parts;
+  try {
+    if (!argentinaDateTimeFormatter) throw new Error("no Intl formatter");
+    parts = argentinaDateTimeFormatter
+      .formatToParts(resolvedDate)
+      .reduce((acc, part) => {
+        if (part.type !== "literal") {
+          acc[part.type] = part.value;
+        }
+        return acc;
+      }, {});
+  } catch {
+    parts = getArgentinaPartsManual(resolvedDate);
+  }
   const day = WEEKDAY_INDEX[parts.weekday];
   const hour = Number(parts.hour);
   const minute = Number(parts.minute);
