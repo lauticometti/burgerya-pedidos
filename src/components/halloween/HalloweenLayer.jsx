@@ -38,8 +38,8 @@ export default function HalloweenLayer() {
           </g>
           <ellipse cx="20" cy="17" rx="4.2" ry="4" fill="currentColor" />
           <ellipse cx="20" cy="25" rx="6.4" ry="7.2" fill="currentColor" />
-          <circle cx="18.4" cy="16.4" r="0.9" fill="#ff8c1a" />
-          <circle cx="21.6" cy="16.4" r="0.9" fill="#ff8c1a" />
+          <circle cx="18.4" cy="16.4" r="0.9" fill="#ffffff" />
+          <circle cx="21.6" cy="16.4" r="0.9" fill="#ffffff" />
         </svg>
       </div>
       <Bat className={`${styles.bat} ${styles.batA}`} />
