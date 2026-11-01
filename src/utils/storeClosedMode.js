@@ -15,12 +15,14 @@ export const FRIDAY_TRIPLE_PROMO_OFFER_ID = "friday_triple_same_as_double";
 export const FRIDAY_TRIPLE_PROMO_BADGE_TEXT = "TRIPLE = DOBLE";
 export const DAILY_FEATURE_PROMO_OFFER_ID = "daily_feature";
 
-// Flash 30% off en simples y dobles de cualquier burger, solo hoy hasta las
-// 21hs (BA). Única fuente de verdad de la ventana: utils/burgerPricing.js
-// (precios) y acá (banner + cuenta regresiva) la leen de aquí.
+// Flash 30% off en simples y dobles de cualquier burger, hoy. Única fuente
+// de verdad de la ventana: utils/burgerPricing.js (precios) y acá (banner +
+// cuenta regresiva) la leen de aquí.
+// Cortada antes de horario (se vendió todo) el 1/11 a las 20:55 — ver
+// FLASH_15_SOLDOUT_* más abajo para el aviso que la reemplaza el resto del día.
 export const FLASH_15_OFFER_ID = "flash_15_simple_doble";
 export const FLASH_15_DATE_KEY = "2026-11-01";
-export const FLASH_15_END_MINUTES = 21 * 60; // 21:00
+export const FLASH_15_END_MINUTES = 20 * 60 + 55; // 20:55
 
 const MANUAL_STORE_STATUS_DATE = null;
 export const FORCE_OPEN = false; // override manual: forzar apertura fuera de horario
@@ -670,6 +672,11 @@ export function getStoreStatus(date = null) {
 
   const isFlash15Active =
     parts.dateKey === FLASH_15_DATE_KEY && parts.minutes < FLASH_15_END_MINUTES;
+  // Reemplaza al banner del flash el resto del día en que se cortó (se
+  // vendió todo): mismo dateKey, después del cierre. Al otro día el dateKey
+  // ya no matchea y se apaga solo, sin que haga falta volver a tocar esto.
+  const isFlash15SoldOut =
+    parts.dateKey === FLASH_15_DATE_KEY && parts.minutes >= FLASH_15_END_MINUTES;
 
   return {
     ...parts,
@@ -678,6 +685,7 @@ export function getStoreStatus(date = null) {
     isRegaloActive,
     isCokeGiftActive,
     isFlash15Active,
+    isFlash15SoldOut,
     isDailyFeaturePromoActive:
       !suspendDailyFeature && dailyFeature !== null && dailyFeature.prices !== null,
     dailyFeatureBurgerId: suspendDailyFeature ? null : dailyFeature?.burgerId || null,

@@ -41,6 +41,7 @@ import { isCokePromoAvailable, canOfferCokePromo, isCokePromoEligibleSize } from
 import CokeGiftFeature from "../../components/promos/CokeGiftFeature";
 import RegaloBanner from "../../components/promos/RegaloBanner";
 import Flash15Banner from "../../components/promos/Flash15Banner";
+import PromoSoldOutBanner from "../../components/promos/PromoSoldOutBanner";
 import {
   REGALO_BADGE,
   REGALO_RECAP_SUBTITLE,
@@ -109,6 +110,7 @@ export default function Menu() {
     minutes: storeMinutes,
     isCokeGiftActive,
     isFlash15Active,
+    isFlash15SoldOut,
   } = useStoreStatus();
   const storeParts = { dateKey: storeDateKey, minutes: storeMinutes };
   const { canAddItem, showUnavailableError } = useListingPageActions();
@@ -352,9 +354,13 @@ export default function Menu() {
         id="section-burgers"
         className={styles.section}>
         {/* Flash 30% off en simples/dobles: independiente del resto de las
-            promos, se muestra siempre que esté activa (ver storeClosedMode). */}
+            promos, se muestra siempre que esté activa (ver storeClosedMode).
+            Si se corta antes de horario, el aviso de sold out ocupa su lugar
+            el resto del día. */}
         {isFlash15Active ? (
           <Flash15Banner />
+        ) : isFlash15SoldOut ? (
+          <PromoSoldOutBanner />
         ) : null}
         {/* Campaña regalo: reemplaza a la recomendada / combo mientras dura. */}
         {regalo.campaignActive ? (
