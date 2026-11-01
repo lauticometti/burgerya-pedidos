@@ -109,7 +109,6 @@ export default function Menu() {
     minutes: storeMinutes,
     isCokeGiftActive,
     isFlash15Active,
-    flash15RemainingMinutes,
   } = useStoreStatus();
   const storeParts = { dateKey: storeDateKey, minutes: storeMinutes };
   const { canAddItem, showUnavailableError } = useListingPageActions();
@@ -355,7 +354,7 @@ export default function Menu() {
         {/* Flash 30% off en simples/dobles: independiente del resto de las
             promos, se muestra siempre que esté activa (ver storeClosedMode). */}
         {isFlash15Active ? (
-          <Flash15Banner remainingMinutes={flash15RemainingMinutes} />
+          <Flash15Banner />
         ) : null}
         {/* Campaña regalo: reemplaza a la recomendada / combo mientras dura. */}
         {regalo.campaignActive ? (

@@ -1,19 +1,37 @@
+import { useEffect, useState } from "react";
+import { getFlash15EndTimestamp } from "../../utils/storeClosedMode";
 import styles from "./Flash15Banner.module.css";
 
-// Cuenta regresiva en base a los minutos que quedan (useStoreStatus ya
-// re-renderiza este componente cada minuto, así que no hace falta timer propio).
-function formatRemaining(totalMinutes) {
-  const h = Math.floor(totalMinutes / 60);
-  const m = totalMinutes % 60;
-  if (h <= 0) return `${m} min`;
-  if (m === 0) return `${h}h`;
-  return `${h}h ${m}min`;
+function getRemainingSeconds() {
+  return Math.max(Math.round((getFlash15EndTimestamp() - Date.now()) / 1000), 0);
+}
+
+// "1:04:30" con horas, "4:30" sin. Ancho estable (tabular-nums en el CSS)
+// para que no salte al cambiar de dígito.
+function formatRemaining(totalSeconds) {
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+  const mm = String(m).padStart(2, "0");
+  const ss = String(s).padStart(2, "0");
+  return h > 0 ? `${h}:${mm}:${ss}` : `${m}:${ss}`;
 }
 
 // Banner de la promo flash 30% off (ver utils/storeClosedMode.js para la
 // ventana de fecha/hora). Solo se renderiza mientras isFlash15Active esté
-// prendido — lo decide quien lo usa con useStoreStatus().
-export default function Flash15Banner({ remainingMinutes }) {
+// prendido — lo decide quien lo usa con useStoreStatus(). La cuenta
+// regresiva corre acá misma, segundo a segundo, con timer propio: el reloj
+// que usa el resto del sitio solo tickea una vez por minuto.
+export default function Flash15Banner() {
+  const [remainingSeconds, setRemainingSeconds] = useState(getRemainingSeconds);
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setRemainingSeconds(getRemainingSeconds());
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, []);
+
   return (
     <section className={styles.wrapper} aria-live="polite">
       <span className={styles.bolt} aria-hidden="true">⚡</span>
@@ -23,7 +41,7 @@ export default function Flash15Banner({ remainingMinutes }) {
       </div>
       <div className={styles.countdown}>
         <span className={styles.countdownLabel}>Termina en</span>
-        <span className={styles.countdownValue}>{formatRemaining(remainingMinutes)}</span>
+        <span className={styles.countdownValue}>{formatRemaining(remainingSeconds)}</span>
       </div>
     </section>
   );

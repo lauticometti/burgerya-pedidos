@@ -315,6 +315,16 @@ export function getPricingDateForWhen({ whenMode, whenSlot, now = null } = {}) {
   return new Date(resolvedNow.getTime() + minutesPastEnd * 60_000);
 }
 
+// Instante exacto (epoch ms) en que termina el flash, para el countdown en
+// tiempo real (segundo a segundo) del banner — ver
+// components/promos/Flash15Banner.jsx. Independiente del reloj de a minuto
+// que usa el resto del sitio (ver startClock más abajo).
+export function getFlash15EndTimestamp() {
+  const hh = String(Math.floor(FLASH_15_END_MINUTES / 60)).padStart(2, "0");
+  const mm = String(FLASH_15_END_MINUTES % 60).padStart(2, "0");
+  return Date.parse(`${FLASH_15_DATE_KEY}T${hh}:${mm}:00-03:00`);
+}
+
 function buildStatusState(overrides = {}) {
   return {
     stateId: "alwaysOpen",
@@ -668,7 +678,6 @@ export function getStoreStatus(date = null) {
     isRegaloActive,
     isCokeGiftActive,
     isFlash15Active,
-    flash15RemainingMinutes: isFlash15Active ? FLASH_15_END_MINUTES - parts.minutes : 0,
     isDailyFeaturePromoActive:
       !suspendDailyFeature && dailyFeature !== null && dailyFeature.prices !== null,
     dailyFeatureBurgerId: suspendDailyFeature ? null : dailyFeature?.burgerId || null,
