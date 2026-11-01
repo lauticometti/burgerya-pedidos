@@ -34,7 +34,6 @@ export default function Flash15Banner() {
 
   return (
     <section className={styles.wrapper} aria-live="polite">
-      <span className={styles.bolt} aria-hidden="true">⚡</span>
       <div className={styles.text}>
         <p className={styles.title}>30% OFF en simples y dobles</p>
         <p className={styles.sub}>Todas las burgers · Solo por hoy</p>
