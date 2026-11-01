@@ -15,11 +15,11 @@ export const FRIDAY_TRIPLE_PROMO_OFFER_ID = "friday_triple_same_as_double";
 export const FRIDAY_TRIPLE_PROMO_BADGE_TEXT = "TRIPLE = DOBLE";
 export const DAILY_FEATURE_PROMO_OFFER_ID = "daily_feature";
 
-// Flash 15% off en simples y dobles de cualquier burger, solo hoy hasta las
+// Flash 30% off en simples y dobles de cualquier burger, solo hoy hasta las
 // 21hs (BA). Única fuente de verdad de la ventana: utils/burgerPricing.js
 // (precios) y acá (banner + cuenta regresiva) la leen de aquí.
 export const FLASH_15_OFFER_ID = "flash_15_simple_doble";
-export const FLASH_15_DATE_KEY = "2026-10-29";
+export const FLASH_15_DATE_KEY = "2026-11-01";
 export const FLASH_15_END_MINUTES = 21 * 60; // 21:00
 
 const MANUAL_STORE_STATUS_DATE = null;
@@ -291,11 +291,11 @@ export function getArgentinaTimeParts(date = null) {
   };
 }
 
-// Precio del flash 15% atado al HORARIO DEL PEDIDO, no al momento en que se
+// Precio del flash 30% atado al HORARIO DEL PEDIDO, no al momento en que se
 // agrega al carrito: si eligen "Más tarde" para un horario que cae a partir
 // de FLASH_15_END_MINUTES, el precio se calcula como si ya hubiera pasado
 // esa hora (sin promo), aunque "ahora" sí esté dentro de la ventana. Así no
-// se puede agendar un pedido para después de las 21 y pagar igual el 15% off.
+// se puede agendar un pedido para después de las 21 y pagar igual el 30% off.
 // Devuelve el Date a pasarle a getBurgerPriceInfo/getBurgerPrice.
 export function getPricingDateForWhen({ whenMode, whenSlot, now = null } = {}) {
   const resolvedNow = now instanceof Date ? now : getNowDate();

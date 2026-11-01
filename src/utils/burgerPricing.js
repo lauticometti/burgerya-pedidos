@@ -15,7 +15,7 @@ import { getDailyFeaturePrices } from "./dailyFeaturePromo";
 // Configurable manual offers remain empty unless explicitly activated.
 export const BURGER_PRICE_OFFERS = [];
 
-// FLASH 15% OFF — simples y dobles de CUALQUIER burger (no solo la
+// FLASH 30% OFF — simples y dobles de CUALQUIER burger (no solo la
 // recomendada del día). Triple: no participa, mantiene el precio reco de
 // siempre. Si una burger es además la recomendada del día, getActiveOffer ya
 // elige el precio más bajo entre esta oferta y la del día, así que nunca se
@@ -31,9 +31,9 @@ function getFlash15Offer(burger, size, date = getStoreNow()) {
   if (typeof basePrice !== "number") return null;
   return {
     id: FLASH_15_OFFER_ID,
-    finalPrice: Math.round(basePrice * 0.85),
-    label: "15% OFF",
-    badgeText: "15% OFF HOY",
+    finalPrice: Math.round(basePrice * 0.7),
+    label: "30% OFF",
+    badgeText: "30% OFF HOY",
   };
 }
 

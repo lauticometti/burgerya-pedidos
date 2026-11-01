@@ -352,7 +352,7 @@ export default function Menu() {
         ref={burgersRef}
         id="section-burgers"
         className={styles.section}>
-        {/* Flash 15% off en simples/dobles: independiente del resto de las
+        {/* Flash 30% off en simples/dobles: independiente del resto de las
             promos, se muestra siempre que esté activa (ver storeClosedMode). */}
         {isFlash15Active ? (
           <Flash15Banner remainingMinutes={flash15RemainingMinutes} />
@@ -534,7 +534,7 @@ export default function Menu() {
                           {cokeGiftOn && isCokePromoEligibleSize(size) && !info.hasDiscount ? (
                             <div className={styles.cokePromoLabel}>+ COCA GRATIS</div>
                           ) : info.offerId === FLASH_15_OFFER_ID ? (
-                            <div className={styles.flash15Tag}>-15%</div>
+                            <div className={styles.flash15Tag}>-30%</div>
                           ) : null}
                         </div>
                       ))}
