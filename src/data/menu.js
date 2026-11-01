@@ -167,7 +167,10 @@ export const dips = [
     ingredients: "Mayonesa, ketchup, mostaza y algo más.",
     price: 1000,
     img: "/dips/dip-salsa-secreta.svg",
-    isAvailable: 1,
+    isAvailable: 0,
+    unavailableReason: "Sin stock",
+    unavailableSince: "2026-11-01",
+    unavailableShift: "noche",
   },
 ];
 
