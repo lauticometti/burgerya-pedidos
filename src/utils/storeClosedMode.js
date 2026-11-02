@@ -42,10 +42,10 @@ export const SOLD_OUT_NOTICE_DATE = "2026-09-18";
 export const TEMP_CLOSURE = {
   enabled: true,
   dateKey: "2026-11-01",
-  startMinutes: 21 * 60 + 6, // 21:06
-  endMinutes: 21 * 60 + 36, // 21:36
+  startMinutes: 22 * 60 + 3, // 22:03
+  endMinutes: 22 * 60 + 48, // 22:48
   message:
-    "Estamos 100% saturados. Volvemos a tomar pedidos en 30 minutos.",
+    "Estamos 100% saturados. Volvemos a tomar pedidos en 45 minutos.",
 };
 
 function isTempClosureActive(parts) {
