@@ -40,7 +40,7 @@ export const SOLD_OUT_NOTICE_DATE = "2026-09-18";
 // hoy. Se reabre solo al llegar endMinutes, sin que nadie tenga que volver
 // a tocar esto. Para cerrar de nuevo: actualizar dateKey/start/end.
 export const TEMP_CLOSURE = {
-  enabled: true,
+  enabled: false, // reabierta a mano a las 22:38, antes de que cerrara sola
   dateKey: "2026-11-01",
   startMinutes: 22 * 60 + 3, // 22:03
   endMinutes: 22 * 60 + 48, // 22:48
