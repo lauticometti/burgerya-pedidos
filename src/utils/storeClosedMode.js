@@ -35,6 +35,28 @@ export const SOLD_OUT_NOTICE =
   "¡Gracias por bancarnos hoy! Estamos saturados de pedidos, por hoy no tomamos más.";
 export const SOLD_OUT_NOTICE_DATE = "2026-09-18";
 
+// Cierre manual puntual (saturación, etc.): cierra el local (bloquea el
+// envío del pedido, igual que FORCE_CLOSED) solo durante esta ventana de
+// hoy. Se reabre solo al llegar endMinutes, sin que nadie tenga que volver
+// a tocar esto. Para cerrar de nuevo: actualizar dateKey/start/end.
+export const TEMP_CLOSURE = {
+  enabled: true,
+  dateKey: "2026-11-01",
+  startMinutes: 21 * 60 + 6, // 21:06
+  endMinutes: 21 * 60 + 36, // 21:36
+  message:
+    "Estamos 100% saturados. Volvemos a tomar pedidos en 30 minutos.",
+};
+
+function isTempClosureActive(parts) {
+  return (
+    TEMP_CLOSURE.enabled &&
+    parts.dateKey === TEMP_CLOSURE.dateKey &&
+    parts.minutes >= TEMP_CLOSURE.startMinutes &&
+    parts.minutes < TEMP_CLOSURE.endMinutes
+  );
+}
+
 const FERIADOS_SET = new Set(FERIADOS_2026);
 
 const WEEKDAY_INDEX = {
@@ -589,6 +611,13 @@ function getBannerState(parts) {
     );
   }
 
+  if (isTempClosureActive(parts)) {
+    return applyFriendsDayPrefix(
+      { type: "closed", message: TEMP_CLOSURE.message },
+      dateKey,
+    );
+  }
+
   const info = getRelevantShiftInfo(day, minutes, dateKey);
 
   if (info?.phase === "preorder") {
@@ -645,6 +674,7 @@ export function getStoreStatus(date = null) {
   const nextOpenText = getNextOpenText(parts);
   const isOpenNow =
     !FORCE_CLOSED &&
+    !isTempClosureActive(parts) &&
     (FORCE_OPEN ||
       getActiveShift(parts.day, parts.minutes, parts.dateKey) !== null);
 
