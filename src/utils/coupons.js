@@ -51,8 +51,8 @@ const VOLVEYA_COUPON_EXPIRY_TS = Date.parse("2026-10-02T00:00:00-03:00"); // vie
 const REGALITO_COUPON_EXPIRY_TS = Date.parse("2026-10-02T00:00:00-03:00"); // viernes 02/10/2026 00:00 (BA) -> vale miércoles 30/9 y jueves 1/10
 const TRIPLE_COUPON_EXPIRY_TS = Date.parse("2026-10-09T00:00:00-03:00"); // viernes 09/10/2026 00:00 (BA) -> vale miércoles 7/10 y jueves 8/10
 const CHARLY5_COUPON_EXPIRY_TS = Date.parse("2026-10-05T00:00:00-03:00"); // lunes 05/10/2026 00:00 (BA) -> vale solo domingo 4/10
-const BURGER10_COUPON_START_TS = Date.parse("2026-10-21T00:00:00-03:00"); // miércoles 21/10/2026 00:00 (BA)
-const BURGER10_COUPON_EXPIRY_TS = Date.parse("2026-10-23T00:00:00-03:00"); // vence viernes 23/10/2026 00:00 (BA) -> vale miércoles 21/10 y jueves 22/10
+const BURGER10_COUPON_START_TS = Date.parse("2026-11-04T00:00:00-03:00"); // miércoles 04/11/2026 00:00 (BA)
+const BURGER10_COUPON_EXPIRY_TS = Date.parse("2026-11-06T00:00:00-03:00"); // vence viernes 06/11/2026 00:00 (BA) -> vale miércoles 4/11 y jueves 5/11
 const UNAMAS_COUPON_EXPIRY_TS = Date.parse("2026-10-21T23:50:00-03:00"); // vale solo miércoles 21/10/2026 hasta las 23:50 (BA)
 const CORTASEMANA10_COUPON_START_TS = Date.parse("2026-10-28T00:00:00-03:00"); // miércoles 28/10/2026 00:00 (BA)
 const CORTASEMANA10_COUPON_EXPIRY_TS = Date.parse("2026-10-30T00:00:00-03:00"); // vence viernes 30/10/2026 00:00 (BA) -> vale miércoles 28/10 y jueves 29/10
@@ -496,21 +496,27 @@ if (normalized === COUPON_CODES.weekend20) {
   if (normalized === COUPON_CODES.burger10) {
     if (!isBurger10CouponActive(nowTs)) {
       return {
-        error: `${COUPON_CODES.burger10} es válido miércoles 21/10 y jueves 22/10 (BA)`,
+        error: `${COUPON_CODES.burger10} es válido miércoles 4/11 y jueves 5/11 (BA)`,
         discount: 0,
       };
     }
-    const discount = computeBurgerPercentDiscount(cartItems, null, 0.1);
+    const discount = computeBurgerPercentDiscount(
+      cartItems,
+      null,
+      0.1,
+      [],
+      false,
+    );
     if (discount <= 0) {
       return {
-        error: `${COUPON_CODES.burger10} es 10% off en burgers (incluye agregados): agregá una burger al carrito`,
+        error: `${COUPON_CODES.burger10} es 10% off en burgers: agregá una burger al carrito`,
         discount: 0,
       };
     }
     return {
       appliedCode: COUPON_CODES.burger10,
       discount,
-      message: `${COUPON_CODES.burger10} aplicado: 10% off en todas las burgers y sus agregados`,
+      message: `${COUPON_CODES.burger10} aplicado: 10% off en todas las burgers`,
     };
   }
 
