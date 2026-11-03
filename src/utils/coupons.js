@@ -268,6 +268,21 @@ function computeBurgerPercentDiscount(
   }, 0);
 }
 
+// BURGER10 se calcula solo sobre la burger, nunca sobre agregados o papas.
+// Si ya tiene una oferta, completa hasta el 10% del precio habitual sin
+// acumular porcentajes. Una oferta mayor se conserva, sin recargo.
+// Se mantiene separado del helper historico para no cambiar otros cupones.
+function computeBurger10Discount(cartItems = []) {
+  return cartItems.reduce((sum, item) => {
+    if (item.meta?.type !== "burger" || !(item.qty > 0)) return sum;
+    const unitPrice = item.unitPrice || 0;
+    const existingDiscount = getOfferSurcharge(item);
+    const regularPrice = unitPrice + existingDiscount;
+    const targetDiscount = Math.round(item.qty * regularPrice * 0.1);
+    return sum + Math.max(0, targetDiscount - item.qty * existingDiscount);
+  }, 0);
+}
+
 const NORMALIZED_GIVEAWAY_COUPONS = new Map(
   giveawayCoupons.map((c) => [normalizeCouponInput(c.code), c]),
 );
@@ -500,14 +515,8 @@ if (normalized === COUPON_CODES.weekend20) {
         discount: 0,
       };
     }
-    const discount = computeBurgerPercentDiscount(
-      cartItems,
-      null,
-      0.1,
-      [],
-      false,
-    );
-    if (discount <= 0) {
+    const discount = computeBurger10Discount(cartItems);
+    if (!cartItems.some((item) => item.meta?.type === "burger" && item.qty > 0 && item.unitPrice > 0)) {
       return {
         error: `${COUPON_CODES.burger10} es 10% off en burgers: agregá una burger al carrito`,
         discount: 0,
@@ -516,7 +525,9 @@ if (normalized === COUPON_CODES.weekend20) {
     return {
       appliedCode: COUPON_CODES.burger10,
       discount,
-      message: `${COUPON_CODES.burger10} aplicado: 10% off en todas las burgers`,
+      message: discount > 0
+        ? `${COUPON_CODES.burger10} aplicado: 10% off en todas las burgers`
+        : `${COUPON_CODES.burger10}: se mantienen las promociones de mayor o igual descuento`,
     };
   }
 
