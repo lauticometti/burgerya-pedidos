@@ -182,7 +182,7 @@ export const dips = [
     price: 1000,
     img: "/dips/dip-salsa-secreta.svg",
     isAvailable: 0,
-    unavailableReason: "Sin stock",
+    unavailableReason: "Vuelve mañana",
     unavailableSince: "2026-11-05",
     unavailableShift: "noche",
   },
