@@ -24,10 +24,24 @@ function isStillWithinMarkedShift(since, shiftName) {
   return markedShift >= getShiftOrdinal();
 }
 
+// Para cortes puntuales con hora exacta (ej: "sin cebolla hasta las 22:10"),
+// cuando el turno completo es demasiado largo. Agregar en menu.js:
+//   unavailableUntil: "2026-07-16T22:10:00-03:00"   (fecha+hora exacta, con
+//                                                     el offset de Buenos
+//                                                     Aires: -03:00)
+// Para un aviso (burger.notice) que también deba autoborrarse a esa hora:
+//   noticeUntil: "2026-07-16T22:10:00-03:00"
+function isBeforeExactDeadline(until) {
+  const deadline = Date.parse(until);
+  if (Number.isNaN(deadline)) return true; // fecha mal escrita, no se puede auto-reponer
+  return Date.now() < deadline;
+}
+
 export function isItemUnavailable(item) {
   const flag = item?.isAvailable;
   const flaggedUnavailable = flag === 0 || flag === false;
   if (!flaggedUnavailable) return false;
+  if (item?.unavailableUntil) return isBeforeExactDeadline(item.unavailableUntil);
   return isStillWithinMarkedShift(item?.unavailableSince, item?.unavailableShift);
 }
 
@@ -44,6 +58,9 @@ export function getUnavailableReason(item) {
 // vencido y desaparece solo, sin que nadie tenga que sacarlo a mano.
 export function getEffectiveNotice(item) {
   if (!item?.notice) return null;
+  if (item?.noticeUntil) {
+    return isBeforeExactDeadline(item.noticeUntil) ? item.notice : null;
+  }
   if (!isStillWithinMarkedShift(item?.noticeSince, item?.noticeShift)) return null;
   return item.notice;
 }
