@@ -8,7 +8,7 @@ import ProductName from "../../components/ui/ProductName";
 import useEscapeToClose from "../../hooks/useEscapeToClose";
 import { extras, papas } from "../../data/menu";
 import { resolvePublicPath } from "../../utils/assetPath";
-import { getEffectiveNotice } from "../../utils/availability";
+import { getEffectiveForcedRemovals, getEffectiveNotice } from "../../utils/availability";
 import { getBurgerPriceInfo } from "../../utils/burgerPricing";
 import { formatMoney } from "../../utils/formatMoney";
 import { REGALO_BADGE, getRegaloPrice, useRegaloState } from "../../utils/regaloCampaign";
@@ -58,7 +58,7 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
     if (!open || !burger) return;
     const first =
       SIZE_ORDER.find((candidate) => burger.prices?.[candidate] != null) || null;
-    const forcedIds = burger.forcedRemovals?.map((r) => r.id) || [];
+    const forcedIds = getEffectiveForcedRemovals(burger).map((r) => r.id);
     setWantsPapas(false);
     setPapasImprovements([]);
     setCustomizations({
@@ -485,9 +485,9 @@ export default function BurgerModal({ open, burger, origin, onClose, onAdd }) {
         titleName={burger.name}
         ingredients={removableIngredients}
         selectedIds={modals.removeDraftIds}
-        forcedIds={burger.forcedRemovals?.map((r) => r.id) || []}
+        forcedIds={getEffectiveForcedRemovals(burger).map((r) => r.id)}
         onToggle={(id) => {
-          if (burger.forcedRemovals?.some((r) => r.id === id)) return;
+          if (getEffectiveForcedRemovals(burger).some((r) => r.id === id)) return;
           setModals((prev) => ({
             ...prev,
             removeDraftIds: prev.removeDraftIds.includes(id)

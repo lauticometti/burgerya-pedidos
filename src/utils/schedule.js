@@ -60,6 +60,8 @@ export const DATE_OVERRIDES = {
   // Saturados de pedidos: cierra por el resto del día. Vuelve solo el
   // horario normal mañana.
   "2026-09-18": [],
+  // Feriado lunes 9/11: abrimos con el horario de noche normal.
+  "2026-11-09": [{ open: "19:30", close: "00:00" }],
 };
 
 // ---------------------------------------------------------------------------

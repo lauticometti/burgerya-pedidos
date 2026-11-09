@@ -72,3 +72,14 @@ export function withAvailabilityDefaults(items) {
     unavailableReason: item.unavailableReason ?? UNAVAILABLE_REASON_DEFAULT,
   }));
 }
+
+// Ingredientes que se quitan sí o sí (sin stock), con vencimiento opcional:
+//   forcedRemovals: [{ id: "pickles", label: "Pepinos agridulces" }],
+//   forcedRemovalsUntil: "2026-11-10T04:00:00-03:00"
+// Pasada esa hora se ignoran solos y el ingrediente vuelve a ser opcional.
+export function getEffectiveForcedRemovals(item) {
+  const removals = item?.forcedRemovals || [];
+  if (!removals.length) return removals;
+  if (item?.forcedRemovalsUntil && !isBeforeExactDeadline(item.forcedRemovalsUntil)) return [];
+  return removals;
+}

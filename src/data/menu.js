@@ -41,6 +41,11 @@ export const burgers = [
     tier: "PREMIUM",
     prices: { simple: 12500, doble: 16500, triple: 20500 },
     desc: "Lechuga · Tomate · Cebolla · Pepinos · Salsa especial",
+    // Sin pepinos hoy 8/11 y mañana 9/11 (feriado): se repone solo pasado el cierre del 9/11.
+    notice: "Sin pepinos",
+    noticeUntil: "2026-11-10T04:00:00-03:00",
+    forcedRemovals: [{ id: "pickles", label: "Pepinos agridulces" }],
+    forcedRemovalsUntil: "2026-11-10T04:00:00-03:00",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
       { id: "pickles", label: "Pepinos agridulces" },
@@ -147,7 +152,14 @@ export const extras = [
     unavailableReason: "Sin stock",
     unavailableUntil: "2026-11-06T22:10:00-03:00",
   },
-  { id: "pepinos", name: "Pepinos", price: 500, isAvailable: 1 },
+  {
+    id: "pepinos",
+    name: "Pepinos",
+    price: 500,
+    isAvailable: 0,
+    unavailableReason: "Sin stock",
+    unavailableUntil: "2026-11-10T04:00:00-03:00",
+  },
   { id: "lechuga", name: "Lechuga", price: 500, isAvailable: 1 },
   { id: "tomate", name: "Tomate", price: 500, isAvailable: 1 },
   { id: "cebolla", name: "Cebolla", price: 500, isAvailable: 1 },
