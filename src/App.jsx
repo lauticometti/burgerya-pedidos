@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import { useStoreStateVersion } from "./utils/osStoreState";
 import ToastHost from "./components/ToastHost/ToastHost";
 import WhatsAppFab from "./components/ui/WhatsAppFab";
 import Menu from "./pages/Menu/Menu";
@@ -323,6 +324,8 @@ function MaintenancePage() {
 }
 
 export default function App() {
+  // Stock del OS: cuando llega, se vuelve a dibujar (ver utils/osStoreState.js).
+  useStoreStateVersion();
   // Sold out: tapa toda la web con el aviso, pero /dbadmin sigue andando.
   // Para desactivar: SOLD_OUT_ENABLED = false en pages/SoldOut/soldOutConfig.js.
   if (SOLD_OUT_ENABLED) {
