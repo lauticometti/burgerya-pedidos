@@ -26,7 +26,8 @@ export const burgers = [
     prices: { simple: 12500, doble: 16500, triple: 20500 },
     desc: "Cebolla caramelizada · Salsa especial",
     notice: "Sin ceb. caramelizada",
-    noticeUntil: "2026-11-06T22:10:00-03:00",
+    noticeSince: "2026-11-13",
+    noticeShift: "noche",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
       { id: "mil_islas", label: "Salsa Mil Islas" },
@@ -77,7 +78,8 @@ export const burgers = [
     prices: { simple: 13000, doble: 17000, triple: 21000 },
     desc: "Bacon · Cebolla caramelizada · Tomate · Salsa barbacoa",
     notice: "Sin ceb. caramelizada",
-    noticeUntil: "2026-11-06T22:10:00-03:00",
+    noticeSince: "2026-11-13",
+    noticeShift: "noche",
     removableIngredients: [
       { id: "cheddar", label: "Cheddar" },
       { id: "bacon", label: "Bacon" },
@@ -148,7 +150,8 @@ export const extras = [
     price: 500,
     isAvailable: 0,
     unavailableReason: "Sin stock",
-    unavailableUntil: "2026-11-06T22:10:00-03:00",
+    unavailableSince: "2026-11-13",
+    unavailableShift: "noche",
   },
   {
     id: "pepinos",
