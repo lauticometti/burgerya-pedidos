@@ -289,3 +289,59 @@ describe("UNAMAS: valor de la carne regalada", () => {
     expect(r.freeMeat.meatValue).toBe(4000);
   });
 });
+
+describe("D BARDO: códigos % off (tragos)", () => {
+  it("DB-BT3N (10%) aplica sobre el total, con tope $30.000", () => {
+    const result = evalCode("DB-BT3N", [DOBLE], VALID_NOW);
+    // cartTotal no se pasa en evalCode, por eso 0 acá; se prueba aparte con cartTotal explícito.
+    expect(result.appliedCode).toBe("DB-BT3N");
+    expect(result.message).toBe("DB-BT3N aplicado: 10% off (tope $30.000 por pedido)");
+  });
+
+  it("acepta el código sin importar mayúsculas ni espacios", () => {
+    for (const input of ["db-bt3n", " DB BT3N ", "db bt3n"]) {
+      expect(
+        evaluateCoupon({ code: input, cartItems: [DOBLE], cartTotal: 10000, now: VALID_NOW }).appliedCode,
+      ).toBe("DB-BT3N");
+    }
+  });
+
+  it("DB-U9N6 (50%) respeta el tope de $30.000", () => {
+    const result = evaluateCoupon({ code: "DB-U9N6", cartItems: [], cartTotal: 100000, now: VALID_NOW });
+    expect(result.appliedCode).toBe("DB-U9N6");
+    expect(result.discount).toBe(30000); // 50% de 100000 = 50000, tope 30000
+  });
+
+  it("DB-PJT4 (30%) sin tope cuando el pedido es chico", () => {
+    const result = evaluateCoupon({ code: "DB-PJT4", cartItems: [], cartTotal: 10000, now: VALID_NOW });
+    expect(result.discount).toBe(3000);
+  });
+
+  it("vale hasta el 30/11/2026 y vence el 01/12/2026 00:00 (BA)", () => {
+    expect(evalCode("DB-BT3N", [DOBLE], new Date("2026-11-30T23:59:59-03:00")).appliedCode).toBe("DB-BT3N");
+    expect(evalCode("DB-BT3N", [DOBLE], new Date("2026-12-01T00:00:00-03:00")).error).toBe(
+      "Ese código de D BARDO venció",
+    );
+  });
+});
+
+describe("D BARDO: burger doble gratis", () => {
+  it("DB-28TL regala la doble más cara del carrito, no acepta simple ni triple", () => {
+    const result = evalCode("DB-28TL", [SIMPLE, DOBLE, TRIPLE], VALID_NOW);
+    expect(result.appliedCode).toBe("DB-28TL");
+    expect(result.targetLineKey).toBe(DOBLE.key);
+    expect(result.targetSize).toBe("doble");
+    expect(result.discount).toBe(15500); // precio de Cheese doble en menu.js
+  });
+
+  it("sin ninguna doble en el carrito, pide agregar una", () => {
+    const result = evalCode("DB-28TL", [SIMPLE, TRIPLE], VALID_NOW);
+    expect(result.error).toBe("DB-28TL es burger doble gratis: agregá una burger doble al carrito");
+  });
+
+  it("vence el 01/12/2026 00:00 (BA)", () => {
+    expect(evalCode("DB-28TL", [DOBLE], new Date("2026-12-01T00:00:00-03:00")).error).toBe(
+      "Ese código de D BARDO venció",
+    );
+  });
+});

@@ -5,6 +5,11 @@ import {
   giveawayCoupons,
   GIVEAWAY_COUPON_EXPIRY_TS,
 } from "../data/giveawayCoupons";
+import {
+  dbardoCoupons,
+  DBARDO_COUPON_EXPIRY_TS,
+  DBARDO_DISCOUNT_CAP,
+} from "../data/dbardoCoupons";
 
 // Texto explicativo del beneficio del premio, reutilizado por el bloque de
 // cupón aplicado y por la etiqueta en la línea del carrito.
@@ -289,6 +294,42 @@ const NORMALIZED_GIVEAWAY_COUPONS = new Map(
 
 function isGiveawayCouponActive(nowTs = Date.now()) {
   return nowTs < GIVEAWAY_COUPON_EXPIRY_TS;
+}
+
+const NORMALIZED_DBARDO_COUPONS = new Map(
+  dbardoCoupons.map((c) => [normalizeCouponInput(c.code), c]),
+);
+
+function isDbardoCouponActive(nowTs = Date.now()) {
+  return nowTs < DBARDO_COUPON_EXPIRY_TS;
+}
+
+// Burger ya x D BARDO (premio "burger"): cualquier burger, pero solo tamaño
+// doble. Se aplica sobre la doble más cara del carrito; a diferencia del
+// premio de sorteo no hay versión triple (ese tamaño no entra).
+function findBestDbardoFreeDoubleTarget(cartItems = [], date = new Date()) {
+  let best = null;
+  for (const item of cartItems) {
+    if (item.meta?.type !== "burger" || item.meta?.size !== "doble" || !item.qty) {
+      continue;
+    }
+    const burger = burgersById[item.meta?.burgerId];
+    const unitPrice = burger
+      ? getBurgerPrice(burger, "doble", date)
+      : item.unitPrice || 0;
+    if (!(unitPrice > 0)) continue;
+    if (!best || unitPrice > best.discount) {
+      best = {
+        discount: unitPrice,
+        targetLineKey: item.key,
+        targetBurgerId: item.meta?.burgerId || null,
+        targetBurgerName: burger?.name || item.name || "",
+        targetSize: "doble",
+        giveawayBaseSize: "doble",
+      };
+    }
+  }
+  return best;
 }
 
 const burgersById = burgers.reduce((acc, b) => {
@@ -621,6 +662,43 @@ if (normalized === COUPON_CODES.weekend20) {
       targetSize: target.targetSize,
       giveawayBaseSize: target.giveawayBaseSize,
       message: "✓ Premio aplicado",
+    };
+  }
+
+  const dbardo = NORMALIZED_DBARDO_COUPONS.get(normalized);
+  if (dbardo) {
+    if (!isDbardoCouponActive(nowTs)) {
+      return { error: "Ese código de D BARDO venció", discount: 0 };
+    }
+
+    if (dbardo.tier === "burger") {
+      const target = findBestDbardoFreeDoubleTarget(cartItems, now);
+      if (!target) {
+        return {
+          error: `${dbardo.code} es burger doble gratis: agregá una burger doble al carrito`,
+          discount: 0,
+        };
+      }
+      return {
+        appliedCode: dbardo.code,
+        discount: Math.min(target.discount, DBARDO_DISCOUNT_CAP),
+        targetLineKey: target.targetLineKey,
+        targetBurgerId: target.targetBurgerId,
+        targetBurgerName: target.targetBurgerName,
+        targetSize: target.targetSize,
+        giveawayBaseSize: target.giveawayBaseSize,
+        message: "✓ Premio D BARDO aplicado: burger doble gratis",
+      };
+    }
+
+    const discount = Math.min(
+      computePercentDiscount(cartTotal, dbardo.tier / 100),
+      DBARDO_DISCOUNT_CAP,
+    );
+    return {
+      appliedCode: dbardo.code,
+      discount,
+      message: `${dbardo.code} aplicado: ${dbardo.tier}% off (tope $30.000 por pedido)`,
     };
   }
 
