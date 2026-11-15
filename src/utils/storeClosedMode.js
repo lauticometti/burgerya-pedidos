@@ -40,12 +40,12 @@ export const SOLD_OUT_NOTICE_DATE = "2026-09-18";
 // hoy. Se reabre solo al llegar endMinutes, sin que nadie tenga que volver
 // a tocar esto. Para cerrar de nuevo: actualizar dateKey/start/end.
 export const TEMP_CLOSURE = {
-  enabled: false, // reabierta a mano a las 22:38, antes de que cerrara sola
-  dateKey: "2026-11-01",
-  startMinutes: 22 * 60 + 3, // 22:03
-  endMinutes: 22 * 60 + 48, // 22:48
+  enabled: true,
+  dateKey: "2026-11-14",
+  startMinutes: 21 * 60 + 57, // 21:57
+  endMinutes: 22 * 60 + 40, // 22:40
   message:
-    "Estamos 100% saturados. Volvemos a tomar pedidos en 45 minutos.",
+    "Por hoy no tomamos más pedidos: tenemos una entrega grande reservada a las 23hs y necesitamos la plancha libre.",
 };
 
 function isTempClosureActive(parts) {
