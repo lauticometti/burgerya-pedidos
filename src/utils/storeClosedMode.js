@@ -43,7 +43,7 @@ export const TEMP_CLOSURE = {
   enabled: true,
   dateKey: "2026-11-14",
   startMinutes: 21 * 60 + 57, // 21:57
-  endMinutes: 22 * 60 + 40, // 22:40
+  endMinutes: 22 * 60 + 45, // 22:45
   message:
     "Por hoy no tomamos más pedidos: tenemos una entrega grande reservada a las 23hs y necesitamos la plancha libre.",
 };
