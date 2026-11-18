@@ -191,7 +191,18 @@ function emitChange() {
 }
 
 function getSnapshotKeyFromStatus(status) {
-  return `${status.dateKey}:${status.minutes}`;
+  return `${status.dateKey}:${status.minutes}:${status.osOpen ?? "-"}:${status.osMessage ?? ""}`;
+}
+
+// Estado de la tienda que manda el OS (checkout web, bloque 4): horario + "cerrar la web hasta HH:MM".
+// Con el checkout contra el OS prendido, el OS decide si se puede pedir y la web solo lo muestra; si el OS
+// no responde queda null y vale el horario local de siempre (el servidor igual rechaza fuera de horario).
+let osStore = null;
+
+/** @param {{open: boolean, message?: string, opensAt?: string|null}|null} store  lo que devuelve getStoreState */
+export function setOsStoreStatus(store) {
+  osStore = store && typeof store.open === "boolean" ? store : null;
+  syncSnapshotAndEmit();
 }
 
 function refreshSnapshot(date = null) {
@@ -671,11 +682,12 @@ export function getStoreStatus(date = null) {
   const promoStatus = getFridayPromoStatus(parts);
   const dailyFeature = getDailyFeature(resolvedDate);
   const nextOpenText = getNextOpenText(parts);
-  const isOpenNow =
-    !FORCE_CLOSED &&
-    !isTempClosureActive(parts) &&
-    (FORCE_OPEN ||
-      getActiveShift(parts.day, parts.minutes, parts.dateKey) !== null);
+  const isOpenNow = osStore
+    ? osStore.open
+    : !FORCE_CLOSED &&
+      !isTempClosureActive(parts) &&
+      (FORCE_OPEN ||
+        getActiveShift(parts.day, parts.minutes, parts.dateKey) !== null);
 
   // Campaña regalo: mientras la ventana esta activa, ninguna otra promo
   // (recomendada del dia, triple=doble) compite ni se acumula con el descuento.
@@ -697,7 +709,15 @@ export function getStoreStatus(date = null) {
         reopenText: nextOpenText,
       };
 
-  const bannerState = getBannerState(parts);
+  // Con el OS mandando: cerrado = su mensaje; abierto = nunca un cartel de cerrado del horario local.
+  const bannerState = osStore
+    ? osStore.open
+      ? (() => {
+          const local = getBannerState(parts);
+          return local?.type === "closed" ? null : local;
+        })()
+      : { type: "closed", message: osStore.message || "Estamos cerrados." }
+    : getBannerState(parts);
 
   const isFlash15Active =
     parts.dateKey === FLASH_15_DATE_KEY && parts.minutes < FLASH_15_END_MINUTES;
@@ -722,7 +742,9 @@ export function getStoreStatus(date = null) {
     dailyFeatureEyebrow: dailyFeature?.eyebrow || null,
     nextOpenText,
     bannerState,
-    showClosedBanner: bannerState.type === "closed",
+    showClosedBanner: bannerState?.type === "closed",
+    osOpen: osStore ? osStore.open : null,
+    osMessage: osStore && !osStore.open ? osStore.message || "" : null,
   };
 }
 

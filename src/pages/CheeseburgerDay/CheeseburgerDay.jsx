@@ -158,7 +158,7 @@ export default function CheeseburgerDay() {
         onError={(e) => { e.target.style.display = "none"; }}
       />
 
-      <p className={styles.statusLine}>{storeStatus.bannerState.message}</p>
+      <p className={styles.statusLine}>{storeStatus.bannerState?.message}</p>
 
       {CHEESEBURGER_DAY_SOLD_OUT && (
         <div className={styles.soldOutBanner}>

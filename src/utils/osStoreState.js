@@ -8,6 +8,7 @@
 import { useSyncExternalStore } from "react";
 import * as menu from "../data/menu";
 import { isOsCheckoutEnabled, OS_FUNCTIONS_URL } from "./osCheckout";
+import { setOsStoreStatus } from "./storeClosedMode";
 
 const EVENT = "burgerya:store-state";
 let version = 0;
@@ -83,10 +84,24 @@ export async function loadOsStoreState() {
     const body = await res.json();
     if (!res.ok || body.error) return null;
     applyStoreState(body.result);
+    setOsStoreStatus(body.result?.store ?? null);
     return body.result;
   } catch {
     return null;
   }
+}
+
+/**
+ * Pide el estado al OS ahora y cada minuto (y al volver a la pestaña), así el cierre manual ("cerramos hasta las
+ * 22:45") aparece y se levanta sin que el cliente recargue.
+ */
+export function startOsStoreStatePolling() {
+  loadOsStoreState();
+  if (!isOsCheckoutEnabled() || typeof window === "undefined") return;
+  setInterval(loadOsStoreState, 60_000);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") loadOsStoreState();
+  });
 }
 
 /** Para que la app vuelva a dibujarse cuando llega el estado del OS. */

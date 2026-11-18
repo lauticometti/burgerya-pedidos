@@ -5,10 +5,10 @@ import App from "./App.jsx";
 import { CartProvider } from "./store/CartProvider.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import "./styles/global.css";
-import { loadOsStoreState } from "./utils/osStoreState";
+import { startOsStoreStatePolling } from "./utils/osStoreState";
 
 // Checkout contra el OS (si está prendido): el stock viene del OS. No frena el render.
-loadOsStoreState();
+startOsStoreStatePolling();
 
 const baseUrl = import.meta.env.BASE_URL;
 const basename = baseUrl === "/" ? "/" : baseUrl.replace(/\/$/, "");
