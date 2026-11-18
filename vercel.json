@@ -1,6 +1,8 @@
 {
   "version": 2,
   "rewrites": [
+    { "source": "/su-envio/:token", "destination": "https://burger-ya-os--su-envio-prueba-ye2c9vhs.web.app/su-envio/:token" },
+    { "source": "/os-assets/:path*", "destination": "https://burger-ya-os--su-envio-prueba-ye2c9vhs.web.app/os-assets/:path*" },
     { "source": "/(.*)", "destination": "/" }
   ]
 }
