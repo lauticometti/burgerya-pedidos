@@ -36,6 +36,13 @@ describe("carrito de la web → pedido del OS", () => {
 
   it("ofertas, promos y regalos siguen por WhatsApp", () => {
     expect(cartToOsLines([burger({ meta: { type: "burger", burgerId: "cheese", size: "triple", offerId: "friday" } })]).unsupported).toBeTruthy();
+    // La recomendada del día sí se manda (el servidor pone el precio) y el regalo de papas no se manda.
+    const daily = cartToOsLines([
+      burger({ meta: { type: "burger", burgerId: "american", size: "doble", offerId: "daily_feature", discountAmount: 1500 } }),
+      { key: "gift:papas:30k", name: "Papas extra incluidas", qty: 1, meta: { type: "papas", promoGiftId: "gift-papas-30k" } },
+    ]);
+    expect(daily.unsupported).toBeNull();
+    expect(daily.lines).toHaveLength(1);
     expect(cartToOsLines([burger({ meta: { type: "burger", burgerId: "cheese", size: "doble", cokeGifts: ["coca"] } })]).unsupported).toBeTruthy();
     expect(cartToOsLines([{ key: "promo:x", name: "Promo", qty: 1, meta: { type: "promo" } }]).unsupported).toBeTruthy();
   });

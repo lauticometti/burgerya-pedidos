@@ -39,8 +39,12 @@ export function cartToOsLines(items) {
   for (const it of items || []) {
     const meta = it.meta || {};
     const qty = Number(it.qty);
+    // Regalo de papas por monto: la línea de $0 la agrega el servidor; la web no la manda.
+    if (meta.promoGiftId === "gift-papas-30k" || String(it.key) === "gift:papas:30k") continue;
     if (meta.type === "burger" && meta.burgerId && meta.size) {
-      if (meta.offerId || meta.discountAmount > 0) return { lines: [], unsupported: `${it.name} tiene una oferta` };
+      // La recomendada del día la calcula el servidor (única oferta que se migró); cualquier otra oferta va por WhatsApp.
+      const knownOffer = meta.offerId === "daily_feature";
+      if ((meta.offerId && !knownOffer) || (!meta.offerId && meta.discountAmount > 0)) return { lines: [], unsupported: `${it.name} tiene una oferta` };
       if (meta.cokeGifts?.length || meta.isCokePromo || meta.picks?.length) {
         return { lines: [], unsupported: `${it.name} trae una promo` };
       }
