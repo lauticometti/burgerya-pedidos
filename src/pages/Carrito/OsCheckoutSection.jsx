@@ -23,6 +23,22 @@ export default function OsCheckoutSection({ form, items, totals, hasPromo, canSe
   const [error, setError] = React.useState(null);
 
   const { lines, unsupported } = React.useMemo(() => cartToOsLines(items), [items]);
+  const [quote, setQuote] = React.useState(null);
+  const quoteKey = JSON.stringify([lines, form.deliveryMode, form.selectedLocation?.lat, form.selectedLocation?.lng]);
+  React.useEffect(() => {
+    if (unsupported || hasPromo) return undefined;
+    let alive = true;
+    const t = setTimeout(() => {
+      quoteOsOrder({ lines, form })
+        .then((q) => alive && setQuote(q))
+        .catch(() => alive && setQuote(null));
+    }, 300);
+    return () => {
+      alive = false;
+      clearTimeout(t);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quoteKey, unsupported, hasPromo]);
   const reason = hasPromo ? "tu pedido tiene un descuento o promo" : unsupported;
   const phoneOk = String(phone).replace(/\D/g, "").length >= 8;
 
@@ -39,7 +55,7 @@ export default function OsCheckoutSection({ form, items, totals, hasPromo, canSe
     setBusy(true);
     setError(null);
     try {
-      const base = buildOsPayload({ idempotencyKey: "", form, phone, consent, lines, grandTotal: totals.grandTotal });
+      const base = buildOsPayload({ idempotencyKey: "", form, phone, consent, lines, grandTotal: quote?.totalPesos ?? totals.grandTotal });
       const { idempotencyKey: _ignored, ...withoutKey } = base;
       const payload = { ...base, idempotencyKey: idempotencyKeyFor(withoutKey) };
       const result = await createOsOrder(payload);

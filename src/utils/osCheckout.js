@@ -148,4 +148,24 @@ export async function createOsOrder(payload) {
   return body.result;
 }
 
+/** Cotización del servidor (precios, recomendada del día, regalo, envío). La web muestra esto, no recalcula. */
+export async function quoteOsOrder({ lines, form }) {
+  const isDelivery = form?.deliveryMode === "Delivery";
+  const res = await fetch(`${OS_FUNCTIONS_URL}/quoteOrder`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      data: {
+        lines,
+        fulfillment: isDelivery ? "delivery" : "retiro",
+        lat: isDelivery ? form?.selectedLocation?.lat : undefined,
+        lng: isDelivery ? form?.selectedLocation?.lng : undefined,
+      },
+    }),
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok || body.error) throw new Error(body.error?.message || "No pudimos cotizar el pedido.");
+  return body.result;
+}
+
 export const trackingUrl = (token) => `${OS_TRACKING_ORIGIN}/su-envio/${token}`;
