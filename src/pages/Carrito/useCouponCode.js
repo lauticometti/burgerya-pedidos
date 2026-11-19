@@ -57,9 +57,14 @@ export default function useCouponCode(cartItems, cartTotal) {
     }
   }, [appliedCoupon, discountResult?.error]);
 
-  const applyCoupon = React.useCallback(() => {
+  // codeOverride: permite que quien llama (Carrito) pase el texto tal cual lo
+  // tiene en su propio input, en vez de depender del estado interno
+  // couponCode/setCouponCode. Sin argumento, usa ese estado interno (uso
+  // histórico). Devuelve true si el cupón quedó aplicado, false si hubo error.
+  const applyCoupon = React.useCallback((codeOverride) => {
+    const code = codeOverride ?? couponCode;
     const result = evaluateCoupon({
-      code: couponCode,
+      code,
       cartItems,
       cartTotal,
       now: getStoreNow(),
@@ -69,25 +74,26 @@ export default function useCouponCode(cartItems, cartTotal) {
     });
 
     if (result.silent) {
-      return;
+      return false;
     }
 
     if (result.error && result.error.trim()) {
       setAppliedCoupon("");
       toast.error(result.error);
-      return;
+      return false;
     }
 
     if (result.persistUsageKey && couponStorage) {
       couponStorage.setItem(result.persistUsageKey, "1");
     }
 
-    setAppliedCoupon(result.appliedCode || normalizeCouponInput(couponCode));
-    setCouponCode(result.appliedCode || normalizeCouponInput(couponCode));
+    setAppliedCoupon(result.appliedCode || normalizeCouponInput(code));
+    setCouponCode(result.appliedCode || normalizeCouponInput(code));
 
     if (result.message) {
       toast.success(result.message);
     }
+    return true;
   }, [couponCode, cartItems, cartTotal]);
 
   // Revalida el cupón aplicado con la hora actual, justo antes de enviar. El

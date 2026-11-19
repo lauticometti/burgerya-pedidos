@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { evaluateCoupon } from "./coupons";
+import { evaluateCoupon, evaluateDbardoStack } from "./coupons";
 
 const DOBLE = { key: "burger:cheese:doble", name: "Cheese", qty: 2, unitPrice: 14500, meta: { type: "burger", burgerId: "cheese", size: "doble" } };
 const SIMPLE = { key: "burger:cheese:simple", name: "Cheese", qty: 1, unitPrice: 11000, meta: { type: "burger", burgerId: "cheese", size: "simple" } };
@@ -290,58 +290,124 @@ describe("UNAMAS: valor de la carne regalada", () => {
   });
 });
 
+// evaluateCoupon ya NO reconoce códigos D BARDO (DB-XXXX): esos se acumulan
+// de a varios por pedido y se evalúan con evaluateDbardoStack.
+describe("D BARDO: evaluateCoupon ya no los reconoce", () => {
+  it("un código D BARDO vía evaluateCoupon da 'Código inválido'", () => {
+    expect(evalCode("DB-BT3N", [DOBLE], VALID_NOW).error).toBe("Código inválido");
+  });
+});
+
+function evalDbardo(codes, cartItems, cartTotal, now = VALID_NOW) {
+  return evaluateDbardoStack({ codes, cartItems, cartTotal, now });
+}
+
 describe("D BARDO: códigos % off (tragos)", () => {
-  it("DB-BT3N (10%) aplica sobre el total, con tope $30.000", () => {
-    const result = evalCode("DB-BT3N", [DOBLE], VALID_NOW);
-    // cartTotal no se pasa en evalCode, por eso 0 acá; se prueba aparte con cartTotal explícito.
-    expect(result.appliedCode).toBe("DB-BT3N");
-    expect(result.message).toBe("DB-BT3N aplicado: 10% off (tope $30.000 por pedido)");
+  it("DB-BT3N (10%) aplica sobre el total", () => {
+    const result = evalDbardo(["DB-BT3N"], [], 10000);
+    expect(result.entries).toEqual([{ code: "DB-BT3N", tier: 10, discount: 1000 }]);
+    expect(result.totalDiscount).toBe(1000);
   });
 
   it("acepta el código sin importar mayúsculas ni espacios", () => {
     for (const input of ["db-bt3n", " DB BT3N ", "db bt3n"]) {
-      expect(
-        evaluateCoupon({ code: input, cartItems: [DOBLE], cartTotal: 10000, now: VALID_NOW }).appliedCode,
-      ).toBe("DB-BT3N");
+      expect(evalDbardo([input], [], 10000).entries[0].code).toBe("DB-BT3N");
     }
   });
 
-  it("DB-U9N6 (50%) respeta el tope de $30.000", () => {
-    const result = evaluateCoupon({ code: "DB-U9N6", cartItems: [], cartTotal: 100000, now: VALID_NOW });
-    expect(result.appliedCode).toBe("DB-U9N6");
-    expect(result.discount).toBe(30000); // 50% de 100000 = 50000, tope 30000
+  it("DB-U9N6 (50%) respeta el tope de $30.000 en el total aplicado", () => {
+    const result = evalDbardo(["DB-U9N6"], [], 100000);
+    expect(result.entries[0].discount).toBe(50000); // nominal, sin topear
+    expect(result.totalDiscount).toBe(30000); // lo que realmente se descuenta
+    expect(result.capped).toBe(true);
   });
 
   it("DB-PJT4 (30%) sin tope cuando el pedido es chico", () => {
-    const result = evaluateCoupon({ code: "DB-PJT4", cartItems: [], cartTotal: 10000, now: VALID_NOW });
-    expect(result.discount).toBe(3000);
+    const result = evalDbardo(["DB-PJT4"], [], 10000);
+    expect(result.totalDiscount).toBe(3000);
+    expect(result.capped).toBe(false);
   });
 
   it("vale hasta el 30/11/2026 y vence el 01/12/2026 00:00 (BA)", () => {
-    expect(evalCode("DB-BT3N", [DOBLE], new Date("2026-11-30T23:59:59-03:00")).appliedCode).toBe("DB-BT3N");
-    expect(evalCode("DB-BT3N", [DOBLE], new Date("2026-12-01T00:00:00-03:00")).error).toBe(
-      "Ese código de D BARDO venció",
-    );
+    expect(
+      evalDbardo(["DB-BT3N"], [], 10000, new Date("2026-11-30T23:59:59-03:00")).entries[0].error,
+    ).toBeUndefined();
+    expect(
+      evalDbardo(["DB-BT3N"], [], 10000, new Date("2026-12-01T00:00:00-03:00")).entries[0].error,
+    ).toBe("Ese código de D BARDO venció");
+  });
+
+  it("código D BARDO inexistente da error por entrada", () => {
+    expect(evalDbardo(["DB-NOEXISTE"], [], 10000).entries[0].error).toBe("Código inválido");
   });
 });
 
 describe("D BARDO: burger doble gratis", () => {
   it("DB-28TL regala la doble más cara del carrito, no acepta simple ni triple", () => {
-    const result = evalCode("DB-28TL", [SIMPLE, DOBLE, TRIPLE], VALID_NOW);
-    expect(result.appliedCode).toBe("DB-28TL");
-    expect(result.targetLineKey).toBe(DOBLE.key);
-    expect(result.targetSize).toBe("doble");
-    expect(result.discount).toBe(15500); // precio de Cheese doble en menu.js
+    const result = evalDbardo(["DB-28TL"], [SIMPLE, DOBLE, TRIPLE], 0);
+    const entry = result.entries[0];
+    expect(entry.code).toBe("DB-28TL");
+    expect(entry.targetLineKey).toBe(DOBLE.key);
+    expect(entry.targetSize).toBe("doble");
+    expect(entry.discount).toBe(15500); // precio de Cheese doble en menu.js
+    expect(result.totalDiscount).toBe(15500);
   });
 
   it("sin ninguna doble en el carrito, pide agregar una", () => {
-    const result = evalCode("DB-28TL", [SIMPLE, TRIPLE], VALID_NOW);
-    expect(result.error).toBe("DB-28TL es burger doble gratis: agregá una burger doble al carrito");
+    const result = evalDbardo(["DB-28TL"], [SIMPLE, TRIPLE], 0);
+    expect(result.entries[0].error).toBe(
+      "No hay más burgers dobles en el carrito para regalar: agregá otra doble",
+    );
   });
 
   it("vence el 01/12/2026 00:00 (BA)", () => {
-    expect(evalCode("DB-28TL", [DOBLE], new Date("2026-12-01T00:00:00-03:00")).error).toBe(
-      "Ese código de D BARDO venció",
+    const result = evalDbardo(["DB-28TL"], [DOBLE], 0, new Date("2026-12-01T00:00:00-03:00"));
+    expect(result.entries[0].error).toBe("Ese código de D BARDO venció");
+  });
+});
+
+describe("D BARDO: varios códigos acumulados en el mismo pedido", () => {
+  it("suma el descuento de varios códigos de %", () => {
+    const result = evalDbardo(["DB-BT3N", "DB-SEVS"], [], 10000); // 10% + 15%
+    expect(result.entries.map((e) => e.discount)).toEqual([1000, 1500]);
+    expect(result.totalDiscount).toBe(2500);
+    expect(result.capped).toBe(false);
+  });
+
+  it("el tope de $30.000 es total, no por código", () => {
+    // 2x 50% sobre 40000 = 20000 + 20000 = 40000 nominal, tope real 30000
+    const result = evalDbardo(["DB-U9N6", "DB-N4HA"], [], 40000);
+    expect(result.rawTotal).toBe(40000);
+    expect(result.totalDiscount).toBe(30000);
+    expect(result.capped).toBe(true);
+  });
+
+  it("dos códigos 'burger' regalan dos dobles distintas (la más cara primero), con tope total", () => {
+    const cheese = { key: "burger:cheese:doble", name: "Cheese", qty: 1, unitPrice: 15500, meta: { type: "burger", burgerId: "cheese", size: "doble" } };
+    const otra = { key: "burger:bacon:doble", name: "Bacon", qty: 1, unitPrice: 16500, meta: { type: "burger", burgerId: "bacon", size: "doble" } };
+    const result = evalDbardo(["DB-28TL", "DB-PLV7"], [cheese, otra], 0);
+    expect(result.entries[0].targetLineKey).toBe(otra.key); // la más cara (Bacon $16.500) primero
+    expect(result.entries[0].discount).toBe(16500);
+    expect(result.entries[1].targetLineKey).toBe(cheese.key);
+    expect(result.entries[1].discount).toBe(15500);
+    expect(result.rawTotal).toBe(32000);
+    expect(result.totalDiscount).toBe(30000); // tope $30.000 total
+    expect(result.capped).toBe(true);
+  });
+
+  it("un tercer código 'burger' sin más dobles disponibles da error, sin tocar los otros dos", () => {
+    const unaSolaDoble = { key: "burger:cheese:doble", name: "Cheese", qty: 1, unitPrice: 15500, meta: { type: "burger", burgerId: "cheese", size: "doble" } };
+    const result = evalDbardo(["DB-28TL", "DB-PLV7", "DB-5GXG"], [unaSolaDoble], 0);
+    expect(result.entries[0].error).toBeUndefined();
+    expect(result.entries[1].error).toBe(
+      "No hay más burgers dobles en el carrito para regalar: agregá otra doble",
     );
+    expect(result.totalDiscount).toBe(15500);
+  });
+
+  it("no deja aplicar el mismo código dos veces", () => {
+    const result = evalDbardo(["DB-BT3N", "DB-BT3N"], [], 10000);
+    expect(result.entries[1].error).toBe("Ese código ya está aplicado");
+    expect(result.totalDiscount).toBe(1000);
   });
 });

@@ -34,6 +34,8 @@ import useDeliveryQuote from "../../hooks/useDeliveryQuote";
 import { computeCheckoutTotals } from "../../utils/checkoutTotals";
 import useCarritoTimeSlots from "./useCarritoTimeSlots";
 import useCouponCode from "./useCouponCode";
+import useDbardoCodes from "./useDbardoCodes";
+import { normalizeDbardoCode } from "../../utils/coupons";
 import CartUpsellBanner, { shouldShowBebidaUpsell } from "./CartUpsellBanner";
 import CartDipUpsellBanner from "./CartDipUpsellBanner";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
@@ -152,10 +154,8 @@ export default function Carrito() {
 
   const { slotOptions } = useCarritoTimeSlots(whenMode, whenSlot, setWhenSlot);
   const {
-    couponCode,
-    setCouponCode,
     appliedCoupon,
-    totalDiscount,
+    totalDiscount: legacyCouponDiscount,
     totalSurcharge,
     giveawayTarget,
     freeMeatPromo,
@@ -163,6 +163,29 @@ export default function Carrito() {
     revalidateCoupon,
     removeCoupon,
   } = useCouponCode(cart.items, cart.total, cart);
+  const dbardo = useDbardoCodes(cart.items, cart.total);
+  // Input de código compartido entre el cupón "de siempre" (uno solo por
+  // pedido) y los códigos D BARDO (se acumulan varios). handleApplyCode, más
+  // abajo, decide a cuál de los dos flujos mandar lo que se escribió.
+  const [codeInput, setCodeInput] = React.useState("");
+  const dbardoActive = dbardo.dbardoCodes.length > 0;
+  const handleApplyCode = React.useCallback(() => {
+    const text = codeInput.trim();
+    if (!text) return;
+    let applied = false;
+    if (normalizeDbardoCode(text)) {
+      if (appliedCoupon) {
+        toast.error("Ya tenés un cupón aplicado: quitalo antes de sumar códigos D BARDO.");
+      } else {
+        applied = dbardo.addDbardoCode(text);
+      }
+    } else if (dbardoActive) {
+      toast.error("Ya tenés códigos D BARDO aplicados: no se puede combinar con otro cupón.");
+    } else {
+      applied = applyCoupon(text);
+    }
+    if (applied) setCodeInput("");
+  }, [codeInput, appliedCoupon, dbardoActive, dbardo, applyCoupon]);
 
   // Campaña regalo (hoy 30% OFF): estado segun la hora actual y el horario elegido. Se
   // recalcula en cada minuto (y al volver a la pestaña) via useStoreStatus.
@@ -183,12 +206,23 @@ export default function Carrito() {
   React.useEffect(() => {
     if (couponsBlocked && appliedCoupon) removeCoupon();
   }, [couponsBlocked, appliedCoupon, removeCoupon]);
+  React.useEffect(() => {
+    if (couponsBlocked && dbardoActive) dbardo.clearDbardoCodes();
+    // dbardo (el hook completo) cambia de identidad en cada render; solo nos
+    // importa reaccionar cuando couponsBlocked o dbardoActive cambian.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [couponsBlocked, dbardoActive]);
   const regaloDiscount = React.useMemo(
     () => (regalo.applies ? getRegaloCartDiscount(cart.items) : 0),
     [regalo.applies, cart.items],
   );
 
   const deliveryQuote = useDeliveryQuote(selectedLocation, deliveryMode);
+  // Uno solo de los dos sistemas de cupón está activo a la vez (se bloquean
+  // mutuamente en handleApplyCode), así que alcanza con elegir cuál manda.
+  const totalDiscount = dbardoActive && !couponsBlocked
+    ? dbardo.dbardoTotalDiscount
+    : legacyCouponDiscount;
   // UNICA fuente de montos: resumen, sticky, pago, validacion y WhatsApp usan
   // este mismo objeto (grandTotal = productos - descuento + envio).
   const totals = React.useMemo(
@@ -208,12 +242,19 @@ export default function Carrito() {
   const { grandTotal } = totals;
   const discountLabel = regalo.applies
     ? REGALO_DISCOUNT_LABEL
-    : giveawayTarget?.burgerName
-      ? `Premio — ${giveawayTarget.burgerName}`
-      : appliedCoupon
-        ? `Descuento ${appliedCoupon}`
-        : "Descuento";
+    : dbardoActive && !couponsBlocked
+      ? `Descuento ${dbardo.dbardoCodes.join(", ")}`
+      : giveawayTarget?.burgerName
+        ? `Premio — ${giveawayTarget.burgerName}`
+        : appliedCoupon
+          ? `Descuento ${appliedCoupon}`
+          : "Descuento";
   const subtotalLabel = regalo.applies ? "Subtotal habitual de productos" : "Subtotal";
+  const giveawayTargetKeys = dbardoActive && !couponsBlocked
+    ? dbardo.dbardoGiveawayTargets.map((t) => t.lineKey)
+    : giveawayTarget?.lineKey
+      ? [giveawayTarget.lineKey]
+      : [];
 
   const canContinue = cart.items.length > 0;
   const couponApplied = Boolean(appliedCoupon) && !couponsBlocked;
@@ -229,7 +270,11 @@ export default function Carrito() {
     whenSlot,
     items: cart.items,
     totals,
-    couponCode: couponApplied ? appliedCoupon : "",
+    couponCode: dbardoActive && !couponsBlocked
+      ? dbardo.dbardoCodes.join(", ")
+      : couponApplied
+        ? appliedCoupon
+        : "",
     discountLabel: regalo.applies ? REGALO_DISCOUNT_LABEL : null,
     freeMeatPromo: couponsBlocked ? null : freeMeatPromo,
     deliveryQuote,
@@ -422,7 +467,7 @@ export default function Carrito() {
                 onToggleFriesUpgrade={friesUpgrade.toggle}
                 burgersById={burgersById}
                 classes={groupListClasses}
-                giveawayTargetKey={giveawayTarget?.lineKey || null}
+                giveawayTargetKeys={giveawayTargetKeys}
               />
             )}
           </div>
@@ -440,24 +485,24 @@ export default function Carrito() {
                 ) : null}
               </div>
               <div className={styles.addRight}>
-                {!appliedCoupon && !couponsBlocked ? (
+                {(!appliedCoupon || dbardoActive) && !couponsBlocked ? (
                   <>
                     <input
                       className={styles.couponInput}
                       type="text"
                       placeholder="Código de descuento"
-                      value={couponCode}
+                      value={codeInput}
                       autoComplete="off"
                       autoCorrect="off"
                       autoCapitalize="none"
                       spellCheck={false}
                       onChange={(e) => {
-                        setCouponCode(e.target.value);
+                        setCodeInput(e.target.value);
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
-                          applyCoupon();
+                          handleApplyCode();
                         }
                       }}
                     />
@@ -465,13 +510,45 @@ export default function Carrito() {
                       size="sm"
                       variant="secondary"
                       className={styles.couponApply}
-                      onClick={applyCoupon}>
+                      onClick={handleApplyCode}>
                       Aplicar
                     </Button>
                   </>
                 ) : null}
               </div>
             </div>
+          ) : null}
+
+          {dbardoActive && !couponsBlocked ? (
+            <>
+              {dbardo.dbardoEntries.map((entry) => (
+                <div key={entry.code} className={styles.couponAppliedBlock}>
+                  <div className={styles.couponAppliedHeader}>
+                    {entry.tier === "burger" ? "✓ PREMIO D BARDO" : "✓ DESCUENTO D BARDO"}
+                  </div>
+                  <div className={styles.couponAppliedCode}>{entry.code}</div>
+                  <div className={styles.couponAppliedBenefit}>
+                    {entry.tier === "burger"
+                      ? `${entry.targetBurgerName} doble gratis`
+                      : `${entry.tier}% off`}
+                  </div>
+                  <div className={styles.couponAppliedDiscount}>
+                    Descuento: -{formatMoney(entry.discount)}
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.couponAppliedRemove}
+                    onClick={() => dbardo.removeDbardoCode(entry.code)}>
+                    Quitar código
+                  </button>
+                </div>
+              ))}
+              {dbardo.dbardoCapped ? (
+                <div className={styles.couponStatusLine}>
+                  Llegaste al tope de $30.000 de descuento por pedido.
+                </div>
+              ) : null}
+            </>
           ) : null}
 
           {couponApplied && giveawayTarget ? (
@@ -619,6 +696,12 @@ export default function Carrito() {
                 }
                 // Cupón vencido con el carrito abierto: no se envía la promo.
                 if (!couponsBlocked && !revalidateCoupon()) {
+                  event.preventDefault();
+                  return;
+                }
+                // Códigos D BARDO: alguno pudo vencer o quedarse sin burger
+                // doble para regalar mientras el carrito estaba abierto.
+                if (!couponsBlocked && !dbardo.revalidateDbardoCodes()) {
                   event.preventDefault();
                 }
               }}>
