@@ -89,6 +89,9 @@ function TotalsBreakdown({ totals, discountLabel, subtotalLabel = "Subtotal" }) 
   );
 }
 
+// Go-live del checkout web (20/11): ningún cupón vigente, el campo se oculta. Para reactivarlo, poner true.
+const COUPONS_UI_ENABLED = false;
+
 export default function Carrito() {
   const cart = useCart();
   const { closedActionLabel, isClosed, dateKey, minutes } = useStoreStatus();
@@ -442,7 +445,7 @@ export default function Carrito() {
                 ) : null}
               </div>
               <div className={styles.addRight}>
-                {!appliedCoupon && !couponsBlocked ? (
+                {COUPONS_UI_ENABLED && !appliedCoupon && !couponsBlocked ? (
                   <>
                     <input
                       className={styles.couponInput}
