@@ -39,6 +39,7 @@ export const COUPON_CODES = {
   burger10: "BURGER10",
   unamas: "UNAMAS",
   cortasemana10: "CORTASEMANA10",
+  felipe: "FELIPE",
 };
 
 // Variantes toleradas para que los clientes puedan escribir "combo ya" con espacios o guiones.
@@ -61,6 +62,17 @@ const BURGER10_COUPON_EXPIRY_TS = Date.parse("2026-11-06T00:00:00-03:00"); // ve
 const UNAMAS_COUPON_EXPIRY_TS = Date.parse("2026-10-21T23:50:00-03:00"); // vale solo miércoles 21/10/2026 hasta las 23:50 (BA)
 const CORTASEMANA10_COUPON_START_TS = Date.parse("2026-10-28T00:00:00-03:00"); // miércoles 28/10/2026 00:00 (BA)
 const CORTASEMANA10_COUPON_EXPIRY_TS = Date.parse("2026-10-30T00:00:00-03:00"); // vence viernes 30/10/2026 00:00 (BA) -> vale miércoles 28/10 y jueves 29/10
+
+// ============================================================================
+// FELIPE — descuento de fin de semana (sábado 21 y domingo 22/11/2026).
+// ÚNICO lugar para dar de baja el código a mano antes de que venza solo:
+// poner FELIPE_COUPON_ENABLED en false. No hace falta tocar nada más.
+const FELIPE_COUPON_ENABLED = true;
+// Vence lunes 23/11/2026 00:00 (hora de Argentina, -03:00) -> vale todo el
+// sábado 21 y el domingo 22 hasta las 23:59.
+const FELIPE_COUPON_EXPIRY_TS = Date.parse("2026-11-23T00:00:00-03:00");
+// ============================================================================
+
 const COMBO_TARGETS = { simple: 12990, doble: 15990 };
 const CHEESE_10_LUCAS_TARGET = 10000;
 
@@ -470,6 +482,39 @@ function findBestGiveawayTarget(cartItems = [], date = new Date()) {
   return best;
 }
 
+// FELIPE: descuenta el precio BASE de catálogo (sin ofertas del día activas)
+// de la doble de UNA sola burger por pedido. Solo entran líneas doble o
+// superior (las simples no participan); si hay varias, gana la de doble más
+// cara. Si la línea elegida es triple (o más), el descuento queda en el
+// valor de SU doble, así que el cliente paga la diferencia con lo que esa
+// unidad cuesta hoy (ver findBestFelipeTarget / evaluateCoupon).
+function findBestFelipeTarget(cartItems = []) {
+  let best = null;
+  for (const item of cartItems) {
+    if (item.meta?.type !== "burger" || !item.qty) continue;
+    const size = item.meta?.size;
+    if (!size || size === "simple") continue;
+    const burger = burgersById[item.meta?.burgerId];
+    const doubleBasePrice = burger?.prices?.doble;
+    if (typeof doubleBasePrice !== "number") continue;
+    // Tope defensivo: nunca descuenta mas de lo que esa linea cuesta hoy en
+    // la practica (cubre el caso raro de una oferta activa que la deje mas
+    // barata que su propia doble).
+    const value = Math.min(doubleBasePrice, item.unitPrice || 0);
+    if (value > (best?.discount || 0)) {
+      best = {
+        discount: value,
+        targetLineKey: item.key,
+        targetBurgerId: item.meta?.burgerId || null,
+        targetBurgerName: burger?.name || item.name || "",
+        targetSize: size,
+        giveawayBaseSize: "doble",
+      };
+    }
+  }
+  return best;
+}
+
 /**
  * Evaluate a coupon against the current cart.
  * @param {Object} params
@@ -686,6 +731,29 @@ if (normalized === COUPON_CODES.weekend20) {
       appliedCode: COUPON_CODES.cortasemana10,
       discount,
       message: `${COUPON_CODES.cortasemana10} aplicado: 10% off en todas las burgers`,
+    };
+  }
+
+  if (normalized === COUPON_CODES.felipe) {
+    if (!FELIPE_COUPON_ENABLED || nowTs >= FELIPE_COUPON_EXPIRY_TS) {
+      return { error: "este código ya venció", discount: 0 };
+    }
+    const target = findBestFelipeTarget(cartItems);
+    if (!target) {
+      return {
+        error: "este código aplica a burgers dobles o superiores",
+        discount: 0,
+      };
+    }
+    return {
+      appliedCode: COUPON_CODES.felipe,
+      discount: target.discount,
+      targetLineKey: target.targetLineKey,
+      targetBurgerId: target.targetBurgerId,
+      targetBurgerName: target.targetBurgerName,
+      targetSize: target.targetSize,
+      giveawayBaseSize: target.giveawayBaseSize,
+      message: `${COUPON_CODES.felipe} aplicado`,
     };
   }
 

@@ -411,3 +411,76 @@ describe("D BARDO: varios códigos acumulados en el mismo pedido", () => {
     expect(result.totalDiscount).toBe(1000);
   });
 });
+
+describe("FELIPE", () => {
+  const SAT = new Date("2026-11-21T20:00:00-03:00"); // sábado 21/11
+  const SUN = new Date("2026-11-22T22:00:00-03:00"); // domingo 22/11
+  const CHEESE_DOBLE = { key: "burger:cheese:doble", name: "Cheese", qty: 1, unitPrice: 15500, meta: { type: "burger", burgerId: "cheese", size: "doble" } };
+  const CHEESE_SIMPLE = { key: "burger:cheese:simple", name: "Cheese", qty: 1, unitPrice: 11500, meta: { type: "burger", burgerId: "cheese", size: "simple" } };
+  const SMOK_DOBLE = { key: "burger:smoklahoma:doble", name: "Smoklahoma", qty: 1, unitPrice: 17000, meta: { type: "burger", burgerId: "smoklahoma", size: "doble" } };
+  const SMOK_TRIPLE = { key: "burger:smoklahoma:triple", name: "Smoklahoma", qty: 1, unitPrice: 21000, meta: { type: "burger", burgerId: "smoklahoma", size: "triple" } };
+
+  it("acepta el código sin importar mayúsculas ni espacios", () => {
+    for (const input of ["FELIPE", "felipe", "  Felipe ", " FeLiPe "]) {
+      expect(evalCode(input, [CHEESE_DOBLE], SAT).appliedCode).toBe("FELIPE");
+    }
+  });
+
+  it("caso 1: una doble de la más barata -> descuenta su precio entero", () => {
+    const result = evalCode("FELIPE", [CHEESE_DOBLE], SAT);
+    expect(result.appliedCode).toBe("FELIPE");
+    expect(result.targetLineKey).toBe(CHEESE_DOBLE.key);
+    expect(result.discount).toBe(15500);
+  });
+
+  it("caso 2: una triple de la más cara -> descuenta el precio de SU doble, no el de la triple", () => {
+    const result = evalCode("FELIPE", [SMOK_TRIPLE], SAT);
+    expect(result.targetLineKey).toBe(SMOK_TRIPLE.key);
+    expect(result.targetSize).toBe("triple");
+    expect(result.discount).toBe(17000); // doble de Smoklahoma, no los 21000 de la triple
+  });
+
+  it("caso 3: dos dobles de distinto precio -> gana la más cara, una sola unidad", () => {
+    const result = evalCode("FELIPE", [CHEESE_DOBLE, SMOK_DOBLE], SAT);
+    expect(result.targetLineKey).toBe(SMOK_DOBLE.key);
+    expect(result.discount).toBe(17000);
+  });
+
+  it("caso 4: solo simples -> rechazado con el mensaje pedido", () => {
+    const result = evalCode("FELIPE", [CHEESE_SIMPLE], SAT);
+    expect(result.error).toBe("este código aplica a burgers dobles o superiores");
+    expect(result.appliedCode).toBeUndefined();
+  });
+
+  it("carrito vacío (sin burgers) -> mismo rechazo", () => {
+    expect(evalCode("FELIPE", [], SAT).error).toBe("este código aplica a burgers dobles o superiores");
+  });
+
+  it("caso 7: acepta en minúsculas y con espacios alrededor (ya cubierto arriba, repetido explícito)", () => {
+    expect(evalCode(" felipe ", [CHEESE_DOBLE], SAT).appliedCode).toBe("FELIPE");
+  });
+
+  it("vale sábado 21 y domingo 22/11, vence el lunes 23/11 00:00 (BA)", () => {
+    expect(evalCode("FELIPE", [CHEESE_DOBLE], SAT).appliedCode).toBe("FELIPE");
+    expect(evalCode("FELIPE", [CHEESE_DOBLE], SUN).appliedCode).toBe("FELIPE");
+    expect(evalCode("FELIPE", [CHEESE_DOBLE], new Date("2026-11-22T23:59:59-03:00")).appliedCode).toBe("FELIPE");
+    expect(evalCode("FELIPE", [CHEESE_DOBLE], new Date("2026-11-23T00:00:00-03:00")).error).toBe(
+      "este código ya venció",
+    );
+  });
+
+  it("caso 8: fecha simulada posterior al vencimiento -> rechazado", () => {
+    const result = evalCode("FELIPE", [CHEESE_DOBLE], new Date("2026-11-24T12:00:00-03:00"));
+    expect(result.error).toBe("este código ya venció");
+    expect(result.appliedCode).toBeUndefined();
+  });
+
+  it("no descuenta adicionales: el campo discount es solo el valor de la burger", () => {
+    // extras/papas no entran en cartItems de este test porque el descuento
+    // de FELIPE nunca los toca (se calcula solo sobre meta.type==='burger');
+    // acá solo confirmamos que el discount no cambia si hay otras líneas no-burger.
+    const dipExtra = { key: "dip:1", name: "Dip extra", qty: 1, unitPrice: 1000, meta: { type: "dip" } };
+    const result = evalCode("FELIPE", [CHEESE_DOBLE, dipExtra], SAT);
+    expect(result.discount).toBe(15500);
+  });
+});
