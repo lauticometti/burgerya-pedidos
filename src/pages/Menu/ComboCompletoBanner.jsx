@@ -91,7 +91,7 @@ export default function ComboCompletoBanner({ onAdd }) {
           className={styles.photo}
         />
         <img
-          src={resolvePublicPath("/papas/papas-grandes.png")}
+          src={resolvePublicPath("/combos/papas-chicas-cono.webp")}
           alt="Papas"
           className={styles.photo}
         />
