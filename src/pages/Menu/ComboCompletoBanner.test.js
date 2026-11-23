@@ -5,7 +5,7 @@ import {
   COMBO_COMPLETO_PRICE,
 } from "./ComboCompletoBanner";
 import { getCartItemsTotal, getRegaloCartDiscount } from "../../utils/cartLineTotals";
-import { evaluateCoupon } from "../../utils/coupons";
+import { evaluateCoupon, evaluateDbardoStack } from "../../utils/coupons";
 
 describe("isComboCompletoActive", () => {
   it("activo solo el 23/11/2026", () => {
@@ -81,13 +81,43 @@ describe("el combo no acumula con otras promos", () => {
     const date = new Date("2026-11-23T20:00:00-03:00");
     const { burgerItem } = buildComboCompletoCartItems(date);
 
-    const result = evaluateCoupon({
-      code: "DB-28TL",
+    const result = evaluateDbardoStack({
+      codes: ["DB-28TL"],
       cartItems: [burgerItem],
+      cartTotal: 18000,
       now: date,
     });
 
-    expect(result.discount).toBe(0);
-    expect(result.error).toBe("DB-28TL es burger doble gratis: agregá una burger doble al carrito");
+    expect(result.totalDiscount).toBe(0);
+    expect(result.entries[0].error).toBe(
+      "No hay más burgers dobles en el carrito para regalar: agregá otra doble",
+    );
+    expect(result.giveawayTargets).toHaveLength(0);
+  });
+
+  it("apilar dos D BARDO (burger + 15%) con SOLO el combo en el carrito: el % corre sobre el total, la burger no se toca", () => {
+    const date = new Date("2026-11-23T20:00:00-03:00");
+    const { burgerItem, bebidaItem, dipItem } = buildComboCompletoCartItems(date);
+    const cartItems = [burgerItem, bebidaItem, dipItem];
+    const cartTotal = getCartItemsTotal(cartItems);
+    expect(cartTotal).toBe(18000);
+
+    const result = evaluateDbardoStack({
+      codes: ["DB-28TL", "DB-ZY2W"], // "burger" + 15%
+      cartItems,
+      cartTotal,
+      now: date,
+    });
+
+    // La burger gratis no encuentra doble elegible (comboLocked) -> error, $0.
+    expect(result.entries[0].tier).toBeUndefined();
+    expect(result.entries[0].error).toContain("No hay más burgers dobles");
+    // El 15% sí corre, sobre el total completo del pedido (18.000), no se
+    // recalcula sobre nada que ya haya tocado la burger del combo.
+    expect(result.entries[1].tier).toBe(15);
+    expect(result.entries[1].discount).toBe(Math.round(18000 * 0.15));
+    expect(result.totalDiscount).toBe(result.entries[1].discount);
+    expect(result.totalDiscount).toBeLessThanOrEqual(30000);
+    expect(result.giveawayTargets).toHaveLength(0);
   });
 });
