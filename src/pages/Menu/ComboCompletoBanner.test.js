@@ -5,7 +5,11 @@ import {
   COMBO_COMPLETO_PRICE,
 } from "./ComboCompletoBanner";
 import { getCartItemsTotal, getRegaloCartDiscount } from "../../utils/cartLineTotals";
-import { evaluateCoupon, evaluateDbardoStack } from "../../utils/coupons";
+import {
+  evaluateCoupon,
+  evaluateDbardoStack,
+  DBARDO_COMBO_BLOCKED_MESSAGE,
+} from "../../utils/coupons";
 
 describe("isComboCompletoActive", () => {
   it("activo solo el 23/11/2026", () => {
@@ -77,7 +81,7 @@ describe("el combo no acumula con otras promos", () => {
     expect(getRegaloCartDiscount([burgerItem])).toBe(0);
   });
 
-  it("un código D BARDO 'burger doble gratis' (vigente hasta el 30/11) no regala la burger del combo", () => {
+  it("un código D BARDO 'burger doble gratis' con el combo en el carrito: se rechaza entero, no regala la burger", () => {
     const date = new Date("2026-11-23T20:00:00-03:00");
     const { burgerItem } = buildComboCompletoCartItems(date);
 
@@ -89,13 +93,11 @@ describe("el combo no acumula con otras promos", () => {
     });
 
     expect(result.totalDiscount).toBe(0);
-    expect(result.entries[0].error).toBe(
-      "No hay más burgers dobles en el carrito para regalar: agregá otra doble",
-    );
+    expect(result.entries[0].error).toBe(DBARDO_COMBO_BLOCKED_MESSAGE);
     expect(result.giveawayTargets).toHaveLength(0);
   });
 
-  it("apilar dos D BARDO (burger + 15%) con SOLO el combo en el carrito: el % corre sobre el total, la burger no se toca", () => {
+  it("apilar dos D BARDO (burger + 15%) con el combo en el carrito: los DOS se rechazan, el % ya no corre sobre el total", () => {
     const date = new Date("2026-11-23T20:00:00-03:00");
     const { burgerItem, bebidaItem, dipItem } = buildComboCompletoCartItems(date);
     const cartItems = [burgerItem, bebidaItem, dipItem];
@@ -109,15 +111,60 @@ describe("el combo no acumula con otras promos", () => {
       now: date,
     });
 
-    // La burger gratis no encuentra doble elegible (comboLocked) -> error, $0.
+    expect(result.entries[0].error).toBe(DBARDO_COMBO_BLOCKED_MESSAGE);
+    expect(result.entries[1].error).toBe(DBARDO_COMBO_BLOCKED_MESSAGE);
     expect(result.entries[0].tier).toBeUndefined();
-    expect(result.entries[0].error).toContain("No hay más burgers dobles");
-    // El 15% sí corre, sobre el total completo del pedido (18.000), no se
-    // recalcula sobre nada que ya haya tocado la burger del combo.
-    expect(result.entries[1].tier).toBe(15);
-    expect(result.entries[1].discount).toBe(Math.round(18000 * 0.15));
-    expect(result.totalDiscount).toBe(result.entries[1].discount);
-    expect(result.totalDiscount).toBeLessThanOrEqual(30000);
+    expect(result.entries[1].tier).toBeUndefined();
+    expect(result.totalDiscount).toBe(0);
     expect(result.giveawayTargets).toHaveLength(0);
+  });
+
+  it("con otra burger doble (no del combo) sumada al carrito, el combo sigue bloqueando todo el stack", () => {
+    const date = new Date("2026-11-23T20:00:00-03:00");
+    const { burgerItem, bebidaItem, dipItem } = buildComboCompletoCartItems(date);
+    const otraDoble = {
+      key: "burger:bacon:doble",
+      name: "Bacon",
+      qty: 1,
+      unitPrice: 16500,
+      meta: { type: "burger", burgerId: "bacon", size: "doble" },
+    };
+    const cartItems = [burgerItem, bebidaItem, dipItem, otraDoble];
+    const cartTotal = getCartItemsTotal(cartItems);
+
+    const result = evaluateDbardoStack({
+      codes: ["DB-28TL", "DB-ZY2W"],
+      cartItems,
+      cartTotal,
+      now: date,
+    });
+
+    expect(result.entries[0].error).toBe(DBARDO_COMBO_BLOCKED_MESSAGE);
+    expect(result.entries[1].error).toBe(DBARDO_COMBO_BLOCKED_MESSAGE);
+    expect(result.totalDiscount).toBe(0);
+    expect(result.giveawayTargets).toHaveLength(0);
+  });
+
+  it("sacando el combo del carrito, los mismos códigos vuelven a aplicar normal sobre la otra burger", () => {
+    const date = new Date("2026-11-23T20:00:00-03:00");
+    const otraDoble = {
+      key: "burger:bacon:doble",
+      name: "Bacon",
+      qty: 1,
+      unitPrice: 16500,
+      meta: { type: "burger", burgerId: "bacon", size: "doble" },
+    };
+    const result = evaluateDbardoStack({
+      codes: ["DB-28TL", "DB-ZY2W"],
+      cartItems: [otraDoble],
+      cartTotal: 16500,
+      now: date,
+    });
+
+    expect(result.entries[0].error).toBeUndefined();
+    expect(result.entries[0].tier).toBe("burger");
+    expect(result.entries[0].discount).toBe(16500);
+    expect(result.entries[1].error).toBeUndefined();
+    expect(result.entries[1].tier).toBe(15);
   });
 });

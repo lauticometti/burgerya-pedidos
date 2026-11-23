@@ -35,7 +35,7 @@ import { computeCheckoutTotals } from "../../utils/checkoutTotals";
 import useCarritoTimeSlots from "./useCarritoTimeSlots";
 import useCouponCode from "./useCouponCode";
 import useDbardoCodes from "./useDbardoCodes";
-import { normalizeDbardoCode } from "../../utils/coupons";
+import { normalizeDbardoCode, DBARDO_COMBO_BLOCKED_MESSAGE } from "../../utils/coupons";
 import CartUpsellBanner, { shouldShowBebidaUpsell } from "./CartUpsellBanner";
 import CartDipUpsellBanner from "./CartDipUpsellBanner";
 import ClosedInlineNotice from "../../components/alerts/ClosedInlineNotice";
@@ -212,6 +212,21 @@ export default function Carrito() {
     // importa reaccionar cuando couponsBlocked o dbardoActive cambian.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [couponsBlocked, dbardoActive]);
+  // Combo completo en el carrito: si ya había códigos D BARDO aplicados, se
+  // sacan (no solo se bloquea el ingreso de nuevos) y se avisa por qué —
+  // evaluateDbardoStack ya los rechazaría en el cálculo, pero acá además se
+  // limpia el estado para que no quede un código "fantasma" aplicado.
+  const comboInCart = React.useMemo(
+    () => cart.items.some((it) => it.meta?.comboLocked),
+    [cart.items],
+  );
+  React.useEffect(() => {
+    if (comboInCart && dbardoActive) {
+      dbardo.clearDbardoCodes();
+      toast.error(DBARDO_COMBO_BLOCKED_MESSAGE);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [comboInCart, dbardoActive]);
   const regaloDiscount = React.useMemo(
     () => (regalo.applies ? getRegaloCartDiscount(cart.items) : 0),
     [regalo.applies, cart.items],

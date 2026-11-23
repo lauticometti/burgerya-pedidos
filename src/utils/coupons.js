@@ -343,6 +343,9 @@ export function normalizeDbardoCode(code) {
 //     distinta del pool, nunca la misma.
 // El conjunto se tapea en DBARDO_DISCOUNT_CAP ($30.000) TOTAL por pedido, no
 // por código individual.
+export const DBARDO_COMBO_BLOCKED_MESSAGE =
+  "Los códigos D BARDO no se pueden usar con el combo completo.";
+
 export function evaluateDbardoStack({
   codes = [],
   cartItems = [],
@@ -351,6 +354,11 @@ export function evaluateDbardoStack({
 }) {
   const nowTs = now.getTime();
   const active = isDbardoCouponActive(nowTs);
+  // Combo completo (precio fijo $18.000): ningún código D BARDO corre con él
+  // en el carrito, aunque haya otras burgers "libres" — ni el regalo de
+  // doble ni el % (que de otra forma correría sobre el total completo,
+  // incluyendo el combo). Se rechazan todos los códigos enteros.
+  const comboInCart = cartItems.some((item) => item.meta?.comboLocked);
 
   // Pool de unidades "doble" disponibles para regalar, de la más cara a la
   // más barata. Cada código "burger" reclama una unidad; si hay 2 unidades
@@ -394,6 +402,10 @@ export function evaluateDbardoStack({
       continue;
     }
     seen.add(normalized);
+    if (comboInCart) {
+      entries.push({ code: dbardo.code, error: DBARDO_COMBO_BLOCKED_MESSAGE });
+      continue;
+    }
     if (!active) {
       entries.push({ code: dbardo.code, error: "Ese código de D BARDO venció" });
       continue;

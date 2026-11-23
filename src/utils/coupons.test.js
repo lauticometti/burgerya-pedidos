@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { evaluateCoupon, evaluateDbardoStack } from "./coupons";
+import { evaluateCoupon, evaluateDbardoStack, DBARDO_COMBO_BLOCKED_MESSAGE } from "./coupons";
 
 const DOBLE = { key: "burger:cheese:doble", name: "Cheese", qty: 2, unitPrice: 14500, meta: { type: "burger", burgerId: "cheese", size: "doble" } };
 const SIMPLE = { key: "burger:cheese:simple", name: "Cheese", qty: 1, unitPrice: 11000, meta: { type: "burger", burgerId: "cheese", size: "simple" } };
@@ -409,6 +409,65 @@ describe("D BARDO: varios códigos acumulados en el mismo pedido", () => {
     const result = evalDbardo(["DB-BT3N", "DB-BT3N"], [], 10000);
     expect(result.entries[1].error).toBe("Ese código ya está aplicado");
     expect(result.totalDiscount).toBe(1000);
+  });
+});
+
+describe("D BARDO: bloqueado entero con el combo completo en el carrito", () => {
+  const COMBO_BURGER = {
+    key: "burger:cheese|size:doble",
+    name: "Cheese",
+    qty: 1,
+    unitPrice: 15500,
+    meta: { type: "burger", burgerId: "cheese", size: "doble", comboLocked: true },
+  };
+  // Doble "libre" (no del combo) en el mismo carrito: el bloqueo tiene que
+  // valer igual, no alcanza con excluir solo la línea del combo del pool.
+  const OTRA_DOBLE = {
+    key: "burger:bacon:doble",
+    name: "Bacon",
+    qty: 1,
+    unitPrice: 16500,
+    meta: { type: "burger", burgerId: "bacon", size: "doble" },
+  };
+
+  it("código de % se rechaza entero con el combo solo en el carrito", () => {
+    const result = evalDbardo(["DB-BT3N"], [COMBO_BURGER], 18000);
+    expect(result.entries[0].error).toBe(DBARDO_COMBO_BLOCKED_MESSAGE);
+    expect(result.totalDiscount).toBe(0);
+  });
+
+  it("código 'burger doble gratis' se rechaza entero, mismo mensaje que el de %", () => {
+    const result = evalDbardo(["DB-28TL"], [COMBO_BURGER], 18000);
+    expect(result.entries[0].error).toBe(DBARDO_COMBO_BLOCKED_MESSAGE);
+    expect(result.totalDiscount).toBe(0);
+    expect(result.giveawayTargets).toHaveLength(0);
+  });
+
+  it("con otra doble libre en el carrito además del combo, igual se bloquea entero (no regala la libre)", () => {
+    const result = evalDbardo(["DB-28TL"], [COMBO_BURGER, OTRA_DOBLE], 34500);
+    expect(result.entries[0].error).toBe(DBARDO_COMBO_BLOCKED_MESSAGE);
+    expect(result.totalDiscount).toBe(0);
+    expect(result.giveawayTargets).toHaveLength(0);
+  });
+
+  it("apilando % + burger con el combo presente, los dos códigos se rechazan", () => {
+    const result = evalDbardo(["DB-BT3N", "DB-28TL"], [COMBO_BURGER, OTRA_DOBLE], 34500);
+    expect(result.entries[0].error).toBe(DBARDO_COMBO_BLOCKED_MESSAGE);
+    expect(result.entries[1].error).toBe(DBARDO_COMBO_BLOCKED_MESSAGE);
+    expect(result.totalDiscount).toBe(0);
+  });
+
+  it("el bloqueo por combo no depende de la vigencia: gana aunque el código ya haya vencido", () => {
+    const result = evalDbardo(["DB-BT3N"], [COMBO_BURGER], 18000, new Date("2026-12-05T00:00:00-03:00"));
+    expect(result.entries[0].error).toBe(DBARDO_COMBO_BLOCKED_MESSAGE);
+  });
+
+  it("sin el combo en el carrito, el mismo código vuelve a aplicar normal", () => {
+    const withoutCombo = { ...COMBO_BURGER, meta: { ...COMBO_BURGER.meta, comboLocked: false } };
+    const result = evalDbardo(["DB-BT3N"], [withoutCombo], 18000);
+    expect(result.entries[0].error).toBeUndefined();
+    expect(result.entries[0].discount).toBe(1800);
+    expect(result.totalDiscount).toBe(1800);
   });
 });
 
