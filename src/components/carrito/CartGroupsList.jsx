@@ -24,7 +24,7 @@ export default function CartGroupsList({
   onToggleFriesUpgrade,
   burgersById = {},
   classes,
-  giveawayTargetKey = null,
+  giveawayTargetKeys = [],
 }) {
   return groups.map((group) => {
     const groupItems = groupedItems[group.key] || [];
@@ -85,7 +85,7 @@ export default function CartGroupsList({
                   canAddExtras={canAddExtras}
                   removableIngredients={burgerConfig?.removableIngredients || []}
                   burgersById={burgersById}
-                  hasGiveawayBenefit={giveawayTargetKey === item.key}
+                  hasGiveawayBenefit={giveawayTargetKeys.includes(item.key)}
                 />
               </React.Fragment>
             );

@@ -39,6 +39,7 @@ export const COUPON_CODES = {
   burger10: "BURGER10",
   unamas: "UNAMAS",
   cortasemana10: "CORTASEMANA10",
+  felipe: "FELIPE",
 };
 
 // Variantes toleradas para que los clientes puedan escribir "combo ya" con espacios o guiones.
@@ -61,6 +62,17 @@ const BURGER10_COUPON_EXPIRY_TS = Date.parse("2026-11-06T00:00:00-03:00"); // ve
 const UNAMAS_COUPON_EXPIRY_TS = Date.parse("2026-10-21T23:50:00-03:00"); // vale solo miércoles 21/10/2026 hasta las 23:50 (BA)
 const CORTASEMANA10_COUPON_START_TS = Date.parse("2026-10-28T00:00:00-03:00"); // miércoles 28/10/2026 00:00 (BA)
 const CORTASEMANA10_COUPON_EXPIRY_TS = Date.parse("2026-10-30T00:00:00-03:00"); // vence viernes 30/10/2026 00:00 (BA) -> vale miércoles 28/10 y jueves 29/10
+
+// ============================================================================
+// FELIPE — descuento de fin de semana (sábado 21 y domingo 22/11/2026).
+// ÚNICO lugar para dar de baja el código a mano antes de que venza solo:
+// poner FELIPE_COUPON_ENABLED en false. No hace falta tocar nada más.
+const FELIPE_COUPON_ENABLED = true;
+// Vence lunes 23/11/2026 00:00 (hora de Argentina, -03:00) -> vale todo el
+// sábado 21 y el domingo 22 hasta las 23:59.
+const FELIPE_COUPON_EXPIRY_TS = Date.parse("2026-11-23T00:00:00-03:00");
+// ============================================================================
+
 const COMBO_TARGETS = { simple: 12990, doble: 15990 };
 const CHEESE_10_LUCAS_TARGET = 10000;
 
@@ -308,11 +320,42 @@ function isDbardoCouponActive(nowTs = Date.now()) {
   return nowTs < DBARDO_COUPON_EXPIRY_TS;
 }
 
-// Burger ya x D BARDO (premio "burger"): cualquier burger, pero solo tamaño
-// doble. Se aplica sobre la doble más cara del carrito; a diferencia del
-// premio de sorteo no hay versión triple (ese tamaño no entra).
-function findBestDbardoFreeDoubleTarget(cartItems = [], date = new Date()) {
-  let best = null;
+const burgersById = burgers.reduce((acc, b) => {
+  acc[b.id] = b;
+  return acc;
+}, {});
+
+// Código D BARDO válido -> su forma "oficial" (ej. "db bt3n" -> "DB-BT3N"),
+// o null si no es un código D BARDO. Único punto de entrada para reconocer
+// estos códigos desde la UI (Carrito/useDbardoCodes).
+export function normalizeDbardoCode(code) {
+  const dbardo = NORMALIZED_DBARDO_COUPONS.get(normalizeCouponInput(code));
+  return dbardo ? dbardo.code : null;
+}
+
+// Evalúa una PILA de códigos D BARDO aplicados juntos sobre el mismo pedido
+// (un cliente puede tener varios stickers y canjearlos todos). Cada código
+// aporta su descuento de forma independiente:
+//   - porcentaje: % sobre cartTotal (no se recalcula en cascada sobre lo que
+//     ya descontaron los códigos anteriores, se suman los porcentajes).
+//   - "burger": regala UNA unidad doble disponible del carrito (la más cara
+//     primero); si hay varios códigos "burger", cada uno se lleva una unidad
+//     distinta del pool, nunca la misma.
+// El conjunto se tapea en DBARDO_DISCOUNT_CAP ($30.000) TOTAL por pedido, no
+// por código individual.
+export function evaluateDbardoStack({
+  codes = [],
+  cartItems = [],
+  cartTotal = 0,
+  now = new Date(),
+}) {
+  const nowTs = now.getTime();
+  const active = isDbardoCouponActive(nowTs);
+
+  // Pool de unidades "doble" disponibles para regalar, de la más cara a la
+  // más barata. Cada código "burger" reclama una unidad; si hay 2 unidades
+  // en la misma línea (qty 2), cada una se puede regalar por separado.
+  const doblePool = [];
   for (const item of cartItems) {
     if (item.meta?.type !== "burger" || item.meta?.size !== "doble" || !item.qty) {
       continue;
@@ -320,27 +363,86 @@ function findBestDbardoFreeDoubleTarget(cartItems = [], date = new Date()) {
     if (item.meta?.comboLocked) continue;
     const burger = burgersById[item.meta?.burgerId];
     const unitPrice = burger
-      ? getBurgerPrice(burger, "doble", date)
+      ? getBurgerPrice(burger, "doble", now)
       : item.unitPrice || 0;
     if (!(unitPrice > 0)) continue;
-    if (!best || unitPrice > best.discount) {
-      best = {
-        discount: unitPrice,
-        targetLineKey: item.key,
-        targetBurgerId: item.meta?.burgerId || null,
-        targetBurgerName: burger?.name || item.name || "",
-        targetSize: "doble",
-        giveawayBaseSize: "doble",
-      };
+    for (let i = 0; i < item.qty; i++) {
+      doblePool.push({
+        lineKey: item.key,
+        burgerId: item.meta?.burgerId || null,
+        burgerName: burger?.name || item.name || "",
+        unitPrice,
+      });
     }
   }
-  return best;
-}
+  doblePool.sort((a, b) => b.unitPrice - a.unitPrice);
+  let poolIndex = 0;
 
-const burgersById = burgers.reduce((acc, b) => {
-  acc[b.id] = b;
-  return acc;
-}, {});
+  const seen = new Set();
+  const entries = [];
+  let rawTotal = 0;
+
+  for (const rawCode of codes) {
+    const normalized = normalizeCouponInput(rawCode);
+    const dbardo = NORMALIZED_DBARDO_COUPONS.get(normalized);
+    if (!dbardo) {
+      entries.push({ code: rawCode, error: "Código inválido" });
+      continue;
+    }
+    if (seen.has(normalized)) {
+      entries.push({ code: dbardo.code, error: "Ese código ya está aplicado" });
+      continue;
+    }
+    seen.add(normalized);
+    if (!active) {
+      entries.push({ code: dbardo.code, error: "Ese código de D BARDO venció" });
+      continue;
+    }
+
+    if (dbardo.tier === "burger") {
+      if (poolIndex >= doblePool.length) {
+        entries.push({
+          code: dbardo.code,
+          error: "No hay más burgers dobles en el carrito para regalar: agregá otra doble",
+        });
+        continue;
+      }
+      const target = doblePool[poolIndex++];
+      rawTotal += target.unitPrice;
+      entries.push({
+        code: dbardo.code,
+        tier: "burger",
+        discount: target.unitPrice,
+        targetLineKey: target.lineKey,
+        targetBurgerId: target.burgerId,
+        targetBurgerName: target.burgerName,
+        targetSize: "doble",
+      });
+    } else {
+      const discount = computePercentDiscount(cartTotal, dbardo.tier / 100);
+      rawTotal += discount;
+      entries.push({ code: dbardo.code, tier: dbardo.tier, discount });
+    }
+  }
+
+  const totalDiscount = Math.min(rawTotal, DBARDO_DISCOUNT_CAP);
+  const giveawayTargets = entries
+    .filter((e) => e.targetLineKey)
+    .map((e) => ({
+      lineKey: e.targetLineKey,
+      burgerId: e.targetBurgerId,
+      burgerName: e.targetBurgerName,
+      size: e.targetSize,
+    }));
+
+  return {
+    entries,
+    totalDiscount,
+    rawTotal,
+    capped: rawTotal > DBARDO_DISCOUNT_CAP,
+    giveawayTargets,
+  };
+}
 
 // El premio regala una burger: simple/doble se descuentan enteras, la triple
 // solo hasta el precio de la doble de esa misma burger (el cliente paga la
@@ -380,6 +482,39 @@ function findBestGiveawayTarget(cartItems = [], date = new Date()) {
         targetBurgerName: burger?.name || item.name || "",
         targetSize: item.meta?.size || null,
         giveawayBaseSize: item.meta?.size === "triple" ? "doble" : item.meta?.size || null,
+      };
+    }
+  }
+  return best;
+}
+
+// FELIPE: descuenta el precio BASE de catálogo (sin ofertas del día activas)
+// de la doble de UNA sola burger por pedido. Solo entran líneas doble o
+// superior (las simples no participan); si hay varias, gana la de doble más
+// cara. Si la línea elegida es triple (o más), el descuento queda en el
+// valor de SU doble, así que el cliente paga la diferencia con lo que esa
+// unidad cuesta hoy (ver findBestFelipeTarget / evaluateCoupon).
+function findBestFelipeTarget(cartItems = []) {
+  let best = null;
+  for (const item of cartItems) {
+    if (item.meta?.type !== "burger" || !item.qty) continue;
+    const size = item.meta?.size;
+    if (!size || size === "simple") continue;
+    const burger = burgersById[item.meta?.burgerId];
+    const doubleBasePrice = burger?.prices?.doble;
+    if (typeof doubleBasePrice !== "number") continue;
+    // Tope defensivo: nunca descuenta mas de lo que esa linea cuesta hoy en
+    // la practica (cubre el caso raro de una oferta activa que la deje mas
+    // barata que su propia doble).
+    const value = Math.min(doubleBasePrice, item.unitPrice || 0);
+    if (value > (best?.discount || 0)) {
+      best = {
+        discount: value,
+        targetLineKey: item.key,
+        targetBurgerId: item.meta?.burgerId || null,
+        targetBurgerName: burger?.name || item.name || "",
+        targetSize: size,
+        giveawayBaseSize: "doble",
       };
     }
   }
@@ -605,6 +740,29 @@ if (normalized === COUPON_CODES.weekend20) {
     };
   }
 
+  if (normalized === COUPON_CODES.felipe) {
+    if (!FELIPE_COUPON_ENABLED || nowTs >= FELIPE_COUPON_EXPIRY_TS) {
+      return { error: "este código ya venció", discount: 0 };
+    }
+    const target = findBestFelipeTarget(cartItems);
+    if (!target) {
+      return {
+        error: "este código aplica a burgers dobles o superiores",
+        discount: 0,
+      };
+    }
+    return {
+      appliedCode: COUPON_CODES.felipe,
+      discount: target.discount,
+      targetLineKey: target.targetLineKey,
+      targetBurgerId: target.targetBurgerId,
+      targetBurgerName: target.targetBurgerName,
+      targetSize: target.targetSize,
+      giveawayBaseSize: target.giveawayBaseSize,
+      message: `${COUPON_CODES.felipe} aplicado`,
+    };
+  }
+
   if (Object.prototype.hasOwnProperty.call(FREE_MEAT_COUPON_EXPIRY, normalized)) {
     if (nowTs >= FREE_MEAT_COUPON_EXPIRY[normalized]) {
       return {
@@ -671,42 +829,10 @@ if (normalized === COUPON_CODES.weekend20) {
     };
   }
 
-  const dbardo = NORMALIZED_DBARDO_COUPONS.get(normalized);
-  if (dbardo) {
-    if (!isDbardoCouponActive(nowTs)) {
-      return { error: "Ese código de D BARDO venció", discount: 0 };
-    }
-
-    if (dbardo.tier === "burger") {
-      const target = findBestDbardoFreeDoubleTarget(cartItems, now);
-      if (!target) {
-        return {
-          error: `${dbardo.code} es burger doble gratis: agregá una burger doble al carrito`,
-          discount: 0,
-        };
-      }
-      return {
-        appliedCode: dbardo.code,
-        discount: Math.min(target.discount, DBARDO_DISCOUNT_CAP),
-        targetLineKey: target.targetLineKey,
-        targetBurgerId: target.targetBurgerId,
-        targetBurgerName: target.targetBurgerName,
-        targetSize: target.targetSize,
-        giveawayBaseSize: target.giveawayBaseSize,
-        message: "✓ Premio D BARDO aplicado: burger doble gratis",
-      };
-    }
-
-    const discount = Math.min(
-      computePercentDiscount(cartTotal, dbardo.tier / 100),
-      DBARDO_DISCOUNT_CAP,
-    );
-    return {
-      appliedCode: dbardo.code,
-      discount,
-      message: `${dbardo.code} aplicado: ${dbardo.tier}% off (tope $30.000 por pedido)`,
-    };
-  }
+  // Los códigos D BARDO (DB-XXXX) ya no pasan por acá: se acumulan de a
+  // varios por pedido y se evalúan juntos con evaluateDbardoStack, más abajo
+  // en este archivo. normalizeDbardoCode()/evaluateDbardoStack() son el punto
+  // de entrada real, usado por useDbardoCodes (Carrito).
 
   return { error: "Código inválido", discount: 0 };
 }
