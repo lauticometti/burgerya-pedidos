@@ -39,7 +39,11 @@ export function getCartItemsTotal(items) {
 export function getRegaloCartDiscount(items) {
   return items.reduce(
     (sum, it) =>
-      it.meta?.type === "burger" && it.meta?.size !== "triple" ? sum + it.qty * getRegaloDiscount(it.unitPrice) : sum,
+      it.meta?.type === "burger" &&
+      it.meta?.size !== "triple" &&
+      !it.meta?.comboLocked
+        ? sum + it.qty * getRegaloDiscount(it.unitPrice)
+        : sum,
     0,
   );
 }

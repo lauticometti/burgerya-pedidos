@@ -1,0 +1,107 @@
+.wrapper {
+  position: relative;
+  border-radius: var(--radius, 14px);
+  overflow: hidden;
+  background: #0d0d0d;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  margin-bottom: 20px;
+  padding: 18px 16px 20px;
+  width: min(100%, 620px);
+  margin-inline: auto;
+  text-align: center;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #ffc62a;
+  opacity: 0.7;
+  font-family: "Archivo Black", sans-serif;
+  line-height: 1;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(26px, 7vw, 36px);
+  font-weight: 900;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: #f5f5f5;
+  font-family: "Archivo Black", sans-serif;
+  text-transform: lowercase;
+}
+
+.sub {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #f5f5f5;
+  opacity: 0.6;
+  line-height: 1.4;
+}
+
+.photos {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 16px;
+}
+
+.photo {
+  width: 100%;
+  max-width: 88px;
+  height: 72px;
+  object-fit: contain;
+  margin-inline: auto;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.5));
+  pointer-events: none;
+  user-select: none;
+}
+
+.price {
+  margin: 14px 0 0;
+  font-size: clamp(32px, 9.5vw, 44px);
+  font-weight: 900;
+  line-height: 1;
+  color: #ffc62a;
+  font-family: "Archivo Black", sans-serif;
+}
+
+.cta {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  padding: 14px;
+  border: none;
+  border-radius: 999px;
+  background: #ffc62a;
+  color: #0d0d0d;
+  font-family: "Archivo Black", sans-serif;
+  font-size: 16px;
+  text-transform: lowercase;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 80ms, opacity 80ms;
+}
+
+.cta:hover {
+  transform: translateY(-1px);
+}
+
+.cta:active {
+  transform: translateY(0);
+}
+
+.cta:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.15);
+  color: #f5f5f5;
+}

@@ -253,6 +253,9 @@ function computeBurgerPercentDiscount(
 ) {
   return cartItems.reduce((sum, it) => {
     if (it.meta?.type !== "burger") return sum;
+    // Líneas de combo con precio fijo (ej. Combo completo): no participan de
+    // ningún % genérico de burgers, ya vienen con su propio descuento armado.
+    if (it.meta?.comboLocked) return sum;
     const itemBurgerId = (it.meta?.burgerId || "").toLowerCase();
     if (burgerId && itemBurgerId !== burgerId) return sum;
     if (excludeBurgerIds.includes(itemBurgerId)) return sum;
@@ -280,6 +283,7 @@ function computeBurgerPercentDiscount(
 function computeBurger10Discount(cartItems = []) {
   return cartItems.reduce((sum, item) => {
     if (item.meta?.type !== "burger" || !(item.qty > 0)) return sum;
+    if (item.meta?.comboLocked) return sum;
     const unitPrice = item.unitPrice || 0;
     const existingDiscount = getOfferSurcharge(item);
     const regularPrice = unitPrice + existingDiscount;
@@ -313,6 +317,7 @@ function findBestDbardoFreeDoubleTarget(cartItems = [], date = new Date()) {
     if (item.meta?.type !== "burger" || item.meta?.size !== "doble" || !item.qty) {
       continue;
     }
+    if (item.meta?.comboLocked) continue;
     const burger = burgersById[item.meta?.burgerId];
     const unitPrice = burger
       ? getBurgerPrice(burger, "doble", date)
@@ -363,6 +368,7 @@ function findBestGiveawayTarget(cartItems = [], date = new Date()) {
   let best = null;
   for (const item of cartItems) {
     if (item.meta?.type !== "burger") continue;
+    if (item.meta?.comboLocked) continue;
     if (!item.qty) continue;
     const lineDiscount = computeGiveawayBurgerDiscount(item, date);
     if (lineDiscount > 0 && lineDiscount > (best?.discount || 0)) {

@@ -23,6 +23,7 @@ import {
 import { toast } from "../../utils/toast";
 import { createDipItem } from "../../utils/cartItemBuilders";
 import ComboPremiumBanner from "./ComboPremiumBanner";
+import ComboCompletoBanner, { isComboCompletoActive } from "./ComboCompletoBanner";
 import { useListingPageActions } from "../../hooks/useListingPageActions";
 import { useScrollProgress } from "../../hooks/useScrollProgress";
 import { useCarouselControls } from "../../hooks/useCarouselControls";
@@ -382,6 +383,8 @@ export default function Menu() {
               burgersListRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
             }
           />
+        ) : isComboCompletoActive(storeParts) ? (
+          <ComboCompletoBanner onAdd={(text) => toast.added(text)} />
         ) : featuredBurger ? (
           <div className={styles.featuredWrap}>
             <BurgerDelDia

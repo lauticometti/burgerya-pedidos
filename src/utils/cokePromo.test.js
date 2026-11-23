@@ -52,20 +52,21 @@ describe("ventana de la promo", () => {
 });
 
 describe("recomendada del domingo", () => {
-  // Hoy 2026-10-25 la recomendada es Bacon, no Lautiboom: override de
-  // dailyFeaturePromo.js (sin cebolla caramelizada, ver menu.js).
-  const bacon = burgers.find((b) => b.id === "bacon");
+  // Domingo 2026-10-25, sin override activo (el override de
+  // dailyFeaturePromo.js ya se movió a otra fecha): mapping normal de
+  // domingo, Lautiboom.
+  const lautiboom = burgers.find((b) => b.id === "lautiboom");
 
   it("se suspende (card y precio) hasta las 21 y vuelve sola a las 21", () => {
     const before = getStoreStatus(AR("2026-10-25T20:59:00"));
     expect(before.isCokeGiftActive).toBe(true);
     expect(before.dailyFeatureBurgerId).toBe(null);
-    expect(getBurgerPriceInfo(bacon, "doble", AR("2026-10-25T20:59:00")).hasDiscount).toBe(false);
+    expect(getBurgerPriceInfo(lautiboom, "doble", AR("2026-10-25T20:59:00")).hasDiscount).toBe(false);
 
     const after = getStoreStatus(AR("2026-10-25T21:00:00"));
     expect(after.isCokeGiftActive).toBe(false);
-    expect(after.dailyFeatureBurgerId).toBe("bacon");
-    expect(getBurgerPriceInfo(bacon, "doble", AR("2026-10-25T21:00:00")).hasDiscount).toBe(true);
+    expect(after.dailyFeatureBurgerId).toBe("lautiboom");
+    expect(getBurgerPriceInfo(lautiboom, "doble", AR("2026-10-25T21:00:00")).hasDiscount).toBe(true);
   });
 });
 

@@ -295,6 +295,10 @@ export function CartProvider({ children }) {
         return acc;
       }
       if (item.meta?.type !== "burger") return acc;
+      // Líneas de combo con precio fijo (ej. Combo completo): el precio lo
+      // decide el banner del combo, no el repricing automático de ofertas
+      // (recomendada del día, flash, etc.) — así nunca se les pisa el total.
+      if (item.meta?.comboLocked) return acc;
 
       const burger = burgersById[item.meta?.burgerId];
       const size = item.meta?.size;
